@@ -132,4 +132,13 @@ namespace LowVisibility.Patch {
             __result = visibilityToTargetWithPositionsAndRotations >= VisibilityLevel.Blip0Minimum;
         }
     }
+
+    [HarmonyPatch(typeof(AbstractActor), "HasLOSToTargetUnit")]
+    public static class AbstractActor_HasLOSToTargetUnit {
+        public static void Postfix(AbstractActor __instance, ref bool __result, ICombatant targetUnit) {
+            LowVisibility.Logger.LogIfDebug("AbstractActor:HasLOSToTargetUnit:post - entered.");
+            __result = __instance.VisibilityToTargetUnit(targetUnit) >= VisibilityLevel.Blip0Minimum;
+        }
+    }
+
 }

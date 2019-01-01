@@ -260,11 +260,11 @@ namespace LowVisibility.Patch {
             // "RatioObstructedVis": 0.41,
             if (ratioSourcePosToTargetPos >= ___Combat.Constants.Visibility.RatioFullVis) {
                 __result = LineOfFireLevel.LOFClear;
-            }
-            if (ratioSourcePosToTargetPos >= ___Combat.Constants.Visibility.RatioObstructedVis) {
+            } else if (ratioSourcePosToTargetPos >= ___Combat.Constants.Visibility.RatioObstructedVis) {
                 __result = LineOfFireLevel.LOFObstructed;
+            } else {
+                __result = LineOfFireLevel.LOFBlocked;
             }
-            __result = LineOfFireLevel.LOFBlocked;
 
             LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - LOS result is:{__result}");
         }

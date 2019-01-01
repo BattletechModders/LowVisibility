@@ -70,6 +70,7 @@
     <Compile Include="Helper\MapHelper.cs" />
     <Compile Include="Helper\ActorHelper.cs" />
     <Compile Include="LowVisibility.cs" />
+    <Compile Include="Patch\AIUtilPatches.cs" />
     <Compile Include="Patch\LineOfSightPatches.cs" />
     <Compile Include="Patch\CombatPatches.cs" />
     <Compile Include="Patch\SerializationPatches.cs" />
