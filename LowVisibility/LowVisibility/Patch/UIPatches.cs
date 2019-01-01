@@ -20,7 +20,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDStatusPanel __instance) {
-            LowVisibility.Logger.LogIfDebug("CombataHUDStatusPaneL:ShowActorStatuses:post - entered.");
+            LowVisibility.Logger.LogIfDebug("CombatHUDStatusPanel:ShowActorStatuses:post - entered.");
 
             if (__instance.DisplayedCombatant != null) {
                 AbstractActor actor = __instance.DisplayedCombatant as AbstractActor;
