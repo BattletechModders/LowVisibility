@@ -35,26 +35,53 @@ namespace LowVisibility.Patch {
         }
     }
 
+    // Modify the visual spotting range based upon environmental conditions only
+    [HarmonyPatch(typeof(LineOfSight), "GetSensorRange")]
+    [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
+    public static class LineOfSight_GetSensorState {
+        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source) {
+            if (__instance != null && source != null) {
+                __result = CalculateSensorRange(source);
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(LineOfSight), "GetAdjustedSensorRange")]
     [HarmonyPatch(new Type[] { typeof(AbstractActor), typeof(AbstractActor) })]
     public static class LineOfSight_GetAdjustedSensorRange {
         public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source, AbstractActor target, CombatGameState ___Combat) {
             if (__instance != null && source != null) {
-                //CombatGameState ___Combat = (CombatGameState)Traverse.Create(__instance).Property("Combat").GetValue();
+                float sourceSensorRange = CalculateSensorRange(source);
+                float targetSignature = CalculateTargetSignature(target);
 
-                //float sensorRange = __instance.GetSensorRange(source);
-                float sensorRange = CalculateSensorRange(source);
-                //LowVisibility.Logger.LogIfDebug($"Actor:{source.DisplayName}_{source.GetPilot().Name} has sensorsRange:{sensorRange}");
-
-                float targetSignature = __instance.GetTargetSignature(target);
-                //LowVisibility.Logger.LogIfDebug($"Target signature is:{targetSignature}");
-                float signatureModifiedRange = sensorRange * targetSignature;
                 //if (target != null && source.VisibilityToTargetUnit(target) > VisibilityLevel.None) {
                 //    // If is sensor lock, add the Hysterisis modifier
                 //    signatureModifiedRange += ___Combat.Constants.Visibility.SensorHysteresisAdditive;
                 //}
-                //LowVisibility.Logger.LogIfDebug($"SensorRange:{sensorRange} modified by targetSignature:{targetSignature} is: {signatureModifiedRange}");
+
+                float signatureModifiedRange = sourceSensorRange * targetSignature;
+                //LowVisibility.Logger.Log($"For sourceSensorRange:{sourceSensorRange} and targetSignature:{targetSignature} adjustedRange is:{signatureModifiedRange}");
                 __result = signatureModifiedRange;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(LineOfSight), "GetTargetVisibility")]
+    [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
+    public static class LineOfSight_GetTargetVisibility {
+        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source) {
+            if (__instance != null && source != null) {
+                __result = CalculateTargetVisibility(source);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(LineOfSight), "GetTargetSignature")]
+    [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
+    public static class LineOfSight_GetTargetSignature {
+        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source) {
+            if (__instance != null && source != null) {
+                __result = CalculateTargetSignature(source);
             }
         }
     }
@@ -69,9 +96,9 @@ namespace LowVisibility.Patch {
             AbstractActor sourceActor = source as AbstractActor;
             AbstractActor targetActor = target as AbstractActor;
 
-            float adjustedSpotterRange = __instance.GetAdjustedSpotterRange(source, targetActor);
             // If you can spot beyond sensor range, increase sensor range to spotting range
             float adjustedSensorRange = __instance.GetAdjustedSensorRange(source, targetActor);
+            float adjustedSpotterRange = __instance.GetAdjustedSpotterRange(source, targetActor);
             if (adjustedSensorRange < adjustedSpotterRange) {
                 adjustedSensorRange = adjustedSpotterRange;
             }

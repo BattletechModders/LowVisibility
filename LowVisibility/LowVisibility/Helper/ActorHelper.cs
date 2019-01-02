@@ -162,6 +162,7 @@ namespace LowVisibility.Helper {
             return idState;
         }
 
+        // Determine an actor's sensor range, plus our special additions
         public static float CalculateSensorRange(AbstractActor source) {
             // Determine type
             float[] sensorRanges = null;
@@ -193,20 +194,77 @@ namespace LowVisibility.Helper {
             if (source == null) {
                 return 1f;
             }
-            float num = source.SensorDistanceMultiplier;
+            float sensorMulti = source.SensorDistanceMultiplier;
+
             DesignMaskDef occupiedDesignMask = source.occupiedDesignMask;
-            if (occupiedDesignMask != null) {
-                num *= occupiedDesignMask.sensorRangeMultiplier;
-            }
-            return num;
+            if (occupiedDesignMask != null) { sensorMulti *= occupiedDesignMask.sensorRangeMultiplier; }
+
+            return sensorMulti;
         }
 
         // Copy of LineOfSight::GetAllSensorRangeAbsolutes
         private static float GetAllSensorRangeAbsolutes(AbstractActor source) {
-            if (source == null) {
-                return 0f;
-            }
+            if (source == null) { return 0f; }
+
             return source.SensorDistanceAbsolute;
+        }
+
+        // Determine a target's visual profile, including our additions
+        public static float CalculateTargetVisibility(AbstractActor target) {
+            if (target == null) { return 1f; }
+
+            float allTargetVisibilityMultipliers = GetAllTargetVisibilityMultipliers(target);
+            float allTargetVisibilityAbsolutes = GetAllTargetVisibilityAbsolutes(target);
+
+            // TODO: Add stealth armor/NSS modifiers
+
+            return 1f * allTargetVisibilityMultipliers + allTargetVisibilityAbsolutes;
+        }
+
+        // Copy of LineOfSight::GetAllTargetVisibilityMultipliers
+        private static float GetAllTargetVisibilityMultipliers(AbstractActor target) {
+            if (target == null) { return 1f; }
+
+            float baseVisMulti = 0f;
+            float shutdownVisMulti = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownVisibilityModifier;
+            float spottingVisibilityMultiplier = target.SpottingVisibilityMultiplier;            
+
+            return baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier;
+        }
+
+        // Copy of LineOfSight::GetAllTargetVisibilityAbsolutes
+        private static float GetAllTargetVisibilityAbsolutes(AbstractActor target) {
+            if (target == null) { return 0f; }
+
+            float baseVisMod = 0f;
+            float spottingVisibilityAbsolute = target.SpottingVisibilityAbsolute;            
+
+            return baseVisMod + spottingVisibilityAbsolute;
+        }
+
+        // Determine a target's sensor signature (plus our additions)
+        public static float CalculateTargetSignature(AbstractActor target) {
+            if (target == null) { return 1f; }
+
+            float allTargetSignatureModifiers = GetAllTargetSignatureModifiers(target);
+            float staticSignature = 1f + allTargetSignatureModifiers;
+
+            // Add in any design mask boosts
+            DesignMaskDef occupiedDesignMask = target.occupiedDesignMask;
+            if (occupiedDesignMask != null) { staticSignature *= occupiedDesignMask.signatureMultiplier; }
+            if (staticSignature < 0.01f) { staticSignature = 0.01f; }
+
+            return staticSignature;
+        }
+
+        // Copy of LineOfSight::GetAllTargetSignatureModifiers
+        private static float GetAllTargetSignatureModifiers(AbstractActor target) {
+            if (target == null) { return 0f; }
+
+            float shutdownSignatureMod = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownSignatureModifier;
+            float sensorSignatureModifier = target.SensorSignatureModifier;
+
+            return shutdownSignatureMod + sensorSignatureModifier;
         }
 
 

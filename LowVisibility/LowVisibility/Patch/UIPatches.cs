@@ -12,6 +12,32 @@ using static LowVisibility.Helper.ActorHelper;
 namespace LowVisibility.Patch {
 
     [HarmonyPatch()]
+    public static class CombatHUDStatusPanel_RefreshDisplayedCombatant {
+
+        // Private method can't be patched by annotations, so use MethodInfo
+        public static MethodInfo TargetMethod() {
+            return AccessTools.Method(typeof(CombatHUDStatusPanel), "RefreshDisplayedCombatant", new Type[] { });
+        }
+
+        public static void Postfix(CombatHUDStatusPanel __instance) {
+            LowVisibility.Logger.LogIfDebug("CombatHUDStatusPanel:RefreshDisplayedCombatant:post - entered.");
+            if (__instance != null && __instance.DisplayedCombatant != null) {
+                AbstractActor actor = __instance.DisplayedCombatant as AbstractActor;
+                IDState idState = CalculateTargetIDLevel(actor);
+                if (idState == IDState.ProbeID) {
+                    // Do nothing
+                } else if (idState == IDState.SensorID) {
+                    __instance.ClearAllStatuses();
+                } else {
+                    __instance.ClearAllStatuses();
+                    Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
+                    hideEvasionIndicatorMethod.GetValue();
+                }
+            }
+        }
+    }
+
+    [HarmonyPatch()]
     public static class CombatHUDStatusPanel_ShowActorStatuses {
 
         // Private method can't be patched by annotations, so use MethodInfo
