@@ -1,8 +1,10 @@
 ﻿using BattleTech;
+using BattleTech.UI;
 using Harmony;
 using HBS.Math;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
 
@@ -13,19 +15,23 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
     public static class LineOfSight_GetSpotterRange {
         public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source) {
-            CombatGameState ___Combat = (CombatGameState)Traverse.Create(__instance).Property("Combat").GetValue();
-            
-            //float baseSpotterDistance = ___Combat.Constants.Visibility.BaseSpotterDistance;
-            float baseSpotterDistance = State.GetMapVisionRange();
-            if (source.IsShutDown) {
-                __result = baseSpotterDistance * ___Combat.Constants.Visibility.ShutdownSpottingDistanceMultiplier;
+
+            if (__instance != null && source != null) {
+                CombatGameState ___Combat = (CombatGameState)Traverse.Create(__instance).Property("Combat").GetValue();
+
+                //float baseSpotterDistance = ___Combat.Constants.Visibility.BaseSpotterDistance;
+                float baseSpotterDistance = State.GetMapVisionRange();
+                if (source.IsShutDown) {
+                    __result = baseSpotterDistance * ___Combat.Constants.Visibility.ShutdownSpottingDistanceMultiplier;
+                }
+                if (source.IsProne) {
+                    __result = baseSpotterDistance * ___Combat.Constants.Visibility.ProneSpottingDistanceMultiplier;
+                }
+                float allSpotterMultipliers = __instance.GetAllSpotterMultipliers(source);
+                float allSpotterAbsolutes = __instance.GetAllSpotterAbsolutes(source);
+                __result = baseSpotterDistance * allSpotterMultipliers + allSpotterAbsolutes;
             }
-            if (source.IsProne) {
-                __result = baseSpotterDistance * ___Combat.Constants.Visibility.ProneSpottingDistanceMultiplier;
-            }
-            float allSpotterMultipliers = __instance.GetAllSpotterMultipliers(source);
-            float allSpotterAbsolutes = __instance.GetAllSpotterAbsolutes(source);
-            __result = baseSpotterDistance * allSpotterMultipliers + allSpotterAbsolutes;
+
         }
     }
 
@@ -33,13 +39,11 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(new Type[] { typeof(AbstractActor), typeof(AbstractActor) })]
     public static class LineOfSight_GetAdjustedSensorRange {
         public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source, AbstractActor target, CombatGameState ___Combat) {
-            if (__instance != null) {
+            if (__instance != null && source != null) {
                 //CombatGameState ___Combat = (CombatGameState)Traverse.Create(__instance).Property("Combat").GetValue();
 
                 //float sensorRange = __instance.GetSensorRange(source);
-                RoundDetectRange detectRange = State.GetOrCreateRoundDetectResults(source);
-                ActorEWConfig ewConfig = State.GetOrCreateActorEWConfig(source);
-                float sensorRange = ewConfig.sensorsRange * (int)detectRange;
+                float sensorRange = CalculateSensorRange(source);
                 //LowVisibility.Logger.LogIfDebug($"Actor:{source.DisplayName}_{source.GetPilot().Name} has sensorsRange:{sensorRange}");
 
                 float targetSignature = __instance.GetTargetSignature(target);
@@ -267,6 +271,83 @@ namespace LowVisibility.Patch {
             }
 
             LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - LOS result is:{__result}");
+        }
+    }
+
+    // Show the targeting computer for blips as well as LOSFull
+    [HarmonyPatch(typeof(CombatHUD), "SubscribeToMessages")]
+    [HarmonyPatch(new Type[] { typeof(bool) })]
+    public static class CombatHUD_SubscribeToMessages {
+
+        private static CombatGameState Combat = null;
+        private static CombatHUDTargetingComputer TargetingComputer = null;
+        private static Traverse ShowTargetMethod = null;
+
+        public static void Postfix(CombatHUD __instance, bool shouldAdd) {
+            LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:post - entered.");
+            if (shouldAdd) {
+                Combat = __instance.Combat;
+                TargetingComputer = __instance.TargetingComputer;
+                ShowTargetMethod = Traverse.Create(__instance).Method("ShowTarget", new Type[] { typeof(ICombatant) });
+                __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
+                    new ReceiveMessageCenterMessage(OnActorTargeted), shouldAdd);
+                // Disable the previous registration 
+                __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
+                    new ReceiveMessageCenterMessage(__instance.OnActorTargetedMessage), false);
+            } else {
+                Combat = null;
+                TargetingComputer = null;
+                ShowTargetMethod = null;
+                __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
+                    new ReceiveMessageCenterMessage(OnActorTargeted), shouldAdd);
+            }
+
+        }
+
+        public static void OnActorTargeted(MessageCenterMessage message) {
+            LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:OnActorTargeted - entered.");
+            ActorTargetedMessage actorTargetedMessage = message as ActorTargetedMessage;
+            ICombatant combatant = Combat.FindActorByGUID(actorTargetedMessage.affectedObjectGuid);
+            if (combatant == null) { combatant = Combat.FindCombatantByGUID(actorTargetedMessage.affectedObjectGuid); }
+            if (Combat.LocalPlayerTeam.VisibilityToTarget(combatant) >= VisibilityLevel.Blip0Minimum) {
+                LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
+                ShowTargetMethod.GetValue(combatant);
+            } else {
+                LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
+            }
+        }
+    }
+
+    // TODO: Duplicate work - make prefix if necessary?
+    [HarmonyPatch()]
+    public static class FiringPreviewManager_HasLOS {
+
+        // Private method can't be patched by annotations, so use MethodInfo
+        public static MethodInfo TargetMethod() {
+            return AccessTools.Method(typeof(FiringPreviewManager), "HasLOS", new Type[] { typeof(AbstractActor), typeof(ICombatant), typeof(UnityEngine.Vector3), typeof(List<AbstractActor>) });
+        }
+
+        public static void Postfix(FiringPreviewManager __instance, ref bool __result, CombatGameState ___combat,
+            AbstractActor attacker, ICombatant target, UnityEngine.Vector3 position, List<AbstractActor> allies) {
+            //LowVisibility.Logger.LogIfDebug("FiringPreviewManager:HasLOS:post - entered.");
+            for (int i = 0; i < allies.Count; i++) {
+                //if (allies[i].VisibilityCache.VisibilityToTarget(target).VisibilityLevel == VisibilityLevel.LOSFull) {
+                if (allies[i].VisibilityCache.VisibilityToTarget(target).VisibilityLevel >= VisibilityLevel.Blip0Minimum) {
+                    __result = true;
+                }
+            }
+            VisibilityLevel visibilityToTargetWithPositionsAndRotations =
+                ___combat.LOS.GetVisibilityToTargetWithPositionsAndRotations(attacker, position, target);
+            //__result = visibilityToTargetWithPositionsAndRotations == VisibilityLevel.LOSFull;
+            __result = visibilityToTargetWithPositionsAndRotations >= VisibilityLevel.Blip0Minimum;
+        }
+    }
+
+    [HarmonyPatch(typeof(AbstractActor), "HasLOSToTargetUnit")]
+    public static class AbstractActor_HasLOSToTargetUnit {
+        public static void Postfix(AbstractActor __instance, ref bool __result, ICombatant targetUnit) {
+            //LowVisibility.Logger.LogIfDebug("AbstractActor:HasLOSToTargetUnit:post - entered.");
+            __result = __instance.VisibilityToTargetUnit(targetUnit) >= VisibilityLevel.Blip0Minimum;
         }
     }
 }

@@ -143,3 +143,5 @@ Vehicle Range: 180 / 360 / 540
 - Visual identification (3 hexes) will only give you chassis name, weapons
 - Standard sensors gives you variant name, weapons, armor/struct max values
 - Active probes give you variant name, current armor/struct values, weapons, components
+- What about heat/stab bars? 
+- What about statuses?

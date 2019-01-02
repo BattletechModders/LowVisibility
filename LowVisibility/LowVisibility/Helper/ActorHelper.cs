@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace LowVisibility.Helper {
     public static class ActorHelper {
@@ -11,7 +12,6 @@ namespace LowVisibility.Helper {
         public const int ShortRangeRollBound = 13;
 
         public class ActorEWConfig {
-            public float sensorsRange = 0;
             // ECM Equipment = ecm_t0, Guardian ECM = ecm_t1, Angel ECM = ecm_t2, CEWS = ecm_t3. -1 means none.
             public int ecmTier = -1;
             public float ecmRange = 0;
@@ -26,10 +26,20 @@ namespace LowVisibility.Helper {
             public int tacticsBonus = 0;
 
             public override string ToString() {
-                return $"sensorsRange:{sensorsRange} tacticsBonus:+{tacticsBonus} ecmTier:{ecmTier} ecmRange:{ecmRange} probeTier:{probeTier} probeRange:{probeRange}";
+                return $"tacticsBonus:+{tacticsBonus} ecmTier:{ecmTier} ecmRange:{ecmRange} probeTier:{probeTier} probeRange:{probeRange}";
             }
         };
 
+        // The level an enemy has been identified to
+        public enum IDState {
+            None,
+            Silhouette,
+            VisualID,
+            SensorID,
+            ProbeID
+        }
+
+        // The range a unit can detect enemies out to
         public enum RoundDetectRange {
             VisualOnly = 0,
             SensorsShort = 1,
@@ -67,16 +77,6 @@ namespace LowVisibility.Helper {
         }
 
         public static ActorEWConfig CalculateEWConfig(AbstractActor actor) {
-            // Determine base sensor range
-            float actorSensorsRange = LowVisibility.Config.UnknownSensorRange;
-            if (actor.GetType() == typeof(Mech)) {
-                actorSensorsRange = LowVisibility.Config.MechSensorRange;
-            } else if (actor.GetType() == typeof(Vehicle)) {
-                actorSensorsRange = LowVisibility.Config.VehicleSensorRange;
-            } else if (actor.GetType() == typeof(Turret)) {
-                actorSensorsRange = LowVisibility.Config.TurretSensorRange;
-            }
-
             // Check tags for any ecm/sensors
             // TODO: Check for stealth
             int actorEcmTier = -1;
@@ -114,7 +114,6 @@ namespace LowVisibility.Helper {
             int unitTacticsBonus = NormalizeSkill(pilotTactics);
 
             ActorEWConfig config = new ActorEWConfig {
-                sensorsRange = actorSensorsRange + actorProbeRange,
                 ecmTier = actorEcmTier,
                 ecmRange = actorEcmRange,
                 ecmModifier = actorEcmModifier,
@@ -128,6 +127,90 @@ namespace LowVisibility.Helper {
             return config;
         }
 
+        // TODO: Allies don't impact this calculation
+        public static IDState CalculateTargetIDLevel(AbstractActor target) {
+            IDState idState = IDState.None;           
+            foreach (AbstractActor actor in target.Combat.LocalPlayerTeam.units) {
+                ActorEWConfig ewConfig = State.GetOrCreateActorEWConfig(actor);
+                RoundDetectRange roundDetect = State.GetOrCreateRoundDetectResults(actor);
+                VisibilityLevelAndAttribution visLevelAndAttrib = actor.VisibilityCache.VisibilityToTarget(target);
+
+                // TODO: Need to handle target signature reductions for sensors
+
+                // Check for visibility 
+                if (visLevelAndAttrib.VisibilityLevel == VisibilityLevel.LOSFull) {
+                    if (idState < IDState.Silhouette) { idState = IDState.Silhouette; }
+                }
+
+                // Check for visual ID
+                float distance = Vector3.Distance(actor.CurrentPosition, target.CurrentPosition);
+                LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} is distance:{distance} from target:{target.DisplayName}_{target.GetPilot().Name}");
+                if (distance <= State.GetVisualIDRange() && idState < IDState.VisualID) { idState = IDState.VisualID; }
+
+                // Check for sensors
+                float sensorsRange = ActorHelper.CalculateSensorRange(actor);
+                LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has sensorsRange:{sensorsRange} vs distance:{distance}");
+                if (distance <= sensorsRange && idState < IDState.SensorID) { idState = IDState.SensorID; }
+
+                // Check for probes
+                if (ewConfig.probeTier >= 0) {
+                    LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has probeRange:{sensorsRange} vs distance:{distance}");
+                    if (distance <= sensorsRange && idState < IDState.ProbeID) { idState = IDState.ProbeID; }
+                }                
+            }           
+            LowVisibility.Logger.Log($"Target:{target.DisplayName}_{target.GetPilot().Name} has IDstate:{idState} from one or more player units.");
+            return idState;
+        }
+
+        public static float CalculateSensorRange(AbstractActor source) {
+            // Determine type
+            float[] sensorRanges = null;
+            if (source.GetType() == typeof(Mech)) { sensorRanges = LowVisibility.Config.MechSensorRanges;  }
+            else if (source.GetType() == typeof(Vehicle)) { sensorRanges = LowVisibility.Config.VehicleSensorRanges; } 
+            else if (source.GetType() == typeof(Turret)) { sensorRanges = LowVisibility.Config.TurretSensorRanges; }
+            else { sensorRanges = LowVisibility.Config.UnknownSensorRanges; }
+
+            // Determine base range from type
+            float baseSensorRange = 0.0f;
+            RoundDetectRange detectRange = State.GetOrCreateRoundDetectResults(source);
+            if (detectRange == RoundDetectRange.SensorsLong) { baseSensorRange = sensorRanges[2]; } 
+            else if (detectRange == RoundDetectRange.SensorsMedium) { baseSensorRange = sensorRanges[1]; } 
+            else if (detectRange == RoundDetectRange.SensorsShort) { baseSensorRange = sensorRanges[0]; }
+
+            // Add multipliers and absolute bonuses
+            float staticSensorRangeMultis = GetAllSensorRangeMultipliers(source);
+            float staticSensorRangeMods = GetAllSensorRangeAbsolutes(source);
+
+            // Add the probe range if present
+            ActorEWConfig ewConfig = State.GetOrCreateActorEWConfig(source);
+            float probeRange = ewConfig.probeTier > -1 ? ewConfig.probeRange * 30.0f : 0.0f;
+
+            return baseSensorRange * staticSensorRangeMultis + staticSensorRangeMods + probeRange;
+        }
+
+        // Copy of LineOfSight::GetAllSensorRangeMultipliers
+        private static float GetAllSensorRangeMultipliers(AbstractActor source) {
+            if (source == null) {
+                return 1f;
+            }
+            float num = source.SensorDistanceMultiplier;
+            DesignMaskDef occupiedDesignMask = source.occupiedDesignMask;
+            if (occupiedDesignMask != null) {
+                num *= occupiedDesignMask.sensorRangeMultiplier;
+            }
+            return num;
+        }
+
+        // Copy of LineOfSight::GetAllSensorRangeAbsolutes
+        private static float GetAllSensorRangeAbsolutes(AbstractActor source) {
+            if (source == null) {
+                return 0f;
+            }
+            return source.SensorDistanceAbsolute;
+        }
+
+
+        // A mapping of skill level to modifier
         private static readonly Dictionary<int, int> ModifierBySkill = new Dictionary<int, int> {
             { 1, 0 },
             { 2, 1 },

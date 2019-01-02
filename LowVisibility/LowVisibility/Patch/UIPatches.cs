@@ -24,31 +24,34 @@ namespace LowVisibility.Patch {
 
             if (__instance.DisplayedCombatant != null) {
                 AbstractActor actor = __instance.DisplayedCombatant as AbstractActor;
-                RoundDetectRange detectRange = State.GetOrCreateRoundDetectResults(actor);
+                bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
+                if (isPlayer) {
+                    RoundDetectRange detectRange = State.GetOrCreateRoundDetectResults(actor);
 
-                Type[] methodParams = new Type[] { typeof(SVGAsset), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) };                               
-                if (detectRange == RoundDetectRange.VisualOnly) {
-                    Traverse method = Traverse.Create(__instance).Method("ShowDebuff", methodParams);
-                    method.GetValue(new object[] {
-                        LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon,
-                        new Text("VISUALS ONLY", new object[0]),
-                        new Text($"This unit failed a sensors check. It will only detect visually within {State.GetMapVisionRange()}", new object[0]),
-                        __instance.effectIconScale,
-                        false
-                    });
-                } else if (detectRange >= RoundDetectRange.SensorsShort) {
-                    Traverse method = Traverse.Create(__instance).Method("ShowBuff", methodParams);
-                    ActorEWConfig ewConfig = State.GetOrCreateActorEWConfig(actor);
-                    float sensorsDistance = ewConfig.sensorsRange * (int)detectRange;
-                    method.GetValue(new object[] {
-                        LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon,
-                        new Text("SENSORS ACTIVE", new object[0]),
-                        new Text($"This unit pass a sensors check. It will detect units out to {sensorsDistance}.", new object[0]),
-                        __instance.effectIconScale,
-                        false
-                    });
-                }
-                
+                    Type[] methodParams = new Type[] { typeof(SVGAsset), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) };
+                    if (detectRange == RoundDetectRange.VisualOnly) {
+                        Traverse method = Traverse.Create(__instance).Method("ShowDebuff", methodParams);
+                        method.GetValue(new object[] {
+                            LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon,
+                            new Text("VISUALS ONLY", new object[0]),
+                            new Text($"Unit can only visually detect targets within {State.GetMapVisionRange()}m", new object[0]),
+                            __instance.effectIconScale,
+                            false
+                        });
+                    } else if (detectRange >= RoundDetectRange.SensorsShort) {
+                        Traverse method = Traverse.Create(__instance).Method("ShowBuff", methodParams);
+                        ActorEWConfig ewConfig = State.GetOrCreateActorEWConfig(actor);
+                        float sensorsDistance = CalculateSensorRange(actor);
+                        // TODO: Change text/color for probe vs. sensors
+                        method.GetValue(new object[] {
+                            LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon,
+                            new Text("SENSORS ACTIVE", new object[0]),
+                            new Text($"Unit's sensors will detect targets out {sensorsDistance}m.", new object[0]),
+                            __instance.effectIconScale,
+                            false
+                        });
+                    }
+                }                
             }
 
             /*
