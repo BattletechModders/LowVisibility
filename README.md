@@ -138,4 +138,8 @@ Vehicle Range: 180 / 360 / 540
 - APs reveal all details about a model so long as the model is within their AOE
 - Standard sensors give you a progression of answers (could re-use what I have for KYF)
 - Visual inspection only within 3 hexes, can only show external details
-- 
+
+- Visibility will by default only give you chassis name
+- Visual identification (3 hexes) will only give you chassis name, weapons
+- Standard sensors gives you variant name, weapons, armor/struct max values
+- Active probes give you variant name, current armor/struct values, weapons, components

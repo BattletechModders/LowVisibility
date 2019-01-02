@@ -12,13 +12,13 @@ namespace LowVisibility.Helper {
 
         public class ActorEWConfig {
             public float sensorsRange = 0;
-            // ECM Equipment = ecm_t0, Guardian ECM = ecm_t1, Angel ECM = ecm_t2, CEWS = ecm_t3
-            public int ecmTier = 0;
+            // ECM Equipment = ecm_t0, Guardian ECM = ecm_t1, Angel ECM = ecm_t2, CEWS = ecm_t3. -1 means none.
+            public int ecmTier = -1;
             public float ecmRange = 0;
             public int ecmModifier = 0; // Any additional modifier to opposed ECM modifier for the sensor check
 
-            // Pirate = activeprobe_t0, Beagle = activeprobe_t1, Bloodhound = activeprobe_t2, CEWS = activeprobe_t3
-            public int probeTier = 0;
+            // Pirate = activeprobe_t0, Beagle = activeprobe_t1, Bloodhound = activeprobe_t2, CEWS = activeprobe_t3. -1 means none.
+            public int probeTier = -1;
             public float probeRange = 0;
             public int probeModifier = 0; // The sensor check modifier used in opposed cases (see MaxTech 55)
 
@@ -79,10 +79,10 @@ namespace LowVisibility.Helper {
 
             // Check tags for any ecm/sensors
             // TODO: Check for stealth
-            int actorEcmTier = 0;
+            int actorEcmTier = -1;
             float actorEcmRange = 0;
             int actorEcmModifier = 0;
-            int actorProbeTier = 0;
+            int actorProbeTier = -1;
             float actorProbeRange = 0;
             int actorProbeModifier = 0;
             foreach (string tag in actor.GetTags()) {
