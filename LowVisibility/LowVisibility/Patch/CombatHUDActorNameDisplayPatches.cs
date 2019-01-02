@@ -26,6 +26,8 @@ namespace LowVisibility.Patch {
                     response = new Text($"{chassisName} {variantName}");
                 } else if (idState >= IDState.SensorID) {
                     response = new Text($"{chassisName} {tonnage}t");
+                } else if (idState >= IDState.Silhouette) {
+                    response = new Text($"{chassisName}");
                 } else {
                     response = new Text($"{type}");
                 }
@@ -36,6 +38,8 @@ namespace LowVisibility.Patch {
                     response = new Text($"{chassisName} {variantName}");
                 } else if (idState >= IDState.SensorID) {
                     response = new Text($"{chassisName} {tonnage}t");
+                } else if (idState >= IDState.Silhouette) {
+                    response = new Text($"{chassisName}");
                 } else {
                     response = new Text($"{type}");
                 }
@@ -45,6 +49,8 @@ namespace LowVisibility.Patch {
                     response = new Text($"{chassisName} {variantName}");
                 } else if (idState >= IDState.SensorID) {
                     response = new Text($"{chassisName} {tonnage}t");
+                } else if (idState >= IDState.Silhouette) {
+                    response = new Text($"{chassisName}");
                 } else {
                     response = new Text($"?");
                 }
@@ -69,7 +75,7 @@ namespace LowVisibility.Patch {
                 Mech.NickName = MechDef.Description.Name -> Atlas II AS7-D-HT or Atlas AS7-D / Trebuchet
             */
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
-                IDState idState = CalculateTargetIDLevel(__instance);
+                IDState idState = State.GetOrCreateActorIDLevel(__instance);
 
                 string chassisName = __instance.UnitName;
                 string variantName = __instance.VariantName;
@@ -99,7 +105,7 @@ namespace LowVisibility.Patch {
 
             */
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
-                IDState idState = CalculateTargetIDLevel(__instance);
+                IDState idState = State.GetOrCreateActorIDLevel(__instance);
 
                 string chassisName = __instance.UnitName;
                 string variantName = __instance.VariantName;
@@ -131,7 +137,7 @@ namespace LowVisibility.Patch {
                         / / vehicledef_DEMOLISHER-II / vehicledef_GALLEON_GAL102
             */
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
-                IDState idState = CalculateTargetIDLevel(__instance);
+                IDState idState = State.GetOrCreateActorIDLevel(__instance);
 
                 string chassisName = __instance.UnitName;
                 string variantName = __instance.VariantName;
@@ -159,7 +165,7 @@ namespace LowVisibility.Patch {
                 Mech target = ___Readout.DisplayedMech;
                 bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                 if (!isPlayer) {
-                    IDState idState = CalculateTargetIDLevel(target);
+                    IDState idState = State.GetOrCreateActorIDLevel(target);
                     if (idState < IDState.ProbeID) {
                         ___ToolTip.BuffStrings.Clear();
                     } else {
@@ -182,7 +188,7 @@ namespace LowVisibility.Patch {
                 Vehicle target = ___Readout.DisplayedVehicle;
                 bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                 if (!isPlayer) {
-                    IDState idState = CalculateTargetIDLevel(target);
+                    IDState idState = State.GetOrCreateActorIDLevel(target);
                     if (idState < IDState.ProbeID) {
                         //KnowYourFoe.Logger.LogIfDebug($"CombatHUDMechTrayArmorHover:OnPointerEnter:post - components should be hidden for actor:{target.DisplayName}_{target.GetPilot().Name}");
                         ___ToolTip.BuffStrings.Clear();

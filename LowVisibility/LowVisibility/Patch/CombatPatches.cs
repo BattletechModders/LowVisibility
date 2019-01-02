@@ -31,9 +31,10 @@ namespace LowVisibility.Patch {
         public static void Postfix(TurnDirector __instance) {
             LowVisibility.Logger.LogIfDebug("TurnDirector:BeginNewRound:post - entered.");
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
-                RoundDetectRange detectRange = ActorHelper.MakeSensorRangeCheck(actor);
+                RoundDetectRange detectRange = MakeSensorRangeCheck(actor);
                 LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} has detectRange:{detectRange} this round!");
                 State.roundDetectResults[actor.GUID] = detectRange;
+                State.UpdateActorIDLevel(actor);
             }
         }
     }
@@ -49,7 +50,7 @@ namespace LowVisibility.Patch {
 
                 float actorsDistance = Vector3.Distance(source.CurrentPosition, enemyActor.CurrentPosition);
                 ActorEWConfig enemyEWConfig = State.GetOrCreateActorEWConfig(enemyActor);
-                LowVisibility.Logger.Log($"Found enemy actor:{enemyActor.DisplayName}_{enemyActor.GetPilot().Name}. enemyEWConfig:{enemyEWConfig.ToString()} vs. sourceEWConfig:{sourceEWConfig.ToString()}");
+                LowVisibility.Logger.Log($"Found enemy actor:{enemyActor.DisplayName}_{enemyActor.GetPilot().Name}. \nenemyEWConfig:{enemyEWConfig.ToString()} \nsourceEWConfig:{sourceEWConfig.ToString()}");
                 if (sourceEWConfig.probeTier < enemyEWConfig.ecmTier) {
                     LowVisibility.Logger.Log($"Target:{enemyActor.DisplayName}_{enemyActor.GetPilot().Name} has ECM tier{enemyEWConfig.ecmTier} vs. source Probe tier:{sourceEWConfig.probeTier}");                    
                     if (actorsDistance > enemyEWConfig.ecmRange) {
@@ -79,27 +80,29 @@ namespace LowVisibility.Patch {
         }
 
         public static void Prefix(AbstractActor __instance) {
-            LowVisibility.Logger.LogIfDebug("AbstractActor:OnActivationBegin:post - entered.");
+            LowVisibility.Logger.LogIfDebug($"AbstractActor:OnActivationBegin:post - handling {__instance.DisplayName}_{__instance.GetPilot().Name}.");
             if (__instance != null) {
                 CheckForJamming(__instance);
+                State.UpdateActorIDLevel(__instance);
             }
         }
     }
 
     // Update the visibility checks
-    [HarmonyPatch(typeof(Mech), "OnMoveComplete")]
-    public static class Mech_OnMoveComplete {
+    [HarmonyPatch(typeof(Mech), "OnMovePhaseComplete")]
+    public static class Mech_OnMovePhaseComplete {
         public static void Postfix(Mech __instance) {
-            LowVisibility.Logger.LogIfDebug($"Mech:OnMoveComplete:post - entered.");
+            LowVisibility.Logger.LogIfDebug($"Mech:OnMovePhaseComplete:post - entered.");
             AbstractActor_OnActivationBegin.CheckForJamming(__instance);
+            State.UpdateActorIDLevel(__instance);
         }
     }
 
     // Update the visibility checks
-    [HarmonyPatch(typeof(Vehicle), "OnMoveComplete")]
-    public static class Vehicle_OnMoveComplete {
+    [HarmonyPatch(typeof(Vehicle), "OnMovePhaseComplete")]
+    public static class Vehicle_OnMovePhaseComplete {
         public static void Postfix(Vehicle __instance) {
-            LowVisibility.Logger.LogIfDebug($"Vehicle:OnMoveComplete:post - entered.");
+            LowVisibility.Logger.LogIfDebug($"Vehicle:OnMovePhaseComplete:post - entered.");
             AbstractActor_OnActivationBegin.CheckForJamming(__instance);
         }
     }

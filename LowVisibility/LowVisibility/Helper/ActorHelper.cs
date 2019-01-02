@@ -53,8 +53,9 @@ namespace LowVisibility.Helper {
         public static RoundDetectRange MakeSensorRangeCheck(AbstractActor actor) {
             ActorEWConfig config = State.GetOrCreateActorEWConfig(actor);
             int randomRoll = LowVisibility.Random.Next(0, 36);
-            int modifiedRoll = randomRoll + config.tacticsBonus;
-            LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} make rawRoll:{randomRoll} modified to:{modifiedRoll}");
+            int jammingMod = State.IsJammed(actor) ? config.probeModifier - State.JammingStrength(actor) : 0;            
+            int modifiedRoll = randomRoll + config.tacticsBonus + jammingMod;
+            LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} rolled:{randomRoll} + tactics:{config.tacticsBonus} + jamming:{jammingMod} = {modifiedRoll}");
 
             // none = 0-12, short = 13-19, medium  = 20-26, long = 27-36
             RoundDetectRange detectRange = RoundDetectRange.VisualOnly;
@@ -140,8 +141,12 @@ namespace LowVisibility.Helper {
 
         // TODO: Allies don't impact this calculation
         public static IDState CalculateTargetIDLevel(AbstractActor target) {
-            IDState idState = IDState.None;           
-            foreach (AbstractActor actor in target.Combat.LocalPlayerTeam.units) {
+            if (target.team == target.Combat.LocalPlayerTeam) { return IDState.ProbeID;  }
+
+            IDState idState = IDState.None;
+            float targetSignature = CalculateTargetSignature(target);
+            float targetVisibility = CalculateTargetVisibility(target);
+            foreach (AbstractActor actor in target.Combat.LocalPlayerTeam.units) {                
                 ActorEWConfig ewConfig = State.GetOrCreateActorEWConfig(actor);
                 RoundDetectRange roundDetect = State.GetOrCreateRoundDetectResults(actor);
                 VisibilityLevelAndAttribution visLevelAndAttrib = actor.VisibilityCache.VisibilityToTarget(target);
@@ -155,21 +160,20 @@ namespace LowVisibility.Helper {
 
                 // Check for visual ID
                 float distance = Vector3.Distance(actor.CurrentPosition, target.CurrentPosition);
-                LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} is distance:{distance} from target:{target.DisplayName}_{target.GetPilot().Name}");
-                if (distance <= State.GetVisualIDRange() && idState < IDState.VisualID) { idState = IDState.VisualID; }
+                float visionRange = State.GetVisualIDRange() * targetVisibility;
+                LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has vision range:{visionRange} and is distance:{distance} " +
+                    $"from target:{target.DisplayName}_{target.GetPilot().Name} with visibiilty:{targetVisibility}");
+                if (distance <= visionRange && idState < IDState.VisualID) { idState = IDState.VisualID; }
 
-                // If you're jammed, you can only do visual ID
-                if (!State.IsJammed(actor)) {
-                    // Check for sensors
-                    float sensorsRange = CalculateSensorRange(actor);
-                    LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has sensorsRange:{sensorsRange} vs distance:{distance}");
-                    if (distance <= sensorsRange && idState < IDState.SensorID) { idState = IDState.SensorID; }
+                // Check for sensors
+                float sensorsRange = CalculateSensorRange(actor) * targetSignature;
+                LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has sensorsRange:{sensorsRange} vs distance:{distance}");
+                if (distance <= sensorsRange && idState < IDState.SensorID) { idState = IDState.SensorID; }
 
-                    // Check for probes
-                    if (ewConfig.probeTier >= 0) {
-                        LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has probeRange:{sensorsRange} vs distance:{distance}");
-                        if (distance <= sensorsRange && idState < IDState.ProbeID) { idState = IDState.ProbeID; }
-                    }
+                // Check for probes
+                if (ewConfig.probeTier >= 0) {
+                    LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has probeRange:{sensorsRange} vs distance:{distance}");
+                    if (distance <= sensorsRange && idState < IDState.ProbeID) { idState = IDState.ProbeID; }
                 }
             }           
             LowVisibility.Logger.Log($"Target:{target.DisplayName}_{target.GetPilot().Name} has IDstate:{idState} from one or more player units.");

@@ -49,6 +49,25 @@ namespace LowVisibility {
             return actorEWConfig[actor.GUID];
         }
 
+        // TODO: Add tracking
+        public static Dictionary<string, IDState> ActorIDState = new Dictionary<string, IDState>();
+        public static void UpdateActorIDLevel(AbstractActor target) {
+            IDState idState = CalculateTargetIDLevel(target);
+            if (!ActorIDState.ContainsKey(target.GUID) || ActorIDState.ContainsKey(target.GUID) && ActorIDState[target.GUID] != idState) {
+                MessageCenter mc = target.Combat.MessageCenter;
+                mc.PublishMessage(new PlayerVisibilityChangedMessage(target.GUID));
+            }
+            ActorIDState[target.GUID] = idState;
+        }
+
+        public static IDState GetOrCreateActorIDLevel(AbstractActor actor) {
+            if (!ActorIDState.ContainsKey(actor.GUID)) {
+                IDState idState = CalculateTargetIDLevel(actor);
+                ActorIDState[actor.GUID] = idState;
+            }
+            return ActorIDState[actor.GUID];
+        }
+
         // --- ECM JAMMING STATE TRACKING ---
         public static Dictionary<string, int> jammedActors = new Dictionary<string, int>();
 
@@ -64,6 +83,12 @@ namespace LowVisibility {
         public static void JamActor(AbstractActor actor, int jammingStrength) {
             if (!jammedActors.ContainsKey(actor.GUID)) {
                 jammedActors.Add(actor.GUID, jammingStrength);
+
+                // Send a floatie indicating the jamming
+                MessageCenter mc = actor.Combat.MessageCenter;
+                mc.PublishMessage(new FloatieMessage(actor.GUID, actor.GUID, "JAMMED BY ECM", FloatieMessage.MessageNature.Debuff));
+
+                //
             } else if (jammingStrength > jammedActors[actor.GUID]) {
                 jammedActors[actor.GUID] = jammingStrength;
             }

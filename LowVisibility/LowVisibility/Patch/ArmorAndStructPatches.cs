@@ -11,7 +11,7 @@ namespace LowVisibility.Patches {
     public static class Helper {
         public static void HideArmorAndStructure(AbstractActor target, TextMeshProUGUI armorHover, TextMeshProUGUI structHover) {
             
-            IDState idState = CalculateTargetIDLevel(target);
+            IDState idState = State.GetOrCreateActorIDLevel(target);
             string armorText = null;
             string structText = null;
             if (idState == IDState.ProbeID) {

@@ -132,7 +132,7 @@ namespace LowVisibility.Patch {
 
             // The actual method should handle allied and friendly units fine, so we can just change it for enemies
             if (isEnemyOrNeutral && visibilityLevel > VisibilityLevel.Blip0Minimum) {
-                IDState idState = CalculateTargetIDLevel(___displayedActor);
+                IDState idState = State.GetOrCreateActorIDLevel(___displayedActor);
 
                 // Values that are always displayed
                 setGOActiveMethod.GetValue(__instance.NameDisplay, true);

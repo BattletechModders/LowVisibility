@@ -15,7 +15,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDTargetingComputer_RefreshActorInfo {
 
         // TODO: Need vehicle, turret, building displays
-        public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames) {
+        public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames, CombatHUDStatusPanel ___StatusPanel) {
             //KnowYourFoe.Logger.Log("CombatHUDTargetingComputer:RefreshActorInfo:post - entered.");
             if (__instance.ActivelyShownCombatant != null) {
                 // TODO: Make allies share info
@@ -27,7 +27,7 @@ namespace LowVisibility.Patch {
 
                 if (!isPlayer) {
                     //KnowYourFoe.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{target.DisplayName}_{target.GetPilot().Name} is enemy, neutral or allied.");
-                    IDState idState = CalculateTargetIDLevel(target);
+                    IDState idState = State.GetOrCreateActorIDLevel(target);
                     if (idState < IDState.VisualID) {
                         //KnowYourFoe.Logger.Log($"Detection state:{detectState} for actor:{target.DisplayName}_{target.GetPilot().Name} requires weapons to be hidden.");
                         // Update the summary display
@@ -50,8 +50,12 @@ namespace LowVisibility.Patch {
                                 ___weaponNames[i].SetText("???");
                             }
                         }
+                        __instance.WeaponList.SetActive(false);
+                        __instance.MechArmorDisplay.gameObject.SetActive(false);
                     } else {
                         //KnowYourFoe.Logger.Log($"Detection state:{detectState} for actor:{target.DisplayName}_{target.GetPilot().Name} allows weapons to be seen.");
+                        __instance.WeaponList.SetActive(true);
+                        __instance.MechArmorDisplay.gameObject.SetActive(true);
                     }
                 } else {
                     LowVisibility.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{target.DisplayName}_{target.GetPilot().Name} is player, showing panel.");
