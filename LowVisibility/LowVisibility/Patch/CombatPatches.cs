@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
 
 namespace LowVisibility.Patch {
@@ -39,9 +40,49 @@ namespace LowVisibility.Patch {
 
     [HarmonyPatch(typeof(AbstractActor), "OnActivationBegin")]
     public static class AbstractActor_OnActivationBegin {
+
+        public static void CheckForJamming(AbstractActor source) {
+
+            int sourceJammingStrength = 0;
+            ActorEWConfig sourceEWConfig = State.GetOrCreateActorEWConfig(source);
+            foreach (AbstractActor enemyActor in source.Combat.GetAllEnemiesOf(source)) {
+
+                float actorsDistance = Vector3.Distance(source.CurrentPosition, enemyActor.CurrentPosition);
+                ActorEWConfig enemyEWConfig = State.GetOrCreateActorEWConfig(enemyActor);
+                LowVisibility.Logger.Log($"Found enemy actor:{enemyActor.DisplayName}_{enemyActor.GetPilot().Name}. enemyEWConfig:{enemyEWConfig.ToString()} vs. sourceEWConfig:{sourceEWConfig.ToString()}");
+                if (sourceEWConfig.probeTier < enemyEWConfig.ecmTier) {
+                    LowVisibility.Logger.Log($"Target:{enemyActor.DisplayName}_{enemyActor.GetPilot().Name} has ECM tier{enemyEWConfig.ecmTier} vs. source Probe tier:{sourceEWConfig.probeTier}");                    
+                    if (actorsDistance > enemyEWConfig.ecmRange) {
+                        LowVisibility.Logger.Log($"Actors are {actorsDistance}m apart, outside of ECM bubble range of:{enemyEWConfig.ecmRange}");
+                    } else {
+                        LowVisibility.Logger.Log($"Source:{source.DisplayName}_{source.GetPilot().Name} is within stronger ECM bubble of enemy:{enemyActor.DisplayName}_{enemyActor.GetPilot().Name}");
+                        if (enemyEWConfig.ecmModifier > sourceJammingStrength) { sourceJammingStrength = enemyEWConfig.ecmModifier; }
+                    }
+                }
+
+                // TODO: APPLY ECM MODIFIER TO DETECT CHECK
+
+                // If the source has ECM, jam the target
+                if (sourceEWConfig.ecmTier > -1 && enemyEWConfig.probeTier < sourceEWConfig.ecmTier) {
+                    if (actorsDistance > sourceEWConfig.ecmRange) {
+                        LowVisibility.Logger.Log($"Actors are {actorsDistance}m apart, outside of ECM bubble range of:{sourceEWConfig.ecmRange}");
+                    } else {
+                        LowVisibility.Logger.Log($"Enemy:{enemyActor.DisplayName}_{enemyActor.GetPilot().Name} is within ECM bubble of source actor:{source.DisplayName}_{source.GetPilot().Name} .");
+                        State.JamActor(enemyActor, sourceEWConfig.ecmModifier);
+                    }
+                }
+
+            }
+            if (sourceJammingStrength > 0) { State.JamActor(source, sourceJammingStrength); } 
+            else { State.UnjamActor(source); }
+
+        }
+
         public static void Prefix(AbstractActor __instance) {
             LowVisibility.Logger.LogIfDebug("AbstractActor:OnActivationBegin:post - entered.");
-
+            if (__instance != null) {
+                CheckForJamming(__instance);
+            }
         }
     }
 
@@ -50,10 +91,17 @@ namespace LowVisibility.Patch {
     public static class Mech_OnMoveComplete {
         public static void Postfix(Mech __instance) {
             LowVisibility.Logger.LogIfDebug($"Mech:OnMoveComplete:post - entered.");
-
+            AbstractActor_OnActivationBegin.CheckForJamming(__instance);
         }
     }
 
+    // Update the visibility checks
+    [HarmonyPatch(typeof(Vehicle), "OnMoveComplete")]
+    public static class Vehicle_OnMoveComplete {
+        public static void Postfix(Vehicle __instance) {
+            LowVisibility.Logger.LogIfDebug($"Vehicle:OnMoveComplete:post - entered.");
+            AbstractActor_OnActivationBegin.CheckForJamming(__instance);
+        }
+    }
 
-    
 }

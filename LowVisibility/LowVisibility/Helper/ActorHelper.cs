@@ -1,6 +1,8 @@
 ﻿using BattleTech;
+using HBS.Collections;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace LowVisibility.Helper {
@@ -82,29 +84,38 @@ namespace LowVisibility.Helper {
             int actorEcmTier = -1;
             float actorEcmRange = 0;
             int actorEcmModifier = 0;
+
             int actorProbeTier = -1;
             float actorProbeRange = 0;
             int actorProbeModifier = 0;
-            foreach (string tag in actor.GetTags()) {
-                if (tag.StartsWith("ecm_t")) {
-                    string[] split = tag.Split('_');
-                    int tier = Int32.Parse(split[1].Substring(1));
-                    int range = Int32.Parse(split[2].Substring(1));
-                    int modifier = Int32.Parse(split[3].Substring(1));
-                    if (tier >= actorEcmTier) {
-                        actorEcmTier = tier;
-                        actorEcmRange = range;
-                        actorEcmModifier = modifier;
-                    }
-                } else if (tag.StartsWith("activeprobe_t")) {
-                    string[] split = tag.Split('_');
-                    int tier = Int32.Parse(split[1].Substring(1));
-                    int range = Int32.Parse(split[2].Substring(1));
-                    int modifier = Int32.Parse(split[3].Substring(1));
-                    if (tier >= actorProbeTier) {
-                        actorProbeTier = tier;
-                        actorProbeRange = range;
-                        actorProbeModifier = modifier;
+             
+            foreach (MechComponent component in actor.allComponents) {
+                MechComponentRef componentRef = component?.mechComponentRef;
+                MechComponentDef componentDef = componentRef.Def;
+                TagSet componentTags = componentDef.ComponentTags;
+                foreach (string tag in componentTags) {
+                    if (tag.StartsWith("ecm_t")) {
+                        LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} has ECM component:{componentRef.ComponentDefID} with tag:{tag}");
+                        string[] split = tag.Split('_');
+                        int tier = Int32.Parse(split[1].Substring(1));
+                        int range = Int32.Parse(split[2].Substring(1));
+                        int modifier = Int32.Parse(split[3].Substring(1));
+                        if (tier >= actorEcmTier) {
+                            actorEcmTier = tier;
+                            actorEcmRange = range * 30.0f;
+                            actorEcmModifier = modifier;
+                        }
+                    } else if (tag.StartsWith("activeprobe_t")) {
+                        LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} has Probe component:{componentRef.ComponentDefID} with tag:{tag}");
+                        string[] split = tag.Split('_');
+                        int tier = Int32.Parse(split[1].Substring(1));
+                        int range = Int32.Parse(split[2].Substring(1));
+                        int modifier = Int32.Parse(split[3].Substring(1));
+                        if (tier >= actorProbeTier) {
+                            actorProbeTier = tier;
+                            actorProbeRange = range * 30.0f;
+                            actorProbeModifier = modifier;
+                        }
                     }
                 }
             }
@@ -122,7 +133,7 @@ namespace LowVisibility.Helper {
                 probeModifier = actorProbeModifier,
                 tacticsBonus = unitTacticsBonus
             };
-            LowVisibility.Logger.LogIfDebug($"EWConfig is:{config}");
+            LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} EWConfig is:{config}");
 
             return config;
         }
@@ -147,16 +158,19 @@ namespace LowVisibility.Helper {
                 LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} is distance:{distance} from target:{target.DisplayName}_{target.GetPilot().Name}");
                 if (distance <= State.GetVisualIDRange() && idState < IDState.VisualID) { idState = IDState.VisualID; }
 
-                // Check for sensors
-                float sensorsRange = ActorHelper.CalculateSensorRange(actor);
-                LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has sensorsRange:{sensorsRange} vs distance:{distance}");
-                if (distance <= sensorsRange && idState < IDState.SensorID) { idState = IDState.SensorID; }
+                // If you're jammed, you can only do visual ID
+                if (!State.IsJammed(actor)) {
+                    // Check for sensors
+                    float sensorsRange = CalculateSensorRange(actor);
+                    LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has sensorsRange:{sensorsRange} vs distance:{distance}");
+                    if (distance <= sensorsRange && idState < IDState.SensorID) { idState = IDState.SensorID; }
 
-                // Check for probes
-                if (ewConfig.probeTier >= 0) {
-                    LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has probeRange:{sensorsRange} vs distance:{distance}");
-                    if (distance <= sensorsRange && idState < IDState.ProbeID) { idState = IDState.ProbeID; }
-                }                
+                    // Check for probes
+                    if (ewConfig.probeTier >= 0) {
+                        LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has probeRange:{sensorsRange} vs distance:{distance}");
+                        if (distance <= sensorsRange && idState < IDState.ProbeID) { idState = IDState.ProbeID; }
+                    }
+                }
             }           
             LowVisibility.Logger.Log($"Target:{target.DisplayName}_{target.GetPilot().Name} has IDstate:{idState} from one or more player units.");
             return idState;

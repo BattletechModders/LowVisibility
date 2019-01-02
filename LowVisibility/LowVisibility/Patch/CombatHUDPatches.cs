@@ -72,7 +72,7 @@ namespace LowVisibility.Patch {
 
         // TODO: Dangerous PREFIX false here!
         public static bool Prefix(CombatHUDTargetingComputer __instance, CombatHUD ___HUD) {
-            LowVisibility.Logger.LogIfDebug("CombatHUDTargetingComputer:Update:pre - entered.");
+            //LowVisibility.Logger.LogIfDebug("CombatHUDTargetingComputer:Update:pre - entered.");
 
             CombatGameState Combat = ___HUD?.Combat;
 

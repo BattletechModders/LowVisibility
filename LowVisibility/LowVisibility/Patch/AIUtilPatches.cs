@@ -10,7 +10,7 @@ namespace LowVisibility.Patch {
             //LowVisibility.Logger.LogIfDebug("AIUtil:UnitHasVisibilityToTargetFromCurrentPosition:post - entered.");
             //__result = attacker.VisibilityToTargetUnit(target) == VisibilityLevel.LOSFull;
             __result = attacker.VisibilityToTargetUnit(target) >= VisibilityLevel.Blip0Minimum;
-            LowVisibility.Logger.LogIfDebug($"AIUtil:UnitHasVisibilityToTargetFromCurrentPosition:post - result is:{__result}");
+            //LowVisibility.Logger.LogIfDebug($"AIUtil:UnitHasVisibilityToTargetFromCurrentPosition:post - result is:{__result}");
         }
     }
 
@@ -20,7 +20,7 @@ namespace LowVisibility.Patch {
             //LowVisibility.Logger.LogIfDebug("AIUtil:UnitHasDetectionToTargetFromCurrentPosition:post - entered.");
             //__result = attacker.VisibilityToTargetUnit(target) == VisibilityLevel.LOSFull;
             __result = attacker.VisibilityToTargetUnit(target) >= VisibilityLevel.Blip0Minimum;
-            LowVisibility.Logger.LogIfDebug($"AIUtil:UnitHasDetectionToTargetFromCurrentPosition:post - result is:{__result}");
+            //LowVisibility.Logger.LogIfDebug($"AIUtil:UnitHasDetectionToTargetFromCurrentPosition:post - result is:{__result}");
         }
     }
 
@@ -43,7 +43,7 @@ namespace LowVisibility.Patch {
             } else {
                 __result = true;
             }
-            LowVisibility.Logger.LogIfDebug($"AIUtil:UnitHasVisibilityToTargetFromPosition:post - result is:{__result}");
+            //LowVisibility.Logger.LogIfDebug($"AIUtil:UnitHasVisibilityToTargetFromPosition:post - result is:{__result}");
         }
     }
 

@@ -14,11 +14,9 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(LineOfSight), "GetSpotterRange")]
     [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
     public static class LineOfSight_GetSpotterRange {
-        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source) {
+        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source, CombatGameState ___Combat) {
 
             if (__instance != null && source != null) {
-                CombatGameState ___Combat = (CombatGameState)Traverse.Create(__instance).Property("Combat").GetValue();
-
                 //float baseSpotterDistance = ___Combat.Constants.Visibility.BaseSpotterDistance;
                 float baseSpotterDistance = State.GetMapVisionRange();
                 if (source.IsShutDown) {
@@ -59,7 +57,7 @@ namespace LowVisibility.Patch {
                 //    signatureModifiedRange += ___Combat.Constants.Visibility.SensorHysteresisAdditive;
                 //}
 
-                float signatureModifiedRange = sourceSensorRange * targetSignature;
+                float signatureModifiedRange = State.IsJammed(source) ? 0.0f : sourceSensorRange * targetSignature;
                 //LowVisibility.Logger.Log($"For sourceSensorRange:{sourceSensorRange} and targetSignature:{targetSignature} adjustedRange is:{signatureModifiedRange}");
                 __result = signatureModifiedRange;
             }
@@ -69,9 +67,9 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(LineOfSight), "GetTargetVisibility")]
     [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
     public static class LineOfSight_GetTargetVisibility {
-        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source) {
-            if (__instance != null && source != null) {
-                __result = CalculateTargetVisibility(source);
+        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor target) {
+            if (__instance != null && target != null) {
+                __result = CalculateTargetVisibility(target);
             }
         }
     }
@@ -79,9 +77,9 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(LineOfSight), "GetTargetSignature")]
     [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
     public static class LineOfSight_GetTargetSignature {
-        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source) {
-            if (__instance != null && source != null) {
-                __result = CalculateTargetSignature(source);
+        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor target) {
+            if (__instance != null && target != null) {
+                __result = CalculateTargetSignature(target);
             }
         }
     }
@@ -215,7 +213,7 @@ namespace LowVisibility.Patch {
             float adjustedSpotterRange = ___Combat.LOS.GetAdjustedSpotterRange(source, abstractActor);
             float adjustedSensorRange = ___Combat.LOS.GetAdjustedSensorRange(source, abstractActor);
 
-            LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - using sensorRange:{adjustedSensorRange} instead of spotterRange:{adjustedSpotterRange}.  Max weapon range is:{maximumWeaponRangeForSource} ");
+            //LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - using sensorRange:{adjustedSensorRange} instead of spotterRange:{adjustedSpotterRange}.  Max weapon range is:{maximumWeaponRangeForSource} ");
             maximumWeaponRangeForSource = Mathf.Max(maximumWeaponRangeForSource, adjustedSensorRange);
             for (int j = 0; j < lossourcePositions.Length; j++) {
                 // Iterate the source positions (presumably each weapon has different source locations)
@@ -286,7 +284,7 @@ namespace LowVisibility.Patch {
                 ratioSourcePosToTargetPos -= ratioDirectAttacksToTargetPositions;
             }
 
-            LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - ratio is:{ratioSourcePosToTargetPos} / direct:{ratioDirectAttacksToTargetPositions} / b:{b}");
+            //LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - ratio is:{ratioSourcePosToTargetPos} / direct:{ratioDirectAttacksToTargetPositions} / b:{b}");
             // "RatioFullVis": 0.79,
             // "RatioObstructedVis": 0.41,
             if (ratioSourcePosToTargetPos >= ___Combat.Constants.Visibility.RatioFullVis) {
@@ -297,7 +295,7 @@ namespace LowVisibility.Patch {
                 __result = LineOfFireLevel.LOFBlocked;
             }
 
-            LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - LOS result is:{__result}");
+            //LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - LOS result is:{__result}");
         }
     }
 

@@ -48,5 +48,32 @@ namespace LowVisibility {
             }
             return actorEWConfig[actor.GUID];
         }
+
+        // --- ECM JAMMING STATE TRACKING ---
+        public static Dictionary<string, int> jammedActors = new Dictionary<string, int>();
+
+        public static bool IsJammed(AbstractActor actor) {
+            bool isJammed = jammedActors.ContainsKey(actor.GUID) ? true : false;
+            return isJammed;
+        }
+
+        public static int JammingStrength(AbstractActor actor) {
+            return jammedActors.ContainsKey(actor.GUID) ? jammedActors[actor.GUID] : 0;
+        }
+
+        public static void JamActor(AbstractActor actor, int jammingStrength) {
+            if (!jammedActors.ContainsKey(actor.GUID)) {
+                jammedActors.Add(actor.GUID, jammingStrength);
+            } else if (jammingStrength > jammedActors[actor.GUID]) {
+                jammedActors[actor.GUID] = jammingStrength;
+            }
+            // Send visibility update message
+        }
+        public static void UnjamActor(AbstractActor actor) {
+            if (jammedActors.ContainsKey(actor.GUID)) {
+                jammedActors.Remove(actor.GUID);
+            }
+            // Send visibility update message
+        }
     }
 }
