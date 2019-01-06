@@ -2,11 +2,15 @@
 using HBS.Collections;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Helper {
     public static class ActorHelper {
+
+        public const string TagPrefixJammer = "lv_jammer_t";
+        public const string TagPrefixProbe = "lv_probe_t";
+        public const string TagSharesSensors = "lv_shares_sensors";
 
         // none = 0-12, short = 13-19, medium  = 20-26, long = 27-36
         public const int LongRangeRollBound = 27;
@@ -27,19 +31,24 @@ namespace LowVisibility.Helper {
             // The amount of tactics bonus to the sensor check
             public int tacticsBonus = 0;
 
+            // Whether this actor will share sensor data with others
+            public bool sharesSensors = false;
+
             public override string ToString() {
-                return $"tacticsBonus:+{tacticsBonus} ecmTier:{ecmTier} ecmRange:{ecmRange} probeTier:{probeTier} probeRange:{probeRange}";
+                return $"tacticsBonus:+{tacticsBonus} ecmTier:{ecmTier} ecmRange:{ecmRange} probeTier:{probeTier} probeRange:{probeRange} sharesSensors:{sharesSensors}";
             }
         };
 
         // The level an enemy has been identified to
-        public enum IDState {
-            None,
-            Silhouette,
-            VisualID,
-            SensorID,
-            ProbeID
-        }
+        //public enum IDState {
+        //    None,
+        //    Silhouette,
+        //    VisualID,
+        //    SensorID,
+        //    ProbeID
+        //}
+
+     
 
         // The range a unit can detect enemies out to
         public enum RoundDetectRange {
@@ -89,13 +98,16 @@ namespace LowVisibility.Helper {
             int actorProbeTier = -1;
             float actorProbeRange = 0;
             int actorProbeModifier = 0;
+
+            // TODO: Implement
+            bool actorSharesSensors = false;
              
             foreach (MechComponent component in actor.allComponents) {
                 MechComponentRef componentRef = component?.mechComponentRef;
                 MechComponentDef componentDef = componentRef.Def;
                 TagSet componentTags = componentDef.ComponentTags;
                 foreach (string tag in componentTags) {
-                    if (tag.StartsWith("ecm_t")) {
+                    if (tag.ToLower().StartsWith(TagPrefixJammer)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} has ECM component:{componentRef.ComponentDefID} with tag:{tag}");
                         string[] split = tag.Split('_');
                         int tier = Int32.Parse(split[1].Substring(1));
@@ -106,7 +118,7 @@ namespace LowVisibility.Helper {
                             actorEcmRange = range * 30.0f;
                             actorEcmModifier = modifier;
                         }
-                    } else if (tag.StartsWith("activeprobe_t")) {
+                    } else if (tag.ToLower().StartsWith(TagPrefixProbe)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} has Probe component:{componentRef.ComponentDefID} with tag:{tag}");
                         string[] split = tag.Split('_');
                         int tier = Int32.Parse(split[1].Substring(1));
@@ -117,6 +129,9 @@ namespace LowVisibility.Helper {
                             actorProbeRange = range * 30.0f;
                             actorProbeModifier = modifier;
                         }
+                    } else if (tag.ToLower().Equals(TagSharesSensors)) {
+                        actorSharesSensors = true;
+                        // TODO: Add pilot skill check / tag check for same effect
                     }
                 }
             }
@@ -132,52 +147,67 @@ namespace LowVisibility.Helper {
                 probeTier = actorProbeTier,                
                 probeRange = actorProbeRange,
                 probeModifier = actorProbeModifier,
-                tacticsBonus = unitTacticsBonus
+                tacticsBonus = unitTacticsBonus,
+                sharesSensors = actorSharesSensors
             };
             LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} EWConfig is:{config}");
 
             return config;
         }
 
+        public static string ActorLabel(AbstractActor actor) {
+            return $"{actor.DisplayName}_{actor.GetPilot().Name}";
+        }
+
         // TODO: Allies don't impact this calculation
-        public static IDState CalculateTargetIDLevel(AbstractActor target) {
-            if (target.team == target.Combat.LocalPlayerTeam) { return IDState.ProbeID;  }
+        public static LockState CalculateLock(AbstractActor source, AbstractActor target) {
 
-            IDState idState = IDState.None;
-            float targetSignature = CalculateTargetSignature(target);
+            ActorEWConfig sourceEWConfig = State.GetOrCreateActorEWConfig(source);
+            LockState lockState = new LockState {
+                sourceGUID = source.GUID,
+                targetGUID = target.GUID,
+                visionType = VisionLockType.None,
+                sensorType = SensorLockType.None,
+                sensorsAreShared = sourceEWConfig.sharesSensors
+            };
+            
+            RoundDetectRange roundDetect = State.GetOrCreateRoundDetectResults(source);
+            LowVisibility.Logger.Log($"actor:{ActorLabel(source)} has roundCheck:{roundDetect} and ewConfig:{sourceEWConfig}");
+
+            // Determine visual lock level
+            VisibilityLevelAndAttribution visLevelAndAttrib = source.VisibilityCache.VisibilityToTarget(target);
+            if (visLevelAndAttrib.VisibilityLevel == VisibilityLevel.LOSFull) {
+                lockState.visionType = VisionLockType.Silhouette;                
+            }
+            
+            float distance = Vector3.Distance(source.CurrentPosition, target.CurrentPosition);
             float targetVisibility = CalculateTargetVisibility(target);
-            foreach (AbstractActor actor in target.Combat.LocalPlayerTeam.units) {                
-                ActorEWConfig ewConfig = State.GetOrCreateActorEWConfig(actor);
-                RoundDetectRange roundDetect = State.GetOrCreateRoundDetectResults(actor);
-                VisibilityLevelAndAttribution visLevelAndAttrib = actor.VisibilityCache.VisibilityToTarget(target);
+            float visionRange = State.GetVisualIDRange() * targetVisibility;
+            if (distance <= visionRange) { lockState.visionType = VisionLockType.VisualID; }
+            LowVisibility.Logger.Log($"actor:{ActorLabel(source)} has vision range:{visionRange} and is distance:{distance} " +
+                $"from target:{ActorLabel(target)} with visibiilty:{targetVisibility} - visionLockType is :{lockState.visionType}");
 
-                // TODO: Need to handle target signature reductions for sensors
+            // Determine sensor lock level
+            float sourceSensorRange = CalculateSensorRange(source);
+            float targetSignature = CalculateTargetSignature(target);
+            float lockRange = sourceSensorRange * targetSignature;
+            LowVisibility.Logger.Log($"source:{ActorLabel(source)} has sensorsRange:{sourceSensorRange} and is distance:{distance} " +
+                $"from target:{ActorLabel(target)} with signature:{targetSignature}");
 
-                // Check for visibility 
-                if (visLevelAndAttrib.VisibilityLevel == VisibilityLevel.LOSFull) {
-                    if (idState < IDState.Silhouette) { idState = IDState.Silhouette; }
-                }
+            if (distance <= lockRange) {
+                if (sourceEWConfig.probeTier >= 0) {
+                    lockState.sensorType = SensorLockType.ProbeID;
+                    LowVisibility.Logger.Log($"actor:{ActorLabel(source)} has lock with an active probe.");
+                } else {
+                    lockState.sensorType = SensorLockType.SensorID;
+                    LowVisibility.Logger.Log($"actor:{ActorLabel(source)} has lock with base sensors.");
+                }                
+            }
 
-                // Check for visual ID
-                float distance = Vector3.Distance(actor.CurrentPosition, target.CurrentPosition);
-                float visionRange = State.GetVisualIDRange() * targetVisibility;
-                LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has vision range:{visionRange} and is distance:{distance} " +
-                    $"from target:{target.DisplayName}_{target.GetPilot().Name} with visibiilty:{targetVisibility}");
-                if (distance <= visionRange && idState < IDState.VisualID) { idState = IDState.VisualID; }
+            // Check to see if our sensors are sharable
 
-                // Check for sensors
-                float sensorsRange = CalculateSensorRange(actor) * targetSignature;
-                LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has sensorsRange:{sensorsRange} vs distance:{distance}");
-                if (distance <= sensorsRange && idState < IDState.SensorID) { idState = IDState.SensorID; }
 
-                // Check for probes
-                if (ewConfig.probeTier >= 0) {
-                    LowVisibility.Logger.Log($"actor:{actor.DisplayName}_{actor.GetPilot().Name} has probeRange:{sensorsRange} vs distance:{distance}");
-                    if (distance <= sensorsRange && idState < IDState.ProbeID) { idState = IDState.ProbeID; }
-                }
-            }           
-            LowVisibility.Logger.Log($"Target:{target.DisplayName}_{target.GetPilot().Name} has IDstate:{idState} from one or more player units.");
-            return idState;
+            return lockState;
         }
 
         // Determine an actor's sensor range, plus our special additions

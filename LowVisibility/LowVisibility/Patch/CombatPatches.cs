@@ -34,7 +34,9 @@ namespace LowVisibility.Patch {
                 RoundDetectRange detectRange = MakeSensorRangeCheck(actor);
                 LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} has detectRange:{detectRange} this round!");
                 State.roundDetectResults[actor.GUID] = detectRange;
-                State.UpdateActorIDLevel(actor);
+                //State.UpdateActorIDLevel(actor);
+                // Update the current vision for all allied and friendly units
+                State.UpdatePlayerAndAlliedDetection(__instance.Combat);
             }
         }
     }
@@ -83,7 +85,8 @@ namespace LowVisibility.Patch {
             LowVisibility.Logger.LogIfDebug($"AbstractActor:OnActivationBegin:post - handling {__instance.DisplayName}_{__instance.GetPilot().Name}.");
             if (__instance != null) {
                 CheckForJamming(__instance);
-                State.UpdateActorIDLevel(__instance);
+                State.UpdateActorDetection(__instance);
+                State.LastActiveActor = __instance;
             }
         }
     }
@@ -93,8 +96,8 @@ namespace LowVisibility.Patch {
     public static class Mech_OnMovePhaseComplete {
         public static void Postfix(Mech __instance) {
             LowVisibility.Logger.LogIfDebug($"Mech:OnMovePhaseComplete:post - entered.");
-            AbstractActor_OnActivationBegin.CheckForJamming(__instance);
-            State.UpdateActorIDLevel(__instance);
+            AbstractActor_OnActivationBegin.CheckForJamming(__instance);            
+            State.UpdateActorDetection(__instance);
         }
     }
 
@@ -104,6 +107,7 @@ namespace LowVisibility.Patch {
         public static void Postfix(Vehicle __instance) {
             LowVisibility.Logger.LogIfDebug($"Vehicle:OnMovePhaseComplete:post - entered.");
             AbstractActor_OnActivationBegin.CheckForJamming(__instance);
+            State.UpdateActorDetection(__instance);
         }
     }
 

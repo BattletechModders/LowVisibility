@@ -8,6 +8,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
+using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patch {
 
@@ -27,8 +28,11 @@ namespace LowVisibility.Patch {
 
                 if (!isPlayer) {
                     //KnowYourFoe.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{target.DisplayName}_{target.GetPilot().Name} is enemy, neutral or allied.");
-                    IDState idState = State.GetOrCreateActorIDLevel(target);
-                    if (idState < IDState.VisualID) {
+                    LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastActiveActor(target.Combat), target);
+                    if (lockState.sensorType == SensorLockType.ProbeID) {
+                        __instance.WeaponList.SetActive(true);
+                        __instance.MechArmorDisplay.gameObject.SetActive(true);
+                    } else if (lockState.visionType == VisionLockType.VisualID || lockState.sensorType == SensorLockType.SensorID) {
                         //KnowYourFoe.Logger.Log($"Detection state:{detectState} for actor:{target.DisplayName}_{target.GetPilot().Name} requires weapons to be hidden.");
                         // Update the summary display
                         Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
@@ -52,10 +56,10 @@ namespace LowVisibility.Patch {
                         }
                         __instance.WeaponList.SetActive(false);
                         __instance.MechArmorDisplay.gameObject.SetActive(false);
-                    } else {
+                    } else if (lockState.visionType == VisionLockType.Silhouette && lockState.sensorType == SensorLockType.None) {
                         //KnowYourFoe.Logger.Log($"Detection state:{detectState} for actor:{target.DisplayName}_{target.GetPilot().Name} allows weapons to be seen.");
-                        __instance.WeaponList.SetActive(true);
-                        __instance.MechArmorDisplay.gameObject.SetActive(true);
+                        __instance.WeaponList.SetActive(false);
+                        __instance.MechArmorDisplay.gameObject.SetActive(false);
                     }
                 } else {
                     LowVisibility.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{target.DisplayName}_{target.GetPilot().Name} is player, showing panel.");

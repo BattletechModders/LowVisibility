@@ -13,5 +13,11 @@ namespace LowVisibility {
         // The range from which you can identify a unit using visuals only
         public float VisualIDRange = 3.0f * 30;
 
+        // The penalty applied when the attacker only has detection to the target (but not Los)
+        public float SensorsOnlyAttackPenalty = 2.0f;
+
+        // The penalty applied when the attacker only has LoS to the target (but not detection)
+        public float VisualOnlyAttackPenalty = 2.0f;
+
     }
 }

@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="Helper\MapHelper.cs" />
     <Compile Include="Helper\ActorHelper.cs" />
+    <Compile Include="Helper\VisibilityHelper.cs" />
     <Compile Include="LowVisibility.cs" />
     <Compile Include="Patch\AIUtilPatches.cs" />
     <Compile Include="Patch\ArmorAndStructPatches.cs" />

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
+using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patch {
 
@@ -23,20 +24,22 @@ namespace LowVisibility.Patch {
         public static void Postfix(CombatHUDStatusPanel __instance, List<CombatHUDStatusIndicator> ___Buffs, List<CombatHUDStatusIndicator> ___Debuffs) {
             //LowVisibility.Logger.LogIfDebug("CombatHUDStatusPanel:RefreshDisplayedCombatant:post - entered.");
             if (__instance != null && __instance.DisplayedCombatant != null) {
-                AbstractActor actor = __instance.DisplayedCombatant as AbstractActor;
-                bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
+                AbstractActor target = __instance.DisplayedCombatant as AbstractActor;
+                bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                 if (!isPlayer) {
-                    IDState idState = CalculateTargetIDLevel(actor);
-                    if (idState == IDState.ProbeID) {
-                        // Do nothing
-                    } else if (idState == IDState.SensorID) {
-                        ___Buffs.ForEach(si => si.gameObject.SetActive(false));
-                        ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                    } else {
+                    LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastActiveActor(target.Combat), target);
+                    if (lockState.sensorType == SensorLockType.ProbeID) {
+                        // Do nothing - display everything per vanilla
+                    } else if (lockState.sensorType == SensorLockType.None && lockState.visionType < VisionLockType.VisualID) {
                         ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                         ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
                         Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
                         hideEvasionIndicatorMethod.GetValue();
+                    } else {
+                        // All other states - hide the buffs/debuffs
+                        ___Buffs.ForEach(si => si.gameObject.SetActive(false));
+                        ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
+      
                     }
                 }
             }

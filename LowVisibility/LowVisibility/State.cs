@@ -3,7 +3,9 @@ using BattleTech;
 using LowVisibility.Helper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using static LowVisibility.Helper.ActorHelper;
+using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility {
     static class State {
@@ -50,22 +52,79 @@ namespace LowVisibility {
         }
 
         // TODO: Add tracking
-        public static Dictionary<string, IDState> ActorIDState = new Dictionary<string, IDState>();
-        public static void UpdateActorIDLevel(AbstractActor target) {
-            IDState idState = CalculateTargetIDLevel(target);
-            if (!ActorIDState.ContainsKey(target.GUID) || ActorIDState.ContainsKey(target.GUID) && ActorIDState[target.GUID] != idState) {
-                MessageCenter mc = target.Combat.MessageCenter;
-                mc.PublishMessage(new PlayerVisibilityChangedMessage(target.GUID));
+        //public static Dictionary<string, VisionLockType> 
+        public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
+
+        // Updates the detection state for each player and allied units. Called at start of round, and after each enemy movement.
+        public static void UpdatePlayerAndAlliedDetection(CombatGameState Combat) {
+
+            HashSet<string> targetsWithVisibilityChanges = new HashSet<string>();
+
+            List<AbstractActor> playerAndAlliedActors = PlayerAndAlliedActors(Combat);            
+            foreach (AbstractActor source in playerAndAlliedActors) {                
+                HashSet<LockState> updatedLocks = new HashSet<LockState>();
+                CalculateTargetLocks(source, updatedLocks, targetsWithVisibilityChanges);                
+                SourceActorLockStates[source.GUID] = updatedLocks;
             }
-            ActorIDState[target.GUID] = idState;
+
+            // Send a message updating the visibility of any actors that changed
+            PublishVisibilityChange(Combat, targetsWithVisibilityChanges);
+        }
+       
+        // Updates the detection state for a friendly actor. Call before activation, and after friendly movement.
+        public static void UpdateActorDetection(AbstractActor source) {
+
+            HashSet<string> targetsWithVisibilityChanges = new HashSet<string>();
+
+            HashSet<LockState> updatedLocks = new HashSet<LockState>();
+            CalculateTargetLocks(source, updatedLocks, targetsWithVisibilityChanges);
+            SourceActorLockStates[source.GUID] = updatedLocks;
+
+            // Send a message updating the visibility of any actors that changed
+            PublishVisibilityChange(source.Combat, targetsWithVisibilityChanges);
         }
 
-        public static IDState GetOrCreateActorIDLevel(AbstractActor actor) {
-            if (!ActorIDState.ContainsKey(actor.GUID)) {
-                IDState idState = CalculateTargetIDLevel(actor);
-                ActorIDState[actor.GUID] = idState;
+        public static LockState GetUnifiedLockStateForTarget(AbstractActor source, AbstractActor target) {
+            // Get the source lock state first
+            if (!SourceActorLockStates.ContainsKey(source.GUID)) {
+                UpdateActorDetection(source);                
             }
-            return ActorIDState[actor.GUID];
+            HashSet<LockState> sourceLocks = SourceActorLockStates[source.GUID];
+            LockState sourceLockState = sourceLocks.First(ls => ls.targetGUID == target.GUID);
+
+            LockState unifiedLockState = new LockState(sourceLockState);
+
+            // Finally check for shared visibility
+            foreach (AbstractActor friendly in PlayerAndAlliedActors(source.Combat)) {
+                if (SourceActorLockStates.ContainsKey(friendly.GUID)) {
+                    HashSet<LockState> friendlyLocks = SourceActorLockStates[friendly.GUID];
+                    LockState friendlyLockState = friendlyLocks.First(ls => ls.targetGUID == target.GUID);
+
+                    // Vision is always shared
+                    if (friendlyLockState.visionType > unifiedLockState.visionType) {
+                        LowVisibility.Logger.LogIfDebug($"friendly:{ActorLabel(friendly)} has a superior vision lock to target:{ActorLabel(target)}, using their lock.");
+                        unifiedLockState.visionType = friendlyLockState.visionType;
+                    }
+
+                    // Sensors are shared conditionally
+                    ActorEWConfig friendlyEWConfig = GetOrCreateActorEWConfig(friendly);
+                    if (friendlyLockState.sensorType > unifiedLockState.sensorType && friendlyEWConfig.sharesSensors) {
+                        unifiedLockState.sensorType = friendlyLockState.sensorType;
+                        LowVisibility.Logger.LogIfDebug($"friendly:{ActorLabel(friendly)} shares sensors and has a superior sensor lock to target:{ActorLabel(target)}, using their lock.");
+                    }
+                }
+            }
+
+            return unifiedLockState;
+        }
+
+        public static AbstractActor LastActiveActor;
+        public static AbstractActor GetLastActiveActor(CombatGameState Combat) {
+            if (LastActiveActor == null) {
+                List<AbstractActor> playerActors = PlayerActors(Combat);
+                LastActiveActor = playerActors[0];
+            }
+            return LastActiveActor;
         }
 
         // --- ECM JAMMING STATE TRACKING ---

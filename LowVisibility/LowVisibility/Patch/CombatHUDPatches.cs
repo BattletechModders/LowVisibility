@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using System.Reflection.Emit;
 using static LowVisibility.Helper.ActorHelper;
+using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patch {
 
@@ -132,14 +133,14 @@ namespace LowVisibility.Patch {
 
             // The actual method should handle allied and friendly units fine, so we can just change it for enemies
             if (isEnemyOrNeutral && visibilityLevel > VisibilityLevel.Blip0Minimum) {
-                IDState idState = State.GetOrCreateActorIDLevel(___displayedActor);
+                LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastActiveActor(___displayedActor.Combat), ___displayedActor);
 
                 // Values that are always displayed
                 setGOActiveMethod.GetValue(__instance.NameDisplay, true);
                 setGOActiveMethod.GetValue(__instance.ArmorBar, true);
                 setGOActiveMethod.GetValue(__instance.StructureBar, true);
 
-                if (idState == IDState.ProbeID) {
+                if (lockState.sensorType == SensorLockType.ProbeID) {
                     // Show unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, true);
 
@@ -156,7 +157,7 @@ namespace LowVisibility.Patch {
                     // Show armor and struct
                     setGOActiveMethod.GetValue(__instance.ArmorBar, true);
                     setGOActiveMethod.GetValue(__instance.StructureBar, true);
-                } else if (idState == IDState.SensorID) {
+                } else if (lockState.sensorType == SensorLockType.SensorID) {
                     // Show unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
@@ -173,7 +174,7 @@ namespace LowVisibility.Patch {
                     // Show armor and struct
                     setGOActiveMethod.GetValue(__instance.ArmorBar, true);
                     setGOActiveMethod.GetValue(__instance.StructureBar, true);
-                } else if (idState == IDState.VisualID) {
+                } else if (lockState.visionType == VisionLockType.VisualID) {
                     // Hide unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
@@ -189,7 +190,7 @@ namespace LowVisibility.Patch {
                     // Show armor and struct
                     setGOActiveMethod.GetValue(__instance.ArmorBar, true);
                     setGOActiveMethod.GetValue(__instance.StructureBar, true);
-                } else if (idState == IDState.Silhouette) {
+                } else if (lockState.visionType == VisionLockType.Silhouette) {
                     // Hide unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
