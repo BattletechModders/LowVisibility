@@ -94,13 +94,13 @@ Bloodhound Active Probe | +?
 
 In _Low Visibility_ details about enemy units are often hidden unless you have a good sensors check or are equipped with _Active Probes_. This mod defines five __ID Levels__ which reflect a progressively more detailed knowledge of a target:
 
-ID Level | Concealed Info | Always Shown Info | Possible Info
--- | --
-Silhouette ID | Foo | Target type (mech, vehicle, turret), Chassis name (Atlas, Catapult), Evasion pips | None
-Visual ID | Foo | Target type (mech, vehicle, turret), Chassis name (Atlas, Catapult), Evasion pips, Number of weapons and types (as ???) | None
-Sensor ID | Current armor and structure values, Heat values, Stability values, Buffs/Debuffs | Target type (mech, vehicle, turret), Chassis name (Atlas, Catapult), Evasion pips, Number of weapons and types (as ???) | Weapon names, Variant Name (Atlas AS-7D, Catapult CPT-1D), Armor and Structure percentage bars, Max values for Armor and Structure |
-Active Probe ID | None | Target type (mech, vehicle, turret), Variant name (Atlas TODO , Catapult TODO), Evasion pips, Weapons, Max and Current Armor and Structure, Buffs/Debuffs, | N/A
-No ID | None | Nothing | Everything
+| ID Level        | Concealed Info                                               | Always Shown Info                                            | Possible Info                                                |
+| --------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Silhouette ID   | Foo                                                          | Target type (mech, vehicle, turret), Chassis name (Atlas, Catapult), Evasion pips | None                                                         |
+| Visual ID       | Foo                                                          | Target type (mech, vehicle, turret), Chassis name (Atlas, Catapult), Evasion pips, Number of weapons and types (as ???) | None                                                         |
+| Sensor ID       | Current armor and structure values, Heat values, Stability values, Buffs/Debuffs | Target type (mech, vehicle, turret), Chassis name (Atlas, Catapult), Evasion pips, Number of weapons and types (as ???) | Weapon names, Variant Name (Atlas AS-7D, Catapult CPT-1D), Armor and Structure percentage bars, Max values for Armor and Structure |
+| Active Probe ID | None                                                         | Target type (mech, vehicle, turret), Variant name (Atlas TODO , Catapult TODO), Evasion pips, Weapons, Max and Current Armor and Structure, Buffs/Debuffs, | N/A                                                          |
+| No ID           | None                                                         | Nothing                                                      | Everything                                                   |
 
 _Silhouette ID_ and _VisualID_ require the source unit to have __visibility__ to the target. _VisualID_ only occurs when the source is within 90m of the target, or the map visibility limit, whichever is smaller.
 
@@ -109,11 +109,16 @@ _Sensor ID_ and _Active Probe ID_ require the source to have __detection__ to th
 
 ## WIP Features
 
-WIP: _Possible Info_ elements are randomly selected each round / actor (simulate one question note)
-WIP: Shared_Spotter tag on pilots to share LOS
-WIP: Shares_Vis tag on components to share LOS
-WIP: Implement Stealth, NSS, Void System visibility reduction
-WIP: Implement Stealth, NSS, Void System evasion by movement semantics
+- [] _Possible Info_ elements are randomly selected each round / actor (simulate one question note)
+- [] ```lv_shared_spotter``` tag on pilots to share LOS
+- []```lv_shares_vision``` tag on components to share LOS
+- [] Implement Stealth, NSS, Void System visibility reduction
+- [] Implement Stealth, NSS, Void System evasion by movement semantics
+- [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_narc_effect```, show the target even if it's outside sensors/vision range. Apply no penalty?
+- [] Make shared vision toggleable, if possible?
+- [] Distinction between visual lock and sensor lock; if you have visual lock, you can see the target's silhouette. If you have sensor lock, your electronics can target them. You need both to have normal targeting modifiers.
+- [] If you have visual + sensor lock, you share your vision with allies. If you have sensor lock, and have the ```lv_share_sensor_lock``` tag, you share your sensor lock with allies.
+
 
 
 ### ECM Bubbles
