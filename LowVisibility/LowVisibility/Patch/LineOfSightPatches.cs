@@ -101,20 +101,19 @@ namespace LowVisibility.Patch {
                 adjustedSensorRange = adjustedSpotterRange;
             }
 
-            // If you are beyond sensorRange, visibility is none
+            // If you are beyond sensorRange or spotter range, visibility is none
             float distance = Vector3.Distance(sourcePosition, targetPosition);
             if (distance > adjustedSensorRange) {
                 __result = VisibilityLevel.None;
-            } else {
-
+                return false;
             }
 
             Vector3 forward = targetPosition - sourcePosition;
             forward.y = 0f;
             Quaternion rotation = Quaternion.LookRotation(forward);
 
-            // If you are within spotter range, check for direct LOS. That provides an immediate '9'
-            int visLevel = 0;
+            // If you are within spotter range, check for visual lock.
+            VisibilityLevel visibilityLevel = VisibilityLevel.None;
             if (distance < adjustedSpotterRange) {
                 Vector3[] lossourcePositions = source.GetLOSSourcePositions(sourcePosition, rotation);
                 Vector3[] lostargetPositions = target.GetLOSTargetPositions(targetPosition, targetRotation);
@@ -122,26 +121,26 @@ namespace LowVisibility.Patch {
                     for (int j = 0; j < lostargetPositions.Length; j++) {
                         // If you can visually spot the target, you immediately have detection on then
                         if (__instance.HasLineOfSight(lossourcePositions[i], lostargetPositions[j], adjustedSpotterRange, target.GUID)) {
-                            visLevel = 9;
+                            visibilityLevel = VisibilityLevel.LOSFull;
                             break;
                         }
                     }
-                    if (visLevel != 0) {
+                    if (visibilityLevel != VisibilityLevel.None) {
                         break;
                     }
                 }
             } 
 
             // If vis is still 0, check tactics to determine what type of blip to display, 0/4/7 -> Blip0, Blip1, Blip4
-            if (visLevel == 0 && source.IsPilotable) {
+            if (visibilityLevel == VisibilityLevel.None && source.IsPilotable) {
                 int tactics = source.GetPilot().Tactics;
-                visLevel = (int)__instance.GetVisibilityLevelForTactics(tactics);
+                visibilityLevel = __instance.GetVisibilityLevelForTactics(tactics);
             }
             
             if (targetActor != null) {
                 // If you are sensor locked, you are automatically vis 9
                 if (targetActor.IsSensorLocked) {
-                    visLevel = 9;
+                    visibilityLevel = VisibilityLevel.LOSFull;
                 }
 
                 // Determine if any sensor shadows are around 
@@ -149,14 +148,17 @@ namespace LowVisibility.Patch {
                 //   - whose SensorSignatureFromDef > this model's SensorSignatureFromDef
                 //   - that is within ShadowSignatureDistance ( 1f + sensorsignaturefromdef * MaxShadowingDistance [80] )
                 //  provides a +NumShadowingSteps (-1) bonus to the visible units
-                visLevel += targetActor.CurrentShadowingResult;
-                if (visLevel > 9) {
-                    visLevel = 9; 
-                } else if (visLevel < 0) {
-                    visLevel = 0;
+                int shadowingVisLevel = (int)visibilityLevel;
+                shadowingVisLevel += targetActor.CurrentShadowingResult;
+                if (shadowingVisLevel > 9) {
+                    visibilityLevel = VisibilityLevel.LOSFull; 
+                } else if (shadowingVisLevel < 0) {
+                    visibilityLevel = VisibilityLevel.None;
+                } else {
+                    visibilityLevel = (VisibilityLevel)shadowingVisLevel;
                 }
             }
-            __result = (VisibilityLevel)visLevel;
+            __result = visibilityLevel;
 
             return false;
         }
