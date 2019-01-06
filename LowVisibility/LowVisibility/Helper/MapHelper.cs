@@ -20,7 +20,7 @@ namespace LowVisibility.Helper {
             if (moodTags.IsEmpty) { return 0.0f; }
 
             String allTags = String.Join(", ", moodTags.ToArray());
-            LowVisibility.Logger.LogIfDebug($"All mood tags are: {allTags}");
+            LowVisibility.Logger.LogIfDebug($"  - All mood tags are: {allTags}");
 
             string light = "day";
             int effect = 0;
@@ -30,37 +30,37 @@ namespace LowVisibility.Helper {
                     case "mood_timeNoon":
                     case "mood_timeAfternoon":
                     case "mood_timeDay":
-                        LowVisibility.Logger.LogIfDebug($"Found daylight tag: {tag}");
+                        LowVisibility.Logger.LogIfDebug($"  - Found daylight tag: {tag}");
                         light = "day";
                         break;
                     case "mood_timeSunrise":
                     case "mood_timeSunset":
                     case "mood_timeTwilight":
-                        LowVisibility.Logger.LogIfDebug($"Found dimlight tag: {tag}");
+                        LowVisibility.Logger.LogIfDebug($"  - Found dimlight tag: {tag}");
                         light = "dim";
                         break;
                     case "mood_timeNight":
-                        LowVisibility.Logger.LogIfDebug($"Found night tag: {tag}");
+                        LowVisibility.Logger.LogIfDebug($"  - Found night tag: {tag}");
                         light = "night";
                         break;
                     case "mood_fogLight":
                     case "mood_weatherRain":
                     case "mood_weatherSnow":
-                        LowVisibility.Logger.LogIfDebug($"Found rain/snow/lightFog tag: {tag}");
+                        LowVisibility.Logger.LogIfDebug($"  - Found rain/snow/lightFog tag: {tag}");
                         effect = 1;
                         break;
                     case "mood_fogHeavy":
-                        LowVisibility.Logger.LogIfDebug($"Found heavyFog tag: {tag}");
+                        LowVisibility.Logger.LogIfDebug($"  - Found heavyFog tag: {tag}");
                         effect = 2;
                         break;
                     default:
                         break;
                 }
             }
-            LowVisibility.Logger.LogIfDebug($"Light is:{light}, effect is:{effect}");
+            LowVisibility.Logger.LogIfDebug($"  - Light is:{light}, effect is:{effect}");
 
             float visRange = VisionStates[light][effect];
-            LowVisibility.Logger.Log($"Naked vision range determined to be {visRange}m.");            
+            LowVisibility.Logger.Log($"MapHelper: Naked vision range determined to be {visRange}m.");            
             return visRange;
         }
     }

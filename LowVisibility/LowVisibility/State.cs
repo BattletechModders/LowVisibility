@@ -118,13 +118,14 @@ namespace LowVisibility {
             return unifiedLockState;
         }
 
-        public static AbstractActor LastActiveActor;
-        public static AbstractActor GetLastActiveActor(CombatGameState Combat) {
-            if (LastActiveActor == null) {
+        // The last actor that the player activated. Used to determine visibility in targetingHUD between activations
+        public static AbstractActor LastPlayerActivatedActor;
+        public static AbstractActor GetLastPlayerActivatedActor(CombatGameState Combat) {
+            if (LastPlayerActivatedActor == null) {
                 List<AbstractActor> playerActors = PlayerActors(Combat);
-                LastActiveActor = playerActors[0];
+                LastPlayerActivatedActor = playerActors[0];
             }
-            return LastActiveActor;
+            return LastPlayerActivatedActor;
         }
 
         // --- ECM JAMMING STATE TRACKING ---

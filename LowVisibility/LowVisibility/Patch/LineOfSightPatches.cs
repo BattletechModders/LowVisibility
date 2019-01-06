@@ -105,6 +105,8 @@ namespace LowVisibility.Patch {
             float distance = Vector3.Distance(sourcePosition, targetPosition);
             if (distance > adjustedSensorRange) {
                 __result = VisibilityLevel.None;
+            } else {
+
             }
 
             Vector3 forward = targetPosition - sourcePosition;

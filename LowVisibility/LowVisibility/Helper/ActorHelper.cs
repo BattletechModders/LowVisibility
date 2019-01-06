@@ -8,9 +8,9 @@ using static LowVisibility.Helper.VisibilityHelper;
 namespace LowVisibility.Helper {
     public static class ActorHelper {
 
-        public const string TagPrefixJammer = "lv_jammer_t";
-        public const string TagPrefixProbe = "lv_probe_t";
-        public const string TagSharesSensors = "lv_shares_sensors";
+        public const string TagPrefixJammer = "lv-jammer_t";
+        public const string TagPrefixProbe = "lv-probe_t";
+        public const string TagSharesSensors = "lv-shares-sensors";
 
         // none = 0-12, short = 13-19, medium  = 20-26, long = 27-36
         public const int LongRangeRollBound = 27;
@@ -162,17 +162,16 @@ namespace LowVisibility.Helper {
         // TODO: Allies don't impact this calculation
         public static LockState CalculateLock(AbstractActor source, AbstractActor target) {
 
-            ActorEWConfig sourceEWConfig = State.GetOrCreateActorEWConfig(source);
             LockState lockState = new LockState {
                 sourceGUID = source.GUID,
                 targetGUID = target.GUID,
                 visionType = VisionLockType.None,
-                sensorType = SensorLockType.None,
-                sensorsAreShared = sourceEWConfig.sharesSensors
+                sensorType = SensorLockType.None,                
             };
-            
+
+            ActorEWConfig sourceEWConfig = State.GetOrCreateActorEWConfig(source);
             RoundDetectRange roundDetect = State.GetOrCreateRoundDetectResults(source);
-            LowVisibility.Logger.Log($"actor:{ActorLabel(source)} has roundCheck:{roundDetect} and ewConfig:{sourceEWConfig}");
+            LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has roundCheck:{roundDetect} and ewConfig:{sourceEWConfig}");
 
             // Determine visual lock level
             VisibilityLevelAndAttribution visLevelAndAttrib = source.VisibilityCache.VisibilityToTarget(target);
@@ -184,23 +183,23 @@ namespace LowVisibility.Helper {
             float targetVisibility = CalculateTargetVisibility(target);
             float visionRange = State.GetVisualIDRange() * targetVisibility;
             if (distance <= visionRange) { lockState.visionType = VisionLockType.VisualID; }
-            LowVisibility.Logger.Log($"actor:{ActorLabel(source)} has vision range:{visionRange} and is distance:{distance} " +
-                $"from target:{ActorLabel(target)} with visibiilty:{targetVisibility} - visionLockType is :{lockState.visionType}");
+            LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has vision range:{visionRange} and is distance:{distance} " +
+                $"from target:{ActorLabel(target)} with visibility:{targetVisibility} - visionLockType is :{lockState.visionType}");
 
             // Determine sensor lock level
             float sourceSensorRange = CalculateSensorRange(source);
             float targetSignature = CalculateTargetSignature(target);
             float lockRange = sourceSensorRange * targetSignature;
-            LowVisibility.Logger.Log($"source:{ActorLabel(source)} has sensorsRange:{sourceSensorRange} and is distance:{distance} " +
+            LowVisibility.Logger.Log($"  -- source:{ActorLabel(source)} has sensorsRange:{sourceSensorRange} and is distance:{distance} " +
                 $"from target:{ActorLabel(target)} with signature:{targetSignature}");
 
             if (distance <= lockRange) {
                 if (sourceEWConfig.probeTier >= 0) {
                     lockState.sensorType = SensorLockType.ProbeID;
-                    LowVisibility.Logger.Log($"actor:{ActorLabel(source)} has lock with an active probe.");
+                    LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has lock with an active probe.");
                 } else {
                     lockState.sensorType = SensorLockType.SensorID;
-                    LowVisibility.Logger.Log($"actor:{ActorLabel(source)} has lock with base sensors.");
+                    LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has lock with base sensors.");
                 }                
             }
 

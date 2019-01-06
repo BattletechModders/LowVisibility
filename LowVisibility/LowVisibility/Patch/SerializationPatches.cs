@@ -20,11 +20,12 @@ namespace LowVisibility.Patch {
     public static class TurnDirector_Hydrate {
         public static void Postfix(TurnDirector __instance) {
             LowVisibility.Logger.LogIfDebug("TurnDirector:Hydrate:post - entered.");
-            foreach (AbstractActor actor in __instance.Combat.AllActors) {
-                RoundDetectRange detectRange = ActorHelper.MakeSensorRangeCheck(actor);
-                LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} has detectRange:{detectRange} this round!");
-                State.roundDetectResults[actor.GUID] = detectRange;
-            }
+            // TODO: Re-enable in a sane way. Note that hydrate will be called on a new game!
+            //foreach (AbstractActor actor in __instance.Combat.AllActors) {
+            //    RoundDetectRange detectRange = ActorHelper.MakeSensorRangeCheck(actor);
+            //    LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} has detectRange:{detectRange} this round!");
+            //    State.roundDetectResults[actor.GUID] = detectRange;
+            //}
         }
     }
 

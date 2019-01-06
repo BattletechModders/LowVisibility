@@ -109,6 +109,8 @@ _Sensor ID_ and _Active Probe ID_ require the source to have __detection__ to th
 
 ## WIP Features
 
+- [] BUG - Why can you see the blip beyond sensors range?
+- [] BUG - Weapons summary shown when beyond sensors range
 - [] Visibility for players is unit specific, unless models have ```share_sensor_lock``` tags
 - [] Visibility for enemies is unit specific, unless models have ```share_sensor_lock``` tags
 - [] Chance for VisualID to fail based upon a random roll

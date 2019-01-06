@@ -27,7 +27,7 @@ namespace LowVisibility.Patch {
                 AbstractActor target = __instance.DisplayedCombatant as AbstractActor;
                 bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                 if (!isPlayer) {
-                    LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastActiveActor(target.Combat), target);
+                    LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
                     if (lockState.sensorType == SensorLockType.ProbeID) {
                         // Do nothing - display everything per vanilla
                     } else if (lockState.sensorType == SensorLockType.None && lockState.visionType < VisionLockType.VisualID) {
@@ -55,7 +55,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDStatusPanel __instance) {
-            LowVisibility.Logger.LogIfDebug("CombatHUDStatusPanel:ShowActorStatuses:post - entered.");
+            LowVisibility.Logger.LogIfDebug("___ CombatHUDStatusPanel:ShowActorStatuses:post - entered.");
 
             if (__instance.DisplayedCombatant != null) {
                 Type[] iconMethodParams = new Type[] { typeof(SVGAsset), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) };

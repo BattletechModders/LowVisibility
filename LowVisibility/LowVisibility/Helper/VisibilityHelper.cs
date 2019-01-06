@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using static LowVisibility.Helper.ActorHelper;
 
 namespace LowVisibility.Helper {
@@ -34,6 +33,10 @@ namespace LowVisibility.Helper {
                 this.targetGUID = source.targetGUID;
                 this.visionType = source.visionType;
                 this.sensorType = source.sensorType;                
+            } 
+
+            public override string ToString() {
+                return $"visionLock:{visionType}, sensorLock:{sensorType}";
             }
         }
 
@@ -59,6 +62,7 @@ namespace LowVisibility.Helper {
             foreach (String targetGUID in targets) {
                 MessageCenter mc = Combat.MessageCenter;
                 mc.PublishMessage(new PlayerVisibilityChangedMessage(targetGUID));
+                LowVisibility.Logger.LogIfDebug($"Publishing state change for target:{targetGUID} -> actor:{ActorLabel(Combat.FindActorByGUID(targetGUID))}");
             }
         }
 
@@ -72,7 +76,7 @@ namespace LowVisibility.Helper {
 
                 // Check for update
                 HashSet<LockState> currentLocks = State.SourceActorLockStates.ContainsKey(source.GUID) ? State.SourceActorLockStates[source.GUID] : new HashSet<LockState>();
-                LockState currentLockState = currentLocks.First(ls => ls.targetGUID == target.GUID);
+                LockState currentLockState = currentLocks.FirstOrDefault(ls => ls.targetGUID == target.GUID);
                 if (currentLockState == null || currentLockState.visionType != lockState.visionType || currentLockState.sensorType != lockState.sensorType) {
                     LowVisibility.Logger.LogIfDebug($"Target:{ActorLabel(target)} lockState changed, addings to refresh targets.");
                     visibilityUpdates.Add(target.GUID);

@@ -19,5 +19,12 @@ namespace LowVisibility {
         // The penalty applied when the attacker only has LoS to the target (but not detection)
         public float VisualOnlyAttackPenalty = 2.0f;
 
+        public override string ToString() {
+            return $"debug:{Debug}, VisualIDRange:{VisualIDRange}, SensorsOnlyAttackPenalty:{SensorsOnlyAttackPenalty}, VisualOnlyAttackPenalty:{VisualOnlyAttackPenalty} " +
+                $"MechSensorRanges:{MechSensorRanges[0]}/{MechSensorRanges[1]}/{MechSensorRanges[2]} " +
+                $"VehicleSensorRanges:{VehicleSensorRanges[0]}/{VehicleSensorRanges[1]}/{VehicleSensorRanges[2]} " +
+                $"TurretSensorRanges:{TurretSensorRanges[0]}/{TurretSensorRanges[1]}/{TurretSensorRanges[2]} " +
+                $"UnknownSensorRanges:{UnknownSensorRanges[0]}/{UnknownSensorRanges[1]}/{UnknownSensorRanges[2]} ";
+        }
     }
 }

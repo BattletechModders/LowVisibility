@@ -26,9 +26,9 @@ namespace LowVisibility.Patch {
                 //bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 //bool isFriendly = __instance.Combat.HostilityMatrix.IsFriendly(actor.team, actor.Combat.LocalPlayerTeam);
 
-                if (!isPlayer) {
-                    //KnowYourFoe.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{target.DisplayName}_{target.GetPilot().Name} is enemy, neutral or allied.");
-                    LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastActiveActor(target.Combat), target);
+                if (!isPlayer) {                    
+                    LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
+                    LowVisibility.Logger.LogIfDebug($" ~~~ OpFor Actor:{ActorLabel(target)} has lockState:{lockState}");
                     if (lockState.sensorType == SensorLockType.ProbeID) {
                         __instance.WeaponList.SetActive(true);
                         __instance.MechArmorDisplay.gameObject.SetActive(true);
@@ -54,13 +54,13 @@ namespace LowVisibility.Patch {
                                 ___weaponNames[i].SetText("???");
                             }
                         }
-                        __instance.WeaponList.SetActive(false);
-                        __instance.MechArmorDisplay.gameObject.SetActive(false);
-                    } else if (lockState.visionType == VisionLockType.Silhouette && lockState.sensorType == SensorLockType.None) {
+                        __instance.WeaponList.SetActive(true);
+                        __instance.MechArmorDisplay.gameObject.SetActive(true);
+                    } else {
                         //KnowYourFoe.Logger.Log($"Detection state:{detectState} for actor:{target.DisplayName}_{target.GetPilot().Name} allows weapons to be seen.");
                         __instance.WeaponList.SetActive(false);
                         __instance.MechArmorDisplay.gameObject.SetActive(false);
-                    }
+                    } 
                 } else {
                     LowVisibility.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{target.DisplayName}_{target.GetPilot().Name} is player, showing panel.");
                 }

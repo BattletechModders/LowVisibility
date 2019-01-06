@@ -133,7 +133,7 @@ namespace LowVisibility.Patch {
 
             // The actual method should handle allied and friendly units fine, so we can just change it for enemies
             if (isEnemyOrNeutral && visibilityLevel > VisibilityLevel.Blip0Minimum) {
-                LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastActiveActor(___displayedActor.Combat), ___displayedActor);
+                LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(___displayedActor.Combat), ___displayedActor);
 
                 // Values that are always displayed
                 setGOActiveMethod.GetValue(__instance.NameDisplay, true);
