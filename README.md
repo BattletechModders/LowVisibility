@@ -106,28 +106,76 @@ _Silhouette ID_ and _VisualID_ require the source unit to have __visibility__ to
 
 _Sensor ID_ and _Active Probe ID_ require the source to have __detection__ to the target.
 
+## Stealth
+Stealth systems reduce the chance of the unit being targeted with a visual or sensor lock. 
+
+Component | Effect
+-- | --
+ __Chameleon Light Polarization Shield__ | TODO 
+__Stealth Armor__ | TODO 
+__Null-Signature System__ | TODO
+__Void-Signature System__ | TODO
+
+```lv-stealth_tX``` - applies ECM to the target unit instead of generating a bubble. Won't jam enemies around the unit, but automatically defeats the sensor suit of equal or lower tier X.
+
+```lv-stealth-range-mod_sX_mY_lZ``` - applies X as a modifier to any attack against the target at short range, Y at medium range and Z at long range.
+
+```lv-stealth-move-mod_mX_sZ``` - applies X as a modifier, and reduces it by -1 for each Y hexes the unit moves. m3_s2 would be a +3 modifier if the unit doesn't move, +2 if it moves 1-2 hexes, +1 for 3-4 hexes, +0 otherwise.
 
 ## WIP Features
 
-- [] BUG - Why can you see the blip beyond sensors range?
+- [] BUG - Tactics skill should influence chassis name, blip type (CombatNameHelper, LineOfSightPathces)
+
 - [] BUG - Weapons summary shown when beyond sensors range
-- [] Visibility for players is unit specific, unless models have ```share_sensor_lock``` tags
+
+- [] BUG - Enemies and neutral share vision currently. Probably want to split that?
+
+- [] BUG -Component damage should eliminate ECM, AP, Stealth bonuses
+
+- [x] Visibility for players is unit specific, unless models have ```share_sensor_lock``` tags
+
 - [] Visibility for enemies is unit specific, unless models have ```share_sensor_lock``` tags
-- [] Chance for VisualID to fail based upon a random roll
-- [] _Possible Info_ elements are randomly selected each round / actor (simulate one question note)
+
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
+
 - []```lv_shares_vision``` tag on components to share LOS
+
 - [] Implement Stealth, NSS, Void System visibility reduction
+
 - [] Implement Stealth, NSS, Void System evasion by movement semantics
+
 - [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_narc_effect```, show the target even if it's outside sensors/vision range. Apply no penalty?
+
 - [] Validate functionality works with saves - career, campaign, skirmish
-- [] Make shared vision toggleable, if possible?
+
 - [] Distinction between visual lock and sensor lock; if you have visual lock, you can see the target's silhouette. If you have sensor lock, your electronics can target them. You need both to have normal targeting modifiers.
+
 - [] If you have visual + sensor lock, you share your vision with allies. If you have sensor lock, and have the ```lv_share_sensor_lock``` tag, you share your sensor lock with allies.
+
 - [] Consider: Sensor info / penalty driven by range bands? You get more info at short range than long?
 
+- [] Consider: _Possible Info_ elements are randomly selected each round / actor (simulate one question note)
 
+- [] Consider: Chance for VisualID to fail based upon a random roll
 
+- [] Consider: Should stealth have a visibility modifier that changes as you move move? I.e. 0.1 visibility if you don't move, 0.5 if you do, etc. (Think Chameleon shield - should make it harder to see the less you move)
+
+- [] Make shared vision toggleable, if possible?
+
+    AbstractActor relevant statistics:
+
+    this.StatCollection.AddStatistic<float>("ToHitIndirectModifier", 0f);
+    this.StatCollection.AddStatistic<float>("AccuracyModifier", 0f);
+    this.StatCollection.AddStatistic<float>("CalledShotBonusMultiplier", 1f);
+    this.StatCollection.AddStatistic<float>("ToHitThisActor", 0f);
+    this.StatCollection.AddStatistic<float>("ToHitThisActorDirectFire", 0f);
+    this.StatCollection.AddStatistic<bool>("PrecisionStrike", false);
+    this.StatCollection.AddStatistic<int>("MaxEvasivePips", 4);	
+
+    AbstrasctActor:
+    ​		public int EvasivePipsCurrent { get; set; }
+    ​		public float DistMovedThisRound { get; set; }		
+    ​		
 ### ECM Bubbles
 
 ECM Equipment = ecm_t0
@@ -149,10 +197,10 @@ Notes: We don't follow the tech manual, we follow MaxTech. So Angel doesn't defe
 Information from various source books used in the creation of this mod is included here for reference purposes.
 
 * MaxTech gives visual range as
-	- 1800m for daylight
-	- 450 for twilight
-	- 300 for rain or smoke
-	- 150 for darkness
+  - 1800m for daylight
+  - 450 for twilight
+  - 300 for rain or smoke
+  - 150 for darkness
 * Converted to meters, MaxTech sensor ranges are:
   * Bloodhound Active Probe: 480 / 960 / 1440
   * Clan Active Probe: 450 / 900 / 1350
@@ -179,13 +227,25 @@ Information from various source books used in the creation of this mod is includ
   * Nova CEWS (Gear_Nova_CEWS) - No ECM can block CEWS except another CEWS. AP beats all other ECMs
     * Active Probe / 3 hexes
     * ECM / 3 hexes
-* StealthArmor - target cannot be a secondary target, adds flat +1/+2 based on range (medium/long)
-* Void Signature System - Cannot be targeted by electronic probes
+* Stealth Armor
+  * cannot be a secondary target
+  * adds flat +1 at medium range, +2 at long range
+  * ECM does not function, but 'Mech suffers effects as if in the radius of an enemy ECM suite
+  * Requires ECM
+* Null-Signature System (TacticalOperations: p336)
+  * Cannot be detected by BAP, only Bloodhound, CEWS
+  * Doesn't require ECM
+  * Any critical shuts down the system
+  * adds flat +1 at medium range, +2 at long range
+  * Can stack with Chameleon 
+* Void Signature System (TacticalOperations: P349)
+  * Can only be detected by a Bloodhound, CEWS - hidden from BAP, below
+  * Requires an ECM unit
+  * Any critical shuts down the system, as does losing the ECM
   * 0 movement = +3 penalty to hit
   * 1-2 hexes = +2 penalty to hit
   * 3-5 hexes = +1 penalty to hit
   * 6+ hexes = no penalty to hit
-* Chameleon Light Polarization Shield:
+* Chameleon Light Polarization Shield (TacticalOperations: p300)
   * medium range +1 to hit, long range +2 to hit
-* Null Signature Shield
-  - Needs details
+  * Reduces visibility based upon range as well?
