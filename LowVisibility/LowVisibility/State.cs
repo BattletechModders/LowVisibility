@@ -10,7 +10,10 @@ using static LowVisibility.Helper.VisibilityHelper;
 namespace LowVisibility {
     static class State {
 
+        // The vision range of the map
         private static float mapVisionRange = 0.0f;
+
+        // The range at which you can do visualID
         private static float visualIDRange = 0.0f;
 
         public static float GetMapVisionRange() {
@@ -102,17 +105,24 @@ namespace LowVisibility {
 
             // TESTING: This works better, but doesn't do it on activation for some reason?
             // ALSO: APPLIES TO BOTH PLAYER AND ENEMY - only update enemies!
-            foreach (string targetGUID in targetsWithVisibilityChanges) {
-                AbstractActor target = source.Combat.FindActorByGUID(targetGUID);
-                LockState targetLockState = GetUnifiedLockStateForTarget(source, target);
-                VisibilityLevel targetVisLevel = VisibilityLevel.None;
-                if (targetLockState.visionType == VisionLockType.None && targetLockState.sensorType != SensorLockType.None) {
-                    // TODO: This really should account for the tactics of the shared vision
-                    targetVisLevel = VisibilityLevelByTactics(source.GetPilot().Tactics);                    
-                } else if (targetLockState.visionType != VisionLockType.None && targetLockState.sensorType != SensorLockType.None) {
-                    target.OnPlayerVisibilityChanged(VisibilityLevel.LOSFull);
-                } // else - fallback to VisibilityLevel.None
-                target.OnPlayerVisibilityChanged(targetVisLevel);
+            if (isPlayer) {
+                foreach (string targetGUID in targetsWithVisibilityChanges) {
+                    AbstractActor target = source.Combat.FindActorByGUID(targetGUID);
+                    LockState targetLockState = GetUnifiedLockStateForTarget(source, target);
+                    VisibilityLevel targetVisLevel = VisibilityLevel.None;
+                    if (targetLockState.visionType != VisionLockType.None && targetLockState.sensorType == SensorLockType.None) {                        
+                        targetVisLevel = VisibilityLevel.LOSFull;
+                        LowVisibility.Logger.Log($"Only vision lock to actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
+                    } else if (targetLockState.visionType == VisionLockType.None && targetLockState.sensorType != SensorLockType.None) {
+                        // TODO: This really should account for the tactics of the shared vision
+                        targetVisLevel = VisibilityLevelByTactics(source.GetPilot().Tactics);
+                        LowVisibility.Logger.Log($"Only sensor lock to actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
+                    } else {
+                        LowVisibility.Logger.Log($"No vision or sensor lock to actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
+                    }
+                    LowVisibility.Logger.Log($"Setting actor:{ActorLabel(target)} visibility to:{targetVisLevel}");
+                    target.OnPlayerVisibilityChanged(targetVisLevel);
+                }
             }
         }
 

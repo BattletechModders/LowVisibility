@@ -90,6 +90,7 @@ namespace LowVisibility.Patch {
                             __instance.effectIconScale,
                             false
                         });
+                        // TODO: Indicate active probe?
                     }
 
                     // TODO: Better icon
@@ -98,17 +99,6 @@ namespace LowVisibility.Patch {
                             "uixSvgIcon_status_sensorsImpaired",
                             new Text("ECM JAMMING", new object[0]),
                             new Text($"Unit has an ECM jammer and will hide allies with {ewConfig.ecmRange * 30}m.", new object[0]),
-                            __instance.effectIconScale,
-                            false
-                        });
-                    }
-
-                    // TODO: Better icon
-                    if (ewConfig.probeTier > -1) {
-                        showDebuffIconMethod.GetValue(new object[] {
-                            LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon,
-                            new Text("ACTIVE PROBE", new object[0]),
-                            new Text($"Unit has an active probe which adds {ewConfig.probeRange * 30}m to detection range and allows it to detect component details.", new object[0]),
                             __instance.effectIconScale,
                             false
                         });

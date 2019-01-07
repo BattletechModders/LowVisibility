@@ -33,7 +33,7 @@ namespace LowVisibility.Helper {
 
             // Stealth armor
             public int stealthTier = -1;
-            public int[] stealthRangeMod = new int[] { 0, 0, 0 };
+            public int[] stealthRangeMod = new int[] { 0, 0, 0, 0 };
             public int[] stealthMoveMod = new int[] { 0, 0, 0 };
 
             // The amount of tactics bonus to the sensor check
@@ -45,16 +45,18 @@ namespace LowVisibility.Helper {
             public override string ToString() {
                 return $"tacticsBonus:+{tacticsBonus} ecmTier:{ecmTier} ecmRange:{ecmRange} " +
                     $"probeTier:{probeTier} probeRange:{probeRange} sharesSensors:{sharesSensors} " +
-                    $"stealthTier:{stealthTier} stealthRangeMod:{stealthRangeMod[0]}/{stealthRangeMod[1]}/{stealthRangeMod[2]} " +
+                    $"stealthTier:{stealthTier} stealthRangeMod:{stealthRangeMod[0]}/{stealthRangeMod[1]}/{stealthRangeMod[2]}/{stealthRangeMod[3]} " +
                     $"stealthMoveMod:{stealthMoveMod[0]}/{stealthMoveMod[1]}";
             }
 
             public bool HasStealthRangeMod() {
-                return stealthRangeMod != null && stealthRangeMod[0] != 0 && stealthRangeMod[1] != 0 && stealthRangeMod[2] != 0;
+                bool hasMod = stealthRangeMod != null && (stealthRangeMod[0] != 0 || stealthRangeMod[1] != 0 || stealthRangeMod[2] != 0 || stealthRangeMod[3] != 0);
+                return hasMod;
             }
 
             public bool HasStealthMoveMod() {
-                return stealthMoveMod != null && stealthMoveMod[0] != 0 && stealthMoveMod[1] != 0;
+                bool hasMod = stealthMoveMod != null && (stealthMoveMod[0] != 0 || stealthMoveMod[1] != 0);
+                return hasMod;
             }
 
         };
@@ -158,8 +160,9 @@ namespace LowVisibility.Helper {
                         int shortRange = Int32.Parse(split[1].Substring(1));
                         int mediumRange = Int32.Parse(split[2].Substring(1));
                         int longRange = Int32.Parse(split[3].Substring(1));
+                        int extremeRange = Int32.Parse(split[3].Substring(1));
                         if (actorStealthRangeMod == null) {
-                            actorStealthRangeMod = new int[] { shortRange, mediumRange, longRange };
+                            actorStealthRangeMod = new int[] { shortRange, mediumRange, longRange, extremeRange };
                         } else {
                             LowVisibility.Logger.Log($"Actor:{ActorLabel(actor)} has multiple StealthRangeMod components - turn on debug to see which one was applied");
                         }
@@ -200,7 +203,7 @@ namespace LowVisibility.Helper {
                 tacticsBonus = unitTacticsBonus,
                 sharesSensors = actorSharesSensors,
                 stealthTier = actorStealthTier,
-                stealthRangeMod = actorStealthRangeMod ?? (new int[] { 0, 0, 0 }),
+                stealthRangeMod = actorStealthRangeMod ?? (new int[] { 0, 0, 0, 0 }),
                 stealthMoveMod = actorStealthMoveMod ?? (new int[] { 0, 0 })
             };
             LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} EWConfig is:{config}");
@@ -287,9 +290,9 @@ namespace LowVisibility.Helper {
 
             // Add the probe range if present
             ActorEWConfig ewConfig = State.GetOrCreateActorEWConfig(source);
-            float probeRange = ewConfig.probeTier > -1 ? ewConfig.probeRange * 30.0f : 0.0f;
+            float probeRange = ewConfig.probeTier > -1 ? ewConfig.probeRange : 0.0f;
 
-            return baseSensorRange * staticSensorRangeMultis + staticSensorRangeMods + probeRange;
+            return (baseSensorRange + probeRange) * staticSensorRangeMultis + staticSensorRangeMods;
         }
 
         // Copy of LineOfSight::GetAllSensorRangeMultipliers

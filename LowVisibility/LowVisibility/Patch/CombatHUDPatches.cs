@@ -241,7 +241,7 @@ namespace LowVisibility.Patch {
             AbstractActor targetActor = target as AbstractActor;
             Traverse AddToolTipDetailMethod = Traverse.Create(__instance).Method("AddToolTipDetail", new Type[] { typeof(string), typeof(int) });
 
-            LowVisibility.Logger.LogIfDebug($"___CombatHUDTargetingComputer - SetHitChance for source:{ActorLabel(targetActor)} target:{ActorLabel(targetActor)}");
+            //LowVisibility.Logger.LogIfDebug($"___CombatHUDTargetingComputer - SetHitChance for source:{ActorLabel(targetActor)} target:{ActorLabel(targetActor)}");
             LockState lockState = State.GetUnifiedLockStateForTarget(actor, targetActor);
             if (lockState.sensorType == SensorLockType.None) {
                 AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", (int)LowVisibility.Config.NoSensorLockAttackPenalty });
@@ -254,12 +254,14 @@ namespace LowVisibility.Patch {
             if (targetEWConfig.HasStealthRangeMod()) {
                 float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
                 Weapon weapon = __instance.DisplayedWeapon;
-                if (distance <= weapon.MaxRange && distance >= weapon.LongRange && targetEWConfig.stealthRangeMod[2] != 0) {
+                if (targetEWConfig.stealthRangeMod[0] != 0 && distance < weapon.ShortRange) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - SHORT RANGE", targetEWConfig.stealthRangeMod[0] });
+                } else if (targetEWConfig.stealthRangeMod[1] != 0 && distance < weapon.MediumRange) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - MEDIUM RANGE", targetEWConfig.stealthRangeMod[1] });
+                } else if (targetEWConfig.stealthRangeMod[2] != 0 && distance < weapon.LongRange) {
                     AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - LONG RANGE", targetEWConfig.stealthRangeMod[2] });
-                } else if (distance < weapon.LongRange && distance >= weapon.MediumRange && targetEWConfig.stealthRangeMod[1] != 0) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - MEDIUM RANGE", targetEWConfig.stealthRangeMod[1] });                    
-                } else if (distance < weapon.MediumRange && distance >= weapon.ShortRange && targetEWConfig.stealthRangeMod[0] != 0) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - SHORT RANGE", targetEWConfig.stealthRangeMod[0] });                    
+                } else if (targetEWConfig.stealthRangeMod[3] != 0 && distance < weapon.MaxRange) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - EXTREME RANGE", targetEWConfig.stealthRangeMod[2] });
                 }
             }
         }

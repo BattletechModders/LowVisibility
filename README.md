@@ -154,8 +154,6 @@ __Void-Signature System__ | TODO
 
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
 
-- []```lv_shares_vision``` tag on components to share LOS
-
 - [] Implement Stealth, NSS, Void System visibility reduction
 
 - [] Implement Stealth, NSS, Void System evasion by movement semantics
