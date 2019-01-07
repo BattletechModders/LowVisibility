@@ -79,7 +79,6 @@ namespace LowVisibility {
                 SourceActorLockStates[source.GUID] = updatedLocks;
             }
 
-
             // Send a message updating the visibility of any actors that changed
             PublishVisibilityChange(Combat, targetsWithVisibilityChanges);
         }
@@ -89,6 +88,8 @@ namespace LowVisibility {
 
             HashSet<string> targetsWithVisibilityChanges = new HashSet<string>();
 
+            // TODO: Should calculate friendly and enemy changes on each iteration of this
+
             bool isPlayer = source.team == source.Combat.LocalPlayerTeam;
             List<AbstractActor> targets = isPlayer ? EnemyAndNeutralActors(source.Combat) : PlayerAndAlliedActors(source.Combat);
             HashSet<LockState> updatedLocks = new HashSet<LockState>();
@@ -97,7 +98,22 @@ namespace LowVisibility {
             SourceActorLockStates[source.GUID] = updatedLocks;
 
             // Send a message updating the visibility of any actors that changed
-            PublishVisibilityChange(source.Combat, targetsWithVisibilityChanges);
+            //PublishVisibilityChange(source.Combat, targetsWithVisibilityChanges); 
+
+            // TESTING: This works better, but doesn't do it on activation for some reason?
+            // ALSO: APPLIES TO BOTH PLAYER AND ENEMY - only update enemies!
+            foreach (string targetGUID in targetsWithVisibilityChanges) {
+                AbstractActor target = source.Combat.FindActorByGUID(targetGUID);
+                LockState targetLockState = GetUnifiedLockStateForTarget(source, target);
+                VisibilityLevel targetVisLevel = VisibilityLevel.None;
+                if (targetLockState.visionType == VisionLockType.None && targetLockState.sensorType != SensorLockType.None) {
+                    // TODO: This really should account for the tactics of the shared vision
+                    targetVisLevel = VisibilityLevelByTactics(source.GetPilot().Tactics);                    
+                } else if (targetLockState.visionType != VisionLockType.None && targetLockState.sensorType != SensorLockType.None) {
+                    target.OnPlayerVisibilityChanged(VisibilityLevel.LOSFull);
+                } // else - fallback to VisibilityLevel.None
+                target.OnPlayerVisibilityChanged(targetVisLevel);
+            }
         }
 
         public static LockState GetUnifiedLockStateForTarget(AbstractActor source, AbstractActor target) {
