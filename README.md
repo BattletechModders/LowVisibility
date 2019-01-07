@@ -1,10 +1,17 @@
 # Low Visibility
-This is a mod for the [HBS BattleTech](http://battletechgame.com/) game that adds a modified version of the double-blind visibility rules from the MaxTech sourcebook. A brief list of features includes:
-  * Instead of a flat sensor range, units make a check each turn to determine their effect sensor range. On a good roll, the unit will increase their sensor range to x1.5 or x2.5 their base range. On poor roll, the unit will be only able to detect units visually. A high tactics skill improves this roll.
-  * Unit details are hidden and only revealed with better quality sensors. Visual identification will only give you the mech chassis, while basic sensors will tell you the weapons and evasion pips. Active probes are required to see where components are located, current heat and stability values.
-  * ECM equipment emits a bubble that prevents sensors from operating properly. Enemy and neutral units within the bubble suffer significant penalties to their sensor checks which can cause them to be unable to detect opponents.
-  * Active probes defeat ECM equipment, and provide comprehensive details on enemy targets.
-  * The map environment influences the visibility range of units. Rain, fog and snow significantly reduce visual identification range, making sensors more important.
+This is a mod for the [HBS BattleTech](http://battletechgame.com/) game that introduces a new layer of depth into the detection mechanics of the game. These changes are largely modeled off the MaxTech guidelines, with adaptations to fit the video game format.
+
+The mod splits detections into two types - __visual lock__ and __sensor lock__. _Visual Lock_ occurs when your unit can see a target with the naked eye, and is influenced by the map environment and equipment.  _Sensor Lock_ occurs when your unit can identify a target using electronic sensors, which is influenced by ECM, Active Probes, and the skill of the pilot.
+
+Each type of lock has several levels indicating a stronger identification of the target. _Visual Locks_ offer the least information, providing little more than the target's chassis (Atlas, Catapult, Missile Carrier) at long ranges. Once a unit is close enough, rough approximations of armor values and possible weapon mounts can be identified, but it's all the pilot's guesswork.
+
+_Sensor Locks_ offer more detailed information, depending on the type of sensors that are equipped. Basic sensors provides a information like the chassis name and rough weapon composition, and randomly determines one deeper inspection of the unit - the actual weapons equipped, the current armor values, or the heat and stability of the target. __Active Probes__ go further and provide full information about the target, as per the vanilla experience. Component locations are identified, as are target buffs and debuffs.
+
+Unfortunately _Sensor Locks_ aren't reliable, since they depend on the pilot's skill and attention. At the start of each round, every unit makes a __Sensor Check__ which determines how well their sensors function. If the roll is failed, units have to rely upon _visual locks_ that round, or _sensor locks_ from allies. On a good roll, the range of the unit's sensors is increased for that round, allowing them to detect distant enemies.
+
+ECM components generate interference in a bubble around the unit, which makes the _sensor check_ of enemy units within that bubble more difficult. This can shutdown enemy sensors entirely, though more advanced _active probes_ can ignore this effect.
+
+Stealth armor makes the equipped unit harder to detect, but does not generate an ECM bubble. Units attempting to detect a target with stealth armor need an active probe of equal to higher technology, or they will be completely unable to detect their foe.
 
 This mod was specifically designed to work with [RogueTech](http://roguetech.org). Running standalone should work, but has not been tested.
 
@@ -116,12 +123,12 @@ Probes of an equal tier penetrate jammers, to a T1 probe will penetrate a T1 jam
 
 ## Stealth
 
-Stealth systems reduce the chance of the unit being targeted with a visual or sensor lock. 
+Stealth systems reduce the chance of the unit being targeted with a visual or sensor lock.
 
 Component | Effect
 -- | --
- __Chameleon Light Polarization Shield__ | TODO 
-__Stealth Armor__ | TODO 
+ __Chameleon Light Polarization Shield__ | TODO
+__Stealth Armor__ | TODO
 __Null-Signature System__ | TODO
 __Void-Signature System__ | TODO
 
@@ -152,7 +159,10 @@ __Void-Signature System__ | TODO
 - [] Implement Stealth, NSS, Void System visibility reduction
 
 - [] Implement Stealth, NSS, Void System evasion by movement semantics
-
+- [] Pilot tactics should provide a better guess of weapon types for _VisualID_
+- [] Move SensorCheck to start of unit activation, not start of round. Generate one at the start of combat to ensure visibility can be initialized at that time.
+- [] VisionLock and VisualID ranges should be modified by equipment.
+- [] SensorLock.SensorsID should randomly provide one piece of information about the target (armor, weapons, heat, ...?)
 - [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_narc_effect```, show the target even if it's outside sensors/vision range. Apply no penalty?
 
 - [] Validate functionality works with saves - career, campaign, skirmish
@@ -167,6 +177,8 @@ __Void-Signature System__ | TODO
 
 - [] Consider: Chance for VisualID to fail based upon a random roll
 
+- [] Consider: Should target debuffs/buffs be shown? Feels sorta cheaty to know what the target actually has in terms of equipment buffs. Though since you can see components, you should be able to infer that...
+
 - [] Consider: Should stealth have a visibility modifier that changes as you move move? I.e. 0.1 visibility if you don't move, 0.5 if you do, etc. (Think Chameleon shield - should make it harder to see the less you move)
 
 - [] Make shared vision toggleable, if possible?
@@ -179,7 +191,7 @@ __Void-Signature System__ | TODO
     this.StatCollection.AddStatistic<float>("ToHitThisActor", 0f);
     this.StatCollection.AddStatistic<float>("ToHitThisActorDirectFire", 0f);
     this.StatCollection.AddStatistic<bool>("PrecisionStrike", false);
-    this.StatCollection.AddStatistic<int>("MaxEvasivePips", 4);	
+    this.StatCollection.AddStatistic<int>("MaxEvasivePips", 4);
 
     AbstrasctActor:
     ​		public int EvasivePipsCurrent { get; set; }
@@ -246,7 +258,7 @@ Information from various source books used in the creation of this mod is includ
   * Doesn't require ECM
   * Any critical shuts down the system
   * adds flat +1 at medium range, +2 at long range
-  * Can stack with Chameleon 
+  * Can stack with Chameleon
 * Void Signature System (TacticalOperations: P349)
   * Can only be detected by a Bloodhound, CEWS - hidden from BAP, below
   * Requires an ECM unit
