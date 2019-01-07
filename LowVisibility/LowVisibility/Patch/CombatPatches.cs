@@ -35,7 +35,7 @@ namespace LowVisibility.Patch {
             }
 
             // Update the current vision for all allied and friendly units
-            State.UpdatePlayerAndAlliedDetection(__instance.Combat);
+            State.UpdateDetectionOnRoundBegin(__instance.Combat);
         }
     }
 

@@ -78,6 +78,7 @@
     <Compile Include="Patch\LineOfSightPatches.cs" />
     <Compile Include="Patch\CombatPatches.cs" />
     <Compile Include="Patch\SerializationPatches.cs" />
+    <Compile Include="Patch\ToHitPatches.cs" />
     <Compile Include="Patch\UIPatches.cs" />
     <Compile Include="Patch\WeaponPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

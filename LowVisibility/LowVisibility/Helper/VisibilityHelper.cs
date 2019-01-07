@@ -66,10 +66,9 @@ namespace LowVisibility.Helper {
             }
         }
 
-        public static void CalculateTargetLocks(AbstractActor source, HashSet<LockState> updatedLocks, HashSet<string> visibilityUpdates) {
+        public static void CalculateTargetLocks(AbstractActor source, List<AbstractActor> targets, HashSet<LockState> updatedLocks, HashSet<string> visibilityUpdates) {
 
-            List<AbstractActor> enemyOrNeutralActors = EnemyAndNeutralActors(source.Combat);
-            foreach (AbstractActor target in enemyOrNeutralActors) {
+            foreach (AbstractActor target in targets) {
                 LockState lockState = CalculateLock(source, target);
                 LowVisibility.Logger.LogIfDebug($"Updated lockState for source:{ActorLabel(source)} vs. target:{ActorLabel(target)} is lockState:{lockState}");
                 updatedLocks.Add(lockState);

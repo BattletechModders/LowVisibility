@@ -13,14 +13,14 @@ namespace LowVisibility {
         // The range from which you can identify a unit using visuals only
         public float VisualIDRange = 3.0f * 30;
 
-        // The penalty applied when the attacker only has detection to the target (but not Los)
-        public float SensorsOnlyAttackPenalty = 2.0f;
-
         // The penalty applied when the attacker only has LoS to the target (but not detection)
-        public float VisualOnlyAttackPenalty = 2.0f;
+        public float NoSensorLockAttackPenalty = 2.0f;
+
+        // The penalty applied when the attacker only has detection to the target (but not Los)
+        public float NoVisualLockAttackPenalty = 2.0f;
 
         public override string ToString() {
-            return $"debug:{Debug}, VisualIDRange:{VisualIDRange}, SensorsOnlyAttackPenalty:{SensorsOnlyAttackPenalty}, VisualOnlyAttackPenalty:{VisualOnlyAttackPenalty} " +
+            return $"debug:{Debug}, VisualIDRange:{VisualIDRange}, SensorsOnlyAttackPenalty:{NoSensorLockAttackPenalty}, VisualOnlyAttackPenalty:{NoVisualLockAttackPenalty} " +
                 $"MechSensorRanges:{MechSensorRanges[0]}/{MechSensorRanges[1]}/{MechSensorRanges[2]} " +
                 $"VehicleSensorRanges:{VehicleSensorRanges[0]}/{VehicleSensorRanges[1]}/{VehicleSensorRanges[2]} " +
                 $"TurretSensorRanges:{TurretSensorRanges[0]}/{TurretSensorRanges[1]}/{TurretSensorRanges[2]} " +

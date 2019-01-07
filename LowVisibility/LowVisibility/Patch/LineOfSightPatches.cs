@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
+using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patch {
 
@@ -156,6 +157,12 @@ namespace LowVisibility.Patch {
                     visibilityLevel = VisibilityLevel.None;
                 } else {
                     visibilityLevel = (VisibilityLevel)shadowingVisLevel;
+                }
+
+                // If EW effects have rendered the target invisible, break the lock
+                LockState lockState = State.GetUnifiedLockStateForTarget(source, targetActor);
+                if (lockState.sensorType == SensorLockType.None && lockState.visionType == VisionLockType.None) {
+                    visibilityLevel = VisibilityLevel.None;
                 }
             }
             __result = visibilityLevel;

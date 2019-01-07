@@ -1,10 +1,7 @@
 ﻿using BattleTech;
 using BattleTech.UI;
 using Harmony;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
@@ -38,7 +35,6 @@ namespace LowVisibility.Patch {
                         Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
                         GameObject weaponsLabel = weaponListT.gameObject;
                         TextMeshProUGUI labelText = weaponsLabel.GetComponent<TextMeshProUGUI>();
-                        //KnowYourFoe.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - found labelText with text:{labelText.text}");
                         labelText.SetText("???");
 
                         // Update the weapons
@@ -60,7 +56,11 @@ namespace LowVisibility.Patch {
                         //KnowYourFoe.Logger.Log($"Detection state:{detectState} for actor:{target.DisplayName}_{target.GetPilot().Name} allows weapons to be seen.");
                         __instance.WeaponList.SetActive(false);
                         __instance.MechArmorDisplay.gameObject.SetActive(false);
-                    } 
+
+                        Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
+                        GameObject weaponsLabel = weaponListT.gameObject;
+                        weaponsLabel.SetActive(false);
+                    }
                 } else {
                     LowVisibility.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{target.DisplayName}_{target.GetPilot().Name} is player, showing panel.");
                 }

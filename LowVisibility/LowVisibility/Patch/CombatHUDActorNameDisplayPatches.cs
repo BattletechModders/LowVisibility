@@ -2,6 +2,7 @@
 using BattleTech.UI;
 using Harmony;
 using Localize;
+using LowVisibility.Helper;
 using System;
 using static LowVisibility.Helper.VisibilityHelper;
 
@@ -14,12 +15,12 @@ namespace LowVisibility.Patch {
             Mech.VariantName = AS7-D
             Mech.NickName = Atlas II AS7-D-HT or Atlas AS7-D
         */
-        public static Text GetDetectionLabel(VisibilityLevel visLevel, LockState lockState,
+        public static Text GetDetectionLabel(VisibilityLevel visLevel, LockState lockState, VisibilityLevel blipLevel,
             string fullName, string variantName, string chassisName, string type, float tonnage) {
 
             Text response = new Text("?");
 
-            // TODO: Refine VisualID, Silhouette values here
+            // TODO: Refine and use blipLevel more here
             if (visLevel == VisibilityLevel.LOSFull) {
                 // HBS: Full details
                 if (lockState.sensorType == SensorLockType.ProbeID) {
@@ -31,7 +32,6 @@ namespace LowVisibility.Patch {
                 } else {
                     response = new Text($"{type}");
                 }
-
             } else if (visLevel >= VisibilityLevel.Blip0Minimum) {
                 // HBS: Type only
                 if (lockState.sensorType == SensorLockType.ProbeID) {
@@ -82,7 +82,8 @@ namespace LowVisibility.Patch {
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.MechDef.Chassis.Tonnage;
 
-                Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, fullName, variantName, chassisName, "MECH", tonnage);
+                VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
+                Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "MECH", tonnage);
                 LowVisibility.Logger.LogIfDebug($"Mech:GetActorInfoFromVisLevel:post - response:({response}) for " +
                     $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName})");
                 __result = response;
@@ -112,7 +113,8 @@ namespace LowVisibility.Patch {
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.TurretDef.Chassis.Tonnage;
 
-                Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, fullName, variantName, chassisName, "TURRET", tonnage);
+                VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
+                Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "TURRET", tonnage);
                 LowVisibility.Logger.Log($"Turret:GetActorInfoFromVisLevel:post - response:({response}) for " +
                     $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName})");
                 __result = response;
@@ -144,7 +146,8 @@ namespace LowVisibility.Patch {
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.VehicleDef.Chassis.Tonnage;
 
-                Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, fullName, variantName, chassisName, "VEHICLE", tonnage);
+                VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
+                Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "VEHICLE", tonnage);
                 LowVisibility.Logger.Log($"Vehicle:GetActorInfoFromVisLevel:post - response:({response}) for " +
                     $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName})");
                 __result = response;

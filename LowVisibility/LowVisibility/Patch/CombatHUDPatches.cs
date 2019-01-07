@@ -4,6 +4,7 @@ using Harmony;
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
 using static LowVisibility.Helper.VisibilityHelper;
 
@@ -226,6 +227,40 @@ namespace LowVisibility.Patch {
 
                 CombatHUDStateStack stateStack = (CombatHUDStateStack)Traverse.Create(__instance).Property("StateStack").GetValue();
                 setGOActiveMethod.GetValue(stateStack, false);
+            }
+        }
+    }
+    
+    [HarmonyPatch(typeof(CombatHUDWeaponSlot), "SetHitChance", new Type[] { typeof(ICombatant) })]
+    public static class CombatHUDWeaponSlot_SetHitChance {
+
+        private static void Postfix(CombatHUDWeaponSlot __instance, ICombatant target) {
+            if (__instance == null || target == null) { return;  }
+
+            AbstractActor actor = __instance.DisplayedWeapon.parent;
+            AbstractActor targetActor = target as AbstractActor;
+            Traverse AddToolTipDetailMethod = Traverse.Create(__instance).Method("AddToolTipDetail", new Type[] { typeof(string), typeof(int) });
+
+            LowVisibility.Logger.LogIfDebug($"___CombatHUDTargetingComputer - SetHitChance for source:{ActorLabel(targetActor)} target:{ActorLabel(targetActor)}");
+            LockState lockState = State.GetUnifiedLockStateForTarget(actor, targetActor);
+            if (lockState.sensorType == SensorLockType.None) {
+                AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", (int)LowVisibility.Config.NoSensorLockAttackPenalty });
+            }
+            if (lockState.visionType == VisionLockType.None) {
+                AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", (int)LowVisibility.Config.NoVisualLockAttackPenalty });
+            }
+
+            ActorEWConfig targetEWConfig = State.GetOrCreateActorEWConfig(target as AbstractActor);
+            if (targetEWConfig.HasStealthRangeMod()) {
+                float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
+                Weapon weapon = __instance.DisplayedWeapon;
+                if (distance <= weapon.MaxRange && distance >= weapon.LongRange && targetEWConfig.stealthRangeMod[2] != 0) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - LONG RANGE", targetEWConfig.stealthRangeMod[2] });
+                } else if (distance < weapon.LongRange && distance >= weapon.MediumRange && targetEWConfig.stealthRangeMod[1] != 0) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - MEDIUM RANGE", targetEWConfig.stealthRangeMod[1] });                    
+                } else if (distance < weapon.MediumRange && distance >= weapon.ShortRange && targetEWConfig.stealthRangeMod[0] != 0) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - SHORT RANGE", targetEWConfig.stealthRangeMod[0] });                    
+                }
             }
         }
     }
