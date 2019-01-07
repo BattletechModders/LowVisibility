@@ -68,7 +68,7 @@ Others | 150 | 250 | 350
 
 This base value replaces the base sensor distance value from SimGameConstants for that model, but otherwise sensor detection ranges occur normally.
 
-#### ECM Jamming Modifier
+#### Jamming Modifier
 
 When the source unit begins it's activation within an ECM bubble, its sensors will be __Jammed__ by the enemy ECM. Units in this state will have a debuff icon in the HUD stating they are _Jammed_ but the source will not be identified. Units will also display a floating notification when they begin their phase or end their movement within an ECM bubble. _Jammed_ units reduce their sensor check result by the ECM modifier of the jamming unit.  This modifier is variable, but typically will be in the -12 to -24 range. Some common values are:
 
@@ -106,7 +106,16 @@ _Silhouette ID_ and _VisualID_ require the source unit to have __visibility__ to
 
 _Sensor ID_ and _Active Probe ID_ require the source to have __detection__ to the target.
 
+## Jamming Details
+TODO: Clean this up
+
+```lv-jammer_tX_rY_mZ``` creates an ECM bubble of tier X in a circle of Y hexes (\*30 meters in game) around the source unit. The Jammer imposes a penalty of Z to any sensor checks by jammed units.
+```lv-probe-tX_rY_mZ``` is a probe that of tier X. It adds Y hexes (\*30 meters in game) to the source unit's sensors range. It adds a bonus of Z to sensor checks made by this unit.
+
+Probes of an equal tier penetrate jammers, to a T1 probe will penetrate a T1 jammer. This means the jammer won't add it's penalty to the source unit.
+
 ## Stealth
+
 Stealth systems reduce the chance of the unit being targeted with a visual or sensor lock. 
 
 Component | Effect
