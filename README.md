@@ -161,6 +161,12 @@ __Void-Signature System__ | TODO
 
 - [] If you have visual + sensor lock, you share your vision with allies. If you have sensor lock, and have the ```lv_share_sensor_lock``` tag, you share your sensor lock with allies.
 
+- [] Implement  rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
+
+- [] Implement stealth multi-target prohibition
+
+- [] Implement stealth movement mod through modifier like others (no need to get fancy)
+
 - [] Consider: Sensor info / penalty driven by range bands? You get more info at short range than long?
 
 - [] Consider: _Possible Info_ elements are randomly selected each round / actor (simulate one question note)
