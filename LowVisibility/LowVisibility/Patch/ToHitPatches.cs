@@ -36,13 +36,13 @@ namespace LowVisibility.Patch {
                 if (targetEWConfig.stealthRangeMod[0] != 0 && distance < weapon.ShortRange) {
                     __result = __result + (float)targetEWConfig.stealthRangeMod[0];
                     LowVisibility.Logger.LogIfDebug($"  Adding modifier {targetEWConfig.stealthRangeMod[0]} due to short range shot.");
-                } else if (targetEWConfig.stealthRangeMod[1] != 0 && distance < weapon.MediumRange) {
+                } else if (targetEWConfig.stealthRangeMod[1] != 0 && distance < weapon.MediumRange && distance >= weapon.ShortRange) {
                     __result = __result + (float)targetEWConfig.stealthRangeMod[1];
                     LowVisibility.Logger.LogIfDebug($"  Adding modifier {targetEWConfig.stealthRangeMod[1]} due to medium range shot.");
-                } else if (targetEWConfig.stealthRangeMod[2] != 0 && distance < weapon.LongRange) {
+                } else if (targetEWConfig.stealthRangeMod[2] != 0 && distance < weapon.LongRange && distance >= weapon.MediumRange) {
                     __result = __result + (float)targetEWConfig.stealthRangeMod[2];
                     LowVisibility.Logger.LogIfDebug($"  Adding modifier {targetEWConfig.stealthRangeMod[2]} due to long range shot.");
-                } else if (targetEWConfig.stealthRangeMod[3] != 0 && distance < weapon.MaxRange) {
+                } else if (targetEWConfig.stealthRangeMod[3] != 0 && distance < weapon.MaxRange && distance >= weapon.LongRange) {
                     __result = __result + (float)targetEWConfig.stealthRangeMod[3];
                     LowVisibility.Logger.LogIfDebug($"  Adding modifier {targetEWConfig.stealthRangeMod[2]} due to max range shot.");
                 }
@@ -70,13 +70,13 @@ namespace LowVisibility.Patch {
                 if (targetEWConfig.stealthRangeMod[0] != 0 && distance < weapon.ShortRange) {
                     __result = string.Format("{0}STEALTH - SHORT RANGE{1:+#;-#}; ", __result, targetEWConfig.stealthRangeMod[0]);
                     LowVisibility.Logger.LogIfDebug($"  Displaying modifier {targetEWConfig.stealthRangeMod[0]} due to short range shot.");
-                } else if (targetEWConfig.stealthRangeMod[1] != 0 && distance < weapon.MediumRange) {
+                } else if (targetEWConfig.stealthRangeMod[1] != 0 && distance < weapon.MediumRange && distance >= weapon.ShortRange) {
                     __result = string.Format("{0}STEALTH - MEDIUM RANGE{1:+#;-#}; ", __result, targetEWConfig.stealthRangeMod[1]);
                     LowVisibility.Logger.LogIfDebug($"  Displaying modifier {targetEWConfig.stealthRangeMod[1]} due to medium range shot.");
-                } else if (targetEWConfig.stealthRangeMod[2] != 0 && distance < weapon.LongRange) {
+                } else if (targetEWConfig.stealthRangeMod[2] != 0 && distance < weapon.LongRange && distance >= weapon.MediumRange) {
                     __result = string.Format("{0}STEALTH - LONG RANGE{1:+#;-#}; ", __result, targetEWConfig.stealthRangeMod[2]);
                     LowVisibility.Logger.LogIfDebug($"  Displaying modifier {targetEWConfig.stealthRangeMod[2]} due to long range shot.");
-                } else if (targetEWConfig.stealthRangeMod[3] != 0 && distance < weapon.MaxRange) {
+                } else if (targetEWConfig.stealthRangeMod[3] != 0 && distance < weapon.MaxRange && distance >= weapon.LongRange) {
                     __result = string.Format("{0}STEALTH - EXTREME RANGE{1:+#;-#}; ", __result, targetEWConfig.stealthRangeMod[2]);
                     LowVisibility.Logger.LogIfDebug($"  Displaying modifier {targetEWConfig.stealthRangeMod[2]} due to extreme range shot.");
                 }

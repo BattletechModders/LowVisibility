@@ -144,6 +144,8 @@ __Void-Signature System__ | TODO
 
 - [] BUG - Weapons summary shown when beyond sensors range
 
+- [] BUG - Visibility isn't resetting immediately, leaving stealth units 'hidden'. Also results in weird quirks.
+
 - [] BUG - Enemies and neutral share vision currently. Probably want to split that?
 
 - [] BUG -Component damage should eliminate ECM, AP, Stealth bonuses

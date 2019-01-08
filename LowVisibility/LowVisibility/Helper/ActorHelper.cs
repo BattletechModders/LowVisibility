@@ -70,7 +70,7 @@ namespace LowVisibility.Helper {
         };
 
         // See MaxTech pg.55 for detect range check. We adjust scale from 12 to 36 to allow tactics modifier to apply
-        public static RoundDetectRange MakeSensorRangeCheck(AbstractActor actor) {
+        public static RoundDetectRange MakeSensorRangeCheck(AbstractActor actor, bool doFloatie=false) {
             ActorEWConfig config = State.GetOrCreateActorEWConfig(actor);
             int randomRoll = LowVisibility.Random.Next(0, 36);
             int jammingMod = State.IsJammed(actor) ? config.probeModifier - State.JammingStrength(actor) : 0;            
@@ -91,7 +91,10 @@ namespace LowVisibility.Helper {
             } else {
                 LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} FAILED their check.");
                 detectRange = RoundDetectRange.VisualOnly;
-                actor.Combat.MessageCenter.PublishMessage(new FloatieMessage(actor.GUID, actor.GUID, "Sensor Check Failed - visuals only!", FloatieMessage.MessageNature.Neutral));
+                if (doFloatie) {
+                    actor.Combat.MessageCenter.PublishMessage(
+                        new FloatieMessage(actor.GUID, actor.GUID, "Sensor Check Failed - visuals only!", FloatieMessage.MessageNature.Neutral));
+                }
             }
 
             // TODO: Should this move to another place
@@ -237,7 +240,9 @@ namespace LowVisibility.Helper {
             
             float distance = Vector3.Distance(source.CurrentPosition, target.CurrentPosition);
             float targetVisibility = CalculateTargetVisibility(target);
+
             float visionRange = State.GetVisualIDRange() * targetVisibility;
+
             if (distance <= visionRange) { lockState.visionType = VisionLockType.VisualID; }
             LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has vision range:{visionRange} and is distance:{distance} " +
                 $"from target:{ActorLabel(target)} with visibility:{targetVisibility} - visionLockType is :{lockState.visionType}");

@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using BattleTech.UI;
 using Harmony;
 using System;
 using System.Reflection;
@@ -7,14 +8,33 @@ using static LowVisibility.Helper.ActorHelper;
 
 namespace LowVisibility.Patch {
 
+    public static class Helper {
+
+        public static void MakeSensorChecksOnLoad(CombatGameState Combat) {
+            LowVisibility.Logger.Log($"Initializing all actor detectChecks OnStart or OnLoad");
+            foreach (AbstractActor actor in Combat.AllActors) {
+                RoundDetectRange detectRange = MakeSensorRangeCheck(actor, false);
+                LowVisibility.Logger.LogIfDebug($"  Actor:{actor.DisplayName}_{actor.GetPilot().Name} has detectRange:{detectRange} at load/start");
+                State.RoundDetectResults[actor.GUID] = detectRange;
+            }
+        }
+    }
+
     // Setup the actor and pilot states at the start of the encounter
     [HarmonyPatch(typeof(TurnDirector), "OnEncounterBegin")]
     public static class TurnDirector_OnEncounterBegin {
 
         public static void Postfix(TurnDirector __instance) {
             LowVisibility.Logger.LogIfDebug("=== TurnDirector:OnEncounterBegin:post - entered.");
+
+            // Do a pre-encounter populate 
+            if (__instance != null && __instance.Combat != null && __instance.Combat.AllActors != null) {
+                Helper.MakeSensorChecksOnLoad(__instance.Combat);
+            }
         }
     }
+
+
 
     [HarmonyPatch()]
     public static class TurnDirector_BeginNewRound {
@@ -26,16 +46,9 @@ namespace LowVisibility.Patch {
 
         public static void Prefix(TurnDirector __instance) {
             LowVisibility.Logger.LogIfDebug("=== TurnDirector:BeginNewRound:post - entered.");
-            // Determine the sensor check result for each actor
-            foreach (AbstractActor actor in __instance.Combat.AllActors) {
-                RoundDetectRange detectRange = MakeSensorRangeCheck(actor);
-                LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} has detectRange:{detectRange} this round!");
-                State.roundDetectResults[actor.GUID] = detectRange;
-                
-            }
 
             // Update the current vision for all allied and friendly units
-            State.UpdateDetectionOnRoundBegin(__instance.Combat);
+            State.UpdateDetectionForAllActors(__instance.Combat);
         }
     }
 
@@ -81,14 +94,44 @@ namespace LowVisibility.Patch {
 
         public static void Prefix(AbstractActor __instance) {
             LowVisibility.Logger.LogIfDebug($"=== AbstractActor:OnActivationBegin:pre - handling {ActorLabel(__instance)}.");
-            if (__instance != null) {
-                CheckForJamming(__instance);
-                State.UpdateActorDetection(__instance);
+            bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
+            if (!isPlayer) {
+                // Players are selected through the TrySelectActor patch below.
 
-                bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
+                // Make Round Check first
+                RoundDetectRange detectRange = MakeSensorRangeCheck(__instance, false);
+                LowVisibility.Logger.LogIfDebug($"  Actor:{ActorLabel(__instance)} has detectRange:{detectRange} at start of activation");
+                State.RoundDetectResults[__instance.GUID] = detectRange;
+
+                // Check for jamming next
+                AbstractActor_OnActivationBegin.CheckForJamming(__instance);
+
+                // Then update detection 
+                State.UpdateActorDetection(__instance);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(CombatSelectionHandler), "TrySelectActor")]
+    public static class CombatSelectionHandler_TrySelectActor {
+        public static void Postfix(CombatSelectionHandler __instance, bool __result, AbstractActor actor, bool manualSelection) {
+            LowVisibility.Logger.LogIfDebug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {ActorLabel(actor)}.");
+            if (__instance != null && actor != null && __result == true) {
+                // Make Round Check first
+                RoundDetectRange detectRange = MakeSensorRangeCheck(actor, true);
+                LowVisibility.Logger.LogIfDebug($"  Actor:{ActorLabel(actor)} has detectRange:{detectRange} at start of activation");
+                State.RoundDetectResults[actor.GUID] = detectRange;
+
+                // Check for jamming next
+                AbstractActor_OnActivationBegin.CheckForJamming(actor);
+
+                // Then update detection 
+                State.UpdateActorDetection(actor);
+
+                bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 if (isPlayer) {
-                    State.LastPlayerActivatedActor = __instance;
-                }                
+                    State.LastPlayerActivatedActorGUID = actor.GUID;
+                }
             }
         }
     }
@@ -98,8 +141,9 @@ namespace LowVisibility.Patch {
     public static class Mech_OnMovePhaseComplete {
         public static void Postfix(Mech __instance) {
             LowVisibility.Logger.LogIfDebug($"=== Mech:OnMovePhaseComplete:post - entered for {ActorLabel(__instance)}.");
+
             AbstractActor_OnActivationBegin.CheckForJamming(__instance);            
-            State.UpdateActorDetection(__instance);
+            State.UpdateDetectionForAllActors(__instance.Combat);
         }
     }
 
@@ -108,8 +152,9 @@ namespace LowVisibility.Patch {
     public static class Vehicle_OnMovePhaseComplete {
         public static void Postfix(Vehicle __instance) {
             LowVisibility.Logger.LogIfDebug($"=== Vehicle:OnMovePhaseComplete:post - entered for {ActorLabel(__instance)}.");
+
             AbstractActor_OnActivationBegin.CheckForJamming(__instance);
-            State.UpdateActorDetection(__instance);
+            State.UpdateDetectionForAllActors(__instance.Combat);
         }
     }
 

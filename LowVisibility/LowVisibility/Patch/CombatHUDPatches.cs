@@ -256,11 +256,11 @@ namespace LowVisibility.Patch {
                 Weapon weapon = __instance.DisplayedWeapon;
                 if (targetEWConfig.stealthRangeMod[0] != 0 && distance < weapon.ShortRange) {
                     AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", targetEWConfig.stealthRangeMod[0] });
-                } else if (targetEWConfig.stealthRangeMod[1] != 0 && distance < weapon.MediumRange) {
+                } else if (targetEWConfig.stealthRangeMod[1] != 0 && distance < weapon.MediumRange && distance >= weapon.ShortRange) {
                     AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", targetEWConfig.stealthRangeMod[1] });
-                } else if (targetEWConfig.stealthRangeMod[2] != 0 && distance < weapon.LongRange) {
+                } else if (targetEWConfig.stealthRangeMod[2] != 0 && distance < weapon.LongRange && distance >= weapon.MediumRange) {
                     AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", targetEWConfig.stealthRangeMod[2] });
-                } else if (targetEWConfig.stealthRangeMod[3] != 0 && distance < weapon.MaxRange) {
+                } else if (targetEWConfig.stealthRangeMod[3] != 0 && distance < weapon.MaxRange && distance >= weapon.LongRange) {
                     AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", targetEWConfig.stealthRangeMod[2] });
                 }
             }

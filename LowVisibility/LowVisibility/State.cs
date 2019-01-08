@@ -1,14 +1,19 @@
 ﻿
 using BattleTech;
 using LowVisibility.Helper;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using static LowVisibility.Helper.ActorHelper;
 using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility {
     static class State {
+
+        public const string ModSaveSubdir = "LowVisibility";
+        public const string ModSavesDir = "ModSaves";
 
         // The vision range of the map
         private static float mapVisionRange = 0.0f;
@@ -36,22 +41,22 @@ namespace LowVisibility {
             LowVisibility.Logger.Log($"Vision ranges: calculated map range:{mapVisionRange} configured visualID range:{LowVisibility.Config.VisualIDRange} map visualID range:{visualIDRange}");
         }
 
-        public static Dictionary<string, RoundDetectRange> roundDetectResults = new Dictionary<string, RoundDetectRange>();
+        public static Dictionary<string, RoundDetectRange> RoundDetectResults = new Dictionary<string, RoundDetectRange>();
         public static RoundDetectRange GetOrCreateRoundDetectResults(AbstractActor actor) {
-            if (!roundDetectResults.ContainsKey(actor.GUID)) {
+            if (!RoundDetectResults.ContainsKey(actor.GUID)) {
                 RoundDetectRange detectRange = MakeSensorRangeCheck(actor);
-                roundDetectResults[actor.GUID] = detectRange;
+                RoundDetectResults[actor.GUID] = detectRange;
             }
-            return roundDetectResults[actor.GUID];
+            return RoundDetectResults[actor.GUID];
         }
 
-        public static Dictionary<string, ActorEWConfig> actorEWConfig = new Dictionary<string, ActorEWConfig>();
+        public static Dictionary<string, ActorEWConfig> ActorEWConfig = new Dictionary<string, ActorEWConfig>();
         public static ActorEWConfig GetOrCreateActorEWConfig(AbstractActor actor) {
-            if (!actorEWConfig.ContainsKey(actor.GUID)) {
+            if (!ActorEWConfig.ContainsKey(actor.GUID)) {
                 ActorEWConfig config = CalculateEWConfig(actor);
-                actorEWConfig[actor.GUID] = config;
+                ActorEWConfig[actor.GUID] = config;
             }
-            return actorEWConfig[actor.GUID];
+            return ActorEWConfig[actor.GUID];
         }
 
         // TODO: Add tracking
@@ -59,7 +64,7 @@ namespace LowVisibility {
         public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
 
         // Updates the detection state for all units. Called at start of round, and after each enemy movement.
-        public static void UpdateDetectionOnRoundBegin(CombatGameState Combat) {
+        public static void UpdateDetectionForAllActors(CombatGameState Combat) {
 
             HashSet<string> targetsWithVisibilityChanges = new HashSet<string>();
 
@@ -166,46 +171,137 @@ namespace LowVisibility {
         }
 
         // The last actor that the player activated. Used to determine visibility in targetingHUD between activations
-        public static AbstractActor LastPlayerActivatedActor;
+        public static string LastPlayerActivatedActorGUID;
         public static AbstractActor GetLastPlayerActivatedActor(CombatGameState Combat) {
-            if (LastPlayerActivatedActor == null) {
+            if (LastPlayerActivatedActorGUID == null) {
                 List<AbstractActor> playerActors = PlayerActors(Combat);
-                LastPlayerActivatedActor = playerActors[0];
+                LastPlayerActivatedActorGUID = playerActors[0].GUID;
             }
-            return LastPlayerActivatedActor;
+            return Combat.FindActorByGUID(LastPlayerActivatedActorGUID);
         }
 
         // --- ECM JAMMING STATE TRACKING ---
-        public static Dictionary<string, int> jammedActors = new Dictionary<string, int>();
+        public static Dictionary<string, int> JammedActors = new Dictionary<string, int>();
 
         public static bool IsJammed(AbstractActor actor) {
-            bool isJammed = jammedActors.ContainsKey(actor.GUID) ? true : false;
+            bool isJammed = JammedActors.ContainsKey(actor.GUID) ? true : false;
             return isJammed;
         }
 
         public static int JammingStrength(AbstractActor actor) {
-            return jammedActors.ContainsKey(actor.GUID) ? jammedActors[actor.GUID] : 0;
+            return JammedActors.ContainsKey(actor.GUID) ? JammedActors[actor.GUID] : 0;
         }
 
         public static void JamActor(AbstractActor actor, int jammingStrength) {
-            if (!jammedActors.ContainsKey(actor.GUID)) {
-                jammedActors.Add(actor.GUID, jammingStrength);
+            if (!JammedActors.ContainsKey(actor.GUID)) {
+                JammedActors.Add(actor.GUID, jammingStrength);
 
                 // Send a floatie indicating the jamming
                 MessageCenter mc = actor.Combat.MessageCenter;
                 mc.PublishMessage(new FloatieMessage(actor.GUID, actor.GUID, "JAMMED BY ECM", FloatieMessage.MessageNature.Debuff));
 
                 //
-            } else if (jammingStrength > jammedActors[actor.GUID]) {
-                jammedActors[actor.GUID] = jammingStrength;
+            } else if (jammingStrength > JammedActors[actor.GUID]) {
+                JammedActors[actor.GUID] = jammingStrength;
             }
             // Send visibility update message
         }
         public static void UnjamActor(AbstractActor actor) {
-            if (jammedActors.ContainsKey(actor.GUID)) {
-                jammedActors.Remove(actor.GUID);
+            if (JammedActors.ContainsKey(actor.GUID)) {
+                JammedActors.Remove(actor.GUID);
             }
             // Send visibility update message
         }
+
+        // --- FILE SAVE/READ BELOW ---
+        private class SerializationState {
+            public string LastPlayerActivatedActorGUID;
+            public Dictionary<string, int> jammedActors;
+            public Dictionary<string, HashSet<LockState>> SourceActorLockStates;
+            public Dictionary<string, RoundDetectRange> roundDetectResults;
+            public Dictionary<string, ActorEWConfig> actorEWConfig;
+        }
+
+        public static void LoadStateData(string saveFileID) {
+            JammedActors.Clear();
+            SourceActorLockStates.Clear();
+            RoundDetectResults.Clear();
+            ActorEWConfig.Clear();
+
+            string normalizedFileID = saveFileID.Replace('\\', '_');
+            FileInfo stateFilePath = CalculateFilePath(normalizedFileID);
+            if (stateFilePath.Exists) {
+                //KnowYourFoe.Logger.LogIfDebug($"Reading saved state from file:{campaignFile.FullName}.");
+                // Read the file
+                try {
+                    SerializationState savedState = null;
+                    using (StreamReader r = new StreamReader(stateFilePath.FullName)) {
+                        string json = r.ReadToEnd();
+                        savedState = JsonConvert.DeserializeObject<SerializationState>(json);
+                        //KnowYourFoe.Logger.LogIfDebug($"Successfully read state from file:{campaignFile.FullName}.");
+                    }
+
+                    LastPlayerActivatedActorGUID = savedState != null ? savedState.LastPlayerActivatedActorGUID : null;
+                    JammedActors = savedState != null ? savedState.jammedActors : null;
+                    SourceActorLockStates = savedState != null ? savedState.SourceActorLockStates : null;
+                    RoundDetectResults = savedState != null ? savedState.roundDetectResults : null;
+                    ActorEWConfig = savedState != null ? savedState.actorEWConfig : null;
+
+                    LowVisibility.Logger.Log($"Loaded save state from file:{stateFilePath.FullName}.");
+                } catch (Exception e) {
+                    LowVisibility.Logger.Log($"Failed to read saved state from:{stateFilePath.FullName} due to e:{e.Message}");                    
+                }
+            } else {
+                //LowVisibility.Logger.Log($"Creating new saved state for campaign seed:{CampaignID}.");
+                //// New campaign, create the structure of the file
+                //IdentifiedDefs = new Dictionary<string, DetectLevel>();
+            }
+        }
+
+        public static void SaveStateData(string saveFileID) {
+            string normalizedFileID = saveFileID.Replace('\\', '_');
+            FileInfo saveStateFilePath = CalculateFilePath(normalizedFileID);
+            LowVisibility.Logger.Log($"Saving to filePath:{saveStateFilePath.FullName}.");
+            if (saveStateFilePath.Exists) {
+                // Make a backup
+                saveStateFilePath.CopyTo($"{saveStateFilePath.FullName}.bak", true);
+            }
+
+            try {
+                SerializationState state = new SerializationState {
+                    LastPlayerActivatedActorGUID = State.LastPlayerActivatedActorGUID,
+                    jammedActors = State.JammedActors,
+                    SourceActorLockStates = State.SourceActorLockStates,
+                    roundDetectResults = State.RoundDetectResults,
+                    actorEWConfig = State.ActorEWConfig
+                };
+                            
+                using (StreamWriter w = new StreamWriter(saveStateFilePath.FullName, false)) {
+                    string json = JsonConvert.SerializeObject(state);
+                    w.Write(json);
+                    LowVisibility.Logger.Log($"Persisted state to file:{saveStateFilePath.FullName}.");
+                }
+            } catch (Exception e) {
+                LowVisibility.Logger.Log($"Failed to persist to disk at path {saveStateFilePath.FullName} due to error: {e.Message}");
+            }
+        }
+
+        private static FileInfo CalculateFilePath(string campaignId) {
+            // Starting path should be battletech\mods\KnowYourFoe
+            string[] directories = LowVisibility.ModDir.Split(Path.DirectorySeparatorChar);
+            DirectoryInfo modsDir = Directory.GetParent(LowVisibility.ModDir);
+            DirectoryInfo battletechDir = modsDir.Parent;
+
+            // We want to write to Battletech\ModSaves\KnowYourFoe
+            DirectoryInfo modSavesDir = battletechDir.CreateSubdirectory(ModSavesDir);
+            DirectoryInfo modSaveSubdir = modSavesDir.CreateSubdirectory(ModSaveSubdir);
+
+            // Finally check to see if the file exists
+            string campaignFilePath = Path.Combine(modSaveSubdir.FullName, $"{campaignId}.json");
+            return new FileInfo(campaignFilePath);
+        }
+
     }
+
+    
 }
