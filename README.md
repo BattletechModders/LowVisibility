@@ -148,12 +148,26 @@ __Void-Signature System__ | TODO
 
 - [] BUG -Component damage should eliminate ECM, AP, Stealth bonuses
 
+- [] DOCO BUG - Tactics increases spotter range by (float)pilot.Tactics * this.Combat.Constants.Visibility.SpotterTacticsMultiplier; (set to 0.0 in RT)
+
+- [] **CONSIDER**: Experiment with AllowRearArcSpotting:false in CombatGameConstants.json
+
+- [] **CONSIDER**: What to do with SensorLock... certainly remove forceVisRebuild
+
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
-- [] Implement ```lv-stealth-move-mod_m``` Stealth, NSS, Void System evasion by movement semantics 
+
+- [] Implement```lv-stealth-move-mod_m``` Stealth, NSS, Void System evasion by movement semantics 
+
+- [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
+
 - [] Pilot tactics should provide a better guess of weapon types for _VisualID_
+
 - [] Move SensorCheck to start of unit activation, not start of round. Generate one at the start of combat to ensure visibility can be initialized at that time.
+
 - [] VisionLock and VisualID ranges should be modified by equipment.
+
 - [] SensorLock.SensorsID should randomly provide one piece of information about the target (armor, weapons, heat, ...?)
+
 - [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_narc_effect```, show the target even if it's outside sensors/vision range. Apply no penalty?
 
 - [] Validate functionality works with saves - career, campaign, skirmish
@@ -166,20 +180,26 @@ __Void-Signature System__ | TODO
 
 - [] Consider: Sensor info / penalty driven by range bands? You get more info at short range than long?
 
-- [] Consider: _Possible Info_ elements are randomly selected each round / actor (simulate one question note)
+- [] **Consider**: _Possible Info_ elements are randomly selected each round / actor (simulate one question note)
 
 - [] Consider: Chance for VisualID to fail based upon a random roll
 
 - [] Consider: Should target debuffs/buffs be shown? Feels sorta cheaty to know what the target actually has in terms of equipment buffs. Though since you can see components, you should be able to infer that...
 
 - [] Consider: Should stealth have a visibility modifier that changes as you move move? I.e. 0.1 visibility if you don't move, 0.5 if you do, etc. (Think Chameleon shield - should make it harder to see the less you move)
+
 - [x] Visibility for players is unit specific, unless models have ```share_sensor_lock``` tags
+
 - [x] If you have visual + sensor lock, you share your vision with allies. If you have sensor lock, and have the ```lv_share_sensor_lock``` tag, you share your sensor lock with allies.
+
 - [x] Distinction between visual lock and sensor lock; if you have visual lock, you can see the target's silhouette. If you have sensor lock, your electronics can target them. You need both to have normal targeting modifiers.
 
 - [x] Visibility for enemies is unit specific, unless models have ```share_sensor_lock``` tags
+
 - [x] Implement ```lv-stealth-range-mod_s``` Stealth, NSS, Void System evasion by movement semantics 
+
 - [x] Implement Stealth, NSS, Void System sensor detection reduction
+
 - [] Make shared vision toggleable, if possible?
 
     AbstractActor relevant statistics:

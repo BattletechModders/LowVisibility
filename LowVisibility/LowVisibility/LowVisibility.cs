@@ -28,7 +28,8 @@ namespace LowVisibility {
             }
 
             Logger = new Logger(modDirectory, "low_visibility", Config.Debug);
-            Logger.LogIfDebug($"mod.json settings are:({settingsJSON}), interpreted as:{LowVisibility.Config}");
+            System.AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) => Logger.Close();
+            Logger.LogIfDebug($"mod.json settings are:({settingsJSON}), interpreted as:{LowVisibility.Config}");            
 
             var harmony = HarmonyInstance.Create(HarmonyPackage);
             harmony.PatchAll(Assembly.GetExecutingAssembly());

@@ -18,13 +18,11 @@ namespace LowVisibility {
             this.isDebug = isDebug;
         }
 
-        ~Logger() {
-            if (LogStream != null) {
-                string now = DateTime.UtcNow.ToString("s", System.Globalization.CultureInfo.InvariantCulture);
-                LogStream.WriteLine($"Closing log at {now}");
-                LogStream.Flush();
-                LogStream.Close();
-            }
+        public void Close() {
+            string now = DateTime.UtcNow.ToString("s", System.Globalization.CultureInfo.InvariantCulture);
+            LogStream.WriteLine($"Closing log at {now}");
+            LogStream.Flush();
+            LogStream.Close();
         }
 
         public void LogIfDebug(string message) {
@@ -38,8 +36,5 @@ namespace LowVisibility {
             LogStream.WriteLine($"{now} - {message}");
         }
 
-        public void Flush() {
-            LogStream.Flush();
-        }
     }
 }
