@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using BattleTech.UI;
 using Harmony;
+using LowVisibility.Helper;
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -254,14 +255,9 @@ namespace LowVisibility.Patch {
             if (targetEWConfig.HasStealthRangeMod()) {
                 float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
                 Weapon weapon = __instance.DisplayedWeapon;
-                if (targetEWConfig.stealthRangeMod[0] != 0 && distance < weapon.ShortRange) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", targetEWConfig.stealthRangeMod[0] });
-                } else if (targetEWConfig.stealthRangeMod[1] != 0 && distance < weapon.MediumRange && distance >= weapon.ShortRange) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", targetEWConfig.stealthRangeMod[1] });
-                } else if (targetEWConfig.stealthRangeMod[2] != 0 && distance < weapon.LongRange && distance >= weapon.MediumRange) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", targetEWConfig.stealthRangeMod[2] });
-                } else if (targetEWConfig.stealthRangeMod[3] != 0 && distance < weapon.MaxRange && distance >= weapon.LongRange) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", targetEWConfig.stealthRangeMod[2] });
+                int weaponStealthMod = targetEWConfig.StealthRangeModAtDistance(weapon, distance);
+                if (weaponStealthMod != 0) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", weaponStealthMod });
                 }
             }
         }

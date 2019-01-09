@@ -42,6 +42,12 @@ namespace LowVisibility {
         }
 
         public static Dictionary<string, RoundDetectRange> RoundDetectResults = new Dictionary<string, RoundDetectRange>();
+        public static Dictionary<string, ActorEWConfig> ActorEWConfig = new Dictionary<string, ActorEWConfig>();
+        public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
+        public static string LastPlayerActivatedActorGUID;
+        public static Dictionary<string, int> JammedActors = new Dictionary<string, int>();
+
+
         public static RoundDetectRange GetOrCreateRoundDetectResults(AbstractActor actor) {
             if (!RoundDetectResults.ContainsKey(actor.GUID)) {
                 RoundDetectRange detectRange = MakeSensorRangeCheck(actor);
@@ -50,18 +56,13 @@ namespace LowVisibility {
             return RoundDetectResults[actor.GUID];
         }
 
-        public static Dictionary<string, ActorEWConfig> ActorEWConfig = new Dictionary<string, ActorEWConfig>();
         public static ActorEWConfig GetOrCreateActorEWConfig(AbstractActor actor) {
             if (!ActorEWConfig.ContainsKey(actor.GUID)) {
-                ActorEWConfig config = CalculateEWConfig(actor);
+                ActorEWConfig config = new ActorEWConfig(actor);
                 ActorEWConfig[actor.GUID] = config;
             }
             return ActorEWConfig[actor.GUID];
         }
-
-        // TODO: Add tracking
-        //public static Dictionary<string, VisionLockType> 
-        public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
 
         // Updates the detection state for all units. Called at start of round, and after each enemy movement.
         public static void UpdateDetectionForAllActors(CombatGameState Combat) {
@@ -171,7 +172,7 @@ namespace LowVisibility {
         }
 
         // The last actor that the player activated. Used to determine visibility in targetingHUD between activations
-        public static string LastPlayerActivatedActorGUID;
+
         public static AbstractActor GetLastPlayerActivatedActor(CombatGameState Combat) {
             if (LastPlayerActivatedActorGUID == null) {
                 List<AbstractActor> playerActors = PlayerActors(Combat);
@@ -181,7 +182,6 @@ namespace LowVisibility {
         }
 
         // --- ECM JAMMING STATE TRACKING ---
-        public static Dictionary<string, int> JammedActors = new Dictionary<string, int>();
 
         public static bool IsJammed(AbstractActor actor) {
             bool isJammed = JammedActors.ContainsKey(actor.GUID) ? true : false;

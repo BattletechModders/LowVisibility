@@ -3,6 +3,7 @@ using BattleTech.UI;
 using Harmony;
 using HBS;
 using Localize;
+using LowVisibility.Helper;
 using SVGImporter;
 using System;
 using System.Collections.Generic;

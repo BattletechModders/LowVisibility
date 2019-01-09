@@ -18,13 +18,6 @@ namespace LowVisibility {
             this.isDebug = isDebug;
         }
 
-        public void Close() {
-            string now = DateTime.UtcNow.ToString("s", System.Globalization.CultureInfo.InvariantCulture);
-            LogStream.WriteLine($"Closing log at {now}");
-            LogStream.Flush();
-            LogStream.Close();
-        }
-
         public void LogIfDebug(string message) {
             if (this.isDebug) {
                 Log(message);

@@ -20,46 +20,7 @@ namespace LowVisibility.Helper {
         public const int MediumRangeRollBound = 20;
         public const int ShortRangeRollBound = 13;
 
-        public class ActorEWConfig {
-            // ECM Equipment = ecm_t0, Guardian ECM = ecm_t1, Angel ECM = ecm_t2, CEWS = ecm_t3. -1 means none.
-            public int ecmTier = -1;
-            public float ecmRange = 0;
-            public int ecmModifier = 0; // Any additional modifier to opposed ECM modifier for the sensor check
-
-            // Pirate = activeprobe_t0, Beagle = activeprobe_t1, Bloodhound = activeprobe_t2, CEWS = activeprobe_t3. -1 means none.
-            public int probeTier = -1;
-            public float probeRange = 0;
-            public int probeModifier = 0; // The sensor check modifier used in opposed cases (see MaxTech 55)
-
-            // Stealth armor
-            public int stealthTier = -1;
-            public int[] stealthRangeMod = new int[] { 0, 0, 0, 0 };
-            public int[] stealthMoveMod = new int[] { 0, 0, 0 };
-
-            // The amount of tactics bonus to the sensor check
-            public int tacticsBonus = 0;
-
-            // Whether this actor will share sensor data with others
-            public bool sharesSensors = false;
-
-            public override string ToString() {
-                return $"tacticsBonus:+{tacticsBonus} ecmTier:{ecmTier} ecmRange:{ecmRange} " +
-                    $"probeTier:{probeTier} probeRange:{probeRange} sharesSensors:{sharesSensors} " +
-                    $"stealthTier:{stealthTier} stealthRangeMod:{stealthRangeMod[0]}/{stealthRangeMod[1]}/{stealthRangeMod[2]}/{stealthRangeMod[3]} " +
-                    $"stealthMoveMod:{stealthMoveMod[0]}/{stealthMoveMod[1]}";
-            }
-
-            public bool HasStealthRangeMod() {
-                bool hasMod = stealthRangeMod != null && (stealthRangeMod[0] != 0 || stealthRangeMod[1] != 0 || stealthRangeMod[2] != 0 || stealthRangeMod[3] != 0);
-                return hasMod;
-            }
-
-            public bool HasStealthMoveMod() {
-                bool hasMod = stealthMoveMod != null && (stealthMoveMod[0] != 0 || stealthMoveMod[1] != 0);
-                return hasMod;
-            }
-
-        };
+        
 
         // The range a unit can detect enemies out to
         public enum RoundDetectRange {
@@ -93,125 +54,13 @@ namespace LowVisibility.Helper {
                 detectRange = RoundDetectRange.VisualOnly;
                 if (doFloatie) {
                     actor.Combat.MessageCenter.PublishMessage(
-                        new FloatieMessage(actor.GUID, actor.GUID, "Sensor Check Failed - visuals only!", FloatieMessage.MessageNature.Neutral));
+                        new FloatieMessage(actor.GUID, actor.GUID, "Sensor Check Failed!", FloatieMessage.MessageNature.Neutral));
                 }
             }
 
             // TODO: Should this move to another place
             LowVisibility.Logger.LogIfDebug($"Actor:{actor.DisplayName}_{actor.GetPilot().Name} has a detect range of: {detectRange}");
             return detectRange;
-        }
-
-        public static ActorEWConfig CalculateEWConfig(AbstractActor actor) {
-            // Check tags for any ecm/sensors
-            // TODO: Check for stealth
-            int actorEcmTier = -1;
-            float actorEcmRange = 0;
-            int actorEcmModifier = 0;
-
-            int actorProbeTier = -1;
-            float actorProbeRange = 0;
-            int actorProbeModifier = 0;
-
-            // TODO: Add pilot skill check / tag check for same effect
-            bool actorSharesSensors = false;
-
-            int actorStealthTier = -1;
-            int[] actorStealthRangeMod = null;
-            int[] actorStealthMoveMod = null;
-             
-            foreach (MechComponent component in actor.allComponents) {
-                MechComponentRef componentRef = component?.mechComponentRef;
-                MechComponentDef componentDef = componentRef.Def;
-                TagSet componentTags = componentDef.ComponentTags;
-                foreach (string tag in componentTags) {
-                    if (tag.ToLower().StartsWith(TagPrefixJammer)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has ECM component:{componentRef.ComponentDefID} with tag:{tag}");
-                        string[] split = tag.Split('_');
-                        int tier = Int32.Parse(split[1].Substring(1));
-                        int range = Int32.Parse(split[2].Substring(1));
-                        int modifier = Int32.Parse(split[3].Substring(1));
-                        if (tier >= actorEcmTier) {
-                            actorEcmTier = tier;
-                            actorEcmRange = range * 30.0f;
-                            actorEcmModifier = modifier;
-                        }
-                    } else if (tag.ToLower().StartsWith(TagPrefixProbe)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has Probe component:{componentRef.ComponentDefID} with tag:{tag}");
-                        string[] split = tag.Split('_');
-                        int tier = Int32.Parse(split[1].Substring(1));
-                        int range = Int32.Parse(split[2].Substring(1));
-                        int modifier = Int32.Parse(split[3].Substring(1));
-                        if (tier >= actorProbeTier) {
-                            actorProbeTier = tier;
-                            actorProbeRange = range * 30.0f;
-                            actorProbeModifier = modifier;
-                        }
-                    } else if (tag.ToLower().Equals(TagSharesSensors)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} shares sensors due to component:{componentRef.ComponentDefID} with tag:{tag}");
-                        actorSharesSensors = true;
-                    } else if (tag.ToLower().StartsWith(TagPrefixStealth)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has Stealth component:{componentRef.ComponentDefID} with tag:{tag}");
-                        string[] split = tag.Split('_');
-                        int tier = Int32.Parse(split[1].Substring(1));
-                        if (tier >= actorStealthTier) {
-                            actorStealthTier = tier;
-                        }
-                    } else if (tag.ToLower().StartsWith(TagPrefixStealthRangeMod)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has StealthRangeMod component:{componentRef.ComponentDefID} with tag:{tag}");
-                        string[] split = tag.Split('_');
-                        int shortRange = Int32.Parse(split[1].Substring(1));
-                        int mediumRange = Int32.Parse(split[2].Substring(1));
-                        int longRange = Int32.Parse(split[3].Substring(1));
-                        int extremeRange = Int32.Parse(split[3].Substring(1));
-                        if (actorStealthRangeMod == null) {
-                            actorStealthRangeMod = new int[] { shortRange, mediumRange, longRange, extremeRange };
-                        } else {
-                            LowVisibility.Logger.Log($"Actor:{ActorLabel(actor)} has multiple StealthRangeMod components - turn on debug to see which one was applied");
-                        }
-                    } else if (tag.ToLower().StartsWith(TagPrefixStealthMoveMod)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has StealthMoveMod component:{componentRef.ComponentDefID} with tag:{tag}");
-                        string[] split = tag.Split('_');
-                        int modifier = Int32.Parse(split[1].Substring(1));
-                        int moveStep = Int32.Parse(split[2].Substring(1));
-                        if (actorStealthMoveMod == null) {
-                            actorStealthMoveMod = new int[] { modifier, moveStep };
-                        } else {
-                            LowVisibility.Logger.Log($"Actor:{ActorLabel(actor)} has multiple StealthMoveMod components - turn on debug to see which one was applied");
-                        }
-                    }
-                }
-            }
-
-            // If the unit has stealth, it disables the ECM system.
-            if (actorStealthTier >= 0) {
-                LowVisibility.Logger.Log($"Actor:{ActorLabel(actor)} has multiple stealth and ECM - disabling ECM bubble.");
-                actorEcmTier = -1;
-                actorEcmRange = 0;
-                actorEcmModifier = 0;
-            }
-
-            // Determine pilot bonus
-            int pilotTactics = actor.GetPilot().Tactics;
-            int normedTactics = NormalizeSkill(pilotTactics);
-            int unitTacticsBonus = ModifierBySkill[normedTactics];
-
-            ActorEWConfig config = new ActorEWConfig {
-                ecmTier = actorEcmTier,
-                ecmRange = actorEcmRange,
-                ecmModifier = actorEcmModifier,
-                probeTier = actorProbeTier,                
-                probeRange = actorProbeRange,
-                probeModifier = actorProbeModifier,
-                tacticsBonus = unitTacticsBonus,
-                sharesSensors = actorSharesSensors,
-                stealthTier = actorStealthTier,
-                stealthRangeMod = actorStealthRangeMod ?? (new int[] { 0, 0, 0, 0 }),
-                stealthMoveMod = actorStealthMoveMod ?? (new int[] { 0, 0 })
-            };
-            LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} EWConfig is:{config}");
-
-            return config;
         }
 
         public static string ActorLabel(AbstractActor actor) {
@@ -389,41 +238,6 @@ namespace LowVisibility.Helper {
             return VisibilityLevel.Blip0Minimum;
         }
 
-        // A mapping of skill level to modifier
-        private static readonly Dictionary<int, int> ModifierBySkill = new Dictionary<int, int> {
-            { 1, 0 },
-            { 2, 1 },
-            { 3, 1 },
-            { 4, 2 },
-            { 5, 2 },
-            { 6, 3 },
-            { 7, 3 },
-            { 8, 4 },
-            { 9, 4 },
-            { 10, 5 },
-            { 11, 6 },
-            { 12, 7 },
-            { 13, 8 }
-        };
-
-        private static int NormalizeSkill(int rawValue) {
-            int normalizedVal = rawValue;
-            if (rawValue >= 11 && rawValue <= 14) {
-                // 11, 12, 13, 14 normalizes to 11
-                normalizedVal = 11;
-            } else if (rawValue >= 15 && rawValue <= 18) {
-                // 15, 16, 17, 18 normalizes to 14
-                normalizedVal = 12;
-            } else if (rawValue == 19 || rawValue == 20) {
-                // 19, 20 normalizes to 13
-                normalizedVal = 13;
-            } else if (rawValue <= 0) {
-                normalizedVal = 1;
-            } else if (rawValue > 20) {
-                normalizedVal = 13;
-            }
-            return normalizedVal;
-        }
     }
 
 }
