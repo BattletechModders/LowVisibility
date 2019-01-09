@@ -17,14 +17,18 @@ namespace LowVisibility.Patch {
             // Do a pre-encounter populate 
             if (__instance != null && __instance.Combat != null && __instance.Combat.AllActors != null) {                
                 foreach (AbstractActor actor in __instance.Combat.AllActors) {
-                    // Parse their EW config
-                    ActorEWConfig actorEWConfig = new ActorEWConfig(actor);
-                    State.ActorEWConfig[actor.GUID] = actorEWConfig;
+                    if (actor != null) {
+                        // Parse their EW config
+                        ActorEWConfig actorEWConfig = new ActorEWConfig(actor);
+                        State.ActorEWConfig[actor.GUID] = actorEWConfig;
 
-                    // Make a pre-encounter detectCheck for them\
-                    RoundDetectRange detectRange = MakeSensorRangeCheck(actor, false);
-                    LowVisibility.Logger.LogIfDebug($"  Actor:{actor.DisplayName}_{actor.GetPilot().Name} has detectRange:{detectRange} at load/start");
-                    State.RoundDetectResults[actor.GUID] = detectRange;
+                        // Make a pre-encounter detectCheck for them\
+                        RoundDetectRange detectRange = MakeSensorRangeCheck(actor, false);
+                        LowVisibility.Logger.LogIfDebug($"  Actor:{ActorLabel(actor)} has detectRange:{detectRange} at load/start");
+                        State.RoundDetectResults[actor.GUID] = detectRange;
+                    } else {
+                        LowVisibility.Logger.LogIfDebug($"  Actor:{ActorLabel(actor)} was NULL!");
+                    }
                 }
             }
         }
