@@ -6,6 +6,14 @@ using static LowVisibility.Helper.ActorHelper;
 
 namespace LowVisibility.Helper {
     public class ActorEWConfig {
+
+        public const string TagPrefixJammer = "lv-jammer_t";
+        public const string TagPrefixProbe = "lv-probe_t";
+        public const string TagSharesSensors = "lv-shares-sensors";
+        public const string TagPrefixStealth = "lv-stealth_t";
+        public const string TagPrefixStealthRangeMod = "lv-stealth-range-mod_s";
+        public const string TagPrefixStealthMoveMod = "lv-stealth-move-mod_m";
+
         // ECM Equipment = ecm_t0, Guardian ECM = ecm_t1, Angel ECM = ecm_t2, CEWS = ecm_t3. -1 means none.
         public int ecmTier = -1;
         public float ecmRange = 0;
@@ -30,8 +38,6 @@ namespace LowVisibility.Helper {
         // Whether this actor will share sensor data with others
         public bool sharesSensors = false;
 
-        public string TagPrefixJammer { get; }
-
         public ActorEWConfig(AbstractActor actor) {
             // Check tags for any ecm/sensors
             // TODO: Check for stealth
@@ -55,7 +61,10 @@ namespace LowVisibility.Helper {
                 MechComponentDef componentDef = componentRef.Def;
                 TagSet componentTags = componentDef.ComponentTags;
                 foreach (string tag in componentTags) {
-                    if (tag.ToLower().StartsWith(TagPrefixJammer)) {
+                    if (tag == null || tag.Equals("") || tag.ToLower() == null)  { continue; }
+                    string tagLower = tag.ToLower();
+
+                    if (tagLower.StartsWith(TagPrefixJammer)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has ECM component:{componentRef.ComponentDefID} with tag:{tag}");
                         string[] split = tag.Split('_');
                         int tier = Int32.Parse(split[1].Substring(1));
@@ -66,7 +75,7 @@ namespace LowVisibility.Helper {
                             actorEcmRange = range * 30.0f;
                             actorEcmModifier = modifier;
                         }
-                    } else if (tag.ToLower().StartsWith(TagPrefixProbe)) {
+                    } else if (tagLower.StartsWith(TagPrefixProbe)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has Probe component:{componentRef.ComponentDefID} with tag:{tag}");
                         string[] split = tag.Split('_');
                         int tier = Int32.Parse(split[1].Substring(1));
@@ -77,17 +86,17 @@ namespace LowVisibility.Helper {
                             actorProbeRange = range * 30.0f;
                             actorProbeModifier = modifier;
                         }
-                    } else if (tag.ToLower().Equals(TagSharesSensors)) {
+                    } else if (tagLower.Equals(TagSharesSensors)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} shares sensors due to component:{componentRef.ComponentDefID} with tag:{tag}");
                         actorSharesSensors = true;
-                    } else if (tag.ToLower().StartsWith(TagPrefixStealth)) {
+                    } else if (tagLower.StartsWith(TagPrefixStealth)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has Stealth component:{componentRef.ComponentDefID} with tag:{tag}");
                         string[] split = tag.Split('_');
                         int tier = Int32.Parse(split[1].Substring(1));
                         if (tier >= actorStealthTier) {
                             actorStealthTier = tier;
                         }
-                    } else if (tag.ToLower().StartsWith(TagPrefixStealthRangeMod)) {
+                    } else if (tagLower.StartsWith(TagPrefixStealthRangeMod)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has StealthRangeMod component:{componentRef.ComponentDefID} with tag:{tag}");
                         string[] split = tag.Split('_');
                         int shortRange = Int32.Parse(split[1].Substring(1));
@@ -97,7 +106,7 @@ namespace LowVisibility.Helper {
                         if (actorStealthRangeMod == null || shortRange > actorStealthRangeMod[0]) {
                             actorStealthRangeMod = new int[] { shortRange, mediumRange, longRange, extremeRange };
                         }
-                    } else if (tag.ToLower().StartsWith(TagPrefixStealthMoveMod)) {
+                    } else if (tagLower.StartsWith(TagPrefixStealthMoveMod)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has StealthMoveMod component:{componentRef.ComponentDefID} with tag:{tag}");
                         string[] split = tag.Split('_');
                         int modifier = Int32.Parse(split[1].Substring(1));
@@ -148,7 +157,7 @@ namespace LowVisibility.Helper {
         }
 
         public bool HasStealthMoveMod() {
-            bool hasMod = stealthMoveMod != null && (stealthMoveMod[0] != 0 || stealthMoveMod[1] != 0);
+            bool hasMod = stealthMoveMod != null && stealthMoveMod[0] != 0;
             return hasMod;
         }
 
@@ -156,23 +165,23 @@ namespace LowVisibility.Helper {
             int rangeMod = 0;
             if (this.stealthRangeMod[0] != 0 && distance < weapon.ShortRange) {
                 rangeMod = this.stealthRangeMod[0];
-                LowVisibility.Logger.LogIfDebug($"Modifier {this.stealthRangeMod[0]} due to short range shot.");
+                LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier {this.stealthRangeMod[0]} due to short range shot.");
             } else if (this.stealthRangeMod[1] != 0 && distance < weapon.MediumRange && distance >= weapon.ShortRange) {
                 rangeMod = this.stealthRangeMod[1];
-                LowVisibility.Logger.LogIfDebug($"Modifier{this.stealthRangeMod[1]} due to medium range shot.");
+                LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier {this.stealthRangeMod[1]} due to medium range shot.");
             } else if (this.stealthRangeMod[2] != 0 && distance < weapon.LongRange && distance >= weapon.MediumRange) {
                 rangeMod = this.stealthRangeMod[2];
-                LowVisibility.Logger.LogIfDebug($"Modifier {this.stealthRangeMod[2]} due to long range shot.");
+                LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier  {this.stealthRangeMod[2]} due to long range shot.");
             } else if (this.stealthRangeMod[3] != 0 && distance < weapon.MaxRange && distance >= weapon.LongRange) {
                 rangeMod = this.stealthRangeMod[3];
-                LowVisibility.Logger.LogIfDebug($"Modifier {this.stealthRangeMod[2]} due to max range shot.");
+                LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier  {this.stealthRangeMod[3]} due to max range shot.");
             }
             return rangeMod;
         }
 
         public int StealthMoveModForActor(AbstractActor owner) {
             int moveMod = 0;
-            if (owner != null && this.stealthRangeMod[0] != 0) {
+            if (owner != null && this.stealthMoveMod[0] != 0) {
                 int hexesMoved = (int)Math.Floor(owner.DistMovedThisRound / 30.0);
                 LowVisibility.Logger.LogIfDebug($"  StealthMoveMod - actor:{ActorLabel(owner)} " +
                     $"hasMovedThisRound:{owner.HasMovedThisRound} distMovedThisRound:{owner.DistMovedThisRound} which is hexesMoved:{hexesMoved}");
@@ -182,10 +191,9 @@ namespace LowVisibility.Helper {
                     hexesMoved -= this.stealthMoveMod[1];
                 }
                 LowVisibility.Logger.LogIfDebug($"  StealthMoveMod - actor:{ActorLabel(owner)} has moveMod:{moveMod}");
-
             }
 
-            return moveMod = 0;
+            return moveMod;
         }
 
 

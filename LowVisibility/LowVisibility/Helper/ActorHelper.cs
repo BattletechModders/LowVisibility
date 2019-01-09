@@ -8,19 +8,10 @@ using static LowVisibility.Helper.VisibilityHelper;
 namespace LowVisibility.Helper {
     public static class ActorHelper {
 
-        public const string TagPrefixJammer = "lv-jammer_t";
-        public const string TagPrefixProbe = "lv-probe_t";
-        public const string TagSharesSensors = "lv-shares-sensors";
-        public const string TagPrefixStealth = "lv-stealth_t";
-        public const string TagPrefixStealthRangeMod = "lv-stealth-range-mod_s";
-        public const string TagPrefixStealthMoveMod = "lv-stealth-move-mod-m";
-
         // none = 0-12, short = 13-19, medium  = 20-26, long = 27-36
         public const int LongRangeRollBound = 27;
         public const int MediumRangeRollBound = 20;
         public const int ShortRangeRollBound = 13;
-
-        
 
         // The range a unit can detect enemies out to
         public enum RoundDetectRange {

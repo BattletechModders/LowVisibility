@@ -91,6 +91,7 @@ namespace LowVisibility.Patch {
         public static bool Prefix(LineOfSight __instance, ref VisibilityLevel __result, 
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation) {
             //LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - entered. ");
+            //LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - stacktrace: {Environment.StackTrace}");
 
             AbstractActor sourceActor = source as AbstractActor;
             AbstractActor targetActor = target as AbstractActor;

@@ -257,7 +257,14 @@ namespace LowVisibility.Patch {
                 Weapon weapon = __instance.DisplayedWeapon;
                 int weaponStealthMod = targetEWConfig.StealthRangeModAtDistance(weapon, distance);
                 if (weaponStealthMod != 0) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", weaponStealthMod });
+                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - RANGE", weaponStealthMod });
+                }
+            }
+
+            if (targetEWConfig.HasStealthMoveMod()) {
+                int stealthMoveMod = targetEWConfig.StealthMoveModForActor(target as AbstractActor);
+                if (stealthMoveMod != 0) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - MOVEMENT", stealthMoveMod});
                 }
             }
         }

@@ -2,8 +2,6 @@
 using BattleTech.UI;
 using Harmony;
 using LowVisibility.Helper;
-using System;
-using System.Reflection;
 using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
 
@@ -21,8 +19,8 @@ namespace LowVisibility.Patch {
                 float actorsDistance = Vector3.Distance(source.CurrentPosition, enemyActor.CurrentPosition);
                 ActorEWConfig enemyEWConfig = State.GetOrCreateActorEWConfig(enemyActor);
                 LowVisibility.Logger.LogIfDebug($"Found enemy actor:{enemyActor.DisplayName}_{enemyActor.GetPilot().Name}.");
-                LowVisibility.Logger.LogIfDebug($"  - enemyEWConfig:{enemyEWConfig.ToString()}");
-                LowVisibility.Logger.LogIfDebug($"  - sourceEWConfig:{sourceEWConfig.ToString()}");
+                //LowVisibility.Logger.LogIfDebug($"  - enemyEWConfig:{enemyEWConfig.ToString()}");
+                //LowVisibility.Logger.LogIfDebug($"  - sourceEWConfig:{sourceEWConfig.ToString()}");
                 if (sourceEWConfig.probeTier < enemyEWConfig.ecmTier) {
                     LowVisibility.Logger.Log($"Target:{enemyActor.DisplayName}_{enemyActor.GetPilot().Name} has ECM tier{enemyEWConfig.ecmTier} vs. source Probe tier:{sourceEWConfig.probeTier}");                    
                     if (actorsDistance > enemyEWConfig.ecmRange) {

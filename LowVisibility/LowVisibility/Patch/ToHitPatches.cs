@@ -36,9 +36,17 @@ namespace LowVisibility.Patch {
 
                 int weaponStealthMod = targetEWConfig.StealthRangeModAtDistance(weapon, distance);
                 if (weaponStealthMod != 0) {
-                    __result = __result + (float)targetEWConfig.stealthRangeMod[0];
+                    __result = __result + (float)weaponStealthMod;
                 } 
             }
+
+            if (targetEWConfig.HasStealthMoveMod()) {
+                int stealthMoveMod = targetEWConfig.StealthMoveModForActor(target as AbstractActor);
+                if (stealthMoveMod != 0) {
+                    __result = __result + (float)stealthMoveMod;
+                }
+            }
+
         }
     }
 
@@ -61,9 +69,17 @@ namespace LowVisibility.Patch {
                 float distance = Vector3.Distance(attackPosition, targetPosition);
                 int weaponStealthMod = targetEWConfig.StealthRangeModAtDistance(weapon, distance);
                 if (weaponStealthMod != 0) {
-                    __result = string.Format("{0}STEALTH {1:+#;-#}; ", __result, weaponStealthMod);
+                    __result = string.Format("{0}STEALTH - RANGE {1:+#;-#}; ", __result, weaponStealthMod);
                 }                
             }
+
+            if (targetEWConfig.HasStealthMoveMod()) {
+                int stealthMoveMod = targetEWConfig.StealthMoveModForActor(target as AbstractActor);
+                if (stealthMoveMod != 0) {
+                    __result = string.Format("{0}STEALTH - MOVEMENT {1:+#;-#}; ", __result, stealthMoveMod);
+                }
+            }
+
         }
     }
 }

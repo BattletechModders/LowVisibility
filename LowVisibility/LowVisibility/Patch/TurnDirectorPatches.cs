@@ -11,8 +11,8 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(TurnDirector), "OnEncounterBegin")]
     public static class TurnDirector_OnEncounterBegin {
 
-        public static void Postfix(TurnDirector __instance) {
-            LowVisibility.Logger.LogIfDebug("=== TurnDirector:OnEncounterBegin:post - entered.");
+        public static void Prefix(TurnDirector __instance) {
+            LowVisibility.Logger.LogIfDebug("=== TurnDirector:OnEncounterBegin:pre - entered.");
 
             // Do a pre-encounter populate 
             if (__instance != null && __instance.Combat != null && __instance.Combat.AllActors != null) {                

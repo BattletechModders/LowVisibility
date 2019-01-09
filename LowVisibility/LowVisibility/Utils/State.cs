@@ -98,7 +98,6 @@ namespace LowVisibility {
             HashSet<string> targetsWithVisibilityChanges = new HashSet<string>();
 
             // TODO: Should calculate friendly and enemy changes on each iteration of this
-
             bool isPlayer = source.team == source.Combat.LocalPlayerTeam;
             List<AbstractActor> targets = isPlayer ? EnemyAndNeutralActors(source.Combat) : PlayerAndAlliedActors(source.Combat);
             HashSet<LockState> updatedLocks = new HashSet<LockState>();
