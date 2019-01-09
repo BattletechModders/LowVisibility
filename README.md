@@ -116,10 +116,44 @@ _Sensor ID_ and _Active Probe ID_ require the source to have __detection__ to th
 ## Jamming Details
 TODO: Clean this up
 
-```lv-jammer_tX_rY_mZ``` creates an ECM bubble of tier X in a circle of Y hexes (\*30 meters in game) around the source unit. The Jammer imposes a penalty of Z to any sensor checks by jammed units.
-```lv-probe-tX_rY_mZ``` is a probe that of tier X. It adds Y hexes (\*30 meters in game) to the source unit's sensors range. It adds a bonus of Z to sensor checks made by this unit.
+* ```lv-jammer_tX_rY_mZ``` creates an ECM bubble of tier X in a circle of Y hexes (\*30 meters in game) around the source unit. The Jammer imposes a penalty of Z to any sensor checks by jammed units.
+* ```lv-probe-tX_rY_mZ``` is a probe that of tier X. It adds Y hexes (\*30 meters in game) to the source unit's sensors range. It adds a bonus of Z to sensor checks made by this unit.
 
 Probes of an equal tier penetrate jammers, to a T1 probe will penetrate a T1 jammer. This means the jammer won't add it's penalty to the source unit.
+
+The MaxTech rulebook provides guidelines for how much of an impact ECM has on sensors. Because LowVisibility increases the dice 'roll' by a factor of 3, these modifiers are correspondingly increased. The table below lists the recommended modifier values for these scenarios:
+
+| Sensor | MaxTech (A./G.) | Angel ECM Mod | Guardian ECM Mod |
+| -- | -- | -- | -- |
+| Vehicle Sensor | 7 / 6 | -21 | -16 |
+| Mech Sensor | 6 / 5 | -18 | -15 |
+| Beagle | 5 / 4 | -15 | -12 |
+| Bloodhound | 4 / 3 | -12 | -9 |
+| Clan Active Probe | 3 / 2 | -9 | -6 |
+
+Assuming the ECM values above are used, and _Mech Sensors_ form the baseline at -18/-15 modifiers, recommended values for the active probe modifiers are:
+
+* Beagle: +3
+* Bloodhound: +6
+* Clan Active Probe: +9
+
+Probe ranges are given as additional ranges from MaxTech, while ECM ranges come from the Master Rules. Those values are:
+
+* Guardian ECM: 6 hexes
+* Angel ECM: 6 hexes
+* Beagle: +4 hexes
+* Bloodhound: +8 hexes
+* Clan Active Probe: +7 hexes
+
+Pull this all together, recommended tags for this mod are:
+
+| Component | Tag |
+| -- | -- |
+| Guardian ECM | lv-jammer_t2_r6_m15 |
+| Angel ECM | lv-jammer_t3_r6_m18 |
+| Beagle Active Probe | lv-probe-t1_r4_m3 |
+| Clan Active Probe | lv-probe-t1_r7_m9 |
+| Bloodhound Active Probe | lv-probe-t2_r8_m6 |
 
 ## Stealth
 
@@ -158,7 +192,9 @@ __Void-Signature System__ | TODO
 
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
 
-- [] Implement```lv-stealth-move-mod_m``` Stealth, NSS, Void System evasion by movement semantics 
+- [] Add multiple ECM penalty to sensor check
+
+- [] Implement```lv-stealth-move-mod_m``` Stealth, NSS, Void System evasion by movement semantics
 
 - [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
 
@@ -198,7 +234,7 @@ __Void-Signature System__ | TODO
 
 - [x] Visibility for enemies is unit specific, unless models have ```share_sensor_lock``` tags
 
-- [x] Implement ```lv-stealth-range-mod_s``` Stealth, NSS, Void System evasion by movement semantics 
+- [x] Implement ```lv-stealth-range-mod_s``` Stealth, NSS, Void System evasion by movement semantics
 
 - [x] Implement Stealth, NSS, Void System sensor detection reduction
 
