@@ -30,11 +30,11 @@ The __Sensor Lock__ ability provides _LineOfSight_ to the target model, even if 
 
 ## Mod Behavior
 
-This mod re-uses the HBS concepts of __visibility__ and __detection__, but applies them in new ways. __Visibility__ is when the source unit has visual line of sight to a target, while __detection__ occurs when the source can identify the target on sensors.
+This mod re-uses the HBS concepts of __visibility__ and __detection__, but applies them in new ways. __Visibility__ is when the source unit has _visual lock_ to a target, while __detection__ occurs when the source has _sensor lock_.
 
 ### Visibility
 
-Visual line of sight in this mod is heavily influenced by the environment of the map. Each map contains one or more _mood_ tags that are mapped to visibility ranges. Instead of the TODO:FIXME value from SimGameConstants, every unit uses this visibility range when determining how far away it can spot a target. Flags related to the light level set a base visibility level, while flags related to obscurement provide a multiplier to the base visibility range.
+_Visual Lock_ is heavily influenced by the environment of the map. Each map contains one or more _mood_ tags that are mapped to visibility ranges. Instead of the __TODO:FIXME__ value from SimGameConstants, every unit uses this visibility range when determining how far away it can visually spot a target. Flags related to the light level set a base visibility level, while flags related to obscurement provide a multiplier to the base visibility range.
 
 Light Level | Base Visibility | Tags
 -- | -- | --
@@ -168,65 +168,100 @@ __Void-Signature System__ | TODO
 
 ```lv-stealth_tX``` - applies ECM to the target unit instead of generating a bubble. Won't jam enemies around the unit, but automatically defeats the sensor suit of equal or lower tier X.
 
-```lv-stealth-range-mod_sX_mY_lZ``` - applies X as a modifier to any attack against the target at short range, Y at medium range and Z at long range.
+```lv-stealth-range-mod_sA_mB_lC_eD``` - applies A as a modifier to any attack against the target at short range, B at medium range, C at long range, and D at extreme range.
 
 ```lv-stealth-move-mod_mX_sZ``` - applies X as a modifier, and reduces it by -1 for each Y hexes the unit moves. m3_s2 would be a +3 modifier if the unit doesn't move, +2 if it moves 1-2 hexes, +1 for 3-4 hexes, +0 otherwise.
 
-## WIP Features
+## Worklog
 
-- [] BUG - Tactics skill should influence chassis name, blip type (CombatNameHelper, LineOfSightPathces)
+### Unorganized Thoughts
+
+05 PM] FrostRaptor: Hurm... I wonder... it wouldn't be terribly hard to add tags for low/light or thermal vision...
+
+FrostRaptor: Narc is defeated by ECM, correct?
+[3:12 PM] FrostRaptor: I was thinking something like narc_tX_rY where t is the EW tier of the Narc beacon, and Y is the radius within which it automatically gives you SensorLock
+[3:13 PM] LadyAlekto: narc defeats ecm
+[3:13 PM] FrostRaptor: Tag should be a sensor modifier bonus as long as emitter has... visual lock?
+[3:13 PM] FrostRaptor: If Tag target moves after it's tagged, do you retain a sensor boost? I'm inclined to say no?
+[3:13 PM] LadyAlekto: basically
+[3:14 PM] LadyAlekto: according to rules the tag needs to stay on the target
+
+[3:14 PM] FrostRaptor: so narc/probe acts the same - same tier beats the ECM, lower tier is defeated
+[3:14 PM] LadyAlekto: though id make it tied to tis effect and be for 1-2 activations
+
+FrostRaptor: narc_t2 can beat jammer_t2, _t1, t0 - but is defeated by jammer_t3
+[3:15 PM] LadyAlekto: narc i made are pirate narc (a bunch or lrms with a bad narc system), narc the basic system and clan narc
+[3:15 PM] LadyAlekto: that could work out
+[3:16 PM] LadyAlekto: how hard would it be to be instead of a hard counter a more fluid one?
+
+LadyAlekto: the thought about fluid, im trying to put into words
+Basically that that jammers reduce the tier of probes they face
+
+me: I'm not opposed to reducing the tier effects from hard counters to soft effects - for stealth, narc, whatever.
+
+I was going to float SensorLock as a passive where I'd double your tactics Mod and boost the sensor output by +1 to your 'what info you know level'(edited)
+
+Shift stealth to a modifier instead of a hard tier, so a really really good roll from a high skill pilot could still have a chance to see lower-end stealth
+
+### WIP Features
+
+- [] BUG - TrySelectActor fires multiple times. *whimper* Change to just OnActivation, but maybe a prefix?
+
+- [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
+
+- [] BUG - Tactics skill should influence chassis name, blip type (CombatNameHelper, LineOfSightPatches)
 
 - [] BUG - Weapons summary shown when beyond sensors range
 
-- [] BUG - TrySelectActor fires multiple times. *whimper*
-
-- [] BUG - Visibility isn't resetting immediately, leaving stealth units 'hidden'. Also results in weird quirks.
+- [] BUG - Units disappear from view in some cases. Doesn't appear related to the previous behavior, but is related.
 
 - [] BUG - Enemies and neutral share vision currently. Probably want to split that?
 
-- [] BUG -Component damage should eliminate ECM, AP, Stealth bonuses
-
-- [] DOCO BUG - Tactics increases spotter range by (float)pilot.Tactics * this.Combat.Constants.Visibility.SpotterTacticsMultiplier; (set to 0.0 in RT)
-
-- [] **CONSIDER**: Experiment with AllowRearArcSpotting:false in CombatGameConstants.json
-
-- [] **CONSIDER**: What to do with SensorLock... certainly remove forceVisRebuild
+- [] Component damage should eliminate ECM, AP, Stealth bonuses
 
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
 
-- [] Add multiple ECM penalty to sensor check
-
-- [x] Implement```lv-stealth-move-mod_m``` Stealth, NSS, Void System evasion by movement semantics
-
 - [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
 
-- [] Pilot tactics should provide a better guess of weapon types for _VisualID_
+- [] Add multiple ECM penalty to sensor check
+
+- [] Validate functionality works with saves - career, campaign, skirmish
 
 - [] Move SensorCheck to start of unit activation, not start of round. Generate one at the start of combat to ensure visibility can be initialized at that time.
-
-- [] VisionLock and VisualID ranges should be modified by equipment.
 
 - [] SensorLock.SensorsID should randomly provide one piece of information about the target (armor, weapons, heat, ...?)
 
 - [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_narc_effect```, show the target even if it's outside sensors/vision range. Apply no penalty?
 
-- [] Validate functionality works with saves - career, campaign, skirmish
-
-- [] Implement  rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
+- [] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
 
 - [] Implement stealth multi-target prohibition
 
-- [] Implement stealth movement mod through modifier like others (no need to get fancy)
+### Possible Additions
 
 - [] Consider: Sensor info / penalty driven by range bands? You get more info at short range than long?
 
-- [] **Consider**: _Possible Info_ elements are randomly selected each round / actor (simulate one question note)
+- [] Consider: _Possible Info_ elements are randomly selected each round / actor (simulate one question note)
 
 - [] Consider: Chance for VisualID to fail based upon a random roll
 
 - [] Consider: Should target debuffs/buffs be shown? Feels sorta cheaty to know what the target actually has in terms of equipment buffs. Though since you can see components, you should be able to infer that...
 
 - [] Consider: Should stealth have a visibility modifier that changes as you move move? I.e. 0.1 visibility if you don't move, 0.5 if you do, etc. (Think Chameleon shield - should make it harder to see the less you move)
+
+- [] **CONSIDER**: Experiment with AllowRearArcSpotting:false in CombatGameConstants.json
+
+- [] **CONSIDER**: What to do with SensorLock... certainly remove forceVisRebuild
+
+- [] Pilot tactics should provide a better guess of weapon types for _VisualID_
+
+### Completed Tasks
+
+- [x] Implement stealth movement mod through modifier like others (no need to get fancy)
+
+- [x] VisionLock and VisualID ranges should be modified by equipment.
+
+- [x] Implement```lv-stealth-move-mod_m``` Stealth, NSS, Void System evasion by movement semantics
 
 - [x] Visibility for players is unit specific, unless models have ```share_sensor_lock``` tags
 
@@ -240,8 +275,6 @@ __Void-Signature System__ | TODO
 
 - [x] Implement Stealth, NSS, Void System sensor detection reduction
 
-- [] Make shared vision toggleable, if possible?
-
     AbstractActor relevant statistics:
 
     this.StatCollection.AddStatistic<float>("ToHitIndirectModifier", 0f);
@@ -252,7 +285,7 @@ __Void-Signature System__ | TODO
     this.StatCollection.AddStatistic<bool>("PrecisionStrike", false);
     this.StatCollection.AddStatistic<int>("MaxEvasivePips", 4);
 
-    AbstrasctActor:
+    AbstractActor:
     ​		public int EvasivePipsCurrent { get; set; }
     ​		public float DistMovedThisRound { get; set; }		
     ​		
