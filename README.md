@@ -176,32 +176,12 @@ __Void-Signature System__ | TODO
 
 ### Unorganized Thoughts
 
-05 PM] FrostRaptor: Hurm... I wonder... it wouldn't be terribly hard to add tags for low/light or thermal vision...
+- Add tags for low/light & heat vision; improves visual range & sensor range in certain conditions
 
-FrostRaptor: Narc is defeated by ECM, correct?
-[3:12 PM] FrostRaptor: I was thinking something like narc_tX_rY where t is the EW tier of the Narc beacon, and Y is the radius within which it automatically gives you SensorLock
-[3:13 PM] LadyAlekto: narc defeats ecm
-[3:13 PM] FrostRaptor: Tag should be a sensor modifier bonus as long as emitter has... visual lock?
-[3:13 PM] FrostRaptor: If Tag target moves after it's tagged, do you retain a sensor boost? I'm inclined to say no?
-[3:13 PM] LadyAlekto: basically
-[3:14 PM] LadyAlekto: according to rules the tag needs to stay on the target
-
-[3:14 PM] FrostRaptor: so narc/probe acts the same - same tier beats the ECM, lower tier is defeated
-[3:14 PM] LadyAlekto: though id make it tied to tis effect and be for 1-2 activations
-
-FrostRaptor: narc_t2 can beat jammer_t2, _t1, t0 - but is defeated by jammer_t3
-[3:15 PM] LadyAlekto: narc i made are pirate narc (a bunch or lrms with a bad narc system), narc the basic system and clan narc
-[3:15 PM] LadyAlekto: that could work out
-[3:16 PM] LadyAlekto: how hard would it be to be instead of a hard counter a more fluid one?
-
-LadyAlekto: the thought about fluid, im trying to put into words
-Basically that that jammers reduce the tier of probes they face
-
-me: I'm not opposed to reducing the tier effects from hard counters to soft effects - for stealth, narc, whatever.
-
-I was going to float SensorLock as a passive where I'd double your tactics Mod and boost the sensor output by +1 to your 'what info you know level'(edited)
-
-Shift stealth to a modifier instead of a hard tier, so a really really good roll from a high skill pilot could still have a chance to see lower-end stealth
+- narc_tX_rY_dZ; narc defeats ecm of same 'tier', Continues to emit for durationZ, Y is radius within which anybody can benefit from the Narc boost.
+- tag differs from narc in that it's only during LOS? Others wants it tied to TAG effects and be for 1-2 activations.
+- jammers/stealth reduce the tier of any probes/sensors they face, but are soft counters not hard ones.
+- SensorLock becomes passive ability that doubles your tactics, boosts sensor detect level by +1 (for 'what you know')
 
 ### WIP Features
 
