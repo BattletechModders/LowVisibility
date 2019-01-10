@@ -26,21 +26,24 @@ namespace LowVisibility.Patch {
             //LowVisibility.Logger.LogIfDebug("CombatHUDStatusPanel:RefreshDisplayedCombatant:post - entered.");
             if (__instance != null && __instance.DisplayedCombatant != null) {
                 AbstractActor target = __instance.DisplayedCombatant as AbstractActor;
-                bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
-                if (!isPlayer) {
-                    LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
-                    if (lockState.sensorType == SensorLockType.ProbeID) {
-                        // Do nothing - display everything per vanilla
-                    } else if (lockState.sensorType == SensorLockType.None && lockState.visionType < VisionLockType.VisualID) {
-                        ___Buffs.ForEach(si => si.gameObject.SetActive(false));
-                        ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
-                        hideEvasionIndicatorMethod.GetValue();
-                    } else {
-                        // All other states - hide the buffs/debuffs
-                        ___Buffs.ForEach(si => si.gameObject.SetActive(false));
-                        ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-      
+                // We can receive a building here, so 
+                if (target != null) {
+                    bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
+                    if (!isPlayer) {
+                        LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
+                        if (lockState.sensorType == SensorLockType.ProbeID) {
+                            // Do nothing - display everything per vanilla
+                        } else if (lockState.sensorType == SensorLockType.None && lockState.visionType < VisionLockType.VisualID) {
+                            ___Buffs.ForEach(si => si.gameObject.SetActive(false));
+                            ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
+                            Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
+                            hideEvasionIndicatorMethod.GetValue();
+                        } else {
+                            // All other states - hide the buffs/debuffs
+                            ___Buffs.ForEach(si => si.gameObject.SetActive(false));
+                            ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
+
+                        }
                     }
                 }
             }

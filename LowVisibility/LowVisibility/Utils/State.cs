@@ -12,6 +12,7 @@ using static LowVisibility.Helper.VisibilityHelper;
 namespace LowVisibility {
     static class State {
 
+        // -- Const and statics
         public const string ModSaveSubdir = "LowVisibility";
         public const string ModSavesDir = "ModSaves";
 
@@ -21,6 +22,14 @@ namespace LowVisibility {
         // The range at which you can do visualID
         private static float visualIDRange = 0.0f;
 
+        // -- Mutable state
+        public static Dictionary<string, RoundDetectRange> RoundDetectResults = new Dictionary<string, RoundDetectRange>();
+        public static Dictionary<string, ActorEWConfig> ActorEWConfig = new Dictionary<string, ActorEWConfig>();
+        public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
+        public static string LastPlayerActivatedActorGUID;
+        public static Dictionary<string, int> JammedActors = new Dictionary<string, int>();
+
+        // --- Methods Below ---
         public static float GetMapVisionRange() {
             if (mapVisionRange == 0) {
                 InitMapVisionRange();
@@ -40,13 +49,6 @@ namespace LowVisibility {
             visualIDRange = Math.Min(mapVisionRange, LowVisibility.Config.VisualIDRange);
             LowVisibility.Logger.Log($"Vision ranges: calculated map range:{mapVisionRange} configured visualID range:{LowVisibility.Config.VisualIDRange} map visualID range:{visualIDRange}");
         }
-
-        public static Dictionary<string, RoundDetectRange> RoundDetectResults = new Dictionary<string, RoundDetectRange>();
-        public static Dictionary<string, ActorEWConfig> ActorEWConfig = new Dictionary<string, ActorEWConfig>();
-        public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
-        public static string LastPlayerActivatedActorGUID;
-        public static Dictionary<string, int> JammedActors = new Dictionary<string, int>();
-
 
         public static RoundDetectRange GetOrCreateRoundDetectResults(AbstractActor actor) {
             if (!RoundDetectResults.ContainsKey(actor.GUID)) {

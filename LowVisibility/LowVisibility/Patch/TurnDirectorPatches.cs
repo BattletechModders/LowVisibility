@@ -57,8 +57,17 @@ namespace LowVisibility.Patch {
         }
     }
 
-
-
+    [HarmonyPatch(typeof(TurnDirector), "OnCombatGameDestroyed")]
+    public static class TurnDirector_OnCombatGameDestroyed {
+        public static void Postfix(TurnDirector __instance) {
+            // Remove all combat state
+            State.RoundDetectResults.Clear();
+            State.ActorEWConfig.Clear();
+            State.SourceActorLockStates.Clear();
+            State.LastPlayerActivatedActorGUID = null;
+            State.JammedActors.Clear();
+        }
+    }
 
 
 }

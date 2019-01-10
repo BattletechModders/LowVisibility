@@ -4,104 +4,52 @@ using Harmony;
 using LowVisibility.Helper;
 using System;
 using System.Reflection;
-using System.Reflection.Emit;
 using UnityEngine;
-using static LowVisibility.Helper.ActorHelper;
 using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patch {
 
-    // Allow the CombatHUDTargeting computer to be displayed for blips
-    [HarmonyPatch()]
-    public static class CombatHUDTargetingComputer_OnActorHovered {
+    // Show the targeting computer for blips as well as LOSFull
+    [HarmonyPatch(typeof(CombatHUD), "SubscribeToMessages")]
+    [HarmonyPatch(new Type[] { typeof(bool) })]
+    public static class CombatHUD_SubscribeToMessages {
 
-        // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod() {
-            return AccessTools.Method(typeof(CombatHUDTargetingComputer), "OnActorHovered", new Type[] { typeof(MessageCenterMessage) });
-        }
+        private static CombatGameState Combat = null;
+        private static CombatHUDTargetingComputer TargetingComputer = null;
+        private static Traverse ShowTargetMethod = null;
 
-        public static void Postfix(CombatHUDTargetingComputer __instance, MessageCenterMessage message, CombatHUD ___HUD) {
-            LowVisibility.Logger.LogIfDebug("CombatHUDTargetingComputer:OnActorHovered:post - entered.");
-
-            if (__instance != null) {
-
-                EncounterObjectMessage encounterObjectMessage = message as EncounterObjectMessage;
-                ICombatant combatant = ___HUD.Combat.FindCombatantByGUID(encounterObjectMessage.affectedObjectGuid);
-                if (combatant != null) {
-                    AbstractActor abstractActor = combatant as AbstractActor;
-                    if (combatant.team != ___HUD.Combat.LocalPlayerTeam && (abstractActor == null ||
-                        ___HUD.Combat.LocalPlayerTeam.VisibilityToTarget(abstractActor) >= VisibilityLevel.Blip0Minimum)) {
-                        Traverse.Create(__instance).Property("HoveredCombatant").SetValue(combatant);
-                    }
-                    /*
-                    if (combatant.team != this.HUD.Combat.LocalPlayerTeam && 
-                        (abstractActor == null || this.HUD.Combat.LocalPlayerTeam.VisibilityToTarget(abstractActor) == VisibilityLevel.LOSFull))
-				    {
-					    this.HoveredCombatant = combatant;
-				    }
-                     */
-                }
-            }
-
-        }
-    }
-
-    [HarmonyPatch(typeof(CombatHUDTargetingComputer), "Update")]
-    public static class CombatHUDTargetingComputer_Update {
-
-        private static Action<CombatHUDTargetingComputer> UIModule_Update;
-
-        public static bool Prepare() {
-            BuildCHTCOnComplete();
-            return true;
-        }
-
-        // Shamelessly stolen from https://github.com/janxious/BT-WeaponRealizer/blob/7422573fa69893ae7c16a9d192d85d2152f90fa2/NumberOfShotsEnabler.cs#L32
-        private static void BuildCHTCOnComplete() {
-            // build a call to WeaponEffect.OnComplete() so it can be called
-            // a la base.OnComplete() from the context of a BallisticEffect
-            // https://blogs.msdn.microsoft.com/rmbyers/2008/08/16/invoking-a-virtual-method-non-virtually/
-            // https://docs.microsoft.com/en-us/dotnet/api/system.activator?view=netframework-3.5
-            // https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.dynamicmethod.-ctor?view=netframework-3.5#System_Reflection_Emit_DynamicMethod__ctor_System_String_System_Type_System_Type___System_Type_
-            // https://stackoverflow.com/a/4358250/1976
-            var method = typeof(UIModule).GetMethod("Update", AccessTools.all);
-            var dm = new DynamicMethod("CombatHUDTargetingComputerOnComplete", null, new Type[] { typeof(CombatHUDTargetingComputer) }, typeof(CombatHUDTargetingComputer));
-            var gen = dm.GetILGenerator();
-            gen.Emit(OpCodes.Ldarg_0);
-            gen.Emit(OpCodes.Call, method);
-            gen.Emit(OpCodes.Ret);
-            UIModule_Update = (Action<CombatHUDTargetingComputer>)dm.CreateDelegate(typeof(Action<CombatHUDTargetingComputer>));
-        }
-
-        // TODO: Dangerous PREFIX false here!
-        public static bool Prefix(CombatHUDTargetingComputer __instance, CombatHUD ___HUD) {
-            //LowVisibility.Logger.LogIfDebug("CombatHUDTargetingComputer:Update:pre - entered.");
-
-            CombatGameState Combat = ___HUD?.Combat;
-
-            UIModule_Update(__instance);
-            if (__instance.ActorInfo != null) {
-                __instance.ActorInfo.DisplayedCombatant = __instance.ActivelyShownCombatant;
-            }
-            if (__instance.ActivelyShownCombatant == null ||
-                (__instance.ActivelyShownCombatant.team != Combat.LocalPlayerTeam
-                    && !Combat.HostilityMatrix.IsFriendly(__instance.ActivelyShownCombatant.team.GUID, Combat.LocalPlayerTeamGuid)
-                    && Combat.LocalPlayerTeam.VisibilityToTarget(__instance.ActivelyShownCombatant) < VisibilityLevel.Blip0Minimum)
-                    ) {
-                if (__instance.Visible) {
-                    __instance.Visible = false;
-                }
+        public static void Postfix(CombatHUD __instance, bool shouldAdd) {
+            LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:post - entered.");
+            if (shouldAdd) {
+                Combat = __instance.Combat;
+                TargetingComputer = __instance.TargetingComputer;
+                ShowTargetMethod = Traverse.Create(__instance).Method("ShowTarget", new Type[] { typeof(ICombatant) });
+                __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
+                    new ReceiveMessageCenterMessage(OnActorTargeted), shouldAdd);
+                // Disable the previous registration 
+                __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
+                    new ReceiveMessageCenterMessage(__instance.OnActorTargetedMessage), false);
             } else {
-                if (!__instance.Visible) {
-                    __instance.Visible = true;
-                }
-                if (__instance.ActivelyShownCombatant != null) {
-                    Traverse method = Traverse.Create(__instance).Method("UpdateStructureAndArmor", new Type[] { });
-                    method.GetValue();
-                }
+                Combat = null;
+                TargetingComputer = null;
+                ShowTargetMethod = null;
+                __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
+                    new ReceiveMessageCenterMessage(OnActorTargeted), shouldAdd);
             }
 
-            return false;
+        }
+
+        public static void OnActorTargeted(MessageCenterMessage message) {
+            LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:OnActorTargeted - entered.");
+            ActorTargetedMessage actorTargetedMessage = message as ActorTargetedMessage;
+            ICombatant combatant = Combat.FindActorByGUID(actorTargetedMessage.affectedObjectGuid);
+            if (combatant == null) { combatant = Combat.FindCombatantByGUID(actorTargetedMessage.affectedObjectGuid); }
+            if (Combat.LocalPlayerTeam.VisibilityToTarget(combatant) >= VisibilityLevel.Blip0Minimum) {
+                LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
+                ShowTargetMethod.GetValue(combatant);
+            } else {
+                LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
+            }
         }
     }
 

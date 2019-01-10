@@ -81,10 +81,11 @@ namespace LowVisibility.Helper {
             float distance = Vector3.Distance(source.CurrentPosition, target.CurrentPosition);
             float targetVisibility = CalculateTargetVisibility(target);
 
-            float visionRange = State.GetVisualIDRange() * targetVisibility;
+            float pilotVisualLockRange = GetVisualIDRangeForActor(source);
+            float visualLockRange = pilotVisualLockRange * targetVisibility;
 
-            if (distance <= visionRange) { lockState.visionType = VisionLockType.VisualID; }
-            LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has vision range:{visionRange} and is distance:{distance} " +
+            if (distance <= visualLockRange) { lockState.visionType = VisionLockType.VisualID; }
+            LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has visualLockRange:{visualLockRange} and is distance:{distance} " +
                 $"from target:{ActorLabel(target)} with visibility:{targetVisibility} - visionLockType is :{lockState.visionType}");
 
             // Determine sensor lock level
@@ -139,6 +140,54 @@ namespace LowVisibility.Helper {
 
             return (baseSensorRange + probeRange) * staticSensorRangeMultis + staticSensorRangeMods;
         }
+
+        public static float GetVisualIDRangeForActor(AbstractActor source) {
+            float mapVisualIDRange = State.GetVisualIDRange();
+
+            float modifiedVisualIDRange = mapVisualIDRange;
+            // Can't VisualID when shutdown
+            if (source.IsShutDown) {
+                modifiedVisualIDRange = 0f;
+            } else if (source.IsProne) {
+                mapVisualIDRange =  mapVisualIDRange * source.Combat.Constants.Visibility.ProneSpottingDistanceMultiplier;
+            } else {
+                float allSpotterMultipliers = GetAllSpotterMultipliers(source);
+                float allSpotterAbsolutes = GetAllSpotterAbsolutes(source);
+                modifiedVisualIDRange = mapVisualIDRange * allSpotterMultipliers + allSpotterAbsolutes;
+                LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(source)} with spotterMulti:{allSpotterMultipliers} spotterAbsolutes:{allSpotterAbsolutes} " +
+                    $"and mapVisualIDRange:{mapVisualIDRange} has visualIDRange:{modifiedVisualIDRange}");
+            }            
+            
+            return modifiedVisualIDRange; ;
+        }
+
+        // Copy of LineOfSight::GetAllSpotterMultipliers
+        public static float GetAllSpotterMultipliers(AbstractActor source) {
+            if (source == null) { return 1f;}
+            float num = 0f;
+            float spotterDistanceMultiplier = source.SpotterDistanceMultiplier;
+            float num2 = 0f;
+            return num + spotterDistanceMultiplier + num2;
+        }
+
+        // Token: 0x06007B85 RID: 31621 RVA: 0x002493E4 File Offset: 0x002475E4
+        public static float GetAllSpotterAbsolutes(AbstractActor source) {
+            if (source == null) { return 0f; }
+            float spottingTacticsMultipler = 0f;
+            if (source.IsPilotable) {
+                Pilot pilot = source.GetPilot();
+                if (pilot != null) {
+                    int normdTactics = SkillHelper.NormalizeSkill(pilot.Tactics);
+                    spottingTacticsMultipler = (float)normdTactics * source.Combat.Constants.Visibility.SpotterTacticsMultiplier;
+                    LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(source)} with tactics:{pilot.Tactics}/{normdTactics} x " +
+                        $"{source.Combat.Constants.Visibility.SpotterTacticsMultiplier} = spottingTacticsMulti:{spottingTacticsMultipler}");
+                }
+            }
+            float spotterDistanceAbsolute = source.SpotterDistanceAbsolute;
+            float num2 = 0f;
+            return spottingTacticsMultipler + spotterDistanceAbsolute + num2;
+        }
+        // Copy of LineOfSight::GetAllSpotterAbsolutes
 
         // Copy of LineOfSight::GetAllSensorRangeMultipliers
         private static float GetAllSensorRangeMultipliers(AbstractActor source) {
