@@ -200,16 +200,16 @@ namespace LowVisibility.Helper {
             int rangeMod = 0;
             if (this.stealthRangeMod[0] != 0 && distance < weapon.ShortRange) {
                 rangeMod = this.stealthRangeMod[0];
-                LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier {this.stealthRangeMod[0]} due to short range shot.");
+                //LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier {this.stealthRangeMod[0]} due to short range shot.");
             } else if (this.stealthRangeMod[1] != 0 && distance < weapon.MediumRange && distance >= weapon.ShortRange) {
                 rangeMod = this.stealthRangeMod[1];
-                LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier {this.stealthRangeMod[1]} due to medium range shot.");
+                //LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier {this.stealthRangeMod[1]} due to medium range shot.");
             } else if (this.stealthRangeMod[2] != 0 && distance < weapon.LongRange && distance >= weapon.MediumRange) {
                 rangeMod = this.stealthRangeMod[2];
-                LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier  {this.stealthRangeMod[2]} due to long range shot.");
+                //LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier  {this.stealthRangeMod[2]} due to long range shot.");
             } else if (this.stealthRangeMod[3] != 0 && distance < weapon.MaxRange && distance >= weapon.LongRange) {
                 rangeMod = this.stealthRangeMod[3];
-                LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier  {this.stealthRangeMod[3]} due to max range shot.");
+                //LowVisibility.Logger.LogIfDebug($"  StealthRangeMod - modifier  {this.stealthRangeMod[3]} due to max range shot.");
             }
             return rangeMod;
         }
@@ -218,14 +218,14 @@ namespace LowVisibility.Helper {
             int moveMod = 0;
             if (owner != null && this.stealthMoveMod[0] != 0) {
                 int hexesMoved = (int)Math.Floor(owner.DistMovedThisRound / 30.0);
-                LowVisibility.Logger.LogIfDebug($"  StealthMoveMod - actor:{ActorLabel(owner)} " +
-                    $"hasMovedThisRound:{owner.HasMovedThisRound} distMovedThisRound:{owner.DistMovedThisRound} which is hexesMoved:{hexesMoved}");
+                //LowVisibility.Logger.LogIfDebug($"  StealthMoveMod - actor:{ActorLabel(owner)} " +
+                //    $"hasMovedThisRound:{owner.HasMovedThisRound} distMovedThisRound:{owner.DistMovedThisRound} which is hexesMoved:{hexesMoved}");
                 moveMod = this.stealthMoveMod[0];
                 while (hexesMoved > 0) {
                     moveMod--;
                     hexesMoved -= this.stealthMoveMod[1];
                 }
-                LowVisibility.Logger.LogIfDebug($"  StealthMoveMod - actor:{ActorLabel(owner)} has moveMod:{moveMod}");
+                //LowVisibility.Logger.LogIfDebug($"  StealthMoveMod - actor:{ActorLabel(owner)} has moveMod:{moveMod}");
             }
 
             return moveMod;

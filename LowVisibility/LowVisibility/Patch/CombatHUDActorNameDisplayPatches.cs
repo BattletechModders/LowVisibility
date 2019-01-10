@@ -85,7 +85,8 @@ namespace LowVisibility.Patch {
                 VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
                 Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "MECH", tonnage);
                 LowVisibility.Logger.LogIfDebug($"Mech:GetActorInfoFromVisLevel:post - response:({response}) for " +
-                    $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName})");
+                    $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName}) " +
+                    $"for visLevel:{visLevel} and lockState:{lockState}");
                 __result = response;
             }
         }
@@ -116,7 +117,8 @@ namespace LowVisibility.Patch {
                 VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
                 Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "TURRET", tonnage);
                 LowVisibility.Logger.Log($"Turret:GetActorInfoFromVisLevel:post - response:({response}) for " +
-                    $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName})");
+                    $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName}) " +
+                    $"for visLevel:{visLevel} and lockState:{lockState}");
                 __result = response;
             }
         }
@@ -149,7 +151,8 @@ namespace LowVisibility.Patch {
                 VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
                 Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "VEHICLE", tonnage);
                 LowVisibility.Logger.Log($"Vehicle:GetActorInfoFromVisLevel:post - response:({response}) for " +
-                    $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName})");
+                    $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName}) " +
+                    $"for visLevel:{visLevel} and lockState:{lockState}");
                 __result = response;
             }
         }

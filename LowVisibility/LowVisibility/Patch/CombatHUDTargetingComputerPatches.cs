@@ -21,7 +21,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDTargetingComputer __instance, MessageCenterMessage message, CombatHUD ___HUD) {
-            LowVisibility.Logger.LogIfDebug("CombatHUDTargetingComputer:OnActorHovered:post - entered.");
+//            LowVisibility.Logger.LogIfDebug("CombatHUDTargetingComputer:OnActorHovered:post - entered.");
 
             if (__instance != null) {
 

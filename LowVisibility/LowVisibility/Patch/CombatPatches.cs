@@ -2,6 +2,7 @@
 using BattleTech.UI;
 using Harmony;
 using LowVisibility.Helper;
+using System.Linq;
 using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
 
@@ -47,7 +48,12 @@ namespace LowVisibility.Patch {
 
         }
 
-        public static void Prefix(AbstractActor __instance) {
+        public static void Prefix(AbstractActor __instance, int stackItemID) {
+            if (stackItemID == -1) {
+                // For some bloody reason DoneWithActor() invokes OnActivationBegin, EVEN THOUGH IT DOES NOTHING. GAH!
+                return;
+            }
+
             LowVisibility.Logger.LogIfDebug($"=== AbstractActor:OnActivationBegin:pre - handling {ActorLabel(__instance)}.");
             bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
             if (!isPlayer) {
@@ -62,7 +68,11 @@ namespace LowVisibility.Patch {
                 AbstractActor_OnActivationBegin.CheckForJamming(__instance);
 
                 // Then update detection 
-                State.UpdateActorDetection(__instance);
+                //State.UpdateActorDetection(__instance);
+                AbstractActor randomPlayerActor = __instance.Combat.AllActors
+                    .Where(aa => aa.TeamId == __instance.Combat.LocalPlayerTeamGuid)
+                    .First();
+                State.UpdateDetectionForAllActors(__instance.Combat, randomPlayerActor);
             }
         }
     }
@@ -81,7 +91,8 @@ namespace LowVisibility.Patch {
                 AbstractActor_OnActivationBegin.CheckForJamming(actor);
 
                 // Then update detection 
-                State.UpdateActorDetection(actor);
+                //State.UpdateActorDetection(actor);
+                State.UpdateDetectionForAllActors(actor.Combat, actor);
 
                 bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 if (isPlayer) {
@@ -98,7 +109,7 @@ namespace LowVisibility.Patch {
             LowVisibility.Logger.LogIfDebug($"=== Mech:OnMovePhaseComplete:post - entered for {ActorLabel(__instance)}.");
 
             AbstractActor_OnActivationBegin.CheckForJamming(__instance);            
-            State.UpdateDetectionForAllActors(__instance.Combat);
+            State.UpdateDetectionForAllActors(__instance.Combat, __instance);
         }
     }
 
@@ -109,7 +120,7 @@ namespace LowVisibility.Patch {
             LowVisibility.Logger.LogIfDebug($"=== Vehicle:OnMovePhaseComplete:post - entered for {ActorLabel(__instance)}.");
 
             AbstractActor_OnActivationBegin.CheckForJamming(__instance);
-            State.UpdateDetectionForAllActors(__instance.Combat);
+            State.UpdateDetectionForAllActors(__instance.Combat, __instance);
         }
     }
 

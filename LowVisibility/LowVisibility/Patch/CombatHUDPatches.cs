@@ -19,7 +19,7 @@ namespace LowVisibility.Patch {
         private static Traverse ShowTargetMethod = null;
 
         public static void Postfix(CombatHUD __instance, bool shouldAdd) {
-            LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:post - entered.");
+            //LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:post - entered.");
             if (shouldAdd) {
                 Combat = __instance.Combat;
                 TargetingComputer = __instance.TargetingComputer;
@@ -40,7 +40,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void OnActorTargeted(MessageCenterMessage message) {
-            LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:OnActorTargeted - entered.");
+            //LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:OnActorTargeted - entered.");
             ActorTargetedMessage actorTargetedMessage = message as ActorTargetedMessage;
             ICombatant combatant = Combat.FindActorByGUID(actorTargetedMessage.affectedObjectGuid);
             if (combatant == null) { combatant = Combat.FindCombatantByGUID(actorTargetedMessage.affectedObjectGuid); }

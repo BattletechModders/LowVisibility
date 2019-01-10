@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
 
 namespace LowVisibility.Helper {
@@ -58,14 +59,6 @@ namespace LowVisibility.Helper {
                 .ToList();
         }
 
-        public static void PublishVisibilityChange(CombatGameState Combat, HashSet<string> targets) {
-            foreach (String targetGUID in targets) {
-                MessageCenter mc = Combat.MessageCenter;
-                mc.PublishMessage(new PlayerVisibilityChangedMessage(targetGUID));
-                LowVisibility.Logger.LogIfDebug($"Publishing state change for target:{targetGUID} -> actor:{ActorLabel(Combat.FindActorByGUID(targetGUID))}");
-            }
-        }
-
         public static void CalculateTargetLocks(AbstractActor source, List<AbstractActor> targets, HashSet<LockState> updatedLocks, HashSet<string> visibilityUpdates) {
 
             foreach (AbstractActor target in targets) {
@@ -82,6 +75,61 @@ namespace LowVisibility.Helper {
                 }
             }
         }
+
+        // TODO: Allies don't impact this calculation
+        public static LockState CalculateLock(AbstractActor source, AbstractActor target) {
+
+            LockState lockState = new LockState {
+                sourceGUID = source.GUID,
+                targetGUID = target.GUID,
+                visionType = VisionLockType.None,
+                sensorType = SensorLockType.None,
+            };
+
+            ActorEWConfig sourceEWConfig = State.GetOrCreateActorEWConfig(source);
+            RoundDetectRange roundDetect = State.GetOrCreateRoundDetectResults(source);
+            LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has roundCheck:{roundDetect} and ewConfig:{sourceEWConfig}");
+
+            // Determine visual lock level
+            VisibilityLevelAndAttribution visLevelAndAttrib = source.VisibilityCache.VisibilityToTarget(target);
+            if (visLevelAndAttrib.VisibilityLevel == VisibilityLevel.LOSFull) {
+                lockState.visionType = VisionLockType.Silhouette;
+            }
+
+            float distance = Vector3.Distance(source.CurrentPosition, target.CurrentPosition);
+            float targetVisibility = CalculateTargetVisibility(target);
+
+            float pilotVisualLockRange = GetVisualIDRangeForActor(source);
+            float visualLockRange = pilotVisualLockRange * targetVisibility;
+
+            if (distance <= visualLockRange) { lockState.visionType = VisionLockType.VisualID; }
+            LowVisibility.Logger.Log($"  -- source:{ActorLabel(source)} has visualLockRange:{visualLockRange} and is distance:{distance} " +
+                $"from target:{ActorLabel(target)} with visibility:{targetVisibility} - visionLockType:{lockState.visionType}");
+
+            // Determine sensor lock level
+            ActorEWConfig targetEWConfig = State.GetOrCreateActorEWConfig(target);
+            if (targetEWConfig.stealthTier > sourceEWConfig.probeTier) {
+                LowVisibility.Logger.Log($"  -- target:{ActorLabel(target)} has stealth of a higher tier than source:{ActorLabel(source)}'s probe. It cannot be detected.");
+                lockState.sensorType = SensorLockType.None;
+            } else {
+                float sourceSensorRange = CalculateSensorRange(source);
+                float targetSignature = CalculateTargetSignature(target);
+                float lockRange = sourceSensorRange * targetSignature;
+                if (distance <= lockRange) {
+                    if (sourceEWConfig.probeTier >= 0 && !State.IsJammed(source)) {
+                        lockState.sensorType = SensorLockType.ProbeID;
+                    } else {
+                        lockState.sensorType = SensorLockType.SensorID;
+                    }
+                }
+                LowVisibility.Logger.Log($"  -- source:{ActorLabel(source)} has sensorsRange:{sourceSensorRange} and is distance:{distance} " +
+                    $"from target:{ActorLabel(target)} with signature:{targetSignature} - sensorLockType:{lockState.sensorType}");
+
+            }
+
+            return lockState;
+        }
+
     }
 
 }

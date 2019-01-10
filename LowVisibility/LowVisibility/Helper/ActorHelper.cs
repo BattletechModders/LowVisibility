@@ -1,7 +1,4 @@
 ﻿using BattleTech;
-using HBS.Collections;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using static LowVisibility.Helper.VisibilityHelper;
 
@@ -57,63 +54,7 @@ namespace LowVisibility.Helper {
         public static string ActorLabel(AbstractActor actor) {
             return $"{actor.DisplayName}_{actor.GetPilot().Name}";
         }
-
-        // TODO: Allies don't impact this calculation
-        public static LockState CalculateLock(AbstractActor source, AbstractActor target) {
-
-            LockState lockState = new LockState {
-                sourceGUID = source.GUID,
-                targetGUID = target.GUID,
-                visionType = VisionLockType.None,
-                sensorType = SensorLockType.None,                
-            };
-
-            ActorEWConfig sourceEWConfig = State.GetOrCreateActorEWConfig(source);
-            RoundDetectRange roundDetect = State.GetOrCreateRoundDetectResults(source);
-            LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has roundCheck:{roundDetect} and ewConfig:{sourceEWConfig}");
-
-            // Determine visual lock level
-            VisibilityLevelAndAttribution visLevelAndAttrib = source.VisibilityCache.VisibilityToTarget(target);
-            if (visLevelAndAttrib.VisibilityLevel == VisibilityLevel.LOSFull) {
-                lockState.visionType = VisionLockType.Silhouette;                
-            }
-            
-            float distance = Vector3.Distance(source.CurrentPosition, target.CurrentPosition);
-            float targetVisibility = CalculateTargetVisibility(target);
-
-            float pilotVisualLockRange = GetVisualIDRangeForActor(source);
-            float visualLockRange = pilotVisualLockRange * targetVisibility;
-
-            if (distance <= visualLockRange) { lockState.visionType = VisionLockType.VisualID; }
-            LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has visualLockRange:{visualLockRange} and is distance:{distance} " +
-                $"from target:{ActorLabel(target)} with visibility:{targetVisibility} - visionLockType is :{lockState.visionType}");
-
-            // Determine sensor lock level
-            ActorEWConfig targetEWConfig = State.GetOrCreateActorEWConfig(target);
-            if (targetEWConfig.stealthTier > sourceEWConfig.probeTier) {
-                LowVisibility.Logger.Log($"  -- target:{ActorLabel(target)} has stealth of a higher tier than source:{ActorLabel(source)}'s probe. It cannot be detected.");
-                lockState.sensorType = SensorLockType.None;
-            } else {
-                float sourceSensorRange = CalculateSensorRange(source);
-                float targetSignature = CalculateTargetSignature(target);
-                float lockRange = sourceSensorRange * targetSignature;
-                LowVisibility.Logger.Log($"  -- source:{ActorLabel(source)} has sensorsRange:{sourceSensorRange} and is distance:{distance} " +
-                    $"from target:{ActorLabel(target)} with signature:{targetSignature}");
-
-                if (distance <= lockRange) {
-                    if (sourceEWConfig.probeTier >= 0 && !State.IsJammed(source)) {
-                        lockState.sensorType = SensorLockType.ProbeID;
-                        LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has lock with an active probe.");
-                    } else {
-                        lockState.sensorType = SensorLockType.SensorID;
-                        LowVisibility.Logger.Log($"  -- actor:{ActorLabel(source)} has lock with base sensors.");
-                    }
-                }
-            }
-
-            return lockState;
-        }
-
+        
         // Determine an actor's sensor range, plus our special additions
         public static float CalculateSensorRange(AbstractActor source) {
             // Determine type
@@ -154,7 +95,7 @@ namespace LowVisibility.Helper {
                 float allSpotterMultipliers = GetAllSpotterMultipliers(source);
                 float allSpotterAbsolutes = GetAllSpotterAbsolutes(source);
                 modifiedVisualIDRange = mapVisualIDRange * allSpotterMultipliers + allSpotterAbsolutes;
-                LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(source)} with spotterMulti:{allSpotterMultipliers} spotterAbsolutes:{allSpotterAbsolutes} " +
+                LowVisibility.Logger.LogIfDebug($"  actor:{ActorLabel(source)} with spotterMulti:{allSpotterMultipliers} spotterAbsolutes:{allSpotterAbsolutes} " +
                     $"and mapVisualIDRange:{mapVisualIDRange} has visualIDRange:{modifiedVisualIDRange}");
             }            
             
@@ -179,7 +120,7 @@ namespace LowVisibility.Helper {
                 if (pilot != null) {
                     int normdTactics = SkillHelper.NormalizeSkill(pilot.Tactics);
                     spottingTacticsMultipler = (float)normdTactics * source.Combat.Constants.Visibility.SpotterTacticsMultiplier;
-                    LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(source)} with tactics:{pilot.Tactics}/{normdTactics} x " +
+                    LowVisibility.Logger.LogIfDebug($"  actor:{ActorLabel(source)} with tactics:{pilot.Tactics}/{normdTactics} x " +
                         $"{source.Combat.Constants.Visibility.SpotterTacticsMultiplier} = spottingTacticsMulti:{spottingTacticsMultipler}");
                 }
             }

@@ -178,6 +178,8 @@ __Void-Signature System__ | TODO
 
 - [] BUG - Weapons summary shown when beyond sensors range
 
+- [] BUG - TrySelectActor fires multiple times. *whimper*
+
 - [] BUG - Visibility isn't resetting immediately, leaving stealth units 'hidden'. Also results in weird quirks.
 
 - [] BUG - Enemies and neutral share vision currently. Probably want to split that?
@@ -194,7 +196,7 @@ __Void-Signature System__ | TODO
 
 - [] Add multiple ECM penalty to sensor check
 
-- [] Implement```lv-stealth-move-mod_m``` Stealth, NSS, Void System evasion by movement semantics
+- [x] Implement```lv-stealth-move-mod_m``` Stealth, NSS, Void System evasion by movement semantics
 
 - [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
 

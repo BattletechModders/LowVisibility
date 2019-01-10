@@ -59,7 +59,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDStatusPanel __instance) {
-            LowVisibility.Logger.LogIfDebug("___ CombatHUDStatusPanel:ShowActorStatuses:post - entered.");
+            //LowVisibility.Logger.LogIfDebug("___ CombatHUDStatusPanel:ShowActorStatuses:post - entered.");
 
             if (__instance.DisplayedCombatant != null) {
                 Type[] iconMethodParams = new Type[] { typeof(SVGAsset), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) };
