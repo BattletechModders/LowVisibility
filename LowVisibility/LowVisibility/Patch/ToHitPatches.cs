@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using Harmony;
 using LowVisibility.Helper;
+using LowVisibility.Object;
 using UnityEngine;
 using static LowVisibility.Helper.VisibilityHelper;
 
@@ -11,20 +12,20 @@ namespace LowVisibility.Patch {
         private static void Postfix(ToHit __instance, ref float __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
 
-            LockState lockState = State.GetUnifiedLockStateForTarget(attacker, target as AbstractActor);
-            if (lockState.sensorType == SensorLockType.None) {
+            LockState lockState = GetUnifiedLockStateForTarget(attacker, target as AbstractActor);
+            if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
                 //LowVisibility.Logger.LogIfDebug($"Attacker:{ActorLabel(attacker)} has no sensor lock to target:{ActorLabel(target as AbstractActor)} " +
                 //    $" applying modifier:{LowVisibility.Config.NoSensorLockAttackPenalty}");
-                __result = __result + (float)LowVisibility.Config.NoSensorLockAttackPenalty;
+                __result = __result + (float)LowVisibility.Config.NoSensorLockRangePenaltyMulti;
             }
-            if (lockState.visionType == VisionLockType.None) {
+            if (lockState.visionLockLevel == VisionLockType.None) {
                 //LowVisibility.Logger.LogIfDebug($"Attacker:{ActorLabel(attacker)} has no visual lock to target:{ActorLabel(target as AbstractActor)} " +
                 //    $" applying modifier:{LowVisibility.Config.NoSensorLockAttackPenalty}");
-                __result = __result + (float)LowVisibility.Config.NoVisualLockAttackPenalty;
+                __result = __result + (float)LowVisibility.Config.NoVisualLockRangePenaltyMulti;
             }
 
             // TODO: Check probe tier >= stealth tier
-            ActorEWConfig targetEWConfig = State.GetOrCreateActorEWConfig(target as AbstractActor);
+            StaticEWState targetEWConfig = State.GetStaticState(target as AbstractActor);
             if (targetEWConfig.HasStealthRangeMod()) {
                 //LowVisibility.Logger.LogIfDebug($"target:{ActorLabel(target as AbstractActor)} has StealthRangeMod with values: " +
                 //    $"short:{targetEWConfig.stealthRangeMod[0]} medium:{targetEWConfig.stealthRangeMod[1]} long:{targetEWConfig.stealthRangeMod[2]} ");
@@ -55,15 +56,15 @@ namespace LowVisibility.Patch {
         private static void Postfix(ToHit __instance, ref string __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
 
-            LockState lockState = State.GetUnifiedLockStateForTarget(attacker, target as AbstractActor);
-            if (lockState.sensorType == SensorLockType.None) {
-                __result = string.Format("{0}NO SENSOR LOCK {1:+#;-#}; ", __result, LowVisibility.Config.NoSensorLockAttackPenalty);
+            LockState lockState = GetUnifiedLockStateForTarget(attacker, target as AbstractActor);
+            if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
+                __result = string.Format("{0}NO SENSOR LOCK {1:+#;-#}; ", __result, LowVisibility.Config.NoSensorLockRangePenaltyMulti);
             }
-            if (lockState.visionType == VisionLockType.None) {
-                __result = string.Format("{0}NO VISUAL LOCK {1:+#;-#}; ", __result, LowVisibility.Config.NoVisualLockAttackPenalty);
+            if (lockState.visionLockLevel == VisionLockType.None) {
+                __result = string.Format("{0}NO VISUAL LOCK {1:+#;-#}; ", __result, LowVisibility.Config.NoVisualLockRangePenaltyMulti);
             }
 
-            ActorEWConfig targetEWConfig = State.GetOrCreateActorEWConfig(target as AbstractActor);
+            StaticEWState targetEWConfig = State.GetStaticState(target as AbstractActor);
             if (targetEWConfig.HasStealthRangeMod()) {
                 float distance = Vector3.Distance(attackPosition, targetPosition);
                 int weaponStealthMod = targetEWConfig.StealthRangeModAtDistance(weapon, distance);

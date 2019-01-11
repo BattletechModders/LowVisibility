@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using Harmony;
 using LowVisibility.Helper;
+using LowVisibility.Object;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -21,13 +22,12 @@ namespace LowVisibility.Patch {
                 foreach (AbstractActor actor in __instance.Combat.AllActors) {
                     if (actor != null) {
                         // Parse their EW config
-                        ActorEWConfig actorEWConfig = new ActorEWConfig(actor);
-                        State.ActorEWConfig[actor.GUID] = actorEWConfig;
+                        StaticEWState actorEWConfig = new StaticEWState(actor);
+                        State.StaticEWState[actor.GUID] = actorEWConfig;
 
                         // Make a pre-encounter detectCheck for them\
-                        RoundDetectRange detectRange = MakeSensorRangeCheck(actor, false);
-                        LowVisibility.Logger.LogIfDebug($"  Actor:{ActorLabel(actor)} has detectRange:{detectRange} at load/start");
-                        State.RoundDetectResults[actor.GUID] = detectRange;
+                        State.BuildDynamicState(actor);
+                        LowVisibility.Logger.LogIfDebug($"  Actor:{ActorLabel(actor)} has detectCheck:{State.GetDynamicState(actor).currentCheck} at load/start");                        
 
                         bool isPlayer = actor.TeamId == __instance.Combat.LocalPlayerTeamGuid;
                         if (isPlayer && randomPlayerActor == null) {
@@ -38,7 +38,7 @@ namespace LowVisibility.Patch {
                         LowVisibility.Logger.LogIfDebug($"  Actor:{ActorLabel(actor)} was NULL!");
                     }
                 }
-                State.UpdateDetectionForAllActors(__instance.Combat, randomPlayerActor);
+                VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat, randomPlayerActor);
             }
         }
     }
@@ -65,7 +65,7 @@ namespace LowVisibility.Patch {
             AbstractActor randomPlayerActor = __instance.Combat.AllActors
                 .Where(aa => aa.TeamId == __instance.Combat.LocalPlayerTeamGuid)
                 .First();
-            State.UpdateDetectionForAllActors(__instance.Combat, randomPlayerActor);
+            VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat, randomPlayerActor);
         }
     }
 
@@ -73,8 +73,8 @@ namespace LowVisibility.Patch {
     public static class TurnDirector_OnCombatGameDestroyed {
         public static void Postfix(TurnDirector __instance) {
             // Remove all combat state
-            State.RoundDetectResults.Clear();
-            State.ActorEWConfig.Clear();
+            State.DynamicEWState.Clear();
+            State.StaticEWState.Clear();
             State.SourceActorLockStates.Clear();
             State.LastPlayerActivatedActorGUID = null;
             State.JammedActors.Clear();

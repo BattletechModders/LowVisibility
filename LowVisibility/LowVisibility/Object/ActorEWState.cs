@@ -1,32 +1,53 @@
 ﻿using BattleTech;
 using HBS.Collections;
+using LowVisibility.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using static LowVisibility.Helper.ActorHelper;
 
-namespace LowVisibility.Helper {
-    public class ActorEWConfig {
+namespace LowVisibility.Object {
 
-        public const string TagPrefixJammer = "lv-jammer_t";
-        public const string TagPrefixProbe = "lv-probe_t";
+    class DynamicEWState {
+        public DetectionLevel visualDetectLevel;
+        public DetectionLevel sensorDetectLevel;
+        public int currentCheck;
+
+        public DynamicEWState() {
+            this.visualDetectLevel = DetectionLevel.NoInfo;
+            this.sensorDetectLevel = DetectionLevel.NoInfo;
+            this.currentCheck = 0;
+        }
+
+        public DynamicEWState(int roundCheck, AbstractActor actor) {
+            StaticEWState staticState = State.GetStaticState(actor);
+            int modifiedCheck = roundCheck + staticState.tacticsBonus;
+            LowVisibility.Logger.LogIfDebug($"RoundCheck:{roundCheck} modified by tactics:{staticState.tacticsBonus} to {modifiedCheck}");
+            // TODO: For now, return a single check for both values. In the future, split those
+            DetectionLevel checkLevel = VisibilityHelper.DetectionLevelForCheck(modifiedCheck);
+
+            this.visualDetectLevel = checkLevel;
+            this.sensorDetectLevel = checkLevel;
+            this.currentCheck = modifiedCheck;
+        }
+    }
+
+    public class StaticEWState {
+
+        public const string TagPrefixJammer = "lv-jammer_m";
+        public const string TagPrefixProbe = "lv-probe_m";
+        public const string TagPrefixSensorBoost = "lv-sensor-boost_m";
         public const string TagSharesSensors = "lv-shares-sensors";
-        public const string TagPrefixStealth = "lv-stealth_t";
+        public const string TagPrefixStealth = "lv-stealth_m";
         public const string TagPrefixStealthRangeMod = "lv-stealth-range-mod_s";
         public const string TagPrefixStealthMoveMod = "lv-stealth-move-mod_m";
 
-        // ECM Equipment = ecm_t0, Guardian ECM = ecm_t1, Angel ECM = ecm_t2, CEWS = ecm_t3. -1 means none.
-        public int ecmTier = -1;
+        public int ecmMod = 0;
         public float ecmRange = 0;
-        public int ecmModifier = 0; // Any additional modifier to opposed ECM modifier for the sensor check
+        public int probeMod = 0;              
+        public int stealthMod = 0;
+        public int sensorMod = 0;
 
-        // Pirate = activeprobe_t0, Beagle = activeprobe_t1, Bloodhound = activeprobe_t2, CEWS = activeprobe_t3. -1 means none.
-        public int probeTier = -1;
-        public float probeRange = 0;
-        public int probeModifier = 0; // The sensor check modifier used in opposed cases (see MaxTech 55)
-
-        // Stealth armor
-        public int stealthTier = -1;
         // Modifier for stealth range modification - min-short, short-medium, medium-long, long-max
         public int[] stealthRangeMod = new int[] { 0, 0, 0, 0 };
 
@@ -39,23 +60,18 @@ namespace LowVisibility.Helper {
         // Whether this actor will share sensor data with others
         public bool sharesSensors = false;
 
-        public ActorEWConfig(AbstractActor actor) {
+        public StaticEWState(AbstractActor actor) {
             // Check tags for any ecm/sensors
-            // TODO: Check for stealth
-            int actorEcmTier = -1;
-            float actorEcmRange = 0;
             int actorEcmModifier = 0;
-
-            int actorProbeTier = -1;
-            float actorProbeRange = 0;
+            float actorEcmRange = 0;
             int actorProbeModifier = 0;
+            int actorStealthMod = 0;
+            int actorSensorMod = 0;
 
-            // TODO: Add pilot skill check / tag check for same effect
-            bool actorSharesSensors = false;
-
-            int actorStealthTier = -1;
             int[] actorStealthRangeMod = null;
             int[] actorStealthMoveMod = null;
+
+            bool actorSharesSensors = false;
 
             Dictionary<string, TagSet> cTags = actor?.allComponents?
                 .Where(c => c?.componentDef?.ComponentTags != null)                
@@ -68,51 +84,53 @@ namespace LowVisibility.Helper {
                     string tagLower = tag.ToLower();
 
                     if (tagLower.StartsWith(TagPrefixJammer)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has ECM component:{kv.Key} with tag:{tag}");
+                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has JAMMER component:{kv.Key} with tag:{tag}");
                         string[] split = tag.Split('_');
-                        if (split.Length == 4) {
-                            int tier = Int32.Parse(split[1].Substring(1));
+                        if (split.Length == 3) {
+                            int modifier = Int32.Parse(split[1].Substring(1));
                             int range = Int32.Parse(split[2].Substring(1));
-                            int modifier = Int32.Parse(split[3].Substring(1));
-                            if (tier >= actorEcmTier) {
-                                actorEcmTier = tier;
-                                actorEcmRange = range * 30.0f;
+                            if (modifier >= actorEcmModifier) {
                                 actorEcmModifier = modifier;
+                                actorEcmRange = range * 30.0f;                                
                             } else {
                                 LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} - MALFORMED TAG -:{tag}");
                             }
                         }
                     } else if (tagLower.StartsWith(TagPrefixProbe)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has Probe component:{kv.Key} with tag:{tag}");
+                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has PROBE component:{kv.Key} with tag:{tag}");
                         string[] split = tag.Split('_');
-                        if (split.Length == 4) {
-                            int tier = Int32.Parse(split[1].Substring(1));
-                            int range = Int32.Parse(split[2].Substring(1));
+                        if (split.Length == 2) {
                             int modifier = Int32.Parse(split[3].Substring(1));
-                            if (tier >= actorProbeTier) {
-                                actorProbeTier = tier;
-                                actorProbeRange = range * 30.0f;
+                            if (modifier >= actorProbeModifier) {
                                 actorProbeModifier = modifier;
                             }
                         } else {
                             LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} - MALFORMED TAG -:{tag}");
                         }
-                    } else if (tagLower.Equals(TagSharesSensors)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} shares sensors due to component:{kv.Key} with tag:{tag}");
-                        actorSharesSensors = true;
-                    } else if (tagLower.StartsWith(TagPrefixStealth)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has Stealth component:{kv.Key} with tag:{tag}");
+                    } else if (tagLower.StartsWith(TagPrefixSensorBoost)) {
+                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has SENSOR_BOOST component:{kv.Key} with tag:{tag}");
                         string[] split = tag.Split('_');
                         if (split.Length == 2) {
-                            int tier = Int32.Parse(split[1].Substring(1));
-                            if (tier >= actorStealthTier) {
-                                actorStealthTier = tier;
+                            int modifier = Int32.Parse(split[3].Substring(1));
+                            if (modifier >= actorSensorMod) {
+                                actorSensorMod = modifier;
+                            }
+                        } else {
+                            LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} - MALFORMED TAG -:{tag}");
+                        }
+                    } else if (tagLower.StartsWith(TagPrefixStealth)) {
+                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has STEALTH component:{kv.Key} with tag:{tag}");
+                        string[] split = tag.Split('_');
+                        if (split.Length == 2) {
+                            int modifier = Int32.Parse(split[1].Substring(1));
+                            if (modifier >= actorStealthMod) {
+                                actorStealthMod = modifier;
                             }
                         } else {
                             LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} - MALFORMED TAG -:{tag}");
                         }
                     } else if (tagLower.StartsWith(TagPrefixStealthRangeMod)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has StealthRangeMod component:{kv.Key} with tag:{tag}");
+                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has STEALTH_RANGE_MOD component:{kv.Key} with tag:{tag}");
                         string[] split = tag.Split('_');
                         if (split.Length == 5) {
                             int shortRange = Int32.Parse(split[1].Substring(1));
@@ -126,7 +144,7 @@ namespace LowVisibility.Helper {
                             LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} - MALFORMED TAG -:{tag}");
                         }
                     } else if (tagLower.StartsWith(TagPrefixStealthMoveMod)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has StealthMoveMod component:{kv.Key} with tag:{tag}");
+                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has STEALTH_MOVE_MOD component:{kv.Key} with tag:{tag}");
                         string[] split = tag.Split('_');
                         if (split.Length == 3) {
                             int modifier = Int32.Parse(split[1].Substring(1));
@@ -137,21 +155,16 @@ namespace LowVisibility.Helper {
                         } else {
                             LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} - MALFORMED TAG -:{tag}");
                         }
+                    } else if (tagLower.Equals(TagSharesSensors)) {
+                        LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} shares sensors due to component:{kv.Key} with tag:{tag}");
+                        actorSharesSensors = true;
                     }
                 }
             }
 
-            //foreach (MechComponent component in actor?.allComponents) {
-            //    MechComponentRef componentRef = component?.mechComponentRef;
-            //    MechComponentDef componentDef = componentRef?.Def;
-            //    TagSet componentTags = componentDef?.ComponentTags;
-                
-            //}
-
             // If the unit has stealth, it disables the ECM system.
-            if (actorStealthTier >= 0) {
-                LowVisibility.Logger.Log($"Actor:{ActorLabel(actor)} has multiple stealth and ECM - disabling ECM bubble.");
-                actorEcmTier = -1;
+            if (actorStealthMod >= 0) {
+                LowVisibility.Logger.Log($"Actor:{ActorLabel(actor)} has both STEALTH and JAMMER - disabling ECM bubble.");
                 actorEcmRange = 0;
                 actorEcmModifier = 0;
             }
@@ -162,28 +175,28 @@ namespace LowVisibility.Helper {
                 int pilotTactics = actor.GetPilot().Tactics;                
                 int normedTactics = SkillHelper.NormalizeSkill(pilotTactics);
                 unitTacticsBonus = SkillHelper.ModifierBySkill[normedTactics];
+                // TODO: Add bonus for SensorLock
             } else {
                 LowVisibility.Logger.Log($"Actor:{ActorLabel(actor)} HAS NO PILOT!");
             }
-            
-            this.ecmTier = actorEcmTier;
+
+            this.ecmMod = actorEcmModifier;
             this.ecmRange = actorEcmRange;
-            this.ecmModifier = actorEcmModifier;
-            this.probeTier = actorProbeTier;
-            this.probeRange = actorProbeRange;
-            this.probeModifier = actorProbeModifier;
+            this.probeMod = actorProbeModifier;
             this.tacticsBonus = unitTacticsBonus;
             this.sharesSensors = actorSharesSensors;
-            this.stealthTier = actorStealthTier;
+            this.sensorMod = actorSensorMod;
+            this.stealthMod = actorStealthMod;
             this.stealthRangeMod = actorStealthRangeMod ?? (new int[] { 0, 0, 0, 0 });
             this.stealthMoveMod = actorStealthMoveMod ?? (new int[] { 0, 0 });            
         }
 
         public override string ToString() {
-            return $"tacticsBonus:+{tacticsBonus} ecmTier:{ecmTier} ecmRange:{ecmRange} " +
-                $"probeTier:{probeTier} probeRange:{probeRange} sharesSensors:{sharesSensors} " +
-                $"stealthTier:{stealthTier} stealthRangeMod:{stealthRangeMod[0]}/{stealthRangeMod[1]}/{stealthRangeMod[2]}/{stealthRangeMod[3]} " +
-                $"stealthMoveMod:{stealthMoveMod[0]}/{stealthMoveMod[1]}";
+            return $"tacticsBonus:+{tacticsBonus} ecmMod:{ecmMod} ecmRange:{ecmRange} " +
+                $"probeMod:{probeMod} stealthMod:{stealthMod} " +
+                $"stealthRangeMod:{stealthRangeMod[0]}/{stealthRangeMod[1]}/{stealthRangeMod[2]}/{stealthRangeMod[3]} " +
+                $"stealthMoveMod:{stealthMoveMod[0]}/{stealthMoveMod[1]} " +
+                $"sharesSensors:{sharesSensors}";
         }
 
         public bool HasStealthRangeMod() {

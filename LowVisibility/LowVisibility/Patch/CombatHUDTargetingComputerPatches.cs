@@ -2,6 +2,7 @@
 using BattleTech.UI;
 using Harmony;
 using LowVisibility.Helper;
+using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -133,12 +134,12 @@ namespace LowVisibility.Patch {
                 //bool isFriendly = __instance.Combat.HostilityMatrix.IsFriendly(actor.team, actor.Combat.LocalPlayerTeam);
 
                 if (!isPlayer) {
-                    LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
+                    LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
                     LowVisibility.Logger.LogIfDebug($" ~~~ OpFor Actor:{ActorHelper.ActorLabel(target)} has lockState:{lockState}");
-                    if (lockState.sensorType == SensorLockType.ProbeID) {
+                    if (lockState.sensorLockLevel >= DetectionLevel.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
                         SetArmorDisplayActive(__instance, true);                            
-                    } else if (lockState.visionType == VisionLockType.VisualID || lockState.sensorType == SensorLockType.SensorID) {
+                    } else if (lockState.visionLockLevel == VisionLockType.VisualID || lockState.sensorLockLevel >= DetectionLevel.SurfaceAnalysis) {
                         //KnowYourFoe.Logger.Log($"Detection state:{detectState} for actor:{target.DisplayName}_{target.GetPilot().Name} requires weapons to be hidden.");
                         // Update the summary display
                         Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");

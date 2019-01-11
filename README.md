@@ -124,8 +124,8 @@ _Sensor ID_ and _Active Probe ID_ require the source to have __detection__ to th
 ## Jamming Details
 TODO: Clean this up
 
-* ```lv-jammer_tX_rY_mZ``` creates an ECM bubble of tier X in a circle of Y hexes (\*30 meters in game) around the source unit. The Jammer imposes a penalty of Z to any sensor checks by jammed units.
-* ```lv-probe-tX_rY_mZ``` is a probe that of tier X. It adds Y hexes (\*30 meters in game) to the source unit's sensors range. It adds a bonus of Z to sensor checks made by this unit.
+* ```lv-jammer_mX_rY``` creates an ECM bubble in a circle of Y hexes (\*30 meters in game) around the source unit. The Jammer imposes a penalty of X to any sensor checks by jammed units.
+* ```lv-probe_mX``` is an active probe. It adds a bonus of X to sensor checks made by this unit.
 
 Probes of an equal tier penetrate jammers, to a T1 probe will penetrate a T1 jammer. This means the jammer won't add it's penalty to the source unit.
 
@@ -224,14 +224,15 @@ __Void-Signature System__ | TODO
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
 - [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
 - [] Move SensorCheck to start of unit activation, not start of round. Generate one at the start of combat to ensure visibility can be initialized at that time.
-- [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_narc_effect_rY_dZ```, narc Continues to emit for durationZ, Y is radius within which anybody can benefit from the Narc boost.
-- [] Implement Tag effects; ```lv-tag-effect-?```. Tag differs from narc in that it's only during LOS? Others wants it tied to TAG effects and be for 1-2 activations.
+- [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_effect_narc_rY_dZ```, narc Continues to emit for durationZ, Y is radius within which anybody can benefit from the Narc boost.
+- [] Implement Tag effects; ```lv-effect-tag_m?```. Tag differs from narc in that it's only during LOS? Others wants it tied to TAG effects and be for 1-2 activations.
 - [] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
 - [] Implement stealth multi-target prohibition
 - [] No Lock penalties are multipliers for range penalties; 0.5 for visual, 1.0 for sensor. So at short range you get a -1 for sensors, -2 at medium, etc. Reflects that it's harder to shoot someone without a lock the further out you get.
-- [] Add a 'lv-max-info' tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
-- [] Add a 'lv-sensor-roll-mod_m' tag that provides a modifier to the sensor check (positive or negative)
+- [] Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
+- [] Add a ```lv-sensor-roll-mod_m``` tag that provides a modifier to the sensor check (positive or negative)
 - [] Modify called shot critical, % when making a shot w/o lock_
+- [] injuries reduce sensor check
 
 ### Possible Additions
 

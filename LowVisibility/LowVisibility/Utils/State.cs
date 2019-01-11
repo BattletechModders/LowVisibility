@@ -1,12 +1,12 @@
 ﻿
 using BattleTech;
 using LowVisibility.Helper;
+using LowVisibility.Object;
+using LowVisibility.Redzen;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using static LowVisibility.Helper.ActorHelper;
 using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility {
@@ -19,15 +19,20 @@ namespace LowVisibility {
         // The vision range of the map
         private static float mapVisionRange = 0.0f;
 
-        // The range at which you can do visualID
+        // The range at which you can do visualID, modified by the mapVisionRange
         private static float visualIDRange = 0.0f;
 
         // -- Mutable state
-        public static Dictionary<string, RoundDetectRange> RoundDetectResults = new Dictionary<string, RoundDetectRange>();
-        public static Dictionary<string, ActorEWConfig> ActorEWConfig = new Dictionary<string, ActorEWConfig>();
+        public static Dictionary<string, DynamicEWState> DynamicEWState = new Dictionary<string, DynamicEWState>();
+        public static Dictionary<string, StaticEWState> StaticEWState = new Dictionary<string, StaticEWState>();
         public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
         public static string LastPlayerActivatedActorGUID;
         public static Dictionary<string, int> JammedActors = new Dictionary<string, int>();
+        // TODO: Add narc'd actors
+
+        public const int ResultsToPrecalcuate = 8192;
+        public static double[] CheckResults = new double[ResultsToPrecalcuate];
+        public static int CheckResultIdx = 0;
 
         // --- Methods Below ---
         public static float GetMapVisionRange() {
@@ -50,156 +55,61 @@ namespace LowVisibility {
             LowVisibility.Logger.Log($"Vision ranges: calculated map range:{mapVisionRange} configured visualID range:{LowVisibility.Config.VisualIDRange} map visualID range:{visualIDRange}");
         }
 
-        public static RoundDetectRange GetOrCreateRoundDetectResults(AbstractActor actor) {
-            if (!RoundDetectResults.ContainsKey(actor.GUID)) {
-                RoundDetectRange detectRange = MakeSensorRangeCheck(actor);
-                RoundDetectResults[actor.GUID] = detectRange;
+        // --- Methods manipulating DynamicEWState
+        public static DynamicEWState GetDynamicState(AbstractActor actor) {
+            if (!DynamicEWState.ContainsKey(actor.GUID)) {
+                LowVisibility.Logger.Log($"WARNING: DyanmicEWState for actor:{actor.GUID} was not found. Creating!");
+                BuildDynamicState(actor);
             }
-            return RoundDetectResults[actor.GUID];
+            return DynamicEWState[actor.GUID];
         }
 
-        public static ActorEWConfig GetOrCreateActorEWConfig(AbstractActor actor) {
-            if (!ActorEWConfig.ContainsKey(actor.GUID)) {
-                ActorEWConfig config = new ActorEWConfig(actor);
-                ActorEWConfig[actor.GUID] = config;
-            }
-            return ActorEWConfig[actor.GUID];
+        public static void BuildDynamicState(AbstractActor actor) {
+            int checkResult = GetCheckResult();
+            DynamicEWState[actor.GUID] = new DynamicEWState(checkResult, actor);
         }
 
-        // Updates the detection state for all units. Called at start of round, and after each enemy movement.
-        public static void UpdateDetectionForAllActors(CombatGameState Combat, AbstractActor updateSource=null) {
-
-            HashSet<string> targetsWithVisibilityChanges = new HashSet<string>();
-
-            List<AbstractActor> enemyAndNeutralActors = EnemyAndNeutralActors(Combat);
-            List<AbstractActor> playerAndAlliedActors = PlayerAndAlliedActors(Combat);
-
-            // Update friendlies
-            LowVisibility.Logger.LogIfDebug($"  ==== Updating PlayerAndAllies ====");
-            foreach (AbstractActor source in playerAndAlliedActors) {                
-                HashSet<LockState> updatedLocks = new HashSet<LockState>();
-                CalculateTargetLocks(source, enemyAndNeutralActors, updatedLocks, targetsWithVisibilityChanges);                
-                SourceActorLockStates[source.GUID] = updatedLocks;
+        // --- Methods manipulating StaticEWState
+        public static StaticEWState GetStaticState(AbstractActor actor) {
+            if (!StaticEWState.ContainsKey(actor.GUID)) {
+                LowVisibility.Logger.Log($"WARNING: StaticEWState for actor:{actor.GUID} was not found. Creating!");
+                BuildStaticState(actor);
             }
-
-            // Update foes
-            LowVisibility.Logger.LogIfDebug($"  ==== Updating FoesAndNeutral ====");
-            foreach (AbstractActor source in enemyAndNeutralActors) {
-                HashSet<LockState> updatedLocks = new HashSet<LockState>();
-                CalculateTargetLocks(source, playerAndAlliedActors, updatedLocks, targetsWithVisibilityChanges);
-                SourceActorLockStates[source.GUID] = updatedLocks;
-            }
-
-            // Send a message updating the visibility of any actors that changed
-            LowVisibility.Logger.LogIfDebug($"  ==== Updating visibility on changed actors ====");
-            foreach (string targetGUID in targetsWithVisibilityChanges) {
-                AbstractActor target = Combat.FindActorByGUID(targetGUID);
-                LowVisibility.Logger.Log($"  -- Updating vis on actor:{ActorLabel(target)}");
-                target.UpdateVisibilityCache(Combat.GetAllCombatants());
-
-                bool isPlayer = target.TeamId == Combat.LocalPlayerTeamGuid;
-                if (updateSource != null && !isPlayer) {
-                    LockState targetLockState = GetUnifiedLockStateForTarget(updateSource, target);
-                    LowVisibility.Logger.Log($"  -- Unified lockState on actor:{ActorLabel(target)} from source:{ActorLabel(updateSource)} is now:{targetLockState}");
-                    VisibilityLevel targetVisLevel = VisibilityLevel.None;
-
-                    if (targetLockState.visionType != VisionLockType.None) {
-                        targetVisLevel = VisibilityLevel.LOSFull;
-                        LowVisibility.Logger.Log($"Visual lock actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
-                    } else if (targetLockState.visionType == VisionLockType.None && targetLockState.sensorType != SensorLockType.None) {
-                        // TODO: This really should account for the tactics of the shared vision
-                        int normdTactics = SkillHelper.NormalizeSkill(updateSource.SkillTactics);
-                        targetVisLevel = VisibilityLevelByTactics(normdTactics);
-                        LowVisibility.Logger.Log($"Only sensor lock to actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
-                    } else {
-                        LowVisibility.Logger.Log($"No vision or sensor lock to actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
-                    }
-
-                    //if (targetLockState.visionType != VisionLockType.None && targetLockState.sensorType == SensorLockType.None) {
-                    //    targetVisLevel = VisibilityLevel.LOSFull;
-                    //    LowVisibility.Logger.Log($"Only vision lock to actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
-                    //} else if (targetLockState.visionType == VisionLockType.None && targetLockState.sensorType != SensorLockType.None) {
-                    //    // TODO: This really should account for the tactics of the shared vision
-                    //    int normdTactics = SkillHelper.NormalizeSkill(updateSource.SkillTactics);
-                    //    targetVisLevel = VisibilityLevelByTactics(normdTactics);
-                    //    LowVisibility.Logger.Log($"Only sensor lock to actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
-                    //} else {
-                    //    LowVisibility.Logger.Log($"No vision or sensor lock to actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
-                    //}
-                    LowVisibility.Logger.Log($"Setting actor:{ActorLabel(target)} visibility to:{targetVisLevel}");
-                    target.OnPlayerVisibilityChanged(targetVisLevel);
-                }
-            }
-
-        }
-       
-        // Updates the detection state for a friendly actor. Call before activation, and after friendly movement.
-        public static void UpdateActorDetection(AbstractActor source) {
-
-            HashSet<string> targetsWithVisibilityChanges = new HashSet<string>();
-
-            // TODO: Should calculate friendly and enemy changes on each iteration of this
-            bool isPlayer = source.team == source.Combat.LocalPlayerTeam;
-            List<AbstractActor> targets = isPlayer ? EnemyAndNeutralActors(source.Combat) : PlayerAndAlliedActors(source.Combat);
-            HashSet<LockState> updatedLocks = new HashSet<LockState>();
-            LowVisibility.Logger.LogIfDebug($"=== Updating ActorDetection for source:{ActorLabel(source)} which isPlayer:{isPlayer} for target count:{targets.Count}");
-            CalculateTargetLocks(source, targets, updatedLocks, targetsWithVisibilityChanges);
-            SourceActorLockStates[source.GUID] = updatedLocks;
-
-            // Send a message updating the visibility of any actors that changed
-            //PublishVisibilityChange(source.Combat, targetsWithVisibilityChanges); 
-
-            // TESTING: This works better, but doesn't do it on activation for some reason?
-            // ALSO: APPLIES TO BOTH PLAYER AND ENEMY - only update enemies!
-     
+            return StaticEWState[actor.GUID];
         }
 
-        public static LockState GetUnifiedLockStateForTarget(AbstractActor source, AbstractActor target) {
-            if (source == null || target == null) { return null; }
-
-            // Get the source lock state first            
-            if (!SourceActorLockStates.ContainsKey(source.GUID)) {
-                LowVisibility.Logger.LogIfDebug($"----- source:{source.GUID} is missing, THIS SHOULD NOT HAPPEN!");
-                //UpdateActorDetection(source);
-            }
-            //LowVisibility.Logger.LogIfDebug($"----- GetUnifiedLockStateForTarget: Looking for sourceLocks for actor: {ActorLabel(source)} vs: {ActorLabel(target)}");
-            HashSet<LockState> sourceLocks = SourceActorLockStates[source.GUID];
-            LockState sourceLockState = sourceLocks?.FirstOrDefault(ls => ls.targetGUID == target.GUID);
-            LockState unifiedLockState = sourceLockState != null ? new LockState(sourceLockState) : CalculateLock(source, target);
-
-            // Finally check for shared visibility
-            //LowVisibility.Logger.LogIfDebug($"----- GetUnifiedLockStateForTarget: Looking for shared vision");
-            bool isPlayer = source.team == source.Combat.LocalPlayerTeam;
-            List<AbstractActor> friendlies = isPlayer ? PlayerAndAlliedActors(source.Combat) : EnemyAndNeutralActors(source.Combat);
-            foreach (AbstractActor friendly in friendlies) {
-                if (SourceActorLockStates.ContainsKey(friendly.GUID)) {
-                    //LowVisibility.Logger.LogIfDebug($"----- GetUnifiedLockStateForTarget: Checking shared vision for actor:{ActorLabel(friendly)}");
-                    HashSet<LockState> friendlyLocks = SourceActorLockStates[friendly.GUID];
-                    if (friendlyLocks != null) {
-                        //LowVisibility.Logger.LogIfDebug($"----- GetUnifiedLockStateForTarget: friendlyLocks found actor:{ActorLabel(friendly)}");
-                        LockState friendlyLockState = friendlyLocks?.FirstOrDefault(ls => ls.targetGUID == target.GUID);
-
-                        //LowVisibility.Logger.LogIfDebug($"----- GetUnifiedLockStateForTarget: friendly actor:{ActorLabel(friendly)} has lockState:{friendlyLockState}");
-                        // Vision is always shared
-                        if (friendlyLockState != null && friendlyLockState.visionType > unifiedLockState.visionType) {
-                            //LowVisibility.Logger.LogIfDebug($"friendly:{ActorLabel(friendly)} has a superior vision lock to target:{ActorLabel(target)}, using their lock.");
-                            unifiedLockState.visionType = friendlyLockState.visionType;
-                        }
-
-                        // Sensors are conditionally shared
-                        ActorEWConfig friendlyEWConfig = GetOrCreateActorEWConfig(friendly);
-                        if (friendlyLockState != null && friendlyLockState.sensorType > unifiedLockState.sensorType && friendlyEWConfig.sharesSensors) {
-                            unifiedLockState.sensorType = friendlyLockState.sensorType;
-                            //LowVisibility.Logger.LogIfDebug($"friendly:{ActorLabel(friendly)} shares sensors and has a superior sensor lock to target:{ActorLabel(target)}, using their lock.");
-                        }
-                    }
-                }
-            }
-
-            //LowVisibility.Logger.LogIfDebug($"----- GetUnifiedLockStateForTarget: exiting");
-            return unifiedLockState;
+        public static void BuildStaticState(AbstractActor actor) {
+            StaticEWState config = new StaticEWState(actor);
+            StaticEWState[actor.GUID] = config;
         }
 
+        // --- Methods manipulating CheckResults
+        public static void InitializeCheckResults() {
+            Xoshiro256PlusRandomBuilder builder = new Xoshiro256PlusRandomBuilder();
+            IRandomSource rng = builder.Create();
+            double mean = 0;
+            double stdDev = 4;            
+            ZigguratGaussian.Sample(rng, mean, stdDev, CheckResults);
+            CheckResultIdx = 0;
+        }
+
+        public static int GetCheckResult() {
+            if (CheckResultIdx < 0 || CheckResultIdx > ResultsToPrecalcuate) {
+                LowVisibility.Logger.Log($"ERROR: CheckResultIdx of {CheckResultIdx} is out of bounds! THIS SHOULD NOT HAPPEN!");
+            }
+
+            double result = CheckResults[CheckResultIdx];
+
+            // Normalize floats to integer buckets for easier comparison
+            if (result > 0) {
+                result = Math.Floor(result);
+            } else if (result < 0) {
+                result = Math.Ceiling(result);
+            }
+
+            return (int)result;
+        }
+        
         // The last actor that the player activated. Used to determine visibility in targetingHUD between activations
 
         public static AbstractActor GetLastPlayerActivatedActor(CombatGameState Combat) {
@@ -247,15 +157,15 @@ namespace LowVisibility {
             public string LastPlayerActivatedActorGUID;
             public Dictionary<string, int> jammedActors;
             public Dictionary<string, HashSet<LockState>> SourceActorLockStates;
-            public Dictionary<string, RoundDetectRange> roundDetectResults;
-            public Dictionary<string, ActorEWConfig> actorEWConfig;
+            public Dictionary<string, DynamicEWState> dynamicState;
+            public Dictionary<string, StaticEWState> staticState;
         }
 
         public static void LoadStateData(string saveFileID) {
             JammedActors.Clear();
             SourceActorLockStates.Clear();
-            RoundDetectResults.Clear();
-            ActorEWConfig.Clear();
+            DynamicEWState.Clear();
+            StaticEWState.Clear();
 
             string normalizedFileID = saveFileID.Replace('\\', '_');
             FileInfo stateFilePath = CalculateFilePath(normalizedFileID);
@@ -273,8 +183,8 @@ namespace LowVisibility {
                     LastPlayerActivatedActorGUID = savedState != null ? savedState.LastPlayerActivatedActorGUID : null;
                     JammedActors = savedState != null ? savedState.jammedActors : null;
                     SourceActorLockStates = savedState != null ? savedState.SourceActorLockStates : null;
-                    RoundDetectResults = savedState != null ? savedState.roundDetectResults : null;
-                    ActorEWConfig = savedState != null ? savedState.actorEWConfig : null;
+                    DynamicEWState = savedState != null ? savedState.dynamicState: null;
+                    StaticEWState = savedState != null ? savedState.staticState : null;
 
                     LowVisibility.Logger.Log($"Loaded save state from file:{stateFilePath.FullName}.");
                 } catch (Exception e) {
@@ -301,8 +211,8 @@ namespace LowVisibility {
                     LastPlayerActivatedActorGUID = State.LastPlayerActivatedActorGUID,
                     jammedActors = State.JammedActors,
                     SourceActorLockStates = State.SourceActorLockStates,
-                    roundDetectResults = State.RoundDetectResults,
-                    actorEWConfig = State.ActorEWConfig
+                    dynamicState= State.DynamicEWState,
+                    staticState = State.StaticEWState
                 };
                             
                 using (StreamWriter w = new StreamWriter(saveStateFilePath.FullName, false)) {

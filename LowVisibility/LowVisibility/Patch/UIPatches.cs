@@ -3,7 +3,7 @@ using BattleTech.UI;
 using Harmony;
 using HBS;
 using Localize;
-using LowVisibility.Helper;
+using LowVisibility.Object;
 using SVGImporter;
 using System;
 using System.Collections.Generic;
@@ -30,10 +30,13 @@ namespace LowVisibility.Patch {
                 if (target != null) {
                     bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                     if (!isPlayer) {
-                        LockState lockState = State.GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
-                        if (lockState.sensorType == SensorLockType.ProbeID) {
+                        LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
+                        // TODO: This is all fucked up
+                        if (lockState.sensorLockLevel >= DetectionLevel.Vector) {
                             // Do nothing - display everything per vanilla
-                        } else if (lockState.sensorType == SensorLockType.None && lockState.visionType < VisionLockType.VisualID) {
+                            Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
+                            hideEvasionIndicatorMethod.GetValue();
+                        } else if (lockState.sensorLockLevel == DetectionLevel.NoInfo && lockState.visionLockLevel < VisionLockType.VisualID) {
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
                             Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
@@ -71,12 +74,12 @@ namespace LowVisibility.Patch {
                 Traverse showBuffStringMethod = Traverse.Create(__instance).Method("ShowBuff", stringMethodParams);
 
                 AbstractActor actor = __instance.DisplayedCombatant as AbstractActor;
-                ActorEWConfig ewConfig = State.GetOrCreateActorEWConfig(actor);
-                RoundDetectRange detectRange = State.GetOrCreateRoundDetectResults(actor);
+                StaticEWState staticState = State.GetStaticState(actor);
+                DynamicEWState dynamicState = State.GetDynamicState(actor);
 
                 bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 if (isPlayer) {                                        
-                    if (detectRange == RoundDetectRange.VisualOnly) {                        
+                    if (dynamicState.sensorDetectLevel == DetectionLevel.NoInfo) {
                         showDebuffIconMethod.GetValue(new object[] {
                             LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon,
                             new Text("VISUALS ONLY", new object[0]),
@@ -84,9 +87,10 @@ namespace LowVisibility.Patch {
                             __instance.effectIconScale,
                             false
                         });
-                    } else if (detectRange >= RoundDetectRange.SensorsShort) {                                                
+                    } else {                                                
                         float sensorsDistance = CalculateSensorRange(actor);
                         // TODO: Change text/color for probe vs. sensors
+                        // TODO: Show level of information you can expect to receive
                         showBuffIconMethod.GetValue(new object[] {
                             LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon,
                             new Text("SENSORS ACTIVE", new object[0]),
@@ -98,11 +102,11 @@ namespace LowVisibility.Patch {
                     }
 
                     // TODO: Better icon
-                    if (ewConfig.ecmTier > -1) {
+                    if (staticState.ecmMod != 0) {
                         showBuffStringMethod.GetValue(new object[] {
                             "uixSvgIcon_status_sensorsImpaired",
                             new Text("ECM JAMMING", new object[0]),
-                            new Text($"Unit has an ECM jammer and will hide allies with {ewConfig.ecmRange * 30}m.", new object[0]),
+                            new Text($"Unit has an ECM jammer and will hide allies with {staticState.ecmRange * 30}m.", new object[0]),
                             __instance.effectIconScale,
                             false
                         });

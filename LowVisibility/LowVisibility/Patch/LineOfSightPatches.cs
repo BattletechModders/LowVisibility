@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using Harmony;
 using HBS.Math;
+using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -160,8 +161,8 @@ namespace LowVisibility.Patch {
                 }
 
                 // If EW effects have rendered the target invisible, break the lock
-                LockState lockState = State.GetUnifiedLockStateForTarget(source, targetActor);
-                if (lockState.sensorType == SensorLockType.None && lockState.visionType == VisionLockType.None) {
+                LockState lockState = GetUnifiedLockStateForTarget(source, targetActor);
+                if (lockState.sensorLockLevel == DetectionLevel.NoInfo && lockState.visionLockLevel == VisionLockType.None) {
                     visibilityLevel = VisibilityLevel.None;
                 }
             }

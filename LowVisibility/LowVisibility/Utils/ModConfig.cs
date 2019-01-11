@@ -4,27 +4,36 @@ namespace LowVisibility {
         // If true, extra logging will be used
         public bool Debug = false;
 
-        // Short, medium, long
-        public float[] UnknownSensorRanges  = new float[] { 150, 250, 350 };
-        public float[] TurretSensorRanges   = new float[] { 240, 480, 720 };
-        public float[] VehicleSensorRanges  = new float[] { 270, 350, 450 };
-        public float[] MechSensorRanges     = new float[] { 300, 450, 550 };
+        // How much each level of obscurement reduces map visibility
+        // TODO: Implement
+        public float ObscurementMultiplier = 3.0f;
 
-        // The range from which you can identify a unit using visuals only
-        public float VisualIDRange = 3.0f * 30;
+        public int MultipleJammerAdditionalPenalty = 1;
 
-        // The penalty applied when the attacker only has LoS to the target (but not detection)
-        public float NoSensorLockAttackPenalty = 2.0f;
+        // The base range (in hexes) for a unit's sensors
+        public float SensorRangeMechType = 10;
+        public float SensorRangeVehicleType  = 8;
+        public float SensorRangeTurretType = 12;
+        public float SensorRangeUnknownType = 6;
 
-        // The penalty applied when the attacker only has detection to the target (but not Los)
-        public float NoVisualLockAttackPenalty = 2.0f;
+        // The range (in hexes) from which you can identify some elements of a unit
+        public float VisualIDRange = 5;
+
+        // The applied when the attacker has visual but not sensor lock to a target. Multiplies the range penalty.
+        public float NoSensorLockRangePenaltyMulti = 0.5f;
+        // The applied when the attacker has sensor but not visual lock to a target. Multiplies the range penalty.
+        public float NoVisualLockRangePenaltyMulti = 1.0f;
+
+        // TODO: No sensor lock reduces critical / called shot penalties
+        public float NoSensorLockCriticalMultiPenalty = 0.0f;
+        public float NoVisualLockCriticalMultiPenalty = 0.0f;
 
         public override string ToString() {
-            return $"debug:{Debug}, VisualIDRange:{VisualIDRange}, SensorsOnlyAttackPenalty:{NoSensorLockAttackPenalty}, VisualOnlyAttackPenalty:{NoVisualLockAttackPenalty} " +
-                $"MechSensorRanges:{MechSensorRanges[0]}/{MechSensorRanges[1]}/{MechSensorRanges[2]} " +
-                $"VehicleSensorRanges:{VehicleSensorRanges[0]}/{VehicleSensorRanges[1]}/{VehicleSensorRanges[2]} " +
-                $"TurretSensorRanges:{TurretSensorRanges[0]}/{TurretSensorRanges[1]}/{TurretSensorRanges[2]} " +
-                $"UnknownSensorRanges:{UnknownSensorRanges[0]}/{UnknownSensorRanges[1]}/{UnknownSensorRanges[2]} ";
+            return $"debug:{Debug}, VisualIDRange:{VisualIDRange}, " +
+                $"SensorsOnlyAttackPenalty:{NoSensorLockRangePenaltyMulti}, VisualOnlyAtackPenalty:{NoVisualLockRangePenaltyMulti} " +
+                $"SensorRanges= Mech:{SensorRangeMechType} Vehicle:{SensorRangeVehicleType} " +
+                $"Turret:{SensorRangeTurretType} UnknownType:{SensorRangeUnknownType}";
+                
         }
     }
 }
