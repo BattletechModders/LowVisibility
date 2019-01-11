@@ -1,5 +1,5 @@
 # Low Visibility
-This is a mod for the [HBS BattleTech](http://battletechgame.com/) game that introduces a new layer of depth into the detection mechanics of the game. These changes are largely modeled off the MaxTech guidelines, with adaptations to fit the video game format.
+This is a mod for the [HBS BattleTech](http://battletechgame.com/) game that introduces a new layer of depth into the detection mechanics of the game. These changes are influenced by the double-blind rules from MaxTech, but have been heavily adapted to fit a video game medium.
 
 The mod splits detections into two types - __visual lock__ and __sensor lock__. _Visual Lock_ occurs when your unit can see a target with the naked eye, and is influenced by the map environment and equipment.  _Sensor Lock_ occurs when your unit can identify a target using electronic sensors, which is influenced by ECM, Active Probes, and the skill of the pilot.
 
@@ -56,22 +56,31 @@ At the start of every combat round, every unit (player or AI) makes a sensor che
 | Skill                | 1    | 2    | 3    | 4    | 5    | 6    | 7    | 8    | 9    | 10   | 11   | 12   | 13   |
 | -------------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
 | Modifier             | +0   | +1   | +1   | +2   | +2   | +3   | +3   | +4   | +4   | +5   | +6   | +7   | +8   |
+| + Lvl 8 Ability | +0 | +1 | +1 | +2 | +4 | +5 | +5 | +6 | +6 | +7 | +8 | +9 | +10 |
 
-The result of this check determines the effective range of the unit that round:
+The result of this check determines the information available to the scanning unit:
 
-  * A check of 0-12 is a __Failure__
-  * A check of 13-19 is __Short Range__
-  * A check of 20-26 is __Medium Range__
-  * A check of 27+ is __Long Range__
+| Detail Level | Details shown |
+| -- | -- |
+| No Info | Failed sensor check, no information shown |
+| Location | Target location (3d arrow), name of ? |
+| Type | As above, but type defined (mech/vehicle/turret) |
+| Silhouette | As above, with Chassis as name (Atlas, Catapult) |
+| Surface Scan | As above, adding Evasion Pips |
+| Shallow Scan | As above, adding Armor & Structure percentages |
+| Structure Scan | As above, adding Weapon Types (as colored ???) |
+| Structure Analysis | As above, adding Weapon Types (as colored ???) |
+| Weapon Analysis | As above, with Weapon Names defined. Name is Chassis + Model (Atlas AS7-D, CPLT-C1) |
+| Structure Analysis | As above, plus current heat & stability, summary info (tonnage, jump jets, etc). Armor & structure includes current and max values. Name is Chassis + Variant name (Atlas ASS-HAT Foo, Catapult CPLT-C1 Bar) |
+| Deep Scan | As above plus component location, buffs and debuffs |
+| Dental Records | As above plus pilot name, info |
 
 On a failure, the unit can only detect targets it has visibility to (see below). On a success, the unit's sensors range for that round is set to a __base value__ defined by the spotter's unit type:
 
-Type | Short | Medium | Long
--- | -- | -- | --
-Mech | 300 | 450 | 550
-Vehicle | 270 | 350 | 450
-Turret | 240 | 480 | 720
-Others | 150 | 250 | 350
+* Mech - 10 hexes * 30m = __300m__
+* Vehicle - 9 hexes * 30m = __270m__
+* Turret - 12 hexes * 30m = __360m__
+* Others - 5 hexes * 30m = __150m__
 
 This base value replaces the base sensor distance value from SimGameConstants for that model, but otherwise sensor detection ranges occur normally.
 
@@ -141,9 +150,13 @@ Probe ranges are given as additional ranges from MaxTech, while ECM ranges come 
 
 * Guardian ECM: 6 hexes
 * Angel ECM: 6 hexes
+* CEWS (ECM): 3 hexes
+* BattleArmor ECM: 3 hexes
+* Light Active Probe: +3 hexes
 * Beagle: +4 hexes
 * Bloodhound: +8 hexes
 * Clan Active Probe: +7 hexes
+* CEWS: +8 hexes
 
 Pull this all together, recommended tags for this mod are:
 
@@ -151,9 +164,11 @@ Pull this all together, recommended tags for this mod are:
 | -- | -- |
 | Guardian ECM | lv-jammer_t2_r6_m15 |
 | Angel ECM | lv-jammer_t3_r6_m18 |
+| CEWS | lv-jammer-t4_r3_m21 |
 | Beagle Active Probe | lv-probe-t1_r4_m3 |
 | Clan Active Probe | lv-probe-t1_r7_m9 |
 | Bloodhound Active Probe | lv-probe-t2_r8_m6 |
+| CEWS | lv-probe-t3_r3_m7 |
 
 ## Stealth
 
@@ -174,18 +189,19 @@ __Void-Signature System__ | TODO
 
 ## Worklog
 
-### Unorganized Thoughts
-
-- Add tags for low/light & heat vision; improves visual range & sensor range in certain conditions
-
-- narc_tX_rY_dZ; narc defeats ecm of same 'tier', Continues to emit for durationZ, Y is radius within which anybody can benefit from the Narc boost.
-- tag differs from narc in that it's only during LOS? Others wants it tied to TAG effects and be for 1-2 activations.
-- jammers/stealth reduce the tier of any probes/sensors they face, but are soft counters not hard ones.
-- SensorLock becomes passive ability that doubles your tactics, boosts sensor detect level by +1 (for 'what you know')
-
 ### WIP Features
 
+- [] Add https://github.com/jeromerg/NGitVersion to build version number automatically
+
+- [] eliminate sensor check impacting range
+
+- [] eliminate active probes having range; sensors are just sensors
+
 - [] BUG - TrySelectActor fires multiple times. *whimper* Change to just OnActivation, but maybe a prefix?
+
+- [] Add multiple ECM penalty to sensor check
+
+- [] Validate functionality works with saves - career, campaign, skirmish
 
 - [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
 
@@ -203,37 +219,57 @@ __Void-Signature System__ | TODO
 
 - [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
 
-- [] Add multiple ECM penalty to sensor check
-
-- [] Validate functionality works with saves - career, campaign, skirmish
-
 - [] Move SensorCheck to start of unit activation, not start of round. Generate one at the start of combat to ensure visibility can be initialized at that time.
 
-- [] SensorLock.SensorsID should randomly provide one piece of information about the target (armor, weapons, heat, ...?)
+- [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_narc_effect_rY_dZ```, narc Continues to emit for durationZ, Y is radius within which anybody can benefit from the Narc boost.
 
-- [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_narc_effect```, show the target even if it's outside sensors/vision range. Apply no penalty?
+- [] Implement Tag effects; ```lv-tag-effect-?```. Tag differs from narc in that it's only during LOS? Others wants it tied to TAG effects and be for 1-2 activations.
 
 - [] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
 
 - [] Implement stealth multi-target prohibition
 
+- [] Hide some tooltip information at low sensor levels (evasion, stealth), etc?
+
 ### Possible Additions
 
-- [] Consider: Sensor info / penalty driven by range bands? You get more info at short range than long?
+- [] Sensor info / penalty driven by range bands? You get more info at short range than long?
 
-- [] Consider: _Possible Info_ elements are randomly selected each round / actor (simulate one question note)
+- [] Add ability for a pilot to get a bad reading / critical failure. Tie to tactics as a roll, so poor pilots have it happen more often.  In failure, show wrong name/tonnage/information to confuse the player. May need some hidden marker indicating that this is a false lead - possibly a temporarily value that can be removed once we introduce the mod.
 
-- [] Consider: Chance for VisualID to fail based upon a random roll
+- [] No Lock penalties are multipliers for range penalties; 0.5 for visual, 1.0 for sensor. So at short range you get a -1 for sensors, -2 at medium, etc. Reflects that it's harder to shoot someone without a lock the further out you get.
 
-- [] Consider: Should target debuffs/buffs be shown? Feels sorta cheaty to know what the target actually has in terms of equipment buffs. Though since you can see components, you should be able to infer that...
+- [] Add a 'lv-max-info' tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
 
-- [] Consider: Should stealth have a visibility modifier that changes as you move move? I.e. 0.1 visibility if you don't move, 0.5 if you do, etc. (Think Chameleon shield - should make it harder to see the less you move)
+- [] Add a 'lv-sensor-roll-mod_m' tag that provides a modifier to the sensor check (positive or negative)
 
-- [] **CONSIDER**: Experiment with AllowRearArcSpotting:false in CombatGameConstants.json
+- [] Should stealth have a visibility modifier that changes as you move move? I.e. 0.1 visibility if you don't move, 0.5 if you do, etc. (Think Chameleon shield - should make it harder to see the less you move)
 
-- [] **CONSIDER**: What to do with SensorLock... certainly remove forceVisRebuild
+- [] Experiment with AllowRearArcSpotting:false in CombatGameConstants.json
 
-- [] Pilot tactics should provide a better guess of weapon types for _VisualID_
+- [] SensorLock becomes passive ability that doubles your tactics, boosts sensor detect level by +1 (for 'what you know'). Eliminate it as a menu item, ensure forceVisRebuild never gets called.
+
+- [] Add a 'lv-dentist' tag that always provides the highest rating of info
+
+- [] Add a 'lv-ninja' tag that always hides all the information of a unit.
+
+- [] Add a 'lv-vision-lowlight_rX' for low-light vision; increases visual range during a non-daylight mood
+
+- [] Add a 'lv-sensor-heat_rX_hY' for heat vision; increases detection of units with high heat ratings. For every Y heat, add +1 to the sensor check for this unit.
+
+### Unorganized Thoughts
+
+- jammers/stealth reduce the tier of any probes/sensors they face, but are soft counters not hard ones.
+
+### Discarded
+
+- [x] Consider: _Possible Info_ elements are randomly selected each round / actor (simulate one question note). __Want to eliminate randomness and focus on core mechanics__
+
+- [x] Consider: Chance for VisualID to fail based upon a random roll __Want to eliminate randomness and focus on core mechanics__
+
+- [x] SensorLock.SensorsID should randomly provide one piece of information about the target (armor, weapons, heat, ...?) __Want to eliminate randomness and focus on core mechanics__
+
+- [] Pilot tactics should provide a better guess of weapon types for _VisualID_. __Want to eliminate randomness and focus on core mechanics__
 
 ### Completed Tasks
 
@@ -254,38 +290,27 @@ __Void-Signature System__ | TODO
 - [x] Implement ```lv-stealth-range-mod_s``` Stealth, NSS, Void System evasion by movement semantics
 
 - [x] Implement Stealth, NSS, Void System sensor detection reduction
-
-    AbstractActor relevant statistics:
-
-    this.StatCollection.AddStatistic<float>("ToHitIndirectModifier", 0f);
-    this.StatCollection.AddStatistic<float>("AccuracyModifier", 0f);
-    this.StatCollection.AddStatistic<float>("CalledShotBonusMultiplier", 1f);
-    this.StatCollection.AddStatistic<float>("ToHitThisActor", 0f);
-    this.StatCollection.AddStatistic<float>("ToHitThisActorDirectFire", 0f);
-    this.StatCollection.AddStatistic<bool>("PrecisionStrike", false);
-    this.StatCollection.AddStatistic<int>("MaxEvasivePips", 4);
-
-    AbstractActor:
-    ​		public int EvasivePipsCurrent { get; set; }
-    ​		public float DistMovedThisRound { get; set; }		
     ​		
-### ECM Bubbles
-
-ECM Equipment = ecm_t0
-Guardian ECM = ecm_t1
-Angel ECM = ecm_t2
-CEWS = ecm_t3
-
-Active Probe = activeprobe_t1
-Bloodhound Probe = activeprobe_t2
-CEWS = activeprobe_t3
-
-
+### Appendix
 
 Notes: We don't follow the tech manual, we follow MaxTech. So Angel doesn't defeat bloodhound, it just makes it harder for those probes to find units. There is no 'completely blocking' - we're simulating that at a soft level with information hiding.
 
+#### AbstractActor stats
+AbstractActor relevant statistics:
 
-### Appendix
+this.StatCollection.AddStatistic<float>("ToHitIndirectModifier", 0f);
+this.StatCollection.AddStatistic<float>("AccuracyModifier", 0f);
+this.StatCollection.AddStatistic<float>("CalledShotBonusMultiplier", 1f);
+this.StatCollection.AddStatistic<float>("ToHitThisActor", 0f);
+this.StatCollection.AddStatistic<float>("ToHitThisActorDirectFire", 0f);
+this.StatCollection.AddStatistic<bool>("PrecisionStrike", false);
+this.StatCollection.AddStatistic<int>("MaxEvasivePips", 4);
+
+AbstractActor:
+​		public int EvasivePipsCurrent { get; set; }
+​		public float DistMovedThisRound { get; set; }		
+
+#### Book Info
 
 Information from various source books used in the creation of this mod is included here for reference purposes.
 
