@@ -190,7 +190,9 @@ __Void-Signature System__ | TODO
 
 ### WIP Features
 
-- [] Add https://github.com/jeromerg/NGitVersion to build version number automatically
+- [] Allies don't share visibility
+- [] Dead enemies still show their locations/can be targeted
+- [] Neutral (turrets) appear as outlines
 - [] Buildings should always be visible and not subject to ECM - breaks AI without this!
 - [] BUG - 2019-01-10T09:54:51 - Error - MessageCenter [ERROR] CRITICAL ERROR, PLEASE REPORT:
   Delegate OnInitializeContractComplete - Standard for message type OnInitializeContractComplete failed with exception 
@@ -266,12 +268,10 @@ __Void-Signature System__ | TODO
 ### Discarded
 
 - [x] Consider: _Possible Info_ elements are randomly selected each round / actor (simulate one question note). __Want to eliminate randomness and focus on core mechanics__
-
 - [x] Consider: Chance for VisualID to fail based upon a random roll __Want to eliminate randomness and focus on core mechanics__
-
 - [x] SensorLock.SensorsID should randomly provide one piece of information about the target (armor, weapons, heat, ...?) __Want to eliminate randomness and focus on core mechanics__
-
-- [] Pilot tactics should provide a better guess of weapon types for _VisualID_. __Want to eliminate randomness and focus on core mechanics__
+- [x] Pilot tactics should provide a better guess of weapon types for _VisualID_. __Want to eliminate randomness and focus on core mechanics__
+- [x] Add https://github.com/jeromerg/NGitVersion to build version number automatically. Not nearly has useful as it looked, b/c we are on .NET 3.5
 
 ### Completed Tasks
 

@@ -3,7 +3,6 @@ using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
-using System.Linq;
 using System.Reflection;
 using static LowVisibility.Helper.ActorHelper;
 
