@@ -1,6 +1,4 @@
 ﻿using BattleTech;
-using UnityEngine;
-using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Helper {
     public static class ActorHelper {

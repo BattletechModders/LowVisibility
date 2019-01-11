@@ -1,6 +1,5 @@
 ﻿using BattleTech;
 using BattleTech.Save;
-using BattleTech.Save.SaveGameStructure;
 using BattleTech.Save.SaveGameStructure.Messages;
 using Harmony;
 using System;

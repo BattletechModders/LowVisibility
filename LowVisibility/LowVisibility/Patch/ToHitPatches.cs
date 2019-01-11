@@ -2,7 +2,6 @@
 using Harmony;
 using LowVisibility.Helper;
 using UnityEngine;
-using static LowVisibility.Helper.ActorHelper;
 using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patch {
