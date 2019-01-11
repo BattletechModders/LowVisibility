@@ -229,19 +229,21 @@ __Void-Signature System__ | TODO
 
 - [] Implement stealth multi-target prohibition
 
-- [] Hide some tooltip information at low sensor levels (evasion, stealth), etc?
-
-### Possible Additions
-
-- [] Sensor info / penalty driven by range bands? You get more info at short range than long?
-
-- [] Add ability for a pilot to get a bad reading / critical failure. Tie to tactics as a roll, so poor pilots have it happen more often.  In failure, show wrong name/tonnage/information to confuse the player. May need some hidden marker indicating that this is a false lead - possibly a temporarily value that can be removed once we introduce the mod.
-
 - [] No Lock penalties are multipliers for range penalties; 0.5 for visual, 1.0 for sensor. So at short range you get a -1 for sensors, -2 at medium, etc. Reflects that it's harder to shoot someone without a lock the further out you get.
 
 - [] Add a 'lv-max-info' tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
 
 - [] Add a 'lv-sensor-roll-mod_m' tag that provides a modifier to the sensor check (positive or negative)
+
+### Possible Additions
+
+- [] Add a ```lv-jammer-boost_mX``` and ```lv-probe-boost_mX``` that provide a flat +M to any attached jammer, probe. This allows them to build the 'IFF Jammer' they talked about.
+
+- [] Sensor info / penalty driven by range bands? You get more info at short range than long?
+
+- [] Hide/obfuscate some ranged attack tooltip information at low sensor levels (evasion, stealth), etc? If we do this, some folks won't understand why something is -2 or -3 until they get a better reading.
+
+- [] Add ability for a pilot to get a bad reading / critical failure. Tie to tactics as a roll, so poor pilots have it happen more often.  In failure, show wrong name/tonnage/information to confuse the player. May need some hidden marker indicating that this is a false lead - possibly a temporarily value that can be removed once we introduce the mod.
 
 - [] Should stealth have a visibility modifier that changes as you move move? I.e. 0.1 visibility if you don't move, 0.5 if you do, etc. (Think Chameleon shield - should make it harder to see the less you move)
 
