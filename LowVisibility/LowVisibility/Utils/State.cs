@@ -30,6 +30,7 @@ namespace LowVisibility {
         public static Dictionary<string, int> JammedActors = new Dictionary<string, int>();
         // TODO: Add narc'd actors
 
+        public static bool TurnDirectorStarted = false;
         public const int ResultsToPrecalcuate = 8192;
         public static double[] CheckResults = new double[ResultsToPrecalcuate];
         public static int CheckResultIdx = 0;
@@ -51,7 +52,7 @@ namespace LowVisibility {
 
         private static void InitMapVisionRange() {
             mapVisionRange = MapHelper.CalculateMapVisionRange();
-            visualIDRange = Math.Min(mapVisionRange, LowVisibility.Config.VisualIDRange);
+            visualIDRange = Math.Min(mapVisionRange, LowVisibility.Config.VisualIDRange * 30.0f);
             LowVisibility.Logger.Log($"Vision ranges: calculated map range:{mapVisionRange} configured visualID range:{LowVisibility.Config.VisualIDRange} map visualID range:{visualIDRange}");
         }
 
@@ -85,6 +86,7 @@ namespace LowVisibility {
 
         // --- Methods manipulating CheckResults
         public static void InitializeCheckResults() {
+            LowVisibility.Logger.Log($"Initializing a new random buffer of size:{ResultsToPrecalcuate}");
             Xoshiro256PlusRandomBuilder builder = new Xoshiro256PlusRandomBuilder();
             IRandomSource rng = builder.Create();
             double mean = 0;
@@ -99,6 +101,7 @@ namespace LowVisibility {
             }
 
             double result = CheckResults[CheckResultIdx];
+            CheckResultIdx++;
 
             // Normalize floats to integer buckets for easier comparison
             if (result > 0) {
@@ -134,22 +137,14 @@ namespace LowVisibility {
         public static void JamActor(AbstractActor actor, int jammingStrength) {
             if (!JammedActors.ContainsKey(actor.GUID)) {
                 JammedActors.Add(actor.GUID, jammingStrength);
-
-                // Send a floatie indicating the jamming
-                MessageCenter mc = actor.Combat.MessageCenter;
-                mc.PublishMessage(new FloatieMessage(actor.GUID, actor.GUID, "JAMMED BY ECM", FloatieMessage.MessageNature.Debuff));
-
-                //
             } else if (jammingStrength > JammedActors[actor.GUID]) {
                 JammedActors[actor.GUID] = jammingStrength;
-            }
-            // Send visibility update message
+            }            
         }
         public static void UnjamActor(AbstractActor actor) {
             if (JammedActors.ContainsKey(actor.GUID)) {
                 JammedActors.Remove(actor.GUID);
-            }
-            // Send visibility update message
+            }            
         }
 
         // --- FILE SAVE/READ BELOW ---

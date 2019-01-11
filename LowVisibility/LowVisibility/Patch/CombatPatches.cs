@@ -4,7 +4,6 @@ using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System.Linq;
-using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
 
 namespace LowVisibility.Patch {
@@ -13,15 +12,14 @@ namespace LowVisibility.Patch {
     public static class AbstractActor_OnActivationBegin {        
 
         public static void Prefix(AbstractActor __instance, int stackItemID) {
-            if (stackItemID == -1) {
+            if (stackItemID == -1 || __instance == null || __instance.HasBegunActivation ) {
                 // For some bloody reason DoneWithActor() invokes OnActivationBegin, EVEN THOUGH IT DOES NOTHING. GAH!
                 return;
             }
 
-            LowVisibility.Logger.LogIfDebug($"=== AbstractActor:OnActivationBegin:pre - handling {ActorLabel(__instance)}.");
+            LowVisibility.Logger.LogIfDebug($"=== AbstractActor:OnActivationBegin:pre - handling {ActorLabel(__instance)} with stackItemID:{stackItemID} that hasBegin:{__instance.HasBegunActivation}");
             bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
 
-            State.BuildDynamicState(__instance);
             JammingHelper.ResolveJammingState(__instance);
                         
             if (isPlayer) {
@@ -36,17 +34,16 @@ namespace LowVisibility.Patch {
             VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat, updateActor);
         }
     }
+    
+   [HarmonyPatch(typeof(CombatSelectionHandler), "TrySelectActor")]
+    public static class CombatSelectionHandler_TrySelectActor {
+        public static void Postfix(CombatSelectionHandler __instance, bool __result, AbstractActor actor, bool manualSelection) {
+            LowVisibility.Logger.LogIfDebug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {ActorLabel(actor)}.");
+            if (__instance != null && actor != null && __result == true) {
 
-    // WARNING: This fires on every selection, not just activation.
-    //[HarmonyPatch(typeof(CombatSelectionHandler), "TrySelectActor")]
-    //public static class CombatSelectionHandler_TrySelectActor {
-    //    public static void Postfix(CombatSelectionHandler __instance, bool __result, AbstractActor actor, bool manualSelection) {
-    //        LowVisibility.Logger.LogIfDebug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {ActorLabel(actor)}.");
-    //        if (__instance != null && actor != null && __result == true) {
-
-    //        }
-    //    }
-    //}
+            }
+        }
+    }
 
     // Update the visibility checks
     [HarmonyPatch(typeof(Mech), "OnMovePhaseComplete")]

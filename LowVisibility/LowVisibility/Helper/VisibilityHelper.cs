@@ -11,25 +11,25 @@ namespace LowVisibility.Helper {
 
         public static DetectionLevel DetectionLevelForCheck(int checkResult) {
             DetectionLevel level = DetectionLevel.NoInfo;
-            if (checkResult == 8) {
+            if (checkResult == -1) {
                 level = DetectionLevel.Location;
-            } else if (checkResult == 9) {
+            } else if (checkResult == 0) {
                 level = DetectionLevel.Type;
-            } else if (checkResult == 10) {
+            } else if (checkResult == 1) {
                 level = DetectionLevel.Silhouette;
-            } else if (checkResult == 11) {
+            } else if (checkResult == 2) {
                 level = DetectionLevel.Vector;
-            } else if (checkResult == 12 || checkResult == 13) {
+            } else if (checkResult == 3 || checkResult == 4) {
                 level = DetectionLevel.SurfaceScan;
-            } else if (checkResult == 14 || checkResult == 15) {
+            } else if (checkResult == 5 || checkResult == 6) {
                 level = DetectionLevel.SurfaceAnalysis;
-            } else if (checkResult == 16) {
+            } else if (checkResult == 7) {
                 level = DetectionLevel.WeaponAnalysis;
-            } else if (checkResult == 17) {
+            } else if (checkResult == 8) {
                 level = DetectionLevel.StructureAnalysis;
-            } else if (checkResult == 18) {
+            } else if (checkResult == 9) {
                 level = DetectionLevel.DeepScan;
-            } else if (checkResult >= 19) {
+            } else if (checkResult >= 10) {
                 level = DetectionLevel.DentalRecords;
             }
             return level;
@@ -59,6 +59,8 @@ namespace LowVisibility.Helper {
             HashSet<LockState> updatedLocks, HashSet<string> visibilityUpdates) {
 
             foreach (AbstractActor target in targets) {
+                if (target.GUID == source.GUID) { continue;  }
+
                 LockState lockState = CalculateLock(source, target);
                 LowVisibility.Logger.LogIfDebug($"Updated lockState for source:{ActorLabel(source)} vs. target:{ActorLabel(target)} is lockState:{lockState}");
                 updatedLocks.Add(lockState);
@@ -111,7 +113,7 @@ namespace LowVisibility.Helper {
             StaticEWState sourceStaticState = State.GetStaticState(source);
             DynamicEWState sourceDynamicState = State.GetDynamicState(source);
             int modifiedSourceCheck = sourceDynamicState.currentCheck;
-            LowVisibility.Logger.LogIfDebug($"  -- source actor:{ActorLabel(source)} has dynamicState:{sourceDynamicState} and staticState:{sourceStaticState}");
+            LowVisibility.Logger.LogIfDebug($"  -- source actor:{ActorLabel(source)} has dynamicState:{sourceDynamicState}");
 
             // --- Source modifiers: ECM, Active Probe, SensorBoost tag
             // Check for ECM strength
@@ -150,15 +152,18 @@ namespace LowVisibility.Helper {
             newLockState.sensorLockLevel = VisibilityHelper.DetectionLevelForCheck(modifiedSourceCheck);
 
             // If they fail their check, they get no sensor range
-            float sourceSensorRange = newLockState.sensorLockLevel != DetectionLevel.NoInfo ? CalculateSensorRange(source) : 0.0f;
+            float sourceSensorsRange = CalculateSensorRange(source);
+            float sourceSensorLockRange = newLockState.sensorLockLevel != DetectionLevel.NoInfo ? sourceSensorsRange : 0.0f;
+            LowVisibility.Logger.LogIfDebug($"  -- source actor:{ActorLabel(source)} has " +
+                $"sensorRange:{sourceSensorsRange} and lockRange:{sourceSensorLockRange}");
 
             // Finally, check for range
             float targetSignature = CalculateTargetSignature(target);
-            float sensorLockRange = sourceSensorRange * targetSignature;
-            if (distance > sensorLockRange) {
+            float sensorLockRange = sourceSensorLockRange * targetSignature;
+            if (distance > sourceSensorLockRange) {
                 newLockState.sensorLockLevel = DetectionLevel.NoInfo;
             }
-            LowVisibility.Logger.Log($"  -- source:{ActorLabel(source)} has sensorsRange:{sourceSensorRange} and is distance:{distance} " +
+            LowVisibility.Logger.Log($"  -- source:{ActorLabel(source)} has sensorsRange:{sensorLockRange} and is distance:{distance} " +
                 $"from target:{ActorLabel(target)} with signature:{targetSignature} - sensorLockType:{newLockState.sensorLockLevel}");
 
             return newLockState;

@@ -16,6 +16,10 @@ namespace LowVisibility.Patch {
         public static void Prefix(TurnDirector __instance) {
             LowVisibility.Logger.LogIfDebug("=== TurnDirector:OnEncounterBegin:pre - entered.");
 
+            // Initialize the probabilities
+            State.InitializeCheckResults();
+            State.TurnDirectorStarted = true;
+
             // Do a pre-encounter populate 
             if (__instance != null && __instance.Combat != null && __instance.Combat.AllActors != null) {
                 AbstractActor randomPlayerActor = null;
@@ -47,6 +51,7 @@ namespace LowVisibility.Patch {
     public static class TurnDirector_InitFromSave {
         public static void Postfix(TurnDirector __instance) {
             LowVisibility.Logger.LogIfDebug("TurnDirector:InitFromSave:post - entered.");
+            // TODO: VERIFY THIS RUNS WITH OR WITHOUT INIT()
         }
     }
 
@@ -62,10 +67,9 @@ namespace LowVisibility.Patch {
             LowVisibility.Logger.LogIfDebug("=== TurnDirector:BeginNewRound:post - entered.");
 
             // Update the current vision for all allied and friendly units
-            AbstractActor randomPlayerActor = __instance.Combat.AllActors
-                .Where(aa => aa.TeamId == __instance.Combat.LocalPlayerTeamGuid)
-                .First();
-            VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat, randomPlayerActor);
+            foreach (AbstractActor actor in __instance.Combat.AllActors) {                
+                State.BuildDynamicState(actor);
+            }
         }
     }
 
@@ -78,6 +82,7 @@ namespace LowVisibility.Patch {
             State.SourceActorLockStates.Clear();
             State.LastPlayerActivatedActorGUID = null;
             State.JammedActors.Clear();
+            State.TurnDirectorStarted = false;
         }
     }
 

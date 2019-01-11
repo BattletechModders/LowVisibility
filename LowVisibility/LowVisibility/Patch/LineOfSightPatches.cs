@@ -90,6 +90,9 @@ namespace LowVisibility.Patch {
     public static class LineOfSight_GetVisibilityToTargetWithPositionsAndRotations {
         public static bool Prefix(LineOfSight __instance, ref VisibilityLevel __result, 
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation) {
+            // Skip if we aren't ready to process 
+            if (State.TurnDirectorStarted == false) { return true;  }
+
             //LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - entered. ");
             //LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - stacktrace: {Environment.StackTrace}");
 
@@ -134,35 +137,42 @@ namespace LowVisibility.Patch {
             } 
 
             // If vis is still 0, check tactics to determine what type of blip to display, 0/4/7 -> Blip0, Blip1, Blip4
-            if (visibilityLevel == VisibilityLevel.None && source.IsPilotable) {
-                int tactics = source.GetPilot().Tactics;
-                visibilityLevel = __instance.GetVisibilityLevelForTactics(tactics);
-            }
+            //if (visibilityLevel == VisibilityLevel.None && source.IsPilotable) {
+            //    int tactics = source.GetPilot().Tactics;
+            //    visibilityLevel = __instance.GetVisibilityLevelForTactics(tactics);
+            //}
             
             if (targetActor != null) {
                 // If you are sensor locked, you are automatically vis 9
-                if (targetActor.IsSensorLocked) {
-                    visibilityLevel = VisibilityLevel.LOSFull;
-                }
+                //if (targetActor.IsSensorLocked) {
+                //    visibilityLevel = VisibilityLevel.LOSFull;
+                //}
 
                 // Determine if any sensor shadows are around 
                 //   - any alive, active ally 
                 //   - whose SensorSignatureFromDef > this model's SensorSignatureFromDef
                 //   - that is within ShadowSignatureDistance ( 1f + sensorsignaturefromdef * MaxShadowingDistance [80] )
                 //  provides a +NumShadowingSteps (-1) bonus to the visible units
-                int shadowingVisLevel = (int)visibilityLevel;
-                shadowingVisLevel += targetActor.CurrentShadowingResult;
-                if (shadowingVisLevel > 9) {
-                    visibilityLevel = VisibilityLevel.LOSFull; 
-                } else if (shadowingVisLevel < 0) {
-                    visibilityLevel = VisibilityLevel.None;
-                } else {
-                    visibilityLevel = (VisibilityLevel)shadowingVisLevel;
-                }
+                //int shadowingVisLevel = (int)visibilityLevel;
+                //shadowingVisLevel += targetActor.CurrentShadowingResult;
+                //if (shadowingVisLevel > 9) {
+                //    visibilityLevel = VisibilityLevel.LOSFull; 
+                //} else if (shadowingVisLevel < 0) {
+                //    visibilityLevel = VisibilityLevel.None;
+                //} else {
+                //    visibilityLevel = (VisibilityLevel)shadowingVisLevel;
+                //}
 
                 // If EW effects have rendered the target invisible, break the lock
                 LockState lockState = GetUnifiedLockStateForTarget(source, targetActor);
-                if (lockState.sensorLockLevel == DetectionLevel.NoInfo && lockState.visionLockLevel == VisionLockType.None) {
+                //LowVisibility.Logger.LogIfDebug($"VTTWPAR Source:{ActorLabel(source)} has lockState:{lockState} to target:{targetActor as AbstractActor}");
+                if (lockState.visionLockLevel == VisionLockType.None && lockState.sensorLockLevel >= DetectionLevel.Silhouette) {
+                    visibilityLevel = VisibilityLevel.Blip4Maximum;
+                } else if (lockState.visionLockLevel == VisionLockType.None && lockState.sensorLockLevel >= DetectionLevel.Type) {
+                    visibilityLevel = VisibilityLevel.Blip1Type;
+                } else if (lockState.visionLockLevel == VisionLockType.None && lockState.sensorLockLevel >= DetectionLevel.Location) {
+                    visibilityLevel = VisibilityLevel.BlobMedium;
+                } else if (lockState.visionLockLevel == VisionLockType.None && lockState.sensorLockLevel >= DetectionLevel.NoInfo) {
                     visibilityLevel = VisibilityLevel.None;
                 }
             }

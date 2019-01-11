@@ -19,6 +19,7 @@ namespace LowVisibility.Patch {
         private static CombatHUDTargetingComputer TargetingComputer = null;
         private static Traverse ShowTargetMethod = null;
 
+        // TODO: Should cleanup the subscribe here - may be causing teardown bugs
         public static void Postfix(CombatHUD __instance, bool shouldAdd) {
             //LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:post - entered.");
             if (shouldAdd) {

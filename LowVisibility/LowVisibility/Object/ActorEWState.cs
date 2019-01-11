@@ -22,13 +22,17 @@ namespace LowVisibility.Object {
         public DynamicEWState(int roundCheck, AbstractActor actor) {
             StaticEWState staticState = State.GetStaticState(actor);
             int modifiedCheck = roundCheck + staticState.tacticsBonus;
-            LowVisibility.Logger.LogIfDebug($"RoundCheck:{roundCheck} modified by tactics:{staticState.tacticsBonus} to {modifiedCheck}");
+            LowVisibility.Logger.LogIfDebug($"RoundCheck::Actor{ActorLabel(actor)} has {roundCheck} modified by tactics:{staticState.tacticsBonus} to {modifiedCheck}");
             // TODO: For now, return a single check for both values. In the future, split those
             DetectionLevel checkLevel = VisibilityHelper.DetectionLevelForCheck(modifiedCheck);
 
             this.visualDetectLevel = checkLevel;
             this.sensorDetectLevel = checkLevel;
             this.currentCheck = modifiedCheck;
+        }
+
+        public override string ToString() {
+            return $"currentCheck:{currentCheck} / visualDetectLevel:{visualDetectLevel} / sensorDetectlevel:{sensorDetectLevel}";
         }
     }
 
@@ -62,9 +66,9 @@ namespace LowVisibility.Object {
 
         public StaticEWState(AbstractActor actor) {
             // Check tags for any ecm/sensors
-            int actorEcmModifier = 0;
+            int actorEcmMod = 0;
             float actorEcmRange = 0;
-            int actorProbeModifier = 0;
+            int actorProbeMod = 0;
             int actorStealthMod = 0;
             int actorSensorMod = 0;
 
@@ -89,8 +93,8 @@ namespace LowVisibility.Object {
                         if (split.Length == 3) {
                             int modifier = Int32.Parse(split[1].Substring(1));
                             int range = Int32.Parse(split[2].Substring(1));
-                            if (modifier >= actorEcmModifier) {
-                                actorEcmModifier = modifier;
+                            if (modifier >= actorEcmMod) {
+                                actorEcmMod = modifier;
                                 actorEcmRange = range * 30.0f;                                
                             } else {
                                 LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} - MALFORMED TAG -:{tag}");
@@ -100,9 +104,9 @@ namespace LowVisibility.Object {
                         LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has PROBE component:{kv.Key} with tag:{tag}");
                         string[] split = tag.Split('_');
                         if (split.Length == 2) {
-                            int modifier = Int32.Parse(split[3].Substring(1));
-                            if (modifier >= actorProbeModifier) {
-                                actorProbeModifier = modifier;
+                            int modifier = Int32.Parse(split[1].Substring(1));
+                            if (modifier >= actorProbeMod) {
+                                actorProbeMod = modifier;
                             }
                         } else {
                             LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} - MALFORMED TAG -:{tag}");
@@ -111,7 +115,7 @@ namespace LowVisibility.Object {
                         LowVisibility.Logger.LogIfDebug($"Actor:{ActorLabel(actor)} has SENSOR_BOOST component:{kv.Key} with tag:{tag}");
                         string[] split = tag.Split('_');
                         if (split.Length == 2) {
-                            int modifier = Int32.Parse(split[3].Substring(1));
+                            int modifier = Int32.Parse(split[1].Substring(1));
                             if (modifier >= actorSensorMod) {
                                 actorSensorMod = modifier;
                             }
@@ -163,11 +167,13 @@ namespace LowVisibility.Object {
             }
 
             // If the unit has stealth, it disables the ECM system.
-            if (actorStealthMod >= 0) {
+            if (actorStealthMod != 0 && actorEcmMod != 0) {
                 LowVisibility.Logger.Log($"Actor:{ActorLabel(actor)} has both STEALTH and JAMMER - disabling ECM bubble.");
                 actorEcmRange = 0;
-                actorEcmModifier = 0;
+                actorEcmMod = 0;
             }
+
+            // TODO: Check that stealth-move-mod/stealth-range-mod has an active stealth system
 
             // Determine pilot bonus
             int unitTacticsBonus = 0;
@@ -180,9 +186,9 @@ namespace LowVisibility.Object {
                 LowVisibility.Logger.Log($"Actor:{ActorLabel(actor)} HAS NO PILOT!");
             }
 
-            this.ecmMod = actorEcmModifier;
+            this.ecmMod = actorEcmMod;
             this.ecmRange = actorEcmRange;
-            this.probeMod = actorProbeModifier;
+            this.probeMod = actorProbeMod;
             this.tacticsBonus = unitTacticsBonus;
             this.sharesSensors = actorSharesSensors;
             this.sensorMod = actorSensorMod;

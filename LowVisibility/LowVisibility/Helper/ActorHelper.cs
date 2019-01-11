@@ -20,7 +20,7 @@ namespace LowVisibility.Helper {
             float staticSensorRangeMultis = GetAllSensorRangeMultipliers(source);
             float staticSensorRangeMods = GetAllSensorRangeAbsolutes(source);
 
-            return sensorRangeForType * staticSensorRangeMultis + staticSensorRangeMods;
+            return (sensorRangeForType * 30) * staticSensorRangeMultis + staticSensorRangeMods;
         }
 
         public static float GetVisualIDRangeForActor(AbstractActor source) {
@@ -36,7 +36,7 @@ namespace LowVisibility.Helper {
                 float allSpotterMultipliers = GetAllSpotterMultipliers(source);
                 float allSpotterAbsolutes = GetAllSpotterAbsolutes(source);
                 modifiedVisualIDRange = mapVisualIDRange * allSpotterMultipliers + allSpotterAbsolutes;
-                LowVisibility.Logger.LogIfDebug($"  actor:{ActorLabel(source)} with spotterMulti:{allSpotterMultipliers} spotterAbsolutes:{allSpotterAbsolutes} " +
+                LowVisibility.Logger.LogIfDebug($" -- source:{ActorLabel(source)} with spotterMulti:{allSpotterMultipliers} spotterAbsolutes:{allSpotterAbsolutes} " +
                     $"and mapVisualIDRange:{mapVisualIDRange} has visualIDRange:{modifiedVisualIDRange}");
             }            
             
@@ -61,8 +61,8 @@ namespace LowVisibility.Helper {
                 if (pilot != null) {
                     int normdTactics = SkillHelper.NormalizeSkill(pilot.Tactics);
                     spottingTacticsMultipler = (float)normdTactics * source.Combat.Constants.Visibility.SpotterTacticsMultiplier;
-                    LowVisibility.Logger.LogIfDebug($"  actor:{ActorLabel(source)} with tactics:{pilot.Tactics}/{normdTactics} x " +
-                        $"{source.Combat.Constants.Visibility.SpotterTacticsMultiplier} = spottingTacticsMulti:{spottingTacticsMultipler}");
+                    //LowVisibility.Logger.LogIfDebug($"  actor:{ActorLabel(source)} with tactics:{pilot.Tactics}/{normdTactics} x " +
+                    //    $"{source.Combat.Constants.Visibility.SpotterTacticsMultiplier} = spottingTacticsMulti:{spottingTacticsMultipler}");
                 }
             }
             float spotterDistanceAbsolute = source.SpotterDistanceAbsolute;
