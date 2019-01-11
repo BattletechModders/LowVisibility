@@ -66,10 +66,9 @@ The result of this check determines the information available to the scanning un
 | Location | Target location (3d arrow), name of ? |
 | Type | As above, but type defined (mech/vehicle/turret) |
 | Silhouette | As above, with Chassis as name (Atlas, Catapult) |
-| Surface Scan | As above, adding Evasion Pips |
-| Shallow Scan | As above, adding Armor & Structure percentages |
-| Structure Scan | As above, adding Weapon Types (as colored ???) |
-| Structure Analysis | As above, adding Weapon Types (as colored ???) |
+| Vector | As above, adding Evasion Pips |
+| Surface Scan | As above, adding Armor & Structure percentages, paperdoll |
+| Surface Analysis   | As above, adding Weapon Types (as colored ???) |
 | Weapon Analysis | As above, with Weapon Names defined. Name is Chassis + Model (Atlas AS7-D, CPLT-C1) |
 | Structure Analysis | As above, plus current heat & stability, summary info (tonnage, jump jets, etc). Armor & structure includes current and max values. Name is Chassis + Variant name (Atlas ASS-HAT Foo, Catapult CPLT-C1 Bar) |
 | Deep Scan | As above plus component location, buffs and debuffs |
@@ -192,49 +191,46 @@ __Void-Signature System__ | TODO
 ### WIP Features
 
 - [] Add https://github.com/jeromerg/NGitVersion to build version number automatically
-
+- [] Buildings should always be visible and not subject to ECM - breaks AI without this!
+- [] BUG - 2019-01-10T09:54:51 - Error - MessageCenter [ERROR] CRITICAL ERROR, PLEASE REPORT:
+  Delegate OnInitializeContractComplete - Standard for message type OnInitializeContractComplete failed with exception 
+  The given key was not present in the dictionary.
+  at System.Collections.Generic.Dictionary`2<string, System.Collections.Generic.HashSet`1<LowVisibility.Helper.VisibilityHelper/LockState>>.get_Item (string) <0x001c5>
+  at LowVisibility.State.GetUnifiedLockStateForTarget (BattleTech.AbstractActor,BattleTech.AbstractActor) <0x00174>
+  at LowVisibility.Patch.Mech_GetActorInfoFromVisLevel.Postfix (BattleTech.Mech,Localize.Text&,BattleTech.VisibilityLevel) <0x000d8>
+  at (wrapper dynamic-method) BattleTech.Mech.GetActorInfoFromVisLevel_Patch1 (object,BattleTech.VisibilityLevel) <0x003f9>
+  at (wrapper dynamic-method) BattleTech.UI.CombatHUDActorNameDisplay.RefreshInfo_Patch1 (object,BattleTech.VisibilityLevel) <0x00051>
+  at BattleTech.UI.CombatHUDActorNameDisplay.RefreshInfo () <0x0011f>
+  at (wrapper dynamic-method) BattleTech.UI.CombatHUDActorInfo.RefreshAllInfo_Patch2 (object) <0x001e9>
+  at BattleTech.UI.CombatHUDActorInfo.set_DisplayedCombatant (BattleTech.ICombatant) <0x002db>
+  at (wrapper dynamic-method) BattleTech.UI.CombatHUDNumFlagHex.OnActorChanged_Patch2 (object) <0x00045>
+  at BattleTech.UI.CombatHUDInWorldScalingActorInfo.set_DisplayedCombatant (BattleTech.ICombatant) <0x000c0>
+  at BattleTech.UI.CombatHUDInWorldElementMgr.AddInWorldActorElements (BattleTech.ICombatant) <0x00222>
+  at BattleTech.UI.CombatHUDInWorldElementMgr.Init (BattleTech.CombatGameState,BattleTech.UI.CombatHUD) <0x0011a>
+  at (wrapper dynamic-method) BattleTech.UI.CombatHUD.Init_Patch1 (object,BattleTech.CombatGameState) <0x008fc>
+  at BattleTech.UI.CombatUXCreator.OnInitializeContractComplete (MessageCenterMessage) <0x000c0>
+  at MessageCenter.SendMessagesForType (MessageCenterMessageType,MessageCenterMessage) <0x00186>
 - [] eliminate sensor check impacting range
-
 - [] eliminate active probes having range; sensors are just sensors
-
 - [] BUG - TrySelectActor fires multiple times. *whimper* Change to just OnActivation, but maybe a prefix?
-
 - [] Add multiple ECM penalty to sensor check
-
 - [] Validate functionality works with saves - career, campaign, skirmish
-
 - [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
-
 - [] BUG - Tactics skill should influence chassis name, blip type (CombatNameHelper, LineOfSightPatches)
-
 - [] BUG - Weapons summary shown when beyond sensors range
-
 - [] BUG - Units disappear from view in some cases. Doesn't appear related to the previous behavior, but is related.
-
 - [] BUG - Enemies and neutral share vision currently. Probably want to split that?
-
 - [] Component damage should eliminate ECM, AP, Stealth bonuses
-
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
-
 - [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
-
 - [] Move SensorCheck to start of unit activation, not start of round. Generate one at the start of combat to ensure visibility can be initialized at that time.
-
 - [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_narc_effect_rY_dZ```, narc Continues to emit for durationZ, Y is radius within which anybody can benefit from the Narc boost.
-
 - [] Implement Tag effects; ```lv-tag-effect-?```. Tag differs from narc in that it's only during LOS? Others wants it tied to TAG effects and be for 1-2 activations.
-
 - [] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
-
 - [] Implement stealth multi-target prohibition
-
 - [] No Lock penalties are multipliers for range penalties; 0.5 for visual, 1.0 for sensor. So at short range you get a -1 for sensors, -2 at medium, etc. Reflects that it's harder to shoot someone without a lock the further out you get.
-
 - [] Add a 'lv-max-info' tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
-
 - [] Add a 'lv-sensor-roll-mod_m' tag that provides a modifier to the sensor check (positive or negative)
-
 - [] Modify called shot critical, % when making a shot w/o lock_
 
 ### Possible Additions
