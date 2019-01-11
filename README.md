@@ -235,9 +235,12 @@ __Void-Signature System__ | TODO
 
 - [] Add a 'lv-sensor-roll-mod_m' tag that provides a modifier to the sensor check (positive or negative)
 
+- [] Modify called shot critical, % when making a shot w/o lock_
+
 ### Possible Additions
 
 - [] Add a ```lv-jammer-boost_mX``` and ```lv-probe-boost_mX``` that provide a flat +M to any attached jammer, probe. This allows them to build the 'IFF Jammer' they talked about.
+
 
 - [] Sensor info / penalty driven by range bands? You get more info at short range than long?
 
