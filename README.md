@@ -196,17 +196,14 @@ __Void-Signature System__ | TODO
 - [x] You should always be treated as having full LOS to allies
 - [x] Dead actors still be redrawn, shown as black silhouettes with red wavy lines
 - [x] By killing LOS when actor is dead, they just vanish even when you should be able to see them. If dead, you shouldn't be able to sensor lock them, just see them - but not target them.
-- [] Buildings should always be visible and not subject to ECM - breaks AI without this!
+- [] Buildings should always be visible and not subject to ECM - breaks AI without this! __Preliminary testing seems to indicate this may be fixed__
+- [] Allied units sometimes showing as blips instead of always full vision.
 - [] Saves occur on post-mission/pre-mission saves; should skip
 - [] Units sometimes showing their full 3d image, not blip
 - [] Bug where you can not have LOS if you have sensor lock but not visibility
 - [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
 - [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
 - [] Units that move into sensor range show their 3d image, not a blip. But if you move into sensor range, it calculates their visibility properly.
-- 
-- 2019-01-12T13:19:02 -   ==== Updating visibility on changed actors ====
-  2019-01-12T13:19:06 -  ~~~ OpFor Actor:Jenner_Recruit has lockState:visionLockLevel:VisualID, sensorLockLevel:DeepScan
-  2019-01-12T13:19:06 - Mech:GetActorInfoFromVisLevel:post - response:(Jenner JR7-F) for fullName:(Jenner), variantName:(JR7-F), unitName:(Jenner) for visLevel:LOSFull and lockState:visionLockLevel:VisualID, sensorLockLevel:DeepScan
 - [] BUG - 2019-01-10T09:54:51 - Error - MessageCenter [ERROR] CRITICAL ERROR, PLEASE REPORT:
   Delegate OnInitializeContractComplete - Standard for message type OnInitializeContractComplete failed with exception 
   The given key was not present in the dictionary.
@@ -225,16 +222,17 @@ __Void-Signature System__ | TODO
   at (wrapper dynamic-method) BattleTech.UI.CombatHUD.Init_Patch1 (object,BattleTech.CombatGameState) <0x008fc>
   at BattleTech.UI.CombatUXCreator.OnInitializeContractComplete (MessageCenterMessage) <0x000c0>
   at MessageCenter.SendMessagesForType (MessageCenterMessageType,MessageCenterMessage) <0x00186>
-- [] eliminate sensor check impacting range
-- [] eliminate active probes having range; sensors are just sensors
-- [] BUG - TrySelectActor fires multiple times. *whimper* Change to just OnActivation, but maybe a prefix?
-- [] Add multiple ECM penalty to sensor check
+- [x] eliminate sensor check impacting range
+- [x] eliminate active probes having range; sensors are just sensors
+- [x] BUG - TrySelectActor fires multiple times. *whimper* Change to just OnActivation, but maybe a prefix?
+- [x] Add multiple ECM penalty to sensor check
 - [] Validate functionality works with saves - career, campaign, skirmish
 - [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
 - [] BUG - Tactics skill should influence chassis name, blip type (CombatNameHelper, LineOfSightPatches)
 - [] BUG - Weapons summary shown when beyond sensors range
+- [] BUG - Status buffs shown on low-end checks. Should be on 8+.
 - [] BUG - Units disappear from view in some cases. Doesn't appear related to the previous behavior, but is related.
-- [] BUG - Enemies and neutral share vision currently. Probably want to split that?
+- [x] BUG - Enemies and neutral share vision currently. Probably want to split that?
 - [] Component damage should eliminate ECM, AP, Stealth bonuses
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
 - [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
