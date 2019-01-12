@@ -4,7 +4,8 @@ namespace LowVisibility.Helper {
     public static class ActorHelper {
 
         public static string ActorLabel(AbstractActor actor) {
-            return $"{actor.DisplayName}_{actor.GetPilot().Name}";
+            string truncatedGUID = actor.GUID != null ? string.Format("{0:X}", actor.GUID.GetHashCode()) : "0xDEADBEEF";
+            return $"{actor.DisplayName}_{actor?.GetPilot()?.Name}_{truncatedGUID}";
         }
         
         // Determine an actor's sensor range, plus our special additions

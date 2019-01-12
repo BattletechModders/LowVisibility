@@ -11,7 +11,7 @@ namespace LowVisibility {
         // TODO: Implement
         public float ObscurementMultiplier = 3.0f;
 
-        public int MultipleJammerAdditionalPenalty = 1;
+        public int MultipleJammerPenalty = 1;
 
         // The base range (in hexes) for a unit's sensors
         public float SensorRangeMechType = 10;

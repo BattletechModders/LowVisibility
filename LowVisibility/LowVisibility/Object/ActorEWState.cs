@@ -22,7 +22,7 @@ namespace LowVisibility.Object {
         public DynamicEWState(int roundCheck, AbstractActor actor) {
             StaticEWState staticState = State.GetStaticState(actor);
             int modifiedCheck = roundCheck + staticState.tacticsBonus;
-            LowVisibility.Logger.LogIfDebug($"RoundCheck::Actor{ActorLabel(actor)} has {roundCheck} modified by tactics:{staticState.tacticsBonus} to {modifiedCheck}");
+            LowVisibility.Logger.LogIfTrace($"RoundCheck::Actor{ActorLabel(actor)} has {roundCheck} modified by tactics:{staticState.tacticsBonus} to {modifiedCheck}");
             // TODO: For now, return a single check for both values. In the future, split those
             DetectionLevel checkLevel = VisibilityHelper.DetectionLevelForCheck(modifiedCheck);
 

@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using LowVisibility.Object;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
@@ -35,28 +36,39 @@ namespace LowVisibility.Helper {
             return level;
         }
 
+        // Shamelessly stolen from https://stackoverflow.com/questions/489258/linqs-distinct-on-a-particular-property because MoreLINQ doesn't work on 3.5
+        //   SO answers are cc with attribution
+        //public static IEnumerable<TSource> DistinctBy<TSource, TKey> 
+        //    (this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) {
+        //    HashSet<TKey> seenKeys = new HashSet<TKey>();
+        //    foreach (TSource element in source) {
+        //        if (seenKeys.Add(keySelector(element))) {
+        //            yield return element;
+        //        }
+        //    }
+        //}
+
         public static List<AbstractActor> PlayerActors(CombatGameState Combat) {
             return Combat.AllActors
                 .Where(aa => aa.TeamId == Combat.LocalPlayerTeamGuid)
                 .ToList();
         }
 
-        public static List<AbstractActor> PlayerAndAlliedActors(CombatGameState Combat) {
+        public static List<AbstractActor> PlayerAlliedActors(CombatGameState Combat) {
             return Combat.AllActors
-                .Where(aa => aa.TeamId == Combat.LocalPlayerTeamGuid 
-                    || Combat.HostilityMatrix.IsFriendly(Combat.LocalPlayerTeamGuid, aa.TeamId))                    
+                .Where(aa => Combat.HostilityMatrix.IsLocalPlayerFriendly(aa.TeamId) && aa.TeamId != Combat.LocalPlayerTeamGuid)
                 .ToList();
         }
 
         public static List<AbstractActor> EnemyToLocalPlayerActors(CombatGameState Combat) {
             return Combat.AllActors
-                .Where(aa => Combat.HostilityMatrix.IsEnemy(Combat.LocalPlayerTeamGuid, aa.TeamId))
+                .Where(aa => Combat.HostilityMatrix.IsLocalPlayerEnemy(aa.TeamId))
                 .ToList();
         }
 
         public static List<AbstractActor> NeutralToLocalPlayerActors(CombatGameState Combat) {
             return Combat.AllActors
-                .Where(aa => Combat.HostilityMatrix.IsNeutral(Combat.LocalPlayerTeamGuid, aa.TeamId))
+                .Where(aa => Combat.HostilityMatrix.IsLocalPlayerNeutral(aa.TeamId))
                 .ToList();
         }
 
@@ -67,7 +79,7 @@ namespace LowVisibility.Helper {
                 if (target.GUID == source.GUID) { continue;  }
 
                 LockState lockState = CalculateLock(source, target);
-                LowVisibility.Logger.LogIfDebug($"Updated lockState for source:{ActorLabel(source)} vs. target:{ActorLabel(target)} is lockState:{lockState}");
+                LowVisibility.Logger.LogIfDebug($"  {ActorLabel(source)} --> {ActorLabel(target)} is lockState:{lockState}");
                 updatedLocks.Add(lockState);
 
                 // Check for update
@@ -77,7 +89,7 @@ namespace LowVisibility.Helper {
                 if (currentLockState == null || 
                     currentLockState.visionLockLevel != lockState.visionLockLevel || 
                     currentLockState.sensorLockLevel != lockState.sensorLockLevel) {
-                    LowVisibility.Logger.LogIfDebug($"Target:{ActorLabel(target)} lockState changed, addings to refresh targets.");
+                    LowVisibility.Logger.LogIfTrace($"Target:{ActorLabel(target)} lockState changed, adding to refresh targets.");
                     visibilityUpdates.Add(target.GUID);
                 }
             }
@@ -206,14 +218,27 @@ namespace LowVisibility.Helper {
 
             HashSet<string> targetsWithVisibilityChanges = new HashSet<string>();
 
+            List<AbstractActor> playerActors = PlayerActors(Combat);
+            List<AbstractActor> alliedActors = PlayerAlliedActors(Combat);
             List<AbstractActor> enemyActors = EnemyToLocalPlayerActors(Combat);
             List<AbstractActor> neutralActors = NeutralToLocalPlayerActors(Combat);
-            List<AbstractActor> playerAndAlliedActors = PlayerAndAlliedActors(Combat);
+            
 
             // Update friendlies
-            LowVisibility.Logger.LogIfDebug($"  ==== Updating PlayerAndAllies ====");
-            foreach (AbstractActor source in playerAndAlliedActors) {
+            LowVisibility.Logger.LogIfDebug($"  ==== Updating Players ====");
+            foreach (AbstractActor source in playerActors) {
                 HashSet<LockState> updatedLocks = new HashSet<LockState>();
+                CalculateTargetLocks(source, alliedActors, updatedLocks, targetsWithVisibilityChanges);
+                CalculateTargetLocks(source, enemyActors, updatedLocks, targetsWithVisibilityChanges);
+                CalculateTargetLocks(source, neutralActors, updatedLocks, targetsWithVisibilityChanges);                
+                State.SourceActorLockStates[source.GUID] = updatedLocks;
+            }
+
+            // Update allies
+            LowVisibility.Logger.LogIfDebug($"  ==== Updating Allies ====");
+            foreach (AbstractActor source in alliedActors) {
+                HashSet<LockState> updatedLocks = new HashSet<LockState>();
+                CalculateTargetLocks(source, playerActors, updatedLocks, targetsWithVisibilityChanges);
                 CalculateTargetLocks(source, enemyActors, updatedLocks, targetsWithVisibilityChanges);
                 CalculateTargetLocks(source, neutralActors, updatedLocks, targetsWithVisibilityChanges);
                 State.SourceActorLockStates[source.GUID] = updatedLocks;
@@ -223,7 +248,9 @@ namespace LowVisibility.Helper {
             LowVisibility.Logger.LogIfDebug($"  ==== Updating Neutrals ====");
             foreach (AbstractActor source in neutralActors) {
                 HashSet<LockState> updatedLocks = new HashSet<LockState>();
-                CalculateTargetLocks(source, playerAndAlliedActors, updatedLocks, targetsWithVisibilityChanges);
+                CalculateTargetLocks(source, playerActors, updatedLocks, targetsWithVisibilityChanges);
+                CalculateTargetLocks(source, alliedActors, updatedLocks, targetsWithVisibilityChanges);
+                CalculateTargetLocks(source, enemyActors, updatedLocks, targetsWithVisibilityChanges);
                 State.SourceActorLockStates[source.GUID] = updatedLocks;
             }
 
@@ -232,7 +259,9 @@ namespace LowVisibility.Helper {
             LowVisibility.Logger.LogIfDebug($"  ==== Updating Foes ====");
             foreach (AbstractActor source in enemyActors) {
                 HashSet<LockState> updatedLocks = new HashSet<LockState>();
-                CalculateTargetLocks(source, playerAndAlliedActors, updatedLocks, targetsWithVisibilityChanges);
+                CalculateTargetLocks(source, playerActors, updatedLocks, targetsWithVisibilityChanges);
+                CalculateTargetLocks(source, alliedActors, updatedLocks, targetsWithVisibilityChanges);
+                CalculateTargetLocks(source, neutralActors, updatedLocks, targetsWithVisibilityChanges);
                 State.SourceActorLockStates[source.GUID] = updatedLocks;
             }
 
@@ -246,19 +275,24 @@ namespace LowVisibility.Helper {
                 bool isPlayer = target.TeamId == Combat.LocalPlayerTeamGuid;
                 if (updateSource != null && !isPlayer) {
                     LockState targetLockState = GetUnifiedLockStateForTarget(updateSource, target);
-                    LowVisibility.Logger.Log($"  -- Unified lockState on actor:{ActorLabel(target)} from source:{ActorLabel(updateSource)} is now:{targetLockState}");
-                    VisibilityLevel targetVisLevel = VisibilityLevel.None;
+                    LowVisibility.Logger.Log($"  -- Merged lockState is: {targetLockState} for {ActorLabel(target)} --> {ActorLabel(updateSource)}");
 
+                    VisibilityLevel targetVisLevel = VisibilityLevel.None;
                     if (targetLockState.visionLockLevel != VisionLockType.None) {
                         targetVisLevel = VisibilityLevel.LOSFull;
-                        LowVisibility.Logger.Log($"Visual lock actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
+                        LowVisibility.Logger.LogIfDebug($"Visual lock from {ActorLabel(updateSource)} --> {ActorLabel(target)}, vis=LOSFull");
                     } else if (targetLockState.visionLockLevel == VisionLockType.None && targetLockState.sensorLockLevel != DetectionLevel.NoInfo) {
-                        // TODO: This really should account for the tactics of the shared vision
-                        int normdTactics = SkillHelper.NormalizeSkill(updateSource.SkillTactics);
-                        targetVisLevel = VisibilityLevelByTactics(normdTactics);
-                        LowVisibility.Logger.Log($"Only sensor lock to actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
+                        targetVisLevel = VisibilityLevel.None;
+                        if (targetLockState.sensorLockLevel >= DetectionLevel.Type) {
+                            targetVisLevel = VisibilityLevel.Blip1Type;
+                        } else if (targetLockState.sensorLockLevel >= DetectionLevel.Location) {
+                            targetVisLevel = VisibilityLevel.Blip0Minimum;
+                        } else {
+                            targetVisLevel = VisibilityLevel.None;
+                        }
+                        LowVisibility.Logger.LogIfDebug($"Sensor lock from {ActorLabel(updateSource)} --> {ActorLabel(target)}, visibility={targetVisLevel}");                        
                     } else {
-                        LowVisibility.Logger.Log($"No vision or sensor lock to actor:{ActorLabel(target)}, setting visibility to:{targetVisLevel}");
+                        LowVisibility.Logger.Log($"No vision or sensor lock from {ActorLabel(updateSource)} --> {ActorLabel(target)}, visibility=None.");
                     }
 
                     //if (targetlockState.visionLockLevel != VisionLockType.None && targetlockState.sensorLockLevel == SensorLockType.None) {
@@ -280,17 +314,17 @@ namespace LowVisibility.Helper {
         }
 
         // Updates the detection state for a friendly actor. Call before activation, and after friendly movement.
-        public static void UpdateActorDetection(AbstractActor source) {
+        //public static void UpdateActorDetection(AbstractActor source) {
 
-            HashSet<string> targetsWithVisibilityChanges = new HashSet<string>();
+        //    HashSet<string> targetsWithVisibilityChanges = new HashSet<string>();
 
-            // TODO: Should calculate friendly and enemy changes on each iteration of this
-            bool isPlayer = source.team == source.Combat.LocalPlayerTeam;
-            List<AbstractActor> targets = isPlayer ? EnemyToLocalPlayerActors(source.Combat) : PlayerAndAlliedActors(source.Combat);
-            HashSet<LockState> updatedLocks = new HashSet<LockState>();
-            LowVisibility.Logger.LogIfDebug($"=== Updating ActorDetection for source:{ActorLabel(source)} which isPlayer:{isPlayer} for target count:{targets.Count}");
-            CalculateTargetLocks(source, targets, updatedLocks, targetsWithVisibilityChanges);
-            State.SourceActorLockStates[source.GUID] = updatedLocks;
+        //    // TODO: Should calculate friendly and enemy changes on each iteration of this
+        //    bool isPlayer = source.team == source.Combat.LocalPlayerTeam;
+        //    List<AbstractActor> targets = isPlayer ? EnemyToLocalPlayerActors(source.Combat) : PlayerAndAlliedActors(source.Combat);
+        //    HashSet<LockState> updatedLocks = new HashSet<LockState>();
+        //    LowVisibility.Logger.LogIfDebug($"=== Updating ActorDetection for source:{ActorLabel(source)} which isPlayer:{isPlayer} for target count:{targets.Count}");
+        //    CalculateTargetLocks(source, targets, updatedLocks, targetsWithVisibilityChanges);
+        //    State.SourceActorLockStates[source.GUID] = updatedLocks;
 
             // Send a message updating the visibility of any actors that changed
             //PublishVisibilityChange(source.Combat, targetsWithVisibilityChanges); 
@@ -298,10 +332,17 @@ namespace LowVisibility.Helper {
             // TESTING: This works better, but doesn't do it on activation for some reason?
             // ALSO: APPLIES TO BOTH PLAYER AND ENEMY - only update enemies!
 
-        }
+        //}
 
         public static LockState GetUnifiedLockStateForTarget(AbstractActor source, AbstractActor target) {
             if (source == null || target == null) { return null; }
+
+            // 
+            if (source.GUID == target.GUID) {
+                StackTrace st = new StackTrace();
+                LowVisibility.Logger.Log($"UnifiedLockState for self from: {st.GetFrame(1)}");
+                return new LockState() { visionLockLevel = VisionLockType.VisualID, sensorLockLevel = DetectionLevel.DentalRecords, sourceGUID = source.GUID, targetGUID = source.GUID };
+            }
 
             // Get the source lock state first            
             if (!State.SourceActorLockStates.ContainsKey(source.GUID)) {
@@ -316,7 +357,9 @@ namespace LowVisibility.Helper {
             // Finally check for shared visibility
             //LowVisibility.Logger.LogIfDebug($"----- GetUnifiedLockStateForTarget: Looking for shared vision");
             bool isPlayer = source.team == source.Combat.LocalPlayerTeam;
-            List<AbstractActor> friendlies = isPlayer ? PlayerAndAlliedActors(source.Combat) : EnemyToLocalPlayerActors(source.Combat);
+            List<AbstractActor> friendlies = isPlayer ? 
+                PlayerActors(source.Combat).Union(PlayerAlliedActors(source.Combat)).ToList()
+                : EnemyToLocalPlayerActors(source.Combat);
             foreach (AbstractActor friendly in friendlies) {
                 if (State.SourceActorLockStates.ContainsKey(friendly.GUID)) {
                     //LowVisibility.Logger.LogIfDebug($"----- GetUnifiedLockStateForTarget: Checking shared vision for actor:{ActorLabel(friendly)}");

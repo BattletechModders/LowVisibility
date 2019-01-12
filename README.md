@@ -198,12 +198,14 @@ __Void-Signature System__ | TODO
 - [x] By killing LOS when actor is dead, they just vanish even when you should be able to see them. If dead, you shouldn't be able to sensor lock them, just see them - but not target them.
 - [] Buildings should always be visible and not subject to ECM - breaks AI without this! __Preliminary testing seems to indicate this may be fixed__
 - [] Allied units sometimes showing as blips instead of always full vision.
+- [] BUG - When you overheat a mech, it disappears from vision
 - [] Saves occur on post-mission/pre-mission saves; should skip
 - [] Units sometimes showing their full 3d image, not blip
 - [] Bug where you can not have LOS if you have sensor lock but not visibility
 - [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
 - [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
 - [] Units that move into sensor range show their 3d image, not a blip. But if you move into sensor range, it calculates their visibility properly.
+- [] On shutdown, no stealth / ecm / etc applies
 - [] BUG - 2019-01-10T09:54:51 - Error - MessageCenter [ERROR] CRITICAL ERROR, PLEASE REPORT:
   Delegate OnInitializeContractComplete - Standard for message type OnInitializeContractComplete failed with exception 
   The given key was not present in the dictionary.

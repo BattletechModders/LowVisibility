@@ -16,7 +16,7 @@ namespace LowVisibility.Helper {
 
                 // If the enemy has ECM, jam the source                
                 if (enemyStaticState.ecmMod != 0 && actorsDistance <= enemyStaticState.ecmRange) {
-                    LowVisibility.Logger.LogIfDebug($"Source:{ActorLabel(source)} and target:{ActorLabel(enemy)} are {actorsDistance}m apart, " +
+                    LowVisibility.Logger.LogIfDebug($"Source:{ActorHelper.ActorLabel(source)} and target:{ActorHelper.ActorLabel(enemy)} are {actorsDistance}m apart, " +
                         $"within of ECM bubble range of:{enemyStaticState.ecmRange}");
                     if (enemyStaticState.ecmMod > jammingStrength) { jammingStrength = enemyStaticState.ecmMod; }
                     numJammers++;
@@ -36,24 +36,18 @@ namespace LowVisibility.Helper {
             }
 
             if (numJammers > 1) {
-                int additionalPenalty = (numJammers - 1) * LowVisibility.Config.MultipleJammerAdditionalPenalty;
-                LowVisibility.Logger.LogIfDebug($"Source:{ActorLabel(source)} has:{numJammers} jammers within range. " +
+                int additionalPenalty = (numJammers - 1) * LowVisibility.Config.MultipleJammerPenalty;
+                LowVisibility.Logger.LogIfDebug($"Source:{ActorHelper.ActorLabel(source)} has:{numJammers} jammers within range. " +
                     $"Additional penalty:{additionalPenalty} applied to jammingStrength:{jammingStrength}");
                 jammingStrength += additionalPenalty;
             }
 
             if (jammingStrength > 0) {
                 State.JamActor(source, jammingStrength);
-                // Send a floatie indicating the jamming
-                MessageCenter mc = source.Combat.MessageCenter;
-                mc.PublishMessage(new FloatieMessage(source.GUID, source.GUID, "JAMMED BY ECM", FloatieMessage.MessageNature.Debuff));
             } else {
                 State.UnjamActor(source);
             }
         }
 
-        private static object ActorLabel(AbstractActor source) {
-            throw new NotImplementedException();
-        }
     }
 }

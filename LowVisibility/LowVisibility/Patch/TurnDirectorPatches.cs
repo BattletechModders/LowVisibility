@@ -30,7 +30,12 @@ namespace LowVisibility.Patch {
 
                         // Make a pre-encounter detectCheck for them\
                         State.BuildDynamicState(actor);
-                        LowVisibility.Logger.LogIfDebug($"  Actor:{ActorLabel(actor)} has detectCheck:{State.GetDynamicState(actor).currentCheck} at load/start");                        
+                        LowVisibility.Logger.LogIfDebug($"  Actor:{ActorLabel(actor)} has detectCheck:{State.GetDynamicState(actor).currentCheck} at load/start");
+                        if (State.GetDynamicState(actor).sensorDetectLevel == DetectionLevel.NoInfo) {
+                            // Send a floatie indicating the jamming
+                            MessageCenter mc = __instance.Combat.MessageCenter;
+                            mc.PublishMessage(new FloatieMessage(__instance.GUID, __instance.GUID, "SENSOR CHECK FAILED!", FloatieMessage.MessageNature.Debuff));
+                        }
 
                         bool isPlayer = actor.TeamId == __instance.Combat.LocalPlayerTeamGuid;
                         if (isPlayer && randomPlayerActor == null) {
