@@ -4,6 +4,9 @@ namespace LowVisibility {
         // If true, extra logging will be used
         public bool Debug = false;
 
+        // Extreme levels of logging
+        public bool Trace = false;
+
         // How much each level of obscurement reduces map visibility
         // TODO: Implement
         public float ObscurementMultiplier = 3.0f;

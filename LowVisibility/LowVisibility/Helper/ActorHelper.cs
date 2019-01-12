@@ -36,7 +36,7 @@ namespace LowVisibility.Helper {
                 float allSpotterMultipliers = GetAllSpotterMultipliers(source);
                 float allSpotterAbsolutes = GetAllSpotterAbsolutes(source);
                 modifiedVisualIDRange = mapVisualIDRange * allSpotterMultipliers + allSpotterAbsolutes;
-                LowVisibility.Logger.LogIfDebug($" -- source:{ActorLabel(source)} with spotterMulti:{allSpotterMultipliers} spotterAbsolutes:{allSpotterAbsolutes} " +
+                LowVisibility.Logger.LogIfTrace($" -- source:{ActorLabel(source)} with spotterMulti:{allSpotterMultipliers} spotterAbsolutes:{allSpotterAbsolutes} " +
                     $"and mapVisualIDRange:{mapVisualIDRange} has visualIDRange:{modifiedVisualIDRange}");
             }            
             

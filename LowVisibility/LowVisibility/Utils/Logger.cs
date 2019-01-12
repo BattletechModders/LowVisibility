@@ -4,9 +4,8 @@ using System.IO;
 namespace LowVisibility {
     public class Logger {
         private static StreamWriter LogStream;
-        private readonly bool isDebug = false;
 
-        public Logger(string modDir, string logName, bool isDebug) {
+        public Logger(string modDir, string logName) {
             string logFile = Path.Combine(modDir, $"{logName}.log");
             if (File.Exists(logFile)) {
                 File.Delete(logFile);
@@ -15,14 +14,10 @@ namespace LowVisibility {
             LogStream = File.AppendText(logFile);
             LogStream.AutoFlush = true;
 
-            this.isDebug = isDebug;
         }
 
-        public void LogIfDebug(string message) {
-            if (this.isDebug) {
-                Log(message);
-            }
-        }
+        public void LogIfDebug(string message) { if (LowVisibility.Config.Debug) { Log(message); } }
+        public void LogIfTrace(string message) { if (LowVisibility.Config.Trace) { Log(message); } }
 
         public void Log(string message) {
             string now = DateTime.UtcNow.ToString("s", System.Globalization.CultureInfo.InvariantCulture);

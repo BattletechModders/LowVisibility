@@ -176,6 +176,7 @@ namespace LowVisibility.Patch {
                     visibilityLevel = VisibilityLevel.None;
                 }
             }
+
             __result = visibilityLevel;
 
             return false;
@@ -328,22 +329,27 @@ namespace LowVisibility.Patch {
 
         // Private method can't be patched by annotations, so use MethodInfo
         public static MethodInfo TargetMethod() {
-            return AccessTools.Method(typeof(FiringPreviewManager), "HasLOS", new Type[] { typeof(AbstractActor), typeof(ICombatant), typeof(UnityEngine.Vector3), typeof(List<AbstractActor>) });
+            return AccessTools.Method(typeof(FiringPreviewManager), "HasLOS", 
+                new Type[] { typeof(AbstractActor), typeof(ICombatant), typeof(Vector3), typeof(List<AbstractActor>) });
         }
 
         public static void Postfix(FiringPreviewManager __instance, ref bool __result, CombatGameState ___combat,
-            AbstractActor attacker, ICombatant target, UnityEngine.Vector3 position, List<AbstractActor> allies) {
+            AbstractActor attacker, ICombatant target, Vector3 position, List<AbstractActor> allies) {
             //LowVisibility.Logger.LogIfDebug("FiringPreviewManager:HasLOS:post - entered.");
             for (int i = 0; i < allies.Count; i++) {
                 //if (allies[i].VisibilityCache.VisibilityToTarget(target).VisibilityLevel == VisibilityLevel.LOSFull) {
                 if (allies[i].VisibilityCache.VisibilityToTarget(target).VisibilityLevel >= VisibilityLevel.Blip0Minimum) {
                     __result = true;
+                    LowVisibility.Logger.LogIfTrace($"Allied actor{ActorLabel(allies[i])} has LOS to target:{ActorLabel(target as AbstractActor)}, returning true.");
+                    return;
                 }
             }
+
             VisibilityLevel visibilityToTargetWithPositionsAndRotations =
                 ___combat.LOS.GetVisibilityToTargetWithPositionsAndRotations(attacker, position, target);
             //__result = visibilityToTargetWithPositionsAndRotations == VisibilityLevel.LOSFull;
             __result = visibilityToTargetWithPositionsAndRotations >= VisibilityLevel.Blip0Minimum;
+            LowVisibility.Logger.LogIfTrace($"Actor{ActorLabel(attacker)} has LOS? {__result} to target:{ActorLabel(target as AbstractActor)}");
         }
     }
 
@@ -352,6 +358,7 @@ namespace LowVisibility.Patch {
         public static void Postfix(AbstractActor __instance, ref bool __result, ICombatant targetUnit) {
             //LowVisibility.Logger.LogIfDebug("AbstractActor:HasLOSToTargetUnit:post - entered.");
             __result = __instance.VisibilityToTargetUnit(targetUnit) >= VisibilityLevel.Blip0Minimum;
+            LowVisibility.Logger.LogIfTrace($"Actor{ActorLabel(__instance)} has LOSToTargetUnit? {__result} to target:{ActorLabel(targetUnit as AbstractActor)}");
         }
     }
 }

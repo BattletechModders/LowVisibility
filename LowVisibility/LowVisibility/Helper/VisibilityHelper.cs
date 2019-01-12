@@ -44,14 +44,19 @@ namespace LowVisibility.Helper {
         public static List<AbstractActor> PlayerAndAlliedActors(CombatGameState Combat) {
             return Combat.AllActors
                 .Where(aa => aa.TeamId == Combat.LocalPlayerTeamGuid 
-                    || Combat.HostilityMatrix.IsFriendly(Combat.LocalPlayerTeamGuid, aa.TeamId))
+                    || Combat.HostilityMatrix.IsFriendly(Combat.LocalPlayerTeamGuid, aa.TeamId))                    
                 .ToList();
         }
 
-        public static List<AbstractActor> EnemyAndNeutralActors(CombatGameState Combat) {
+        public static List<AbstractActor> EnemyToLocalPlayerActors(CombatGameState Combat) {
             return Combat.AllActors
-                .Where(aa => Combat.HostilityMatrix.IsEnemy(Combat.LocalPlayerTeamGuid, aa.TeamId) 
-                    || Combat.HostilityMatrix.IsNeutral(Combat.LocalPlayerTeamGuid, aa.TeamId))
+                .Where(aa => Combat.HostilityMatrix.IsEnemy(Combat.LocalPlayerTeamGuid, aa.TeamId))
+                .ToList();
+        }
+
+        public static List<AbstractActor> NeutralToLocalPlayerActors(CombatGameState Combat) {
+            return Combat.AllActors
+                .Where(aa => Combat.HostilityMatrix.IsNeutral(Combat.LocalPlayerTeamGuid, aa.TeamId))
                 .ToList();
         }
 
@@ -76,6 +81,7 @@ namespace LowVisibility.Helper {
                     visibilityUpdates.Add(target.GUID);
                 }
             }
+            LowVisibility.Logger.LogIfDebug($" ----- source:{ActorLabel(source)} locks calculated.");
         }
 
 
@@ -87,10 +93,31 @@ namespace LowVisibility.Helper {
                 targetGUID = target.GUID,
                 visionLockLevel = VisionLockType.None,
                 sensorLockLevel = DetectionLevel.NoInfo,
-            };            
+            };
+
+            if (source.IsDead || source.IsFlaggedForDeath) {
+                // If we're dead, we can't have vision or sensors
+                newLockState.visionLockLevel = VisionLockType.None;
+                newLockState.sensorLockLevel = DetectionLevel.NoInfo;
+                LowVisibility.Logger.LogIfDebug($"  -- source:{ActorLabel(source)} is dead or dying. Forcing no visibility.");
+                return newLockState;
+            } else if (target.IsDead || target.IsFlaggedForDeath) {
+                // If the target is dead, we can't have sensor but we have vision 
+                newLockState.visionLockLevel = VisionLockType.Silhouette;
+                newLockState.sensorLockLevel = DetectionLevel.NoInfo;
+                LowVisibility.Logger.LogIfDebug($"  -- target:{ActorLabel(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
+                return newLockState;
+            } else if (source.Combat.HostilityMatrix.IsFriendly(source.TeamId, target.TeamId)) {
+                // If they are allied, automatically give full vision
+                newLockState.visionLockLevel = VisionLockType.VisualID;
+                newLockState.sensorLockLevel = DetectionLevel.DentalRecords;
+                LowVisibility.Logger.LogIfDebug($"  -- source:{ActorLabel(source)} is friendly to target:{ActorLabel(target)}. Forcing full visibility.");
+                return newLockState;
+            } 
 
             // --- Determine visual lock 
             VisibilityLevelAndAttribution visLevelAndAttrib = source.VisibilityCache.VisibilityToTarget(target);
+
 
             // If we have LOS to the target, we at least have their silhouette
             if (visLevelAndAttrib.VisibilityLevel == VisibilityLevel.LOSFull) {
@@ -106,65 +133,70 @@ namespace LowVisibility.Helper {
             if (distance <= visualLockRange) { newLockState.visionLockLevel = VisionLockType.VisualID; }
 
             // TODO: Check for failed visual lock and adjust appropriately. Requires visionLockLevel to change to DetectionLevel
-            LowVisibility.Logger.LogIfDebug($"  -- source:{ActorLabel(source)} has visualLockRange:{visualLockRange} and is distance:{distance} " +
+            LowVisibility.Logger.LogIfTrace($"  -- source:{ActorLabel(source)} has visualLockRange:{visualLockRange} and is distance:{distance} " +
                 $"from target:{ActorLabel(target)} with visibility:{targetVisibility} - visionLockType:{newLockState.visionLockLevel}");
 
             // -- Determine sensor lock            
-            StaticEWState sourceStaticState = State.GetStaticState(source);
-            DynamicEWState sourceDynamicState = State.GetDynamicState(source);
-            int modifiedSourceCheck = sourceDynamicState.currentCheck;
-            LowVisibility.Logger.LogIfDebug($"  -- source actor:{ActorLabel(source)} has dynamicState:{sourceDynamicState}");
-
-            // --- Source modifiers: ECM, Active Probe, SensorBoost tag
-            // Check for ECM strength
-            if (State.IsJammed(source)) {
-                modifiedSourceCheck -= State.JammingStrength(source);
-                LowVisibility.Logger.LogIfDebug($"  -- source actor:{ActorLabel(source)} is jammed with strength:{State.JammingStrength(source)}, " +
-                    $"reducing sourceCheckResult to:{modifiedSourceCheck}");
-            }
-
-            if (sourceStaticState.probeMod != 0) {
-                modifiedSourceCheck += sourceStaticState.probeMod;
-                LowVisibility.Logger.LogIfDebug($"  -- source actor:{ActorLabel(source)} has probe with strength:{sourceStaticState.probeMod}, " +
-                    $"increasing sourceCheckResult to:{modifiedSourceCheck}");
-            }
-
-            if (sourceStaticState.sensorMod != 0) {
-                modifiedSourceCheck += sourceStaticState.probeMod;
-                LowVisibility.Logger.LogIfDebug($"  -- source actor:{ActorLabel(source)} has sensorMod with strength:{sourceStaticState.sensorMod}, " +
-                    $"increasing sourceCheckResult to:{modifiedSourceCheck}");
-            }
-
-            // --- Target Modifiers: Stealth, Narc, Tag
-            StaticEWState targetStaticState = State.GetStaticState(target);
-
-            // Check for target stealth
-            if (targetStaticState.stealthMod != 0) {
-                modifiedSourceCheck -= targetStaticState.stealthMod;
-                LowVisibility.Logger.LogIfDebug($"  -- target actor:{ActorLabel(target)} has stealthModifier:{targetStaticState.stealthMod}, " +
-                    $"reducing sourceCheckResult to:{modifiedSourceCheck}");
-            }
-
-            // TODO: Check for a Narc effect
-            // TODO: Check for a Tag effect
-
-            // Determine the final lockLevelCheck
-            newLockState.sensorLockLevel = VisibilityHelper.DetectionLevelForCheck(modifiedSourceCheck);
-
-            // If they fail their check, they get no sensor range
-            float sourceSensorsRange = CalculateSensorRange(source);
-            float sourceSensorLockRange = newLockState.sensorLockLevel != DetectionLevel.NoInfo ? sourceSensorsRange : 0.0f;
-            LowVisibility.Logger.LogIfDebug($"  -- source actor:{ActorLabel(source)} has " +
-                $"sensorRange:{sourceSensorsRange} and lockRange:{sourceSensorLockRange}");
-
-            // Finally, check for range
-            float targetSignature = CalculateTargetSignature(target);
-            float sensorLockRange = sourceSensorLockRange * targetSignature;
-            if (distance > sourceSensorLockRange) {
+             if (target.IsDead || target.IsFlaggedForDeath) {
                 newLockState.sensorLockLevel = DetectionLevel.NoInfo;
+                LowVisibility.Logger.LogIfTrace($"  -- target:{ActorLabel(target)} is dead or dying, cannot have sensor lock. Forcing detectionLevel to NoInfo.");
+            } else {
+                StaticEWState sourceStaticState = State.GetStaticState(source);
+                DynamicEWState sourceDynamicState = State.GetDynamicState(source);
+                int modifiedSourceCheck = sourceDynamicState.currentCheck;
+                LowVisibility.Logger.LogIfTrace($"  -- source actor:{ActorLabel(source)} has dynamicState:{sourceDynamicState}");
+
+                // --- Source modifiers: ECM, Active Probe, SensorBoost tag
+                // Check for ECM strength
+                if (State.IsJammed(source)) {
+                    modifiedSourceCheck -= State.JammingStrength(source);
+                    LowVisibility.Logger.LogIfTrace($"  -- source actor:{ActorLabel(source)} is jammed with strength:{State.JammingStrength(source)}, " +
+                        $"reducing sourceCheckResult to:{modifiedSourceCheck}");
+                }
+
+                if (sourceStaticState.probeMod != 0) {
+                    modifiedSourceCheck += sourceStaticState.probeMod;
+                    LowVisibility.Logger.LogIfTrace($"  -- source actor:{ActorLabel(source)} has probe with strength:{sourceStaticState.probeMod}, " +
+                        $"increasing sourceCheckResult to:{modifiedSourceCheck}");
+                }
+
+                if (sourceStaticState.sensorMod != 0) {
+                    modifiedSourceCheck += sourceStaticState.probeMod;
+                    LowVisibility.Logger.LogIfTrace($"  -- source actor:{ActorLabel(source)} has sensorMod with strength:{sourceStaticState.sensorMod}, " +
+                        $"increasing sourceCheckResult to:{modifiedSourceCheck}");
+                }
+
+                // --- Target Modifiers: Stealth, Narc, Tag
+                StaticEWState targetStaticState = State.GetStaticState(target);
+
+                // Check for target stealth
+                if (targetStaticState.stealthMod != 0) {
+                    modifiedSourceCheck -= targetStaticState.stealthMod;
+                    LowVisibility.Logger.LogIfTrace($"  -- target actor:{ActorLabel(target)} has stealthModifier:{targetStaticState.stealthMod}, " +
+                        $"reducing sourceCheckResult to:{modifiedSourceCheck}");
+                }
+
+                // TODO: Check for a Narc effect
+                // TODO: Check for a Tag effect
+
+                // Determine the final lockLevelCheck
+                newLockState.sensorLockLevel = VisibilityHelper.DetectionLevelForCheck(modifiedSourceCheck);
+
+                // If they fail their check, they get no sensor range
+                float sourceSensorsRange = CalculateSensorRange(source);
+                float sourceSensorLockRange = newLockState.sensorLockLevel != DetectionLevel.NoInfo ? sourceSensorsRange : 0.0f;
+                LowVisibility.Logger.LogIfTrace($"  -- source actor:{ActorLabel(source)} has " +
+                    $"sensorRange:{sourceSensorsRange} and lockRange:{sourceSensorLockRange}");
+
+                // Finally, check for range
+                float targetSignature = CalculateTargetSignature(target);
+                float sensorLockRange = sourceSensorLockRange * targetSignature;
+                if (distance > sourceSensorLockRange) {
+                    newLockState.sensorLockLevel = DetectionLevel.NoInfo;
+                }
+                LowVisibility.Logger.LogIfTrace($"  -- source:{ActorLabel(source)} has sensorsRange:{sensorLockRange} and is distance:{distance} " +
+                    $"from target:{ActorLabel(target)} with signature:{targetSignature} - sensorLockType:{newLockState.sensorLockLevel}");
             }
-            LowVisibility.Logger.Log($"  -- source:{ActorLabel(source)} has sensorsRange:{sensorLockRange} and is distance:{distance} " +
-                $"from target:{ActorLabel(target)} with signature:{targetSignature} - sensorLockType:{newLockState.sensorLockLevel}");
 
             return newLockState;
         }
@@ -174,20 +206,31 @@ namespace LowVisibility.Helper {
 
             HashSet<string> targetsWithVisibilityChanges = new HashSet<string>();
 
-            List<AbstractActor> enemyAndNeutralActors = EnemyAndNeutralActors(Combat);
+            List<AbstractActor> enemyActors = EnemyToLocalPlayerActors(Combat);
+            List<AbstractActor> neutralActors = NeutralToLocalPlayerActors(Combat);
             List<AbstractActor> playerAndAlliedActors = PlayerAndAlliedActors(Combat);
 
             // Update friendlies
             LowVisibility.Logger.LogIfDebug($"  ==== Updating PlayerAndAllies ====");
             foreach (AbstractActor source in playerAndAlliedActors) {
                 HashSet<LockState> updatedLocks = new HashSet<LockState>();
-                CalculateTargetLocks(source, enemyAndNeutralActors, updatedLocks, targetsWithVisibilityChanges);
+                CalculateTargetLocks(source, enemyActors, updatedLocks, targetsWithVisibilityChanges);
+                CalculateTargetLocks(source, neutralActors, updatedLocks, targetsWithVisibilityChanges);
                 State.SourceActorLockStates[source.GUID] = updatedLocks;
             }
 
+            // Update neutrals
+            LowVisibility.Logger.LogIfDebug($"  ==== Updating Neutrals ====");
+            foreach (AbstractActor source in neutralActors) {
+                HashSet<LockState> updatedLocks = new HashSet<LockState>();
+                CalculateTargetLocks(source, playerAndAlliedActors, updatedLocks, targetsWithVisibilityChanges);
+                State.SourceActorLockStates[source.GUID] = updatedLocks;
+            }
+
+
             // Update foes
-            LowVisibility.Logger.LogIfDebug($"  ==== Updating FoesAndNeutral ====");
-            foreach (AbstractActor source in enemyAndNeutralActors) {
+            LowVisibility.Logger.LogIfDebug($"  ==== Updating Foes ====");
+            foreach (AbstractActor source in enemyActors) {
                 HashSet<LockState> updatedLocks = new HashSet<LockState>();
                 CalculateTargetLocks(source, playerAndAlliedActors, updatedLocks, targetsWithVisibilityChanges);
                 State.SourceActorLockStates[source.GUID] = updatedLocks;
@@ -243,7 +286,7 @@ namespace LowVisibility.Helper {
 
             // TODO: Should calculate friendly and enemy changes on each iteration of this
             bool isPlayer = source.team == source.Combat.LocalPlayerTeam;
-            List<AbstractActor> targets = isPlayer ? EnemyAndNeutralActors(source.Combat) : PlayerAndAlliedActors(source.Combat);
+            List<AbstractActor> targets = isPlayer ? EnemyToLocalPlayerActors(source.Combat) : PlayerAndAlliedActors(source.Combat);
             HashSet<LockState> updatedLocks = new HashSet<LockState>();
             LowVisibility.Logger.LogIfDebug($"=== Updating ActorDetection for source:{ActorLabel(source)} which isPlayer:{isPlayer} for target count:{targets.Count}");
             CalculateTargetLocks(source, targets, updatedLocks, targetsWithVisibilityChanges);
@@ -273,7 +316,7 @@ namespace LowVisibility.Helper {
             // Finally check for shared visibility
             //LowVisibility.Logger.LogIfDebug($"----- GetUnifiedLockStateForTarget: Looking for shared vision");
             bool isPlayer = source.team == source.Combat.LocalPlayerTeam;
-            List<AbstractActor> friendlies = isPlayer ? PlayerAndAlliedActors(source.Combat) : EnemyAndNeutralActors(source.Combat);
+            List<AbstractActor> friendlies = isPlayer ? PlayerAndAlliedActors(source.Combat) : EnemyToLocalPlayerActors(source.Combat);
             foreach (AbstractActor friendly in friendlies) {
                 if (State.SourceActorLockStates.ContainsKey(friendly.GUID)) {
                     //LowVisibility.Logger.LogIfDebug($"----- GetUnifiedLockStateForTarget: Checking shared vision for actor:{ActorLabel(friendly)}");

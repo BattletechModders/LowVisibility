@@ -135,7 +135,7 @@ namespace LowVisibility.Patch {
 
                 if (!isPlayer) {
                     LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
-                    LowVisibility.Logger.LogIfDebug($" ~~~ OpFor Actor:{ActorHelper.ActorLabel(target)} has lockState:{lockState}");
+                    LowVisibility.Logger.LogIfTrace($" ~~~ OpFor Actor:{ActorHelper.ActorLabel(target)} has lockState:{lockState}");
                     if (lockState.sensorLockLevel >= DetectionLevel.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
                         SetArmorDisplayActive(__instance, true);                            
