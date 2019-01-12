@@ -190,10 +190,23 @@ __Void-Signature System__ | TODO
 
 ### WIP Features
 
-- [] Allies don't share visibility
-- [] Dead enemies still show their locations/can be targeted
-- [] Neutral (turrets) appear as outlines
+- [x] Allies don't share visibility
+- [x] Dead enemies still show their locations/can be targeted
+- [x] Neutral (turrets) appear as outlines
+- [x] You should always be treated as having full LOS to allies
+- [x] Dead actors still be redrawn, shown as black silhouettes with red wavy lines
+- [x] By killing LOS when actor is dead, they just vanish even when you should be able to see them. If dead, you shouldn't be able to sensor lock them, just see them - but not target them.
 - [] Buildings should always be visible and not subject to ECM - breaks AI without this!
+- [] Saves occur on post-mission/pre-mission saves; should skip
+- [] Units sometimes showing their full 3d image, not blip
+- [] Bug where you can not have LOS if you have sensor lock but not visibility
+- [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
+- [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
+- [] Units that move into sensor range show their 3d image, not a blip. But if you move into sensor range, it calculates their visibility properly.
+- 
+- 2019-01-12T13:19:02 -   ==== Updating visibility on changed actors ====
+  2019-01-12T13:19:06 -  ~~~ OpFor Actor:Jenner_Recruit has lockState:visionLockLevel:VisualID, sensorLockLevel:DeepScan
+  2019-01-12T13:19:06 - Mech:GetActorInfoFromVisLevel:post - response:(Jenner JR7-F) for fullName:(Jenner), variantName:(JR7-F), unitName:(Jenner) for visLevel:LOSFull and lockState:visionLockLevel:VisualID, sensorLockLevel:DeepScan
 - [] BUG - 2019-01-10T09:54:51 - Error - MessageCenter [ERROR] CRITICAL ERROR, PLEASE REPORT:
   Delegate OnInitializeContractComplete - Standard for message type OnInitializeContractComplete failed with exception 
   The given key was not present in the dictionary.
@@ -238,6 +251,7 @@ __Void-Signature System__ | TODO
 
 ### Possible Additions
 
+- [] Sensors should have a range within which they work; otherwise they are just a bonus to the roll. Making them have a specific range, and limiting vision details to probes, might be a way to go?
 - [] Add a ```lv-jammer-boost_mX``` and ```lv-probe-boost_mX``` that provide a flat +M to any attached jammer, probe. This allows them to build the 'IFF Jammer' they talked about.
 
 
