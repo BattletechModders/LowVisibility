@@ -180,7 +180,7 @@ __Stealth Armor__ | TODO
 __Null-Signature System__ | TODO
 __Void-Signature System__ | TODO
 
-```lv-stealth_tX``` - applies ECM to the target unit instead of generating a bubble. Won't jam enemies around the unit, but automatically defeats the sensor suit of equal or lower tier X.
+```lv-stealth_mX``` - applies ECM to the target unit instead of generating a bubble. Won't jam enemies around the unit, but automatically defeats the sensor suit of equal or lower tier X.
 
 ```lv-stealth-range-mod_sA_mB_lC_eD``` - applies A as a modifier to any attack against the target at short range, B at medium range, C at long range, and D at extreme range.
 
