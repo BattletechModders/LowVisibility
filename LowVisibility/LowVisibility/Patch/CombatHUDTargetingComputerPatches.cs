@@ -127,14 +127,15 @@ namespace LowVisibility.Patch {
             //KnowYourFoe.Logger.Log("CombatHUDTargetingComputer:RefreshActorInfo:post - entered.");
             if (__instance.ActivelyShownCombatant != null) {
                 // TODO: Make allies share info
-                AbstractActor target = __instance.ActivelyShownCombatant as AbstractActor;
+                ICombatant target = __instance.ActivelyShownCombatant;
+                AbstractActor targetActor = target as AbstractActor;
                 bool isPlayer = target.Combat.HostilityMatrix.IsLocalPlayerEnemy(target.Combat.LocalPlayerTeam.GUID);
 
                 //bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 //bool isFriendly = __instance.Combat.HostilityMatrix.IsFriendly(actor.team, actor.Combat.LocalPlayerTeam);
 
-                if (!isPlayer) {
-                    LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
+                if (!isPlayer && targetActor != null) {
+                    LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), targetActor);
                     LowVisibility.Logger.LogIfTrace($" ~~~ OpFor Actor:{CombatantHelper.Label(target)} has lockState:{lockState}");
                     if (lockState.sensorLockLevel >= DetectionLevel.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
@@ -151,8 +152,8 @@ namespace LowVisibility.Patch {
                         for (int i = 0; i < ___weaponNames.Count; i++) {
                             //KnowYourFoe.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - iterating weapon:{___weaponNames[i].text}");
                             // Update ranged weapons
-                            if (i < target.Weapons.Count) {
-                                Weapon targetWeapon = target.Weapons[i];
+                            if (i < targetActor.Weapons.Count) {
+                                Weapon targetWeapon = targetActor.Weapons[i];
                                 //KnowYourFoe.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - hiding weapon:{targetWeapon.Name}");
                                 ___weaponNames[i].SetText("???");
                             } else if (!___weaponNames[i].text.Equals("XXXXXXXXXXXXXX")) {

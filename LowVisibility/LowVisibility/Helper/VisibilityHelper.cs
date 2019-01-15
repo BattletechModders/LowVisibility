@@ -488,7 +488,7 @@ namespace LowVisibility.Helper {
                         if (actorLockState != null) {
                             VisibilityLevel actorVisibility = VisibilityFromSensorLock(actorLockState.sensorLockLevel);                            
                             if (actorVisibility > visibilityLevel) {
-                                LowVisibility.Logger.LogIfDebug($"----- actor:{CombatantHelper.Label(sensorSharingActor)} ==> {CombatantHelper.Label(target)} " +
+                                LowVisibility.Logger.LogIfTrace($"----- actor:{CombatantHelper.Label(sensorSharingActor)} ==> {CombatantHelper.Label(target)} " +
                                     $"has visibility:{actorVisibility}, increasing team visibility.");
                                 visibilityLevel = actorVisibility;
                             }
