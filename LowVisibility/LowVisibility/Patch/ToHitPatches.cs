@@ -25,7 +25,6 @@ namespace LowVisibility.Patch {
                     __result = __result + (float)LowVisibility.Config.NoVisualLockRangePenaltyMulti;
                 }
 
-                // TODO: Check probe tier >= stealth tier
                 StaticEWState targetEWConfig = State.GetStaticState(target as AbstractActor);
                 if (targetEWConfig.HasStealthRangeMod()) {
                     //LowVisibility.Logger.LogIfDebug($"target:{CombatantHelper.Label(target as AbstractActor)} has StealthRangeMod with values: " +

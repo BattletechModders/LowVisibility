@@ -11,8 +11,8 @@ namespace LowVisibility.Patches {
 
     public static class Helper {
         public static void HideArmorAndStructure(AbstractActor target, TextMeshProUGUI armorHover, TextMeshProUGUI structHover) {
-            
-            LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
+
+            LockState lockState = State.GetLockStateForLastActivatedAgainstTarget(target);
             string armorText = null;
             string structText = null;
             if (lockState.sensorLockLevel >= DetectionLevel.StructureAnalysis) {

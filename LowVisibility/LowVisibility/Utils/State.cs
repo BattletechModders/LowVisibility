@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility {
@@ -26,10 +27,6 @@ namespace LowVisibility {
         public static Dictionary<string, DynamicEWState> DynamicEWState = new Dictionary<string, DynamicEWState>();
         public static Dictionary<string, StaticEWState> StaticEWState = new Dictionary<string, StaticEWState>();
         public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
-
-        // For a given team, for a given target, keep a shared VisibilityLevel
-        public static Dictionary<string, Dictionary<string, VisibilityLevel>> TeamVisibilityToTargets =
-            new Dictionary<string, Dictionary<string, VisibilityLevel>>();
         
         // TODO: Do I need this anymore?
         public static string LastPlayerActivatedActorGUID;
@@ -60,6 +57,23 @@ namespace LowVisibility {
             mapVisionRange = MapHelper.CalculateMapVisionRange();
             visualIDRange = Math.Min(mapVisionRange, LowVisibility.Config.VisualIDRange * 30.0f);
             LowVisibility.Logger.Log($"Vision ranges: calculated map range:{mapVisionRange} configured visualID range:{LowVisibility.Config.VisualIDRange} map visualID range:{visualIDRange}");
+        }
+
+        // --- Methods for SourceActorLockStates
+        public static HashSet<LockState> GetLocksForLastActivatedPlayerActor(CombatGameState Combat) {
+            AbstractActor lastActivatedPlayerActor = GetLastPlayerActivatedActor(Combat);
+            if (SourceActorLockStates.ContainsKey(lastActivatedPlayerActor.GUID)) {
+                return SourceActorLockStates[lastActivatedPlayerActor.GUID];
+            } else {
+                // TODO: FIXME
+                return null;
+            }
+        }
+
+        public static LockState GetLockStateForLastActivatedAgainstTarget(AbstractActor target) {
+            HashSet<LockState> lockStates = State.GetLocksForLastActivatedPlayerActor(target.Combat);
+            LockState lockState = lockStates.First(ls => ls.targetGUID == target.GUID);
+            return lockState;
         }
 
         // --- Methods manipulating DynamicEWState

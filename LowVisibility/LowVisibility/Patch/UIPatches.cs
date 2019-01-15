@@ -7,6 +7,7 @@ using LowVisibility.Object;
 using SVGImporter;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
@@ -29,22 +30,24 @@ namespace LowVisibility.Patch {
                 // We can receive a building here, so 
                 if (target != null) {
                     bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
-                    if (!isPlayer) {
-                        LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
-                        // TODO: This is all fucked up
-                        if (lockState.sensorLockLevel >= DetectionLevel.Vector) {
-                            // Do nothing - display everything per vanilla
+                    if (!isPlayer) {                        
+                        LockState lockState = State.GetLockStateForLastActivatedAgainstTarget(target);
+
+                        if (lockState.sensorLockLevel < DetectionLevel.Vector) {
+                            // Hide the evasive indicator, hide the buffs and debuffs
                             Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
                             hideEvasionIndicatorMethod.GetValue();
-                        } else if (lockState.sensorLockLevel == DetectionLevel.NoInfo && lockState.visionLockLevel < VisionLockType.VisualID) {
+
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                            Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
-                            hideEvasionIndicatorMethod.GetValue();
+                        } else if (lockState.sensorLockLevel < DetectionLevel.StructureAnalysis) {
+                            // Hide the buffs and debuffs
+                            ___Buffs.ForEach(si => si.gameObject.SetActive(false));
+                            ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
                         } else {
-                            // All other states - hide the buffs/debuffs
-                            ___Buffs.ForEach(si => si.gameObject.SetActive(false));
-                            ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
+                            // All other states - show the buffs/debuffs
+                            ___Buffs.ForEach(si => si.gameObject.SetActive(true));
+                            ___Debuffs.ForEach(si => si.gameObject.SetActive(true));
 
                         }
                     }

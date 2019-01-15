@@ -47,10 +47,10 @@ namespace LowVisibility.Patch {
             ICombatant combatant = Combat.FindActorByGUID(actorTargetedMessage.affectedObjectGuid);
             if (combatant == null) { combatant = Combat.FindCombatantByGUID(actorTargetedMessage.affectedObjectGuid); }
             if (Combat.LocalPlayerTeam.VisibilityToTarget(combatant) >= VisibilityLevel.Blip0Minimum) {
-                LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
+                LowVisibility.Logger.LogIfTrace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
                 ShowTargetMethod.GetValue(combatant);
             } else {
-                LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
+                LowVisibility.Logger.LogIfTrace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
             }
         }
     }
