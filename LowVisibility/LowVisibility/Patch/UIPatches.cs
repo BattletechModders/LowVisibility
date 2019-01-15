@@ -44,11 +44,8 @@ namespace LowVisibility.Patch {
                             // Hide the buffs and debuffs
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        } else {
-                            // All other states - show the buffs/debuffs
-                            ___Buffs.ForEach(si => si.gameObject.SetActive(true));
-                            ___Debuffs.ForEach(si => si.gameObject.SetActive(true));
-
+                        } else if (lockState.sensorLockLevel >= DetectionLevel.StructureAnalysis) {
+                            // Do nothing; normal state
                         }
                     }
                 }

@@ -190,7 +190,9 @@ __Void-Signature System__ | TODO
 
 ### WIP Features
 
-- [] Buildings should always be visible and not subject to ECM - breaks AI without this! __Preliminary testing seems to indicate this may be fixed__
+- [] Buildings should always be visible and not subject to ECM - breaks AI without this! 
+  - __Preliminary testing seems to indicate this may be fixed__
+  - Likely an issue that I'm dealing with AbstractActors everywhere, but can be an ICombatant
 - [] Allied units sometimes showing as blips instead of always full vision.
 - [] BUG - When you overheat a mech, it disappears from vision
 - [] Saves occur on post-mission/pre-mission saves; should skip
@@ -211,7 +213,6 @@ __Void-Signature System__ | TODO
 - [] Component damage should eliminate ECM, AP, Stealth bonuses
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
 - [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
-- [] Move SensorCheck to start of unit activation, not start of round. Generate one at the start of combat to ensure visibility can be initialized at that time.
 - [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_effect_narc_rY_dZ```, narc Continues to emit for durationZ, Y is radius within which anybody can benefit from the Narc boost.
 - [] Implement Tag effects; ```lv-effect-tag_m?```. Tag differs from narc in that it's only during LOS? Others wants it tied to TAG effects and be for 1-2 activations.
 - [] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)

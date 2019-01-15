@@ -90,19 +90,19 @@ namespace LowVisibility.Helper {
                 // If we're dead, we can't have vision or sensors. If we're off the map, we can't either. If the target is off the map, we can't see it.
                 newLockState.visionLockLevel = VisionLockType.None;
                 newLockState.sensorLockLevel = DetectionLevel.NoInfo;
-                LowVisibility.Logger.LogIfDebug($"  -- source:{CombatantHelper.Label(source)} is dead or dying. Forcing no visibility.");
+                LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} is dead or dying. Forcing no visibility.");
                 return newLockState;
             } else if (target.IsDead || target.IsFlaggedForDeath) {
                 // If the target is dead, we can't have sensor but we have vision 
                 newLockState.visionLockLevel = VisionLockType.Silhouette;
                 newLockState.sensorLockLevel = DetectionLevel.NoInfo;
-                LowVisibility.Logger.LogIfDebug($"  -- target:{CombatantHelper.Label(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
+                LowVisibility.Logger.LogIfTrace($"  -- target:{CombatantHelper.Label(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
                 return newLockState;
             } else if (source.Combat.HostilityMatrix.IsFriendly(source.TeamId, target.TeamId)) {
                 // If they are allied, automatically give full vision
                 newLockState.visionLockLevel = VisionLockType.VisualID;
                 newLockState.sensorLockLevel = DetectionLevel.DentalRecords;
-                LowVisibility.Logger.LogIfDebug($"  -- source:{CombatantHelper.Label(source)} is friendly to target:{CombatantHelper.Label(target)}. Forcing full visibility.");
+                LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} is friendly to target:{CombatantHelper.Label(target)}. Forcing full visibility.");
                 return newLockState;
             } 
 
@@ -226,6 +226,39 @@ namespace LowVisibility.Helper {
             }
         }
 
+        public static void UpdateDetectionForActor(AbstractActor actor) {
+
+            List<AbstractActor> playerActors = PlayerActors(actor.Combat);
+            List<AbstractActor> alliedActors = AlliedToLocalPlayerActors(actor.Combat);
+            List<AbstractActor> enemyActors = EnemyToLocalPlayerActors(actor.Combat);
+            List<AbstractActor> neutralActors = NeutralToLocalPlayerActors(actor.Combat);
+
+            bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
+            bool isLocalPlayerEnemy = actor.Combat.HostilityMatrix.IsLocalPlayerEnemy(actor.team);
+            bool isLocalPlayerNeutral = actor.Combat.HostilityMatrix.IsLocalPlayerNeutral(actor.team);
+            bool isLocalPlayerAlly = actor.Combat.HostilityMatrix.IsLocalPlayerFriendly(actor.team) && !isPlayer;
+
+            HashSet<LockState> sourceActorLocks = new HashSet<LockState>();
+            if (isLocalPlayerEnemy) {
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, playerActors));
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, alliedActors));
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, neutralActors));
+            } else if (isLocalPlayerNeutral) {
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, playerActors));
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, alliedActors));
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, enemyActors));
+            } else if (isLocalPlayerAlly) {
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, playerActors));
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, enemyActors));
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, neutralActors));
+            } else if (isPlayer) {
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, alliedActors));
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, enemyActors));
+                sourceActorLocks.UnionWith(CalculateTargetLocks(actor, neutralActors));
+            }
+            State.SourceActorLockStates[actor.GUID] = sourceActorLocks;
+        }
+
         // Updates the detection state for all units. Called at start of round, and after each enemy movement.
         public static void UpdateDetectionForAllActors(CombatGameState Combat) {
 
@@ -278,7 +311,6 @@ namespace LowVisibility.Helper {
                 State.SourceActorLockStates[source.GUID] = sourceActorLocks;
                 LowVisibility.Logger.LogIfTrace($" ----- source:{CombatantHelper.Label(source)} locks calculated.");
             }
-
         }
 
         
@@ -308,6 +340,7 @@ namespace LowVisibility.Helper {
             List<AbstractActor> friendlies = isPlayer ? 
                 PlayerActors(source.Combat).Union(AlliedToLocalPlayerActors(source.Combat)).ToList()
                 : EnemyToLocalPlayerActors(source.Combat);
+            // TOOD: Check for NEUTRALS
             foreach (AbstractActor friendly in friendlies) {
                 if (State.SourceActorLockStates.ContainsKey(friendly.GUID)) {
                     //LowVisibility.Logger.LogIfDebug($"----- GetUnifiedLockStateForTarget: Checking shared vision for actor:{CombatantHelper.Label(friendly)}");
