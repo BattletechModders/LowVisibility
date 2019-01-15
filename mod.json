@@ -13,7 +13,7 @@
         "Trace" : false,
         "ObscurementMultiplier": "3.0",
         "MultipleJammerPenalty" : 1,
-        ":SensorRangeMechType" : 10,
+        "SensorRangeMechType" : 10,
         "SensorRangeVehicleType"  : 8,
         "SensorRangeTurretType" : 12,
         "SensorRangeUnknownType" : 6,

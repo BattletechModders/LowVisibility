@@ -192,7 +192,7 @@ namespace LowVisibility.Patch {
             AbstractActor targetActor = target as AbstractActor;
             Traverse AddToolTipDetailMethod = Traverse.Create(__instance).Method("AddToolTipDetail", new Type[] { typeof(string), typeof(int) });
 
-            //LowVisibility.Logger.LogIfDebug($"___CombatHUDTargetingComputer - SetHitChance for source:{ActorLabel(targetActor)} target:{ActorLabel(targetActor)}");
+            //LowVisibility.Logger.LogIfDebug($"___CombatHUDTargetingComputer - SetHitChance for source:{CombatantHelper.Label(targetActor)} target:{CombatantHelper.Label(targetActor)}");
             LockState lockState = GetUnifiedLockStateForTarget(actor, targetActor);
             if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
                 AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", (int)LowVisibility.Config.NoSensorLockRangePenaltyMulti });

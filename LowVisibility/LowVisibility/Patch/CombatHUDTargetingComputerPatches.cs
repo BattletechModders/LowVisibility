@@ -135,7 +135,7 @@ namespace LowVisibility.Patch {
 
                 if (!isPlayer) {
                     LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
-                    LowVisibility.Logger.LogIfTrace($" ~~~ OpFor Actor:{ActorHelper.ActorLabel(target)} has lockState:{lockState}");
+                    LowVisibility.Logger.LogIfTrace($" ~~~ OpFor Actor:{CombatantHelper.Label(target)} has lockState:{lockState}");
                     if (lockState.sensorLockLevel >= DetectionLevel.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
                         SetArmorDisplayActive(__instance, true);                            
@@ -172,7 +172,7 @@ namespace LowVisibility.Patch {
                         weaponsLabel.SetActive(false);
                     }
                 } else {
-                    LowVisibility.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{ActorHelper.ActorLabel(target)} is player, showing panel.");
+                    LowVisibility.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{CombatantHelper.Label(target)} is player, showing panel.");
                 }
             }
         }

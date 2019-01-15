@@ -26,12 +26,18 @@ namespace LowVisibility {
         public static Dictionary<string, DynamicEWState> DynamicEWState = new Dictionary<string, DynamicEWState>();
         public static Dictionary<string, StaticEWState> StaticEWState = new Dictionary<string, StaticEWState>();
         public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
+
+        // For a given team, for a given target, keep a shared VisibilityLevel
+        public static Dictionary<string, Dictionary<string, VisibilityLevel>> TeamVisibilityToTargets =
+            new Dictionary<string, Dictionary<string, VisibilityLevel>>();
+        
+        // TODO: Do I need this anymore?
         public static string LastPlayerActivatedActorGUID;
         public static Dictionary<string, int> JammedActors = new Dictionary<string, int>();
         // TODO: Add narc'd actors
 
         public static bool TurnDirectorStarted = false;
-        public const int ResultsToPrecalcuate = 8192;
+        public const int ResultsToPrecalcuate = 16384;
         public static double[] CheckResults = new double[ResultsToPrecalcuate];
         public static int CheckResultIdx = 0;
 
@@ -124,7 +130,6 @@ namespace LowVisibility {
         }
 
         // --- ECM JAMMING STATE TRACKING ---
-
         public static bool IsJammed(AbstractActor actor) {
             bool isJammed = JammedActors.ContainsKey(actor.GUID) ? true : false;
             return isJammed;
@@ -135,6 +140,7 @@ namespace LowVisibility {
         }
 
         public static void JamActor(AbstractActor actor, int jammingStrength) {
+            DynamicEWState dynamicState = GetDynamicState(actor);
             if (!JammedActors.ContainsKey(actor.GUID)) {
                 JammedActors.Add(actor.GUID, jammingStrength);
             } else if (jammingStrength > JammedActors[actor.GUID]) {

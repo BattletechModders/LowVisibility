@@ -7,9 +7,12 @@ namespace LowVisibility.Helper {
     public static class MapHelper {
 
         private static readonly Dictionary<string, float[]> VisionStates = new Dictionary<string, float[]> {
-            { "day", new float[] { 60.0f * 30, 15.0f * 30, 5.0f * 30} }, // 1800, 450, 150
-            { "dim", new float[] { 16.0f * 30, 5.0f * 30, 3.0f * 30 } }, // 480, 150, 90
-            { "night", new float[] { 6.0f * 30, 3.0f * 30, 2.0f * 30 } }, // 180, 90, 30
+            //{ "day", new float[] { 60 * 30.0f, 15 * 30.0f, 5 * 30.0f} }, // 1800, 450, 150
+            //{ "dim", new float[] { 16 * 30.0f, 5 * 30.0f, 3 * 30.0f } }, // 480, 150, 90
+            //{ "night", new float[] { 6 * 30.0f, 3 * 30.0f, 2 * 30.0f } }, // 180, 90, 30
+            { "day", new float[] { 60 * 30.0f, 12 * 30.0f, 9 * 30.0f} }, // 1800, 450, 150
+            { "dim", new float[] { 15 * 30.0f, 9 * 30.0f, 6 * 30.0f } }, // 480, 150, 90
+            { "night", new float[] { 9 * 30.0f, 6 * 30.0f, 3 * 30.0f } }, // 180, 90, 30
         };
 
         public static float CalculateMapVisionRange() {

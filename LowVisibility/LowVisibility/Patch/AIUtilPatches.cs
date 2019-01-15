@@ -1,6 +1,10 @@
 ﻿using BattleTech;
 using Harmony;
+using LowVisibility.Helper;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
 using UnityEngine;
 
 namespace LowVisibility.Patch {
@@ -46,5 +50,4 @@ namespace LowVisibility.Patch {
             //LowVisibility.Logger.LogIfDebug($"AIUtil:UnitHasVisibilityToTargetFromPosition:post - result is:{__result}");
         }
     }
-
 }

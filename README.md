@@ -190,44 +190,17 @@ __Void-Signature System__ | TODO
 
 ### WIP Features
 
-- [x] Allies don't share visibility
-- [x] Dead enemies still show their locations/can be targeted
-- [x] Neutral (turrets) appear as outlines
-- [x] You should always be treated as having full LOS to allies
-- [x] Dead actors still be redrawn, shown as black silhouettes with red wavy lines
-- [x] By killing LOS when actor is dead, they just vanish even when you should be able to see them. If dead, you shouldn't be able to sensor lock them, just see them - but not target them.
 - [] Buildings should always be visible and not subject to ECM - breaks AI without this! __Preliminary testing seems to indicate this may be fixed__
 - [] Allied units sometimes showing as blips instead of always full vision.
 - [] BUG - When you overheat a mech, it disappears from vision
 - [] Saves occur on post-mission/pre-mission saves; should skip
 - [] Units sometimes showing their full 3d image, not blip
+- [] Unit blips showing beyond sensor range when no shares_sensors in play
 - [] Bug where you can not have LOS if you have sensor lock but not visibility
 - [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
 - [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
 - [] Units that move into sensor range show their 3d image, not a blip. But if you move into sensor range, it calculates their visibility properly.
 - [] On shutdown, no stealth / ecm / etc applies
-- [] BUG - 2019-01-10T09:54:51 - Error - MessageCenter [ERROR] CRITICAL ERROR, PLEASE REPORT:
-  Delegate OnInitializeContractComplete - Standard for message type OnInitializeContractComplete failed with exception 
-  The given key was not present in the dictionary.
-  at System.Collections.Generic.Dictionary`2<string, System.Collections.Generic.HashSet`1<LowVisibility.Helper.VisibilityHelper/LockState>>.get_Item (string) <0x001c5>
-  at LowVisibility.State.GetUnifiedLockStateForTarget (BattleTech.AbstractActor,BattleTech.AbstractActor) <0x00174>
-  at LowVisibility.Patch.Mech_GetActorInfoFromVisLevel.Postfix (BattleTech.Mech,Localize.Text&,BattleTech.VisibilityLevel) <0x000d8>
-  at (wrapper dynamic-method) BattleTech.Mech.GetActorInfoFromVisLevel_Patch1 (object,BattleTech.VisibilityLevel) <0x003f9>
-  at (wrapper dynamic-method) BattleTech.UI.CombatHUDActorNameDisplay.RefreshInfo_Patch1 (object,BattleTech.VisibilityLevel) <0x00051>
-  at BattleTech.UI.CombatHUDActorNameDisplay.RefreshInfo () <0x0011f>
-  at (wrapper dynamic-method) BattleTech.UI.CombatHUDActorInfo.RefreshAllInfo_Patch2 (object) <0x001e9>
-  at BattleTech.UI.CombatHUDActorInfo.set_DisplayedCombatant (BattleTech.ICombatant) <0x002db>
-  at (wrapper dynamic-method) BattleTech.UI.CombatHUDNumFlagHex.OnActorChanged_Patch2 (object) <0x00045>
-  at BattleTech.UI.CombatHUDInWorldScalingActorInfo.set_DisplayedCombatant (BattleTech.ICombatant) <0x000c0>
-  at BattleTech.UI.CombatHUDInWorldElementMgr.AddInWorldActorElements (BattleTech.ICombatant) <0x00222>
-  at BattleTech.UI.CombatHUDInWorldElementMgr.Init (BattleTech.CombatGameState,BattleTech.UI.CombatHUD) <0x0011a>
-  at (wrapper dynamic-method) BattleTech.UI.CombatHUD.Init_Patch1 (object,BattleTech.CombatGameState) <0x008fc>
-  at BattleTech.UI.CombatUXCreator.OnInitializeContractComplete (MessageCenterMessage) <0x000c0>
-  at MessageCenter.SendMessagesForType (MessageCenterMessageType,MessageCenterMessage) <0x00186>
-- [x] eliminate sensor check impacting range
-- [x] eliminate active probes having range; sensors are just sensors
-- [x] BUG - TrySelectActor fires multiple times. *whimper* Change to just OnActivation, but maybe a prefix?
-- [x] Add multiple ECM penalty to sensor check
 - [] Validate functionality works with saves - career, campaign, skirmish
 - [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
 - [] BUG - Tactics skill should influence chassis name, blip type (CombatNameHelper, LineOfSightPatches)
@@ -243,6 +216,7 @@ __Void-Signature System__ | TODO
 - [] Implement Tag effects; ```lv-effect-tag_m?```. Tag differs from narc in that it's only during LOS? Others wants it tied to TAG effects and be for 1-2 activations.
 - [] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
 - [] Implement stealth multi-target prohibition
+- [] Reimplement sensor shadows?
 - [] No Lock penalties are multipliers for range penalties; 0.5 for visual, 1.0 for sensor. So at short range you get a -1 for sensors, -2 at medium, etc. Reflects that it's harder to shoot someone without a lock the further out you get.
 - [] Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
 - [] Add a ```lv-sensor-roll-mod_m``` tag that provides a modifier to the sensor check (positive or negative)
@@ -289,22 +263,25 @@ __Void-Signature System__ | TODO
 
 ### Completed Tasks
 
+- [x] Allies don't share visibility
+- [x] Dead enemies still show their locations/can be targeted
+- [x] Neutral (turrets) appear as outlines
+- [x] You should always be treated as having full LOS to allies
+- [x] Dead actors still be redrawn, shown as black silhouettes with red wavy lines
+- [x] By killing LOS when actor is dead, they just vanish even when you should be able to see them. If dead, you shouldn't be able to sensor lock them, just see them - but not target them.
+- [x] eliminate sensor check impacting range
+- [x] eliminate active probes having range; sensors are just sensors
+- [x] BUG - TrySelectActor fires multiple times. *whimper* Change to just OnActivation, but maybe a prefix?
+- [x] Add multiple ECM penalty to sensor check
 - [x] Implement stealth movement mod through modifier like others (no need to get fancy)
 
 - [x] VisionLock and VisualID ranges should be modified by equipment.
-
 - [x] Implement```lv-stealth-move-mod_m``` Stealth, NSS, Void System evasion by movement semantics
-
 - [x] Visibility for players is unit specific, unless models have ```share_sensor_lock``` tags
-
 - [x] If you have visual + sensor lock, you share your vision with allies. If you have sensor lock, and have the ```lv_share_sensor_lock``` tag, you share your sensor lock with allies.
-
 - [x] Distinction between visual lock and sensor lock; if you have visual lock, you can see the target's silhouette. If you have sensor lock, your electronics can target them. You need both to have normal targeting modifiers.
-
 - [x] Visibility for enemies is unit specific, unless models have ```share_sensor_lock``` tags
-
 - [x] Implement ```lv-stealth-range-mod_s``` Stealth, NSS, Void System evasion by movement semantics
-
 - [x] Implement Stealth, NSS, Void System sensor detection reduction
     ​		
 ### Appendix

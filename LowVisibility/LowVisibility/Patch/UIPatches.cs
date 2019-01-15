@@ -106,7 +106,7 @@ namespace LowVisibility.Patch {
                         showBuffStringMethod.GetValue(new object[] {
                             "uixSvgIcon_status_sensorsImpaired",
                             new Text("ECM JAMMING", new object[0]),
-                            new Text($"Unit has an ECM jammer and will hide allies with {staticState.ecmRange * 30}m.", new object[0]),
+                            new Text($"Unit has an ECM jammer and will hide allies with {staticState.ecmRange}m.", new object[0]),
                             __instance.effectIconScale,
                             false
                         });

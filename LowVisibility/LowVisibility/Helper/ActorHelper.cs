@@ -2,11 +2,6 @@
 
 namespace LowVisibility.Helper {
     public static class ActorHelper {
-
-        public static string ActorLabel(AbstractActor actor) {
-            string truncatedGUID = actor.GUID != null ? string.Format("{0:X}", actor.GUID.GetHashCode()) : "0xDEADBEEF";
-            return $"{actor.DisplayName}_{actor?.GetPilot()?.Name}_{truncatedGUID}";
-        }
         
         // Determine an actor's sensor range, plus our special additions
         public static float CalculateSensorRange(AbstractActor source) {
@@ -37,7 +32,7 @@ namespace LowVisibility.Helper {
                 float allSpotterMultipliers = GetAllSpotterMultipliers(source);
                 float allSpotterAbsolutes = GetAllSpotterAbsolutes(source);
                 modifiedVisualIDRange = mapVisualIDRange * allSpotterMultipliers + allSpotterAbsolutes;
-                LowVisibility.Logger.LogIfTrace($" -- source:{ActorLabel(source)} with spotterMulti:{allSpotterMultipliers} spotterAbsolutes:{allSpotterAbsolutes} " +
+                LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} with spotterMulti:{allSpotterMultipliers} spotterAbsolutes:{allSpotterAbsolutes} " +
                     $"and mapVisualIDRange:{mapVisualIDRange} has visualIDRange:{modifiedVisualIDRange}");
             }            
             
@@ -62,7 +57,7 @@ namespace LowVisibility.Helper {
                 if (pilot != null) {
                     int normdTactics = SkillHelper.NormalizeSkill(pilot.Tactics);
                     spottingTacticsMultipler = (float)normdTactics * source.Combat.Constants.Visibility.SpotterTacticsMultiplier;
-                    //LowVisibility.Logger.LogIfDebug($"  actor:{ActorLabel(source)} with tactics:{pilot.Tactics}/{normdTactics} x " +
+                    //LowVisibility.Logger.LogIfDebug($"  actor:{CombatantHelper.Label(source)} with tactics:{pilot.Tactics}/{normdTactics} x " +
                     //    $"{source.Combat.Constants.Visibility.SpotterTacticsMultiplier} = spottingTacticsMulti:{spottingTacticsMultipler}");
                 }
             }

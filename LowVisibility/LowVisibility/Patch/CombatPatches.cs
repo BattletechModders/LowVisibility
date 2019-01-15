@@ -16,7 +16,7 @@ namespace LowVisibility.Patch {
                 return;
             }
 
-            LowVisibility.Logger.LogIfDebug($"=== AbstractActor:OnActivationBegin:pre - handling {ActorLabel(__instance)} with stackItemID:{stackItemID} that hasBegin:{__instance.HasBegunActivation}");
+            LowVisibility.Logger.LogIfDebug($"=== AbstractActor:OnActivationBegin:pre - handling {CombatantHelper.Label(__instance)} with stackItemID:{stackItemID} that hasBegin:{__instance.HasBegunActivation}");
             bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
             if (isPlayer) {
                 State.LastPlayerActivatedActorGUID = __instance.GUID; 
@@ -27,7 +27,7 @@ namespace LowVisibility.Patch {
    [HarmonyPatch(typeof(CombatSelectionHandler), "TrySelectActor")]
     public static class CombatSelectionHandler_TrySelectActor {
         public static void Postfix(CombatSelectionHandler __instance, bool __result, AbstractActor actor, bool manualSelection) {
-            LowVisibility.Logger.LogIfDebug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {ActorLabel(actor)}.");
+            LowVisibility.Logger.LogIfDebug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {CombatantHelper.Label(actor)}.");
             if (__instance != null && actor != null && __result == true) {
 
             }
@@ -38,12 +38,15 @@ namespace LowVisibility.Patch {
     public static class AbstractActor_UpdateLOSPositions {
         public static void Prefix(AbstractActor __instance) {
             if (State.TurnDirectorStarted) {
-                LowVisibility.Logger.LogIfDebug($"AbstractActor_UpdateLOSPositions:pre - entered for {ActorLabel(__instance)}.");
+                LowVisibility.Logger.LogIfDebug($"AbstractActor_UpdateLOSPositions:pre - entered for {CombatantHelper.Label(__instance)}.");
                 JammingHelper.ResolveJammingState(__instance);
 
                 bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
-                AbstractActor updateActor = isPlayer ? __instance : __instance.Combat.AllActors.Where(aa => aa.TeamId == __instance.Combat.LocalPlayerTeamGuid).First();
-                VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat, updateActor);
+                AbstractActor updateActor = isPlayer ? 
+                    __instance : 
+                    __instance.Combat.AllActors.Where(aa => aa.TeamId == __instance.Combat.LocalPlayerTeamGuid).First();
+                VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
+                VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
             }
         }
     }
@@ -53,7 +56,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(Mech), "OnMovePhaseComplete")]
     public static class Mech_OnMovePhaseComplete {
         public static void Postfix(Mech __instance) {
-            LowVisibility.Logger.LogIfDebug($"=== Mech:OnMovePhaseComplete:post - entered for {ActorLabel(__instance)}.");
+            LowVisibility.Logger.LogIfDebug($"=== Mech:OnMovePhaseComplete:post - entered for {CombatantHelper.Label(__instance)}.");
 
             bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
             if (isPlayer && State.IsJammed(__instance)) {
@@ -68,7 +71,7 @@ namespace LowVisibility.Patch {
     //[HarmonyPatch(typeof(Vehicle), "OnMovePhaseComplete")]
     //public static class Vehicle_OnMovePhaseComplete {
     //    public static void Postfix(Vehicle __instance) {
-    //        LowVisibility.Logger.LogIfDebug($"=== Vehicle:OnMovePhaseComplete:post - entered for {ActorLabel(__instance)}.");
+    //        LowVisibility.Logger.LogIfDebug($"=== Vehicle:OnMovePhaseComplete:post - entered for {CombatantHelper.Label(__instance)}.");
 
     //        JammingHelper.ResolveJammingState(__instance);
     //        VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat, __instance);

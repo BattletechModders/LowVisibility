@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using Harmony;
 using HBS.Math;
+using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
@@ -164,17 +165,8 @@ namespace LowVisibility.Patch {
                 //}
 
                 // If EW effects have rendered the target invisible, break the lock
-                LockState lockState = GetUnifiedLockStateForTarget(source, targetActor);
-                //LowVisibility.Logger.LogIfDebug($"VTTWPAR Source:{ActorLabel(source)} has lockState:{lockState} to target:{targetActor as AbstractActor}");
-                if (lockState.visionLockLevel == VisionLockType.None && lockState.sensorLockLevel >= DetectionLevel.Silhouette) {
-                    visibilityLevel = VisibilityLevel.Blip4Maximum;
-                } else if (lockState.visionLockLevel == VisionLockType.None && lockState.sensorLockLevel >= DetectionLevel.Type) {
-                    visibilityLevel = VisibilityLevel.Blip1Type;
-                } else if (lockState.visionLockLevel == VisionLockType.None && lockState.sensorLockLevel >= DetectionLevel.Location) {
-                    visibilityLevel = VisibilityLevel.BlobMedium;
-                } else if (lockState.visionLockLevel == VisionLockType.None && lockState.sensorLockLevel >= DetectionLevel.NoInfo) {
-                    visibilityLevel = VisibilityLevel.None;
-                }
+                visibilityLevel = GetUnifiedVisibilityLevel(source, targetActor);
+                //LowVisibility.Logger.LogIfDebug($"VTTWPAR Source:{CombatantHelper.Label(source)} has lockState:{lockState} to target:{targetActor as AbstractActor}");                
             }
 
             __result = visibilityLevel;
@@ -340,7 +332,8 @@ namespace LowVisibility.Patch {
                 //if (allies[i].VisibilityCache.VisibilityToTarget(target).VisibilityLevel == VisibilityLevel.LOSFull) {
                 if (allies[i].VisibilityCache.VisibilityToTarget(target).VisibilityLevel >= VisibilityLevel.Blip0Minimum) {
                     __result = true;
-                    LowVisibility.Logger.LogIfTrace($"Allied actor{ActorLabel(allies[i])} has LOS to target:{ActorLabel(target as AbstractActor)}, returning true.");
+                    LowVisibility.Logger.LogIfTrace($"Allied actor{CombatantHelper.Label(allies[i])} has LOS " +
+                        $"to target:{CombatantHelper.Label(target as AbstractActor)}, returning true.");
                     return;
                 }
             }
@@ -349,7 +342,8 @@ namespace LowVisibility.Patch {
                 ___combat.LOS.GetVisibilityToTargetWithPositionsAndRotations(attacker, position, target);
             //__result = visibilityToTargetWithPositionsAndRotations == VisibilityLevel.LOSFull;
             __result = visibilityToTargetWithPositionsAndRotations >= VisibilityLevel.Blip0Minimum;
-            LowVisibility.Logger.LogIfTrace($"Actor{ActorLabel(attacker)} has LOS? {__result} to target:{ActorLabel(target as AbstractActor)}");
+            LowVisibility.Logger.LogIfTrace($"Actor{CombatantHelper.Label(attacker)} has LOS? {__result} " +
+                $"to target:{CombatantHelper.Label(target as AbstractActor)}");
         }
     }
 
@@ -358,7 +352,8 @@ namespace LowVisibility.Patch {
         public static void Postfix(AbstractActor __instance, ref bool __result, ICombatant targetUnit) {
             //LowVisibility.Logger.LogIfDebug("AbstractActor:HasLOSToTargetUnit:post - entered.");
             __result = __instance.VisibilityToTargetUnit(targetUnit) >= VisibilityLevel.Blip0Minimum;
-            LowVisibility.Logger.LogIfTrace($"Actor{ActorLabel(__instance)} has LOSToTargetUnit? {__result} to target:{ActorLabel(targetUnit as AbstractActor)}");
+            LowVisibility.Logger.LogIfTrace($"Actor{CombatantHelper.Label(__instance)} has LOSToTargetUnit? {__result} " +
+                $"to target:{CombatantHelper.Label(targetUnit as AbstractActor)}");
         }
     }
 }

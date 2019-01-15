@@ -30,12 +30,7 @@ namespace LowVisibility.Patch {
 
                         // Make a pre-encounter detectCheck for them\
                         State.BuildDynamicState(actor);
-                        LowVisibility.Logger.LogIfDebug($"  Actor:{ActorLabel(actor)} has detectCheck:{State.GetDynamicState(actor).currentCheck} at load/start");
-                        if (State.GetDynamicState(actor).sensorDetectLevel == DetectionLevel.NoInfo) {
-                            // Send a floatie indicating the jamming
-                            MessageCenter mc = __instance.Combat.MessageCenter;
-                            mc.PublishMessage(new FloatieMessage(__instance.GUID, __instance.GUID, "SENSOR CHECK FAILED!", FloatieMessage.MessageNature.Debuff));
-                        }
+                        LowVisibility.Logger.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} has detectCheck:{State.GetDynamicState(actor).currentCheck} at load/start");
 
                         bool isPlayer = actor.TeamId == __instance.Combat.LocalPlayerTeamGuid;
                         if (isPlayer && randomPlayerActor == null) {
@@ -43,10 +38,11 @@ namespace LowVisibility.Patch {
                         }
 
                     } else {
-                        LowVisibility.Logger.LogIfDebug($"  Actor:{ActorLabel(actor)} was NULL!");
+                        LowVisibility.Logger.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} was NULL!");
                     }
                 }
-                VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat, randomPlayerActor);
+                VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
+                VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
             }
         }
     }
@@ -73,6 +69,11 @@ namespace LowVisibility.Patch {
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {                
                 State.BuildDynamicState(actor);
+                if (State.GetDynamicState(actor).sensorDetectLevel == DetectionLevel.NoInfo) {
+                    // Send a floatie indicating the jamming
+                    MessageCenter mc = __instance.Combat.MessageCenter;
+                    mc.PublishMessage(new FloatieMessage(__instance.GUID, __instance.GUID, "SENSOR CHECK FAILED!", FloatieMessage.MessageNature.Debuff));
+                }
             }
         }
     }
