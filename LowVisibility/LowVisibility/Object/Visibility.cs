@@ -42,5 +42,36 @@ namespace LowVisibility.Object {
         }
     }
 
+    static class DetectionLevelExtensions {
+        public static string Label(this DetectionLevel level) {
+            switch (level) {
+                case DetectionLevel.NoInfo:
+                    return "No Information";
+                case DetectionLevel.Location:
+                    return "Location";
+                case DetectionLevel.Type:
+                    return "Location, Type";
+                case DetectionLevel.Silhouette:
+                    return "Location, Chassis";
+                case DetectionLevel.Vector:
+                    return "Location, Chassis, Evasion";
+                case DetectionLevel.SurfaceScan:
+                    return "Location, Chassis, Evasion, Armor/Struct";
+                case DetectionLevel.SurfaceAnalysis:
+                    return "Location, Chassis, Evasion, Armor/Struct, Weapon Types";
+                case DetectionLevel.WeaponAnalysis:
+                    return "Location, Chassis, Evasion, Armor/Struct, Weapons";
+                case DetectionLevel.StructureAnalysis:
+                    return "Location, Chassis, Evasion, Armor/Struct, Weapons, Heat & Stability";
+                case DetectionLevel.DeepScan:
+                    return "All Mech Info, No Pilot Info";
+                case DetectionLevel.DentalRecords:
+                    return "All Mech and Pilot Info";
+                default:
+                    return "Unknown";
 
+            }
+        }         
+    }
+   
 }

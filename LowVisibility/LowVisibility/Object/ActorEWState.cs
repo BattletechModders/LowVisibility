@@ -9,30 +9,18 @@ using static LowVisibility.Helper.ActorHelper;
 namespace LowVisibility.Object {
 
     class DynamicEWState {
-        public DetectionLevel visualDetectLevel;
-        public DetectionLevel sensorDetectLevel;
         public int currentCheck;
 
         public DynamicEWState() {
-            this.visualDetectLevel = DetectionLevel.NoInfo;
-            this.sensorDetectLevel = DetectionLevel.NoInfo;
             this.currentCheck = 0;
         }
 
-        public DynamicEWState(int roundCheck, AbstractActor actor) {
-            StaticEWState staticState = State.GetStaticState(actor);
-            int modifiedCheck = roundCheck + staticState.tacticsBonus;
-            LowVisibility.Logger.LogIfDebug($"RoundCheck::Actor{CombatantHelper.Label(actor)} has {roundCheck} modified by tactics:{staticState.tacticsBonus} to {modifiedCheck}");
-            // TODO: For now, return a single check for both values. In the future, split those
-            DetectionLevel checkLevel = VisibilityHelper.DetectionLevelForCheck(modifiedCheck);
-
-            this.visualDetectLevel = checkLevel;
-            this.sensorDetectLevel = checkLevel;
-            this.currentCheck = modifiedCheck;
+        public DynamicEWState(int roundCheck) {
+            this.currentCheck = roundCheck;
         }
 
         public override string ToString() {
-            return $"currentCheck:{currentCheck} / visualDetectLevel:{visualDetectLevel} / sensorDetectlevel:{sensorDetectLevel}";
+            return $"currentCheck:{currentCheck}";
         }
     }
 

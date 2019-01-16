@@ -41,7 +41,7 @@ namespace LowVisibility.Patch {
     public static class LineOfSight_GetSensorState {
         public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source) {
             if (__instance != null && source != null) {
-                __result = CalculateSensorRange(source);
+                __result = GetSensorsRange(source);
             }
         }
     }
@@ -51,7 +51,7 @@ namespace LowVisibility.Patch {
     public static class LineOfSight_GetAdjustedSensorRange {
         public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source, AbstractActor target, CombatGameState ___Combat) {
             if (__instance != null && source != null) {
-                float sourceSensorRange = CalculateSensorRange(source);
+                float sourceSensorRange = GetSensorsRange(source);
                 float targetSignature = CalculateTargetSignature(target);
 
                 //if (target != null && source.VisibilityToTargetUnit(target) > VisibilityLevel.None) {
@@ -59,7 +59,7 @@ namespace LowVisibility.Patch {
                 //    signatureModifiedRange += ___Combat.Constants.Visibility.SensorHysteresisAdditive;
                 //}
 
-                float signatureModifiedRange = State.IsJammed(source) ? 0.0f : sourceSensorRange * targetSignature;
+                float signatureModifiedRange = sourceSensorRange * targetSignature;
                 //LowVisibility.Logger.Log($"For sourceSensorRange:{sourceSensorRange} and targetSignature:{targetSignature} adjustedRange is:{signatureModifiedRange}");
                 __result = signatureModifiedRange;
             }

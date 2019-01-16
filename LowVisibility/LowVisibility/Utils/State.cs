@@ -21,7 +21,7 @@ namespace LowVisibility {
         private static float mapVisionRange = 0.0f;
 
         // The range at which you can do visualID, modified by the mapVisionRange
-        private static float visualIDRange = 0.0f;
+        private static float mapVisualScanRange = 0.0f;
 
         // -- Mutable state
         public static Dictionary<string, DynamicEWState> DynamicEWState = new Dictionary<string, DynamicEWState>();
@@ -50,13 +50,13 @@ namespace LowVisibility {
             if (mapVisionRange == 0) {
                 InitMapVisionRange();
             }
-            return visualIDRange;
+            return mapVisualScanRange;
         }
 
-        private static void InitMapVisionRange() {
+        public static void InitMapVisionRange() {
             mapVisionRange = MapHelper.CalculateMapVisionRange();
-            visualIDRange = Math.Min(mapVisionRange, LowVisibility.Config.VisualIDRange * 30.0f);
-            LowVisibility.Logger.Log($"Vision ranges: calculated map range:{mapVisionRange} configured visualID range:{LowVisibility.Config.VisualIDRange} map visualID range:{visualIDRange}");
+            mapVisualScanRange = Math.Min(mapVisionRange, LowVisibility.Config.VisualIDRange * 30.0f);
+            LowVisibility.Logger.Log($"Vision ranges: calculated map range:{mapVisionRange} configured visualID range:{LowVisibility.Config.VisualIDRange} map visualID range:{mapVisualScanRange}");
         }
 
         // --- Methods for SourceActorLockStates
@@ -87,7 +87,7 @@ namespace LowVisibility {
 
         public static void BuildDynamicState(AbstractActor actor) {
             int checkResult = GetCheckResult();
-            DynamicEWState[actor.GUID] = new DynamicEWState(checkResult, actor);
+            DynamicEWState[actor.GUID] = new DynamicEWState(checkResult);
         }
 
         // --- Methods manipulating StaticEWState
@@ -109,7 +109,7 @@ namespace LowVisibility {
             LowVisibility.Logger.Log($"Initializing a new random buffer of size:{ResultsToPrecalcuate}");
             Xoshiro256PlusRandomBuilder builder = new Xoshiro256PlusRandomBuilder();
             IRandomSource rng = builder.Create();
-            double mean = 0;
+            double mean = -2;
             double stdDev = 4;            
             ZigguratGaussian.Sample(rng, mean, stdDev, CheckResults);
             CheckResultIdx = 0;

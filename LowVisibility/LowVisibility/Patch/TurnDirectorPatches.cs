@@ -17,6 +17,7 @@ namespace LowVisibility.Patch {
 
             // Initialize the probabilities
             State.InitializeCheckResults();
+            State.InitMapVisionRange();
             State.TurnDirectorStarted = true;
 
             // Do a pre-encounter populate 
@@ -28,7 +29,7 @@ namespace LowVisibility.Patch {
                         StaticEWState actorEWConfig = new StaticEWState(actor);
                         State.StaticEWState[actor.GUID] = actorEWConfig;
 
-                        // Make a pre-encounter detectCheck for them\
+                        // Make a pre-encounter detectCheck for them
                         State.BuildDynamicState(actor);
                         LowVisibility.Logger.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} has detectCheck:{State.GetDynamicState(actor).currentCheck} at load/start");
 
@@ -69,7 +70,7 @@ namespace LowVisibility.Patch {
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {                
                 State.BuildDynamicState(actor);
-                if (State.GetDynamicState(actor).sensorDetectLevel == DetectionLevel.NoInfo) {
+                if (State.GetDynamicState(actor).currentCheck < 0) {
                     // Send a floatie indicating the jamming
                     MessageCenter mc = __instance.Combat.MessageCenter;
                     mc.PublishMessage(new FloatieMessage(__instance.GUID, __instance.GUID, "SENSOR CHECK FAILED!", FloatieMessage.MessageNature.Debuff));

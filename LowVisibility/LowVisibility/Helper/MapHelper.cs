@@ -10,9 +10,9 @@ namespace LowVisibility.Helper {
             //{ "day", new float[] { 60 * 30.0f, 15 * 30.0f, 5 * 30.0f} }, // 1800, 450, 150
             //{ "dim", new float[] { 16 * 30.0f, 5 * 30.0f, 3 * 30.0f } }, // 480, 150, 90
             //{ "night", new float[] { 6 * 30.0f, 3 * 30.0f, 2 * 30.0f } }, // 180, 90, 30
-            { "day", new float[] { 60 * 30.0f, 12 * 30.0f, 9 * 30.0f} }, // 1800, 450, 150
-            { "dim", new float[] { 15 * 30.0f, 9 * 30.0f, 6 * 30.0f } }, // 480, 150, 90
-            { "night", new float[] { 9 * 30.0f, 6 * 30.0f, 3 * 30.0f } }, // 180, 90, 30
+            { "day", new float[] { 60 * 30.0f, 12 * 30.0f, 9 * 30.0f} }, // 1800, 360, 270
+            { "dim", new float[] { 12 * 30.0f, 7 * 30.0f, 5 * 30.0f } }, // 450, 270, 180
+            { "night", new float[] { 7 * 30.0f, 5 * 30.0f, 3 * 30.0f } }, // 270, 180, 90
         };
 
         public static float CalculateMapVisionRange() {

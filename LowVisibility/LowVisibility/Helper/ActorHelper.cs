@@ -4,7 +4,7 @@ namespace LowVisibility.Helper {
     public static class ActorHelper {
         
         // Determine an actor's sensor range, plus our special additions
-        public static float CalculateSensorRange(AbstractActor source) {
+        public static float GetSensorsRange(AbstractActor source) {
             // Determine type
             float sensorRangeForType = 0.0f;
             if (source.GetType() == typeof(Mech)) { sensorRangeForType = LowVisibility.Config.SensorRangeMechType;  }
@@ -19,24 +19,32 @@ namespace LowVisibility.Helper {
             return (sensorRangeForType * 30) * staticSensorRangeMultis + staticSensorRangeMods;
         }
 
-        public static float GetVisualIDRangeForActor(AbstractActor source) {
-            float mapVisualIDRange = State.GetVisualIDRange();
+        public static float GetVisualLockRange(AbstractActor actor) {
+            return GetActorModifiedVisualRange(State.GetMapVisionRange(), actor);
+        }
 
-            float modifiedVisualIDRange = mapVisualIDRange;
+        public static float GetVisualScanRange(AbstractActor actor) {
+            return GetActorModifiedVisualRange(State.GetVisualIDRange(), actor);
+        }
+
+        private static float GetActorModifiedVisualRange(float visualRange, AbstractActor source) {
+
+            float modifiedRange = visualRange;
             // Can't VisualID when shutdown
             if (source.IsShutDown) {
-                modifiedVisualIDRange = 0f;
+                modifiedRange = 0f;
             } else if (source.IsProne) {
-                mapVisualIDRange =  mapVisualIDRange * source.Combat.Constants.Visibility.ProneSpottingDistanceMultiplier;
+                modifiedRange = visualRange * source.Combat.Constants.Visibility.ProneSpottingDistanceMultiplier;
             } else {
                 float allSpotterMultipliers = GetAllSpotterMultipliers(source);
                 float allSpotterAbsolutes = GetAllSpotterAbsolutes(source);
-                modifiedVisualIDRange = mapVisualIDRange * allSpotterMultipliers + allSpotterAbsolutes;
-                LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} with spotterMulti:{allSpotterMultipliers} spotterAbsolutes:{allSpotterAbsolutes} " +
-                    $"and mapVisualIDRange:{mapVisualIDRange} has visualIDRange:{modifiedVisualIDRange}");
+                modifiedRange = visualRange * allSpotterMultipliers + allSpotterAbsolutes;
+                LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} with " +
+                    $"spotterMulti:{allSpotterMultipliers} spotterAbsolutes:{allSpotterAbsolutes} " +
+                    $"and visualRange:{visualRange} has modifiedRange:{modifiedRange}");
             }            
             
-            return modifiedVisualIDRange; ;
+            return modifiedRange;
         }
 
         // Copy of LineOfSight::GetAllSpotterMultipliers

@@ -203,6 +203,7 @@ __Void-Signature System__ | TODO
 - [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
 - [] Units that move into sensor range show their 3d image, not a blip. But if you move into sensor range, it calculates their visibility properly.
 - [] On shutdown, no stealth / ecm / etc applies
+- [] If possible, make SensorLock boost sensorrange by 2x for the remainder of the round.
 - [] Validate functionality works with saves - career, campaign, skirmish
 - [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
 - [] BUG - Tactics skill should influence chassis name, blip type (CombatNameHelper, LineOfSightPatches)

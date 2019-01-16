@@ -3,6 +3,7 @@ using BattleTech.UI;
 using Harmony;
 using HBS;
 using Localize;
+using LowVisibility.Helper;
 using LowVisibility.Object;
 using SVGImporter;
 using System;
@@ -78,39 +79,14 @@ namespace LowVisibility.Patch {
                 DynamicEWState dynamicState = State.GetDynamicState(actor);
 
                 bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
-                if (isPlayer) {                                        
-                    if (dynamicState.sensorDetectLevel == DetectionLevel.NoInfo) {
-                        showDebuffIconMethod.GetValue(new object[] {
+                if (isPlayer) {
+                    showBuffIconMethod.GetValue(new object[] {
                             LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon,
-                            new Text("VISUALS ONLY", new object[0]),
-                            new Text($"Unit can only visually detect targets within {State.GetMapVisionRange()}m", new object[0]),
+                            new Text("VISION AND SENSORS", new object[0]),
+                            new Text(BuildToolTip(actor)),
                             __instance.effectIconScale,
                             false
                         });
-                    } else {                                                
-                        float sensorsDistance = CalculateSensorRange(actor);
-                        // TODO: Change text/color for probe vs. sensors
-                        // TODO: Show level of information you can expect to receive
-                        showBuffIconMethod.GetValue(new object[] {
-                            LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon,
-                            new Text("SENSORS ACTIVE", new object[0]),
-                            new Text($"Unit's sensors will detect targets out {sensorsDistance}m.", new object[0]),
-                            __instance.effectIconScale,
-                            false
-                        });
-                        // TODO: Indicate active probe?
-                    }
-
-                    // TODO: Better icon
-                    if (staticState.ecmMod != 0) {
-                        showBuffStringMethod.GetValue(new object[] {
-                            "uixSvgIcon_status_sensorsImpaired",
-                            new Text("ECM JAMMING", new object[0]),
-                            new Text($"Unit has an ECM jammer and will hide allies with {staticState.ecmRange}m.", new object[0]),
-                            __instance.effectIconScale,
-                            false
-                        });
-                    }
                 }
                 
                 if (State.IsJammed(actor)) {
@@ -129,6 +105,58 @@ namespace LowVisibility.Patch {
 			        this.ShowDebuff(LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon, new Text("SENSOR LOCKED", new object[0]), new Text("This unit is Sensor Locked. It is visible to both sides.", new object[0]), this.effectIconScale, false);
 		        }
              */
+        }
+
+        private static string BuildToolTip(AbstractActor actor) {
+            StaticEWState staticState = State.GetStaticState(actor);
+            DynamicEWState dynamicState = State.GetDynamicState(actor);
+
+            List<string> details = new List<string>();
+            float visualLockRange = ActorHelper.GetVisualLockRange(actor);
+            float visualScanRange = ActorHelper.GetVisualScanRange(actor);
+            details.Add($"VISION => LockRange:{visualLockRange}m ScanRange:{visualScanRange}m\n");
+
+            float sensorsRange = ActorHelper.GetSensorsRange(actor);
+            details.Add($"SENSORS => Range:{sensorsRange}m\n");
+
+            details.Add($" CHECK => ");
+            int checkResult = dynamicState.currentCheck;
+            if (dynamicState.currentCheck >= 0) {
+                details.Add($"Random: <color=#00FF00>{dynamicState.currentCheck:0}</color>");
+            } else {
+                details.Add($"Random: <color=#FF0000>{dynamicState.currentCheck:0}</color>");
+            }
+            checkResult += staticState.tacticsBonus;
+            details.Add($" + Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color>");                        
+
+            if (staticState.probeMod > 0) {
+                checkResult += staticState.probeMod;
+                details.Add($" + Probe: <color=#00FF00>{staticState.probeMod:0}</color>");
+            }
+
+            if (State.IsJammed(actor)) {
+                checkResult += State.JammingStrength(actor);
+                details.Add($" + Jammed: <color=#FF0000>{State.JammingStrength(actor):-0}</color>");
+            }
+
+            details.Add(" = Result: ");
+            if (checkResult >= 0) {
+                details.Add($"<color=#00FF00>{checkResult:0}</color>");
+            } else {
+                details.Add($"<color=#FF0000>{checkResult:0}</color>");
+            }
+            details.Add("\n");
+
+            // Sensor check:(+/-0) SensorScanLevel:
+            if (staticState.ecmMod != 0) {
+                details.Add($"ECM => Range:{staticState.ecmRange}m Enemy Modifier:<color=#FF0000>{staticState.ecmMod:-0}</color>");
+            }
+            if (staticState.stealthMod != 0) {
+                details.Add($"STEALTH => Enemy Modifier:<color=#FF0000>{staticState.stealthMod:-0}</color>");
+            }
+
+            string tooltipText = String.Join("", details.ToArray());
+            return tooltipText;
         }
     }
 

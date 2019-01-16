@@ -12,25 +12,25 @@ namespace LowVisibility.Helper {
 
         public static DetectionLevel DetectionLevelForCheck(int checkResult) {
             DetectionLevel level = DetectionLevel.NoInfo;
-            if (checkResult == -1) {
+            if (checkResult == 0) {
                 level = DetectionLevel.Location;
-            } else if (checkResult == 0) {
-                level = DetectionLevel.Type;
             } else if (checkResult == 1) {
-                level = DetectionLevel.Silhouette;
+                level = DetectionLevel.Type;
             } else if (checkResult == 2) {
+                level = DetectionLevel.Silhouette;
+            } else if (checkResult == 3) {
                 level = DetectionLevel.Vector;
-            } else if (checkResult == 3 || checkResult == 4) {
+            } else if (checkResult == 4 || checkResult == 5) {
                 level = DetectionLevel.SurfaceScan;
-            } else if (checkResult == 5 || checkResult == 6) {
+            } else if (checkResult == 6 || checkResult == 7) {
                 level = DetectionLevel.SurfaceAnalysis;
-            } else if (checkResult == 7) {
-                level = DetectionLevel.WeaponAnalysis;
             } else if (checkResult == 8) {
-                level = DetectionLevel.StructureAnalysis;
+                level = DetectionLevel.WeaponAnalysis;
             } else if (checkResult == 9) {
+                level = DetectionLevel.StructureAnalysis;
+            } else if (checkResult == 10) {
                 level = DetectionLevel.DeepScan;
-            } else if (checkResult >= 10) {
+            } else if (checkResult >= 11) {
                 level = DetectionLevel.DentalRecords;
             }
             return level;
@@ -117,7 +117,7 @@ namespace LowVisibility.Helper {
             float distance = Vector3.Distance(source.CurrentPosition, target.CurrentPosition);
             float targetVisibility = CalculateTargetVisibility(target);
 
-            float pilotVisualLockRange = GetVisualIDRangeForActor(source);
+            float pilotVisualLockRange = ActorHelper.GetVisualLockRange(source);
             float visualLockRange = pilotVisualLockRange * targetVisibility;
 
             if (distance <= visualLockRange) { newLockState.visionLockLevel = VisionLockType.VisualID; }
@@ -133,8 +133,7 @@ namespace LowVisibility.Helper {
             } else {
                 StaticEWState sourceStaticState = State.GetStaticState(source);
                 DynamicEWState sourceDynamicState = State.GetDynamicState(source);
-                int modifiedSourceCheck = sourceDynamicState.currentCheck;
-                LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} has dynamicState:{sourceDynamicState}");
+                int modifiedSourceCheck = sourceDynamicState.currentCheck + sourceStaticState.tacticsBonus;                
 
                 // --- Source modifiers: ECM, Active Probe, SensorBoost tag
                 // Check for ECM strength
@@ -173,7 +172,7 @@ namespace LowVisibility.Helper {
                 newLockState.sensorLockLevel = VisibilityHelper.DetectionLevelForCheck(modifiedSourceCheck);
 
                 // If they fail their check, they get no sensor range
-                float sourceSensorsRange = CalculateSensorRange(source);
+                float sourceSensorsRange = GetSensorsRange(source);
                 float sourceSensorLockRange = newLockState.sensorLockLevel != DetectionLevel.NoInfo ? sourceSensorsRange : 0.0f;
                 LowVisibility.Logger.LogIfTrace($"  -- source actor:{CombatantHelper.Label(source)} has " +
                     $"sensorRange:{sourceSensorsRange} and lockRange:{sourceSensorLockRange}");

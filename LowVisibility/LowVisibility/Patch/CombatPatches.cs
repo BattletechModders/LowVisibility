@@ -51,7 +51,6 @@ namespace LowVisibility.Patch {
         }
     }
 
-
     // Update the visibility checks
     [HarmonyPatch(typeof(Mech), "OnMovePhaseComplete")]
     public static class Mech_OnMovePhaseComplete {
