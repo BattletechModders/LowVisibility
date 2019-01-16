@@ -8,7 +8,6 @@ using LowVisibility.Object;
 using SVGImporter;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
@@ -87,6 +86,16 @@ namespace LowVisibility.Patch {
                             __instance.effectIconScale,
                             false
                         });
+
+                    if (actor.Combat.TurnDirector.CurrentRound == 1) {
+                        showDebuffStringMethod.GetValue(new object[] {
+                            "uixSvgIcon_status_sensorsImpaired",
+                            new Text("SENSORS OFFLINE", new object[0]),
+                            new Text($"Sensors offline during the first round of the battle.", new object[0]),
+                            __instance.effectIconScale,
+                            false
+                        });
+                    }
                 }
                 
                 if (State.IsJammed(actor)) {
@@ -99,12 +108,6 @@ namespace LowVisibility.Patch {
                     });
                 }
             }
-
-            /*
-                private void ShowSensorLockIndicator() {
-			        this.ShowDebuff(LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon, new Text("SENSOR LOCKED", new object[0]), new Text("This unit is Sensor Locked. It is visible to both sides.", new object[0]), this.effectIconScale, false);
-		        }
-             */
         }
 
         private static string BuildToolTip(AbstractActor actor) {
@@ -113,18 +116,28 @@ namespace LowVisibility.Patch {
 
             List<string> details = new List<string>();
             float visualLockRange = ActorHelper.GetVisualLockRange(actor);
-            float visualScanRange = ActorHelper.GetVisualScanRange(actor);
-            details.Add($"VISION => LockRange:{visualLockRange}m ScanRange:{visualScanRange}m\n");
-
             float sensorsRange = ActorHelper.GetSensorsRange(actor);
-            details.Add($"SENSORS => Range:{sensorsRange}m\n");
+            details.Add($"RANGE => Visual:{visualLockRange:0}m Sensors:{sensorsRange:0}m\n");
 
-            details.Add($" CHECK => ");
-            int checkResult = dynamicState.currentCheck;
-            if (dynamicState.currentCheck >= 0) {
-                details.Add($"Random: <color=#00FF00>{dynamicState.currentCheck:0}</color>");
+            details.Add($"  Range: Roll: ");
+            float rangeMulti = 1.0f + ((dynamicState.rangeCheck + staticState.tacticsBonus) / 10.0f);
+            if (dynamicState.rangeCheck >= 0) {
+                details.Add($"<color=#00FF00>{dynamicState.rangeCheck:+0}</color> + " +
+                    $"Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color> = " +
+                    $"Multi: <color=#00FF00>x{rangeMulti:0.00}</color>");
             } else {
-                details.Add($"Random: <color=#FF0000>{dynamicState.currentCheck:0}</color>");
+                details.Add($"<color=#FF0000>{dynamicState.rangeCheck:0}</color> + " +
+                    $"Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color> = " +
+                    $"Multi: <color=#FF0000>x{rangeMulti:0.00}</color>");                
+            }
+            details.Add("\n");
+
+            details.Add($" Info: => ");
+            int checkResult = dynamicState.detailCheck;
+            if (dynamicState.detailCheck >= 0) {
+                details.Add($"Roll: <color=#00FF00>{dynamicState.detailCheck:0}</color>");
+            } else {
+                details.Add($"Roll: <color=#FF0000>{dynamicState.detailCheck:0}</color>");
             }
             checkResult += staticState.tacticsBonus;
             details.Add($" + Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color>");                        
@@ -135,7 +148,7 @@ namespace LowVisibility.Patch {
             }
 
             if (State.IsJammed(actor)) {
-                checkResult += State.JammingStrength(actor);
+                checkResult -= State.JammingStrength(actor);
                 details.Add($" + Jammed: <color=#FF0000>{State.JammingStrength(actor):-0}</color>");
             }
 

@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using LowVisibility.Object;
 
 namespace LowVisibility.Helper {
     public static class ActorHelper {
@@ -6,17 +7,26 @@ namespace LowVisibility.Helper {
         // Determine an actor's sensor range, plus our special additions
         public static float GetSensorsRange(AbstractActor source) {
             // Determine type
-            float sensorRangeForType = 0.0f;
-            if (source.GetType() == typeof(Mech)) { sensorRangeForType = LowVisibility.Config.SensorRangeMechType;  }
-            else if (source.GetType() == typeof(Vehicle)) { sensorRangeForType = LowVisibility.Config.SensorRangeVehicleType; } 
-            else if (source.GetType() == typeof(Turret)) { sensorRangeForType = LowVisibility.Config.SensorRangeTurretType; }
-            else { sensorRangeForType = LowVisibility.Config.SensorRangeUnknownType; }
+            float rangeForType = 0.0f;
+            if (source.GetType() == typeof(Mech)) { rangeForType = LowVisibility.Config.SensorRangeMechType;  }
+            else if (source.GetType() == typeof(Vehicle)) { rangeForType = LowVisibility.Config.SensorRangeVehicleType; } 
+            else if (source.GetType() == typeof(Turret)) { rangeForType = LowVisibility.Config.SensorRangeTurretType; }
+            else { rangeForType = LowVisibility.Config.SensorRangeUnknownType; }
 
             // Add multipliers and absolute bonuses
-            float staticSensorRangeMultis = GetAllSensorRangeMultipliers(source);
-            float staticSensorRangeMods = GetAllSensorRangeAbsolutes(source);
+            float rangeMulti = GetAllSensorRangeMultipliers(source);
+            float rangeMod = GetAllSensorRangeAbsolutes(source);
 
-            return (sensorRangeForType * 30) * staticSensorRangeMultis + staticSensorRangeMods;
+            StaticEWState staticState = State.GetStaticState(source);
+            DynamicEWState dynamicState = State.GetDynamicState(source);
+            float checkMulti = 1.0f + ((dynamicState.rangeCheck + staticState.tacticsBonus)/ 10.0f);
+
+            float sensorsRange = ((rangeForType * 30) * rangeMulti + rangeMod) * checkMulti;
+            if (sensorsRange < LowVisibility.Config.SensorRangeMinimum) { sensorsRange = LowVisibility.Config.SensorRangeMinimum; }
+
+            LowVisibility.Logger.LogIfTrace($"{CombatantHelper.Label(source)} has sensorsRange:{sensorsRange} = " +
+                $"((rangeForType:{rangeForType} * 30.0) * rangeMulti:{rangeMulti} + rangeMod:{rangeMod}) * checkMulti:{checkMulti}");
+            return sensorsRange;
         }
 
         public static float GetVisualLockRange(AbstractActor actor) {

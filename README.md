@@ -194,9 +194,18 @@ __Void-Signature System__ | TODO
   - __Preliminary testing seems to indicate this may be fixed__
   - Likely an issue that I'm dealing with AbstractActors everywhere, but can be an ICombatant
 - [] Allied units sometimes showing as blips instead of always full vision.
-- [] BUG - When you overheat a mech, it disappears from vision
 - [] Saves occur on post-mission/pre-mission saves; should skip
+- [] Eliminate visual scan - vision lock is a limited amount of info
 - [] Units sometimes showing their full 3d image, not blip
+- [] First turn auto-fail; everybody fails their check on the first turn. Show 'powering up' sensors or something like that?
+- [x] Add a minimum for sensor range, visual range. You can't go below that. Maybe 6/3?
+- [] Evasion pips display in T.HUD but not on the model
+- [] C3 slave should require a C3 master to share sensors. CEWS Nova should share with units that have CEWS Nova. (ask MXMach/LA for details)
+- [] FrostRaptor: @LadyAlekto so in a lance where c3m/c3s present... each adds +X to each other's detail / range checks?
+  [4:17 PM] FrostRaptor: Same for c3i - each present in lance gives +X to lance members with it?
+  [4:17 PM] LadyAlekto: yeah
+- [] BUGS - Tanks show their stability/heat bars on high checks
+- [] scrambler_m0 tag; scrambles sensor checks at any range. Allows LA to build the 'IFF jammer' she wants. Sorta like stealth, but w/o the ECM requirement.
 - [] Unit blips showing beyond sensor range when no shares_sensors in play
 - [] Bug where you can not have LOS if you have sensor lock but not visibility
 - [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
@@ -210,7 +219,6 @@ __Void-Signature System__ | TODO
 - [] BUG - Weapons summary shown when beyond sensors range
 - [] BUG - Status buffs shown on low-end checks. Should be on 8+.
 - [] BUG - Units disappear from view in some cases. Doesn't appear related to the previous behavior, but is related.
-- [x] BUG - Enemies and neutral share vision currently. Probably want to split that?
 - [] Component damage should eliminate ECM, AP, Stealth bonuses
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
 - [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
@@ -265,7 +273,11 @@ __Void-Signature System__ | TODO
 
 ### Completed Tasks
 
+
+
+- [x] BUG - When you overheat a mech, it disappears from vision
 - [x] Allies don't share visibility
+- [x] BUG - Enemies and neutral share vision currently. Probably want to split that?
 - [x] Dead enemies still show their locations/can be targeted
 - [x] Neutral (turrets) appear as outlines
 - [x] You should always be treated as having full LOS to allies
@@ -276,7 +288,6 @@ __Void-Signature System__ | TODO
 - [x] BUG - TrySelectActor fires multiple times. *whimper* Change to just OnActivation, but maybe a prefix?
 - [x] Add multiple ECM penalty to sensor check
 - [x] Implement stealth movement mod through modifier like others (no need to get fancy)
-
 - [x] VisionLock and VisualID ranges should be modified by equipment.
 - [x] Implement```lv-stealth-move-mod_m``` Stealth, NSS, Void System evasion by movement semantics
 - [x] Visibility for players is unit specific, unless models have ```share_sensor_lock``` tags

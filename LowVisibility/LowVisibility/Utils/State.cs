@@ -85,9 +85,8 @@ namespace LowVisibility {
             return DynamicEWState[actor.GUID];
         }
 
-        public static void BuildDynamicState(AbstractActor actor) {
-            int checkResult = GetCheckResult();
-            DynamicEWState[actor.GUID] = new DynamicEWState(checkResult);
+        public static void BuildDynamicState(AbstractActor actor) {            
+            DynamicEWState[actor.GUID] = new DynamicEWState(GetCheckResult(), GetCheckResult());
         }
 
         // --- Methods manipulating StaticEWState
@@ -109,8 +108,8 @@ namespace LowVisibility {
             LowVisibility.Logger.Log($"Initializing a new random buffer of size:{ResultsToPrecalcuate}");
             Xoshiro256PlusRandomBuilder builder = new Xoshiro256PlusRandomBuilder();
             IRandomSource rng = builder.Create();
-            double mean = -2;
-            double stdDev = 4;            
+            double mean = LowVisibility.Config.ProbabilityMu;
+            double stdDev = LowVisibility.Config.ProbabilitySigma;
             ZigguratGaussian.Sample(rng, mean, stdDev, CheckResults);
             CheckResultIdx = 0;
         }

@@ -9,18 +9,21 @@ using static LowVisibility.Helper.ActorHelper;
 namespace LowVisibility.Object {
 
     class DynamicEWState {
-        public int currentCheck;
+        public int rangeCheck;
+        public int detailCheck;
 
         public DynamicEWState() {
-            this.currentCheck = 0;
+            this.rangeCheck = 0;
+            this.detailCheck = 0;
         }
 
-        public DynamicEWState(int roundCheck) {
-            this.currentCheck = roundCheck;
+        public DynamicEWState(int rangeCheck, int detailCheck) {
+            this.rangeCheck = rangeCheck;
+            this.detailCheck = detailCheck;
         }
 
         public override string ToString() {
-            return $"currentCheck:{currentCheck}";
+            return $"rangeCheck:{rangeCheck} detailCheck:{detailCheck}";
         }
     }
 

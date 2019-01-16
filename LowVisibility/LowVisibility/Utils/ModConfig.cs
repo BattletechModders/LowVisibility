@@ -3,24 +3,36 @@ namespace LowVisibility {
     public class ModConfig {
         // If true, extra logging will be used
         public bool Debug = false;
-
-        // Extreme levels of logging
         public bool Trace = false;
 
-        // How much each level of obscurement reduces map visibility
-        // TODO: Implement
-        public float ObscurementMultiplier = 3.0f;
+        public bool FirstTurnForceFailedChecks = true;
 
         public int MultipleJammerPenalty = 1;
 
         // The base range (in hexes) for a unit's sensors
-        public float SensorRangeMechType = 10;
-        public float SensorRangeVehicleType  = 8;
-        public float SensorRangeTurretType = 12;
-        public float SensorRangeUnknownType = 6;
+        public int SensorRangeMechType = 12;
+        public int SensorRangeVehicleType  = 9;
+        public int SensorRangeTurretType = 15;
+        public int SensorRangeUnknownType = 6;
+
+        // The base range (in hexes) for a unit's vision
+        public int VisionRangeBaseDaylight = 15;
+        public int VisionRangeBaseDimlight = 11;
+        public int VisionRangeBaseNight = 7;
+
+        // The multiplier used for weather effects
+        public float VisionRangeMultiRainSnow = 0.8f;
+        public float VisionRangeMultiLightFog = 0.66f;
+        public float VisionRangeMultiHeavyFog = 0.33f;
+
+        // The minium range for vision, no matter the circumstances
+        public int VisionRangeMinimum = 2;
 
         // The range (in hexes) from which you can identify some elements of a unit
-        public float VisualIDRange = 5;
+        public int VisualIDRange = 5;
+
+        // The minium range for sensors, no matter the circumstances
+        public int SensorRangeMinimum = 6;
 
         // The applied when the attacker has visual but not sensor lock to a target. Multiplies the range penalty.
         public float NoSensorLockRangePenaltyMulti = 0.5f;
@@ -30,6 +42,11 @@ namespace LowVisibility {
         // TODO: No sensor lock reduces critical / called shot penalties
         public float NoSensorLockCriticalMultiPenalty = 0.0f;
         public float NoVisualLockCriticalMultiPenalty = 0.0f;
+
+        // The inflection point of the probability distribution function.
+        public int ProbabilitySigma = 4;
+        // The inflection point of the probability distribution function.
+        public int ProbabilityMu = -2;
 
         public override string ToString() {
             return $"debug:{Debug}, VisualIDRange:{VisualIDRange}, " +
