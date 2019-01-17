@@ -16,7 +16,7 @@ namespace LowVisibility.Patch {
                 return;
             }
 
-            LowVisibility.Logger.LogIfDebug($"=== AbstractActor:OnActivationBegin:pre - handling {CombatantHelper.Label(__instance)} with stackItemID:{stackItemID} that hasBegin:{__instance.HasBegunActivation}");
+            LowVisibility.Logger.LogIfTrace($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantHelper.Label(__instance)}");
             bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
             if (isPlayer) {
                 State.LastPlayerActivatedActorGUID = __instance.GUID; 
@@ -65,16 +65,4 @@ namespace LowVisibility.Patch {
             }
         }
     }
-
-    //// Update the visibility checks
-    //[HarmonyPatch(typeof(Vehicle), "OnMovePhaseComplete")]
-    //public static class Vehicle_OnMovePhaseComplete {
-    //    public static void Postfix(Vehicle __instance) {
-    //        LowVisibility.Logger.LogIfDebug($"=== Vehicle:OnMovePhaseComplete:post - entered for {CombatantHelper.Label(__instance)}.");
-
-    //        JammingHelper.ResolveJammingState(__instance);
-    //        VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat, __instance);
-    //    }
-    //}
-
 }

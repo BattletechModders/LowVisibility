@@ -25,11 +25,11 @@ namespace LowVisibility {
         public float VisionRangeMultiLightFog = 0.66f;
         public float VisionRangeMultiHeavyFog = 0.33f;
 
-        // The minium range for vision, no matter the circumstances
-        public int VisionRangeMinimum = 2;
-
         // The range (in hexes) from which you can identify some elements of a unit
         public int VisualIDRange = 5;
+
+        // The minium range for vision, no matter the circumstances
+        public int VisionRangeMinimum = 2;
 
         // The minium range for sensors, no matter the circumstances
         public int SensorRangeMinimum = 6;
@@ -49,11 +49,17 @@ namespace LowVisibility {
         public int ProbabilityMu = -2;
 
         public override string ToString() {
-            return $"debug:{Debug}, VisualIDRange:{VisualIDRange}, " +
-                $"SensorsOnlyAttackPenalty:{NoSensorLockRangePenaltyMulti}, VisualOnlyAtackPenalty:{NoVisualLockRangePenaltyMulti} " +
-                $"SensorRanges= Mech:{SensorRangeMechType} Vehicle:{SensorRangeVehicleType} " +
-                $"Turret:{SensorRangeTurretType} UnknownType:{SensorRangeUnknownType}";
-                
+            return $"Debug:{Debug}, Trace:{Trace}, FirstTurnForceFailedChecks:{FirstTurnForceFailedChecks}, MultipleJammerPenalty:{MultipleJammerPenalty}," +
+                $"SensorRanges= Mech:{SensorRangeMechType} Vehicle:{SensorRangeVehicleType} Turret:{SensorRangeTurretType} UnknownType:{SensorRangeUnknownType}" +
+                $"VisionRangeBaseDaylight:{VisionRangeBaseDaylight} VisionRangeBaseDimlight:{VisionRangeBaseDimlight} VisionRangeBaseNight:{VisionRangeBaseNight}" +
+                $"VisionRangeMultiRainSnow:{VisionRangeMultiRainSnow} VisionRangeMultiLightFog:{VisionRangeMultiLightFog} VisionRangeMultiHeavyFog:{VisionRangeMultiHeavyFog}" +
+                $"VisionRangeMinimum:{VisionRangeMinimum} SensorRangeMinimum:{SensorRangeMinimum}, VisualIDRange:{VisualIDRange} " +
+                $"NoSensorLockRangePenaltyMulti:{NoSensorLockRangePenaltyMulti}, NoVisualLockRangePenaltyMulti:{NoVisualLockRangePenaltyMulti} " +
+                $"NoSensorLockCriticalMultiPenalty:{NoSensorLockCriticalMultiPenalty}, NoVisualLockCriticalMultiPenalty:{NoVisualLockCriticalMultiPenalty} " +
+                $"ProbabilitySigma:{ProbabilitySigma}, ProbabilityMu:{ProbabilityMu}";
+
+
+
         }
     }
 }

@@ -19,24 +19,16 @@ namespace LowVisibility.Patches {
                 // See all values
                 armorText = armorHover.text;
                 structText = structHover.text;
-            } else if (lockState.sensorLockLevel >= DetectionLevel.SurfaceAnalysis) {
+            } else if (lockState.visionLockLevel == VisionLockType.VisualID) {
                 // See max armor, max struct                
                 string rawArmor = armorHover.text;
                 string maxArmor = rawArmor.Split('/')[1];
 
-                string rawStruct = structHover.text;                
+                string rawStruct = structHover.text;
                 string maxStruct = rawStruct.Split('/')[1];
 
                 armorText = $"? / {maxArmor}";
                 structText = $"? / {maxStruct}";
-            } else if (lockState.visionLockLevel == VisionLockType.VisualID) {
-                // See max armor, no struct
-                armorText = armorHover.text;                
-                string rawArmor = armorHover.text;
-                string maxArmor = rawArmor.Split('/')[1];
-
-                armorText = $"? / {maxArmor}";
-                structText = $"? / ?";
             } else {
                 // See ? / ?
                 armorText = "? / ?";

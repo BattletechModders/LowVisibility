@@ -13,7 +13,7 @@ namespace LowVisibility.Patch {
     public static class TurnDirector_OnEncounterBegin {
 
         public static void Prefix(TurnDirector __instance) {
-            LowVisibility.Logger.LogIfDebug("=== TurnDirector:OnEncounterBegin:pre - entered.");
+            LowVisibility.Logger.LogIfTrace("=== TurnDirector:OnEncounterBegin:pre - entered.");
 
             // Initialize the probabilities
             State.InitializeCheckResults();
@@ -65,11 +65,22 @@ namespace LowVisibility.Patch {
         }
 
         public static void Prefix(TurnDirector __instance) {
-            LowVisibility.Logger.LogIfDebug("=== TurnDirector:BeginNewRound:post - entered.");
+            LowVisibility.Logger.LogIfTrace("=== TurnDirector:BeginNewRound:post - entered.");
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {                
-                State.BuildDynamicState(actor);
+                
+
+                if (LowVisibility.Config.FirstTurnForceFailedChecks && __instance.CurrentRound == 0) {
+                    LowVisibility.Logger.Log("=== TurnDirector:Forcing sensor checks to negative values for first round.");
+                    State.DynamicEWState[actor.GUID] = new DynamicEWState {
+                        detailCheck = -15,
+                        rangeCheck = -15
+                    };
+                } else {
+                    State.BuildDynamicState(actor);
+                }
+
                 DynamicEWState dynamicState = State.GetDynamicState(actor);
                 if (dynamicState.detailCheck < 0 || dynamicState.rangeCheck < 0) {
                     // Send a floatie indicating the jamming
@@ -77,6 +88,9 @@ namespace LowVisibility.Patch {
                     mc.PublishMessage(new FloatieMessage(__instance.GUID, __instance.GUID, "SENSOR CHECK FAILED!", FloatieMessage.MessageNature.Debuff));
                 }
             }
+
+            VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
+            VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
         }
     }
 

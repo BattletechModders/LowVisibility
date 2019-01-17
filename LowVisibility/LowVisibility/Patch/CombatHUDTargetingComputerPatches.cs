@@ -22,7 +22,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDTargetingComputer __instance, MessageCenterMessage message, CombatHUD ___HUD) {
-//            LowVisibility.Logger.LogIfDebug("CombatHUDTargetingComputer:OnActorHovered:post - entered.");
+            // LowVisibility.Logger.LogIfDebug("CombatHUDTargetingComputer:OnActorHovered:post - entered.");
 
             if (__instance != null) {
 
@@ -47,6 +47,7 @@ namespace LowVisibility.Patch {
         }
     }
 
+    // Patch to allow the targeting comp to be shown for a blip
     [HarmonyPatch(typeof(CombatHUDTargetingComputer), "Update")]
     public static class CombatHUDTargetingComputer_Update {
 
@@ -106,7 +107,7 @@ namespace LowVisibility.Patch {
         }
     }
 
-    // Patch the weapons
+    // Patch the weapons visibility
     [HarmonyPatch(typeof(CombatHUDTargetingComputer), "RefreshActorInfo")]
     public static class CombatHUDTargetingComputer_RefreshActorInfo {
 
@@ -121,18 +122,14 @@ namespace LowVisibility.Patch {
             else if (turret != null) { __instance.TurretArmorDisplay.gameObject.SetActive(active); }
             else if (building != null) { __instance.BuildingArmorDisplay.gameObject.SetActive(active); }        
         }
-
-        // TODO: Need vehicle, turret, building displays
+        
         public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames, CombatHUDStatusPanel ___StatusPanel) {
             //KnowYourFoe.Logger.Log("CombatHUDTargetingComputer:RefreshActorInfo:post - entered.");
             if (__instance.ActivelyShownCombatant != null) {
-                // TODO: Make allies share info
+
                 ICombatant target = __instance.ActivelyShownCombatant;
                 AbstractActor targetActor = target as AbstractActor;
                 bool isPlayer = target.Combat.HostilityMatrix.IsLocalPlayerEnemy(target.Combat.LocalPlayerTeam.GUID);
-
-                //bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
-                //bool isFriendly = __instance.Combat.HostilityMatrix.IsFriendly(actor.team, actor.Combat.LocalPlayerTeam);
 
                 if (!isPlayer && targetActor != null) {
                     LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), targetActor);
@@ -140,29 +137,25 @@ namespace LowVisibility.Patch {
                     if (lockState.sensorLockLevel >= DetectionLevel.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
                         SetArmorDisplayActive(__instance, true);                            
-                    } else if (lockState.visionLockLevel == VisionLockType.VisualID || lockState.sensorLockLevel >= DetectionLevel.SurfaceAnalysis) {
-                        //KnowYourFoe.Logger.Log($"Detection state:{detectState} for actor:{target.DisplayName}_{target.GetPilot().Name} requires weapons to be hidden.");
-                        // Update the summary display
-                        Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
-                        GameObject weaponsLabel = weaponListT.gameObject;
-                        TextMeshProUGUI labelText = weaponsLabel.GetComponent<TextMeshProUGUI>();
-                        labelText.SetText("???");
-
-                        // Update the weapons
+                    } else if (lockState.visionLockLevel == VisionLockType.VisualID || lockState.sensorLockLevel == DetectionLevel.SurfaceAnalysis) {
+                        // Update the weapons to show only ???
                         for (int i = 0; i < ___weaponNames.Count; i++) {
-                            //KnowYourFoe.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - iterating weapon:{___weaponNames[i].text}");
                             // Update ranged weapons
                             if (i < targetActor.Weapons.Count) {
                                 Weapon targetWeapon = targetActor.Weapons[i];
-                                //KnowYourFoe.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - hiding weapon:{targetWeapon.Name}");
                                 ___weaponNames[i].SetText("???");
                             } else if (!___weaponNames[i].text.Equals("XXXXXXXXXXXXXX")) {
-                                // Update melee and dfa without using locale specific strings
                                 ___weaponNames[i].SetText("???");
                             }
                         }
                         __instance.WeaponList.SetActive(true);
                         SetArmorDisplayActive(__instance, true);
+
+                        // Update the summary display to read ????
+                        Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
+                        GameObject weaponsLabel = weaponListT.gameObject;
+                        TextMeshProUGUI labelText = weaponsLabel.GetComponent<TextMeshProUGUI>();
+                        labelText.SetText("???");
                     } else {
                         //KnowYourFoe.Logger.Log($"Detection state:{detectState} for actor:{target.DisplayName}_{target.GetPilot().Name} allows weapons to be seen.");
                         __instance.WeaponList.SetActive(false);

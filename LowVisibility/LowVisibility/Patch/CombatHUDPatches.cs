@@ -65,6 +65,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDActorInfo __instance, AbstractActor ___displayedActor, BattleTech.Building ___displayedBuilding, ICombatant ___displayedCombatant) {
+
             bool isEnemyOrNeutral = false;
             VisibilityLevel visibilityLevel = VisibilityLevel.None;            
             if (___displayedCombatant != null) {
@@ -81,16 +82,14 @@ namespace LowVisibility.Patch {
                     }
                 }
             }
-            Traverse setGOActiveMethod = Traverse.Create(__instance).Method("SetGOActive", new Type[] { typeof(UnityEngine.MonoBehaviour), typeof(bool) });
 
+            Traverse setGOActiveMethod = Traverse.Create(__instance).Method("SetGOActive", new Type[] { typeof(MonoBehaviour), typeof(bool) });
             // The actual method should handle allied and friendly units fine, so we can just change it for enemies
             if (isEnemyOrNeutral && visibilityLevel > VisibilityLevel.Blip0Minimum && ___displayedActor != null) {
                 LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(___displayedActor.Combat), ___displayedActor);
 
                 // Values that are always displayed
                 setGOActiveMethod.GetValue(__instance.NameDisplay, true);
-                setGOActiveMethod.GetValue(__instance.ArmorBar, true);
-                setGOActiveMethod.GetValue(__instance.StructureBar, true);
 
                 if (lockState.sensorLockLevel >= DetectionLevel.StructureAnalysis) {
                     // Show unit summary
@@ -98,8 +97,6 @@ namespace LowVisibility.Patch {
 
                     // Show active state
                     setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
-                    setGOActiveMethod.GetValue(__instance.StabilityDisplay, true);
-                    setGOActiveMethod.GetValue(__instance.HeatDisplay, true);
                     setGOActiveMethod.GetValue(__instance.MarkDisplay, true);
 
                     // Show init badge (if actor)
@@ -109,14 +106,20 @@ namespace LowVisibility.Patch {
                     // Show armor and struct
                     setGOActiveMethod.GetValue(__instance.ArmorBar, true);
                     setGOActiveMethod.GetValue(__instance.StructureBar, true);
+
+                    if (___displayedActor as Mech != null) {
+                        setGOActiveMethod.GetValue(__instance.StabilityDisplay, true);
+                        setGOActiveMethod.GetValue(__instance.HeatDisplay, true);
+                    } else {
+                        setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
+                        setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
+                    }
                 } else if (lockState.sensorLockLevel >= DetectionLevel.SurfaceScan) {
                     // Show unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
                     // Show active state
                     setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
-                    setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
-                    setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                     setGOActiveMethod.GetValue(__instance.MarkDisplay, false);
 
                     // Show init badge (if actor)
@@ -126,14 +129,15 @@ namespace LowVisibility.Patch {
                     // Show armor and struct
                     setGOActiveMethod.GetValue(__instance.ArmorBar, true);
                     setGOActiveMethod.GetValue(__instance.StructureBar, true);
+
+                    setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
+                    setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                 } else if (lockState.visionLockLevel == VisionLockType.VisualID) {
                     // Hide unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
                     // Hide active state
                     setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
-                    setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
-                    setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                     setGOActiveMethod.GetValue(__instance.MarkDisplay, false);
 
                     // Hide init badge
@@ -142,30 +146,15 @@ namespace LowVisibility.Patch {
                     // Show armor and struct
                     setGOActiveMethod.GetValue(__instance.ArmorBar, true);
                     setGOActiveMethod.GetValue(__instance.StructureBar, true);
-                } else if (lockState.visionLockLevel == VisionLockType.Silhouette) {
-                    // Hide unit summary
-                    setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
-                    // Hide active state
-                    setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
-                    setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
-                    setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
-                    setGOActiveMethod.GetValue(__instance.MarkDisplay, false);
-
-                    // Hide init badge
-                    setGOActiveMethod.GetValue(__instance.PhaseDisplay, false);
-
-                    // Hide armor and struct
-                    setGOActiveMethod.GetValue(__instance.ArmorBar, false);
-                    setGOActiveMethod.GetValue(__instance.StructureBar, false);
+                    setGOActiveMethod.GetValue(__instance.StabilityDisplay, true);
+                    setGOActiveMethod.GetValue(__instance.HeatDisplay, true);
                 } else {
                     // Hide unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
                     // Hide active state
                     setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
-                    setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
-                    setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                     setGOActiveMethod.GetValue(__instance.MarkDisplay, false);
 
                     // Hide init badge
@@ -174,6 +163,9 @@ namespace LowVisibility.Patch {
                     // Hide armor and struct
                     setGOActiveMethod.GetValue(__instance.ArmorBar, false);
                     setGOActiveMethod.GetValue(__instance.StructureBar, false);
+
+                    setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
+                    setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                 }
 
                 CombatHUDStateStack stateStack = (CombatHUDStateStack)Traverse.Create(__instance).Property("StateStack").GetValue();

@@ -196,15 +196,15 @@ __Void-Signature System__ | TODO
 - [] Allied units sometimes showing as blips instead of always full vision.
 - [] Saves occur on post-mission/pre-mission saves; should skip
 - [] Eliminate visual scan - vision lock is a limited amount of info
-- [] Units sometimes showing their full 3d image, not blip
-- [] First turn auto-fail; everybody fails their check on the first turn. Show 'powering up' sensors or something like that?
+- [x] Units sometimes showing their full 3d image, not blip
+- [x] First turn auto-fail; everybody fails their check on the first turn. Show 'powering up' sensors or something like that?
 - [x] Add a minimum for sensor range, visual range. You can't go below that. Maybe 6/3?
 - [] Evasion pips display in T.HUD but not on the model
 - [] C3 slave should require a C3 master to share sensors. CEWS Nova should share with units that have CEWS Nova. (ask MXMach/LA for details)
 - [] FrostRaptor: @LadyAlekto so in a lance where c3m/c3s present... each adds +X to each other's detail / range checks?
   [4:17 PM] FrostRaptor: Same for c3i - each present in lance gives +X to lance members with it?
   [4:17 PM] LadyAlekto: yeah
-- [] BUGS - Tanks show their stability/heat bars on high checks
+- [x] BUGS - Tanks show their stability/heat bars on high checks
 - [] scrambler_m0 tag; scrambles sensor checks at any range. Allows LA to build the 'IFF jammer' she wants. Sorta like stealth, but w/o the ECM requirement.
 - [] Unit blips showing beyond sensor range when no shares_sensors in play
 - [] Bug where you can not have LOS if you have sensor lock but not visibility

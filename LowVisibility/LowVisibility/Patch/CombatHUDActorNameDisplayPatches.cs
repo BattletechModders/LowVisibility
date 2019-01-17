@@ -12,49 +12,40 @@ namespace LowVisibility.Patch {
     static class CombatNameHelper {
 
         /*
-            Mech.UnitName = Atlas
-            Mech.VariantName = AS7-D
-            Mech.NickName = Atlas II AS7-D-HT or Atlas AS7-D
+            chassisName -> Mech.UnitName = MechDef.Chassis.Description.Name -> Atlas / Trebuchet
+            variantName -> Mech.VariantName = MechDef.Chassis.VariantName -> AS7-D / TBT-5N
+            fullname -> Mech.NickName = MechDef.Description.Name -> Atlas II AS7-D-HT or Atlas AS7-D / Trebuchet
         */
         public static Text GetDetectionLabel(VisibilityLevel visLevel, LockState lockState, VisibilityLevel blipLevel,
             string fullName, string variantName, string chassisName, string type, float tonnage) {
 
             Text response = new Text("?");
 
-            // TODO: Refine and use blipLevel more here
             if (visLevel == VisibilityLevel.LOSFull) {
                 // HBS: Full details
                 if (lockState.sensorLockLevel >= DetectionLevel.StructureAnalysis) {
+                    response = new Text($"{fullName}");
+                } else if (lockState.sensorLockLevel >= DetectionLevel.WeaponAnalysis) {
                     response = new Text($"{chassisName} {variantName}");
                 } else if (lockState.sensorLockLevel >= DetectionLevel.Silhouette) {
-                    response = new Text($"{chassisName} {tonnage}t");
-                } else if (lockState.visionLockLevel >= VisionLockType.Silhouette) {
-                    response = new Text($"{chassisName}");
+                    response = new Text($"{chassisName} {tonnage}");
                 } else {
-                    response = new Text($"{type}");
+                    response = new Text($"{chassisName}");
                 }
-            } else if (visLevel >= VisibilityLevel.Blip0Minimum) {
+            } else if (visLevel >= VisibilityLevel.Blip4Maximum) {
                 // HBS: Type only
-                if (lockState.sensorLockLevel == DetectionLevel.StructureAnalysis) {
-                    response = new Text($"{chassisName} {variantName}");
-                } else if (lockState.sensorLockLevel >= DetectionLevel.Silhouette) {
-                    response = new Text($"{chassisName} {tonnage}t");
-                } else if (lockState.visionLockLevel >= VisionLockType.Silhouette) {
-                    response = new Text($"{chassisName}");
-                } else {
-                    response = new Text($"{type}");
-                }
+                // US: DetectionLevel.Silhouette
+                response = new Text($"{chassisName} - {tonnage}t");
+            } else if (visLevel >= VisibilityLevel.Blip1Type) {
+                // US: DetectionLevel.Type
+                response = new Text($"{type} - {tonnage}t");
+            } else if (visLevel >= VisibilityLevel.Blip0Minimum) {
+                // US: DetectionLevel.Location
+                response = new Text($"???");
             } else {
                 // HBS: ? only
-                if (lockState.sensorLockLevel == DetectionLevel.StructureAnalysis) {
-                    response = new Text($"{chassisName} {variantName}");
-                } else if (lockState.sensorLockLevel >= DetectionLevel.Silhouette) {
-                    response = new Text($"{chassisName} {tonnage}t");
-                } else if (lockState.visionLockLevel >= VisionLockType.Silhouette) {
-                    response = new Text($"{chassisName}");
-                } else {
-                    response = new Text($"?");
-                }
+                // US: Nothing
+                response = new Text($"?");                
             }
 
             return response;

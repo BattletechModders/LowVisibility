@@ -521,7 +521,7 @@ namespace LowVisibility.Helper {
             } else if (sensorLockLevel >= DetectionLevel.Type) {
                 visibilityLevel = VisibilityLevel.Blip1Type;
             } else if (sensorLockLevel >= DetectionLevel.Location) {
-                visibilityLevel = VisibilityLevel.BlobMedium;
+                visibilityLevel = VisibilityLevel.Blip0Minimum;
             } 
 
             return visibilityLevel;
