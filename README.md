@@ -1,22 +1,29 @@
 # Low Visibility
-This is a mod for the [HBS BattleTech](http://battletechgame.com/) game that introduces a new layer of depth into the detection mechanics of the game. These changes are influenced by the double-blind rules from MaxTech, but have been heavily adapted to fit a video game medium.
+This is a mod for the [HBS BattleTech](http://battletechgame.com/) game that introduces a new layer of depth into the detection mechanics of the game. These changes are influenced by the double-blind rules from MaxTech, but have been heavily adapted to the video game mechanics.
 
-The mod splits detections into two types - __visual lock__ and __sensor lock__. _Visual Lock_ occurs when your unit can see a target with the naked eye, and is influenced by the map environment and equipment.  _Sensor Lock_ occurs when your unit can identify a target using electronic sensors, which is influenced by ECM, Active Probes, and the skill of the pilot.
+### Visual and Sensor Locks
 
-Each type of lock has several levels indicating a stronger identification of the target. _Visual Locks_ offer the least information, providing little more than the target's chassis (Atlas, Catapult, Missile Carrier) at long ranges. Once a unit is close enough, rough approximations of armor values and possible weapon mounts can be identified, but it's all the pilot's guesswork.
+In this mod, what you can see is defined by __visual lock__ or __sensor lock__. _Visual Lock_ occurs when your unit can identify a visually target, and is influenced by the spotter's equipment, the map environment, and how easy it is to see the target.
+_Sensor Lock_ occurs when your unit can identify a target using electronics, and is influenced by equipment (sensors, ECM, Active Probes, etc), the Tactics skill of the pilot, and equipment on the target.
 
-_Sensor Locks_ offer more detailed information, depending on the type of sensors that are equipped. Basic sensors provides a information like the chassis name and rough weapon composition, and randomly determines one deeper inspection of the unit - the actual weapons equipped, the current armor values, or the heat and stability of the target. __Active Probes__ go further and provide full information about the target, as per the vanilla experience. Component locations are identified, as are target buffs and debuffs.
+Each type of lock has several levels indicating a stronger identification of the target. _Visual Locks_ offer the least information, providing little more than the target's chassis (Atlas, Catapult, Missile Carrier) at long ranges. At very close ranges, rough approximations of armor values and possible weapon mounts can be identified, but it's all the pilot's guesswork. Information from visual locks is shared with between all player units, as well as allied units.
 
-Unfortunately _Sensor Locks_ aren't reliable, since they depend on the pilot's skill and attention. At the start of each round, every unit makes a __Sensor Check__ which determines how well their sensors function. If the roll is failed, units have to rely upon _visual locks_ that round, or _sensor locks_ from allies. On a good roll, the range of the unit's sensors is increased for that round, allowing them to detect distant enemies.
+_Sensor Locks_ offer more detailed information, such as chassis identification codes and possible weapon composition. Experienced pilots and advanced equipment allow identifying fine details such as exact armor values, where specific items are located in the target and even the pilot name. Sensor locks only share the location and chassis of a target with their allies - each unit has to rely upon their own sensors for a detailed breakdown of weapons, armor and equipment on the target.
 
-ECM components generate interference in a bubble around the unit, which makes the _sensor check_ of enemy units within that bubble more difficult. This can shutdown enemy sensors entirely, though more advanced _active probes_ can ignore this effect.
+_Sensor Locks_ aren't reliable, since they depend on the pilot's ability to interpret results and a constantly changing electronic battlefield. At the start of each round, every unit makes a __Sensor Check__. This check defines which details of the target you can see when you select them. If the roll is failed, your unit's sensors are unreliable that turn and do not contribute data to friendly units.
 
-Stealth armor makes the equipped unit harder to detect, but does not generate an ECM bubble. Units attempting to detect a target with stealth armor need an active probe of equal to higher technology, or they will be completely unable to detect their foe.
+### EW Equipment
+__ECM__ components generate interference in a bubble around the unit, which makes the _sensor check_ of enemy units within that bubble more difficult. Powerful ECM can completely shutdown a unit's sensors, forcing them to rely upon visual lock for targeting purposes.
 
-This mod was specifically designed to work with [RogueTech](http://roguetech.org). Running standalone should work, but has not been tested.
+__Stealth__ components makes the equipped unit harder to detect, often rendering them effectively invisible to sensors. However they require an ECM component to function properly, but disable the ECM bubble as part of their operation.
 
-## Vanilla Behavior
-Before talking about what this mod does, it's helpful to understand the vanilla behavior. In vanilla [HBS BattleTech](http://battletechgame.com/), the detection model allows for opposing units to be in one of four states:
+__Probe__ components improve the quality of the units' sensors, and can break through ECM and Stealth if they are powerful enough.
+
+## Detailed Mechanics
+This section contains a detailed discussion of the inner workings of the mod. You only need to continue if you want to know how it all works together.
+
+### Vanilla Behavior
+Before talking about the mechanics of this mod, it's helpful to understand the vanilla behavior. In vanilla [HBS BattleTech](http://battletechgame.com/), the detection model allows for opposing units to be in one of four states:
   * Undetected when outside of sensor range
   * Detected as a blob (the down-pointing arrow)
   * Detected as a specific type (the mech, turret or vehicle silhouette)
@@ -24,15 +31,16 @@ Before talking about what this mod does, it's helpful to understand the vanilla 
 
 The range of visual detection is determined by a base spotting distance, which defaults to 300 (set in SimGameConstants). This value is modified by the spotting unit's `SpottingVisibilityMultiplier` and `SpottingVisibilityAbsolute` values. This value is then modified by the targets's `SpottingVisibilityMultiplier` and `SpottingVisibilityAbsolute` values. If this modified spotting distance is less than the distance to the target, the spotter is considered to have _LineOfSight_ to the target. Once one spotter on a team has _LineOfSight_ to a target, all other team members share that visibility.
 
-If a target is outside of direct _LineOfSight_, then sensors are checked. The detecting unit's `SensorDistanceMultiplier` is added to any terrain `DesignMask.sensorRangeMultiplier`, while `SensorDistanceAbsolute` is added to the result. The target's `SensorSignatureModifier` modifies this value, and the final result is compared against a sensor detection range of 500 (also set in SimGameConstants). If the target is within range, it's identified as a sensor blip. The type of blip is influenced by the tactics level of the spotter.
+If a target is outside of direct _LineOfSight_, then sensors are checked. The detecting unit's `SensorDistanceMultiplier` is added to any terrain `DesignMask.sensorRangeMultiplier`, while `SensorDistanceAbsolute` is added to the result. The target's `SensorSignatureModifier` modifies this value, and the final result is compared against a sensor detection range of 500 (also set in SimGameConstants). If the target is within range, it's identified as a sensor blip. The type of blip is influenced by the tactics level of the spotter. In these cases the _LineOfSight_ value is given as Blip or Blob.
 
 The __Sensor Lock__ ability provides _LineOfSight_ to the target model, even if it's only within sensor range.
 
-## Mod Behavior
+Most HBS logic requires a _LineOfSight_ for units to act upon. They refer to this as a _VisibilityLevel_. Units with _VisibilityLevel.None_ are effectively treated as if they don't exist.
 
-This mod re-uses the HBS concepts of __visibility__ and __detection__, but applies them in new ways. __Visibility__ is when the source unit has _visual lock_ to a target, while __detection__ occurs when the source has _sensor lock_.
+### Mod Behavior
 
-### Visibility
+
+#### Vision Environment Impacts
 
 _Visual Lock_ is heavily influenced by the environment of the map. Each map contains one or more _mood_ tags that are mapped to visibility ranges. Instead of the __TODO:FIXME__ value from SimGameConstants, every unit uses this visibility range when determining how far away it can visually spot a target. Flags related to the light level set a base visibility level, while flags related to obscurement provide a multiplier to the base visibility range.
 
@@ -190,7 +198,7 @@ __Void-Signature System__ | TODO
 
 ### WIP Features
 
-- [] Buildings should always be visible and not subject to ECM - breaks AI without this! 
+- [] Buildings should always be visible and not subject to ECM - breaks AI without this!
   - __Preliminary testing seems to indicate this may be fixed__
   - Likely an issue that I'm dealing with AbstractActors everywhere, but can be an ICombatant
 - [] Allied units sometimes showing as blips instead of always full vision.
@@ -214,6 +222,7 @@ __Void-Signature System__ | TODO
 - [] On shutdown, no stealth / ecm / etc applies
 - [] If possible, make SensorLock boost sensorrange by 2x for the remainder of the round.
 - [] Validate functionality works with saves - career, campaign, skirmish
+- [] Hide pilot details when not DentalRecords
 - [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
 - [] BUG - Tactics skill should influence chassis name, blip type (CombatNameHelper, LineOfSightPatches)
 - [] BUG - Weapons summary shown when beyond sensors range
