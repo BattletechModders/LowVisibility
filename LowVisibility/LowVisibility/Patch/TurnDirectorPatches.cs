@@ -102,7 +102,8 @@ namespace LowVisibility.Patch {
             State.StaticEWState.Clear();
             State.SourceActorLockStates.Clear();
             State.LastPlayerActivatedActorGUID = null;
-            State.JammedActors.Clear();
+            State.ECMJammedActors.Clear();
+            State.ECMProtectedActors.Clear();
             State.TurnDirectorStarted = false;
         }
     }
