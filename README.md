@@ -29,73 +29,89 @@ _Sensor Locks_ aren't reliable; they depend on the pilot's ability to interpret 
  The results of your current check are displayed in a tooltip in the status bar of each player mech. Check the icons in the bottom right corner, over the armor paperdoll, for a detailed breakdown.
 
 ### EW Equipment
-__ECM__ components generate interference in a bubble around the unit, which makes the _sensor check_ of enemy units within that bubble more difficult. Powerful ECM can completely shutdown a unit's sensors, forcing them to rely upon visual lock for targeting purposes.
+__ECM__ components generate interference in a bubble around the unit, which makes the _sensor check_ of enemy units within that bubble more difficult. Units within the range of a friendly ECM are harder to detect as well. Powerful ECM can completely shutdown a unit's sensors, forcing them to rely upon visual lock for targeting purposes.
 
-__Stealth__ components makes the equipped unit harder to detect, often rendering them effectively invisible to sensors. However they require an ECM component to function properly, but disable the ECM bubble as part of their operation.
+__Stealth__ components makes the equipped unit harder to detect. They require an ECM component to operate, but disable the ECM bubble effects.
 
 __Active Probe__ components improve the quality of the units' sensors, and can break through ECM and Stealth if they are powerful enough.
 
-__Narc Beacon__ weapons...
+__Narc Beacon__ weapons attach a powerful transmitter to targets. For a short duration, they will emit a signal that friendly units can use to identify the target's location __at any range__. This signal is opposed by friendly ECM, and may be disabled if enough ECM is present to overcome it's signal.
 
-__TAG__ weapons ...
+__TAG__ weapons identify the location and details of the target for all friendly units that receive the signal. This effect persists until the unit moves away from the position it was identified. Friendly ECM has no impact on this signal.
 
 ## Implementation Details
 This section contains describes how to customize the mod's behavior. The values below impact various mechanics used through the mod to control visibility and detection.
 
 While not necessary, it's suggested that you are familiar with the information in the [Low Visibility Design Doc](DesignDoc.md).
 
-## Vision Environment Impacts
+### Environmental Modifiers for Visual Lock
 
-_Visual Lock_ is heavily influenced by the environment of the map. Each map contains one or more _mood_ tags that are mapped to visibility ranges. Instead of the __TODO:FIXME__ value from SimGameConstants, every unit uses this visibility range when determining how far away it can visually spot a target. Flags related to the light level set a base visibility level, while flags related to obscurement provide a multiplier to the base visibility range.
+_Visual Lock_ is heavily influenced by the environment of the map. Each map contains one or more _mood_ tags that influence the vision range on that map. When each map is loaded, a base vision range is calculated for every unit from these tags. Flags related to the ambient light the a base vision range, while flags related to obscurement provide a multiplier that reduces this range.
 
-Light Level | Base Visibility | Tags
+Base Vision Range | Light |  Tags
 -- | -- | --
-bright light | 60 * 30m | `mood_timeMorning, mood_timeNoon, mood_timeAfternoon, mood_timeDay`
-dim light | 16 * 30m | `mood_timeSunrise, mood_timeSunset, mood_timeTwilight`
-darkness | 6 * 30m | `mood_timeNight`
+15 hexes (450m) | bright | mood_timeMorning, mood_timeNoon, mood_timeAfternoon, mood_timeDay
+11 hexes (330m) | dim | mood_timeSunrise, mood_timeSunset, mood_timeTwilight
+7 hexes (210m) | dark | mood_timeNight
 
-Obscurement | Visibility Multiplier | Tags
--- | -- | --
-Minor | x0.5 | `mood_fogLight, mood_weatherRain, mood_weatherSnow`
-Major | x0.2 | `mood_fogHeavy`
+Vision Multiplier | Tags
+-- | --
+x0.7 | mood_weatherRain, mood_weatherSnow
+x0.5 | mood_fogLight,
+x0.3 | mood_fogHeavy
 
-A unit on a map with _dim light_ and _minor obscurement_ would have a map vision range limit of `16 * 30m = 480m * 0.5 = 240m`. Even if the unit's SpottingVisibilityMultiplier or SpottingVisibilityAbsolute modifiers increase it's base range beyond this value, the unit would be limited to visually detecting targets no further away that 240m.
+A map with _dim light_ and _rain_ has a vision range of `11 hexes * 30.0m * 0.7 = 231m`. Any _SpottingVisibilityMultiplier_ or _SpottingVisibilityAbsolute_ modifiers on the unit increase this base range as normal.
 
 ### Detection
 
-At the start of every combat round, every unit (player or AI) makes a sensor check. This check is a random roll between 0 to 36, but is modified by the source unit's tactics skill, as per the table below. (Skills 11-13 are for [RogueTech](http://roguetech.org) elite units).
+At the start of every combat round, every unit (player or AI) makes two __sensor checks__. Each check is a random value between -14 to +14, assigned as per a normal distribution (aka a bell curve). The distribution uses mu=-2 and a sigma=4 value, resulting in a wide curve that's centered at the -2 result.
 
-| Skill                | 1    | 2    | 3    | 4    | 5    | 6    | 7    | 8    | 9    | 10   | 11   | 12   | 13   |
-| -------------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| Modifier             | +0   | +1   | +1   | +2   | +2   | +3   | +3   | +4   | +4   | +5   | +6   | +7   | +8   |
-| + Lvl 8 Ability | +0 | +1 | +1 | +2 | +4 | +5 | +5 | +6 | +6 | +7 | +8 | +9 | +10 |
+![Sensor Check Distribution](check_distribution.png "Sensor Check Distribution")
 
-The result of this check determines the information available to the scanning unit:
+Each check is further modified by the source unit's tactics skill, as per the table below. (Skills 11-13 are for [RogueTech](http://roguetech.org) elite units).
 
-| Detail Level | Details shown |
+Skill |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |  10  | 11 | 12 | 13
+-- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | --
+Modifier                  | +0 | +1 | +1 | +2 | +2 | +3 | +3 | +4 | +4 | +5 | +6 | +7 | +8
++ Lvl 5 Ability | +0 | +1 | +1 | +2 | +3 | +4 | +4 | +5 | +5 | +6 | +7 | +8 | +9
++ Level 8 Ability | +0 | +1 | +1 | +2 | +4 | +5 | +5 | +6 | +6 | +7 | +8 | +9 | +10
+
+#### Detection Range
+
+The first check (the __range check__) is used to determine the unit's sensor range this turn. Each unit has a base sensor range determined by its type, as given in the table below. This range is increased by _SensorDistanceMultiplier_ and _SensorDistanceAbsolute_ values normally, allowing variation in unit sensor ranges.
+
+| Type | Base Sensor Range |
 | -- | -- |
-| No Info | Failed sensor check, no information shown |
-| Location | Target location (3d arrow), name of ? |
-| Type | As above, but type defined (mech/vehicle/turret) |
-| Silhouette | As above, with Chassis as name (Atlas, Catapult) |
-| Vector | As above, adding Evasion Pips |
-| Surface Scan | As above, adding Armor & Structure percentages, paperdoll |
-| Surface Analysis   | As above, adding Weapon Types (as colored ???) |
-| Weapon Analysis | As above, with Weapon Names defined. Name is Chassis + Model (Atlas AS7-D, CPLT-C1) |
-| Structure Analysis | As above, plus current heat & stability, summary info (tonnage, jump jets, etc). Armor & structure includes current and max values. Name is Chassis + Variant name (Atlas ASS-HAT Foo, Catapult CPLT-C1 Bar) |
-| Deep Scan | As above plus component location, buffs and debuffs |
-| Dental Records | As above plus pilot name, info |
+| Mech | 12 hexes * 30m = __360m__ |
+| Vehicle | 9 hexes * 30m = __270m__ |
+| Turret | 15 hexes * 30m = __450m__ |
+| Others | 6 hexes * 30m = __180m__ |
 
-On a failure, the unit can only detect targets it has visibility to (see below). On a success, the unit's sensors range for that round is set to a __base value__ defined by the spotter's unit type:
+The range check result is divided by ten, then used as a multiplier against the unit's sensor range. A range check result of +3 yields a  sensor range multiplier of (1 + 3/10) = 1.3x. A negative range check of -2 would result in a multiplier of (1.0 - 2/10) = 0.8x.
 
-* Mech - 10 hexes * 30m = __300m__
-* Vehicle - 9 hexes * 30m = __270m__
-* Turret - 12 hexes * 30m = __360m__
-* Others - 5 hexes * 30m = __150m__
+##### First Turn Protection
 
-This base value replaces the base sensor distance value from SimGameConstants for that model, but otherwise sensor detection ranges occur normally.
+On the very first turn of every combat, every unit (friendly, neutral, or foe) always fail their __range check__. This ensures players can move away from their deployment zone before the AI has a chance to attack them. This behavior can be disabled by setting `FirstTurnForceFailedChecks` to __false__ in `mod.json`.
 
-#### Jamming Modifier
+#### Detection Info
+
+The second check (the __info check__) determines how much target information the unit will receive this round. This check is applicable for optimal conditions - enemy ECM and other effects can reduce this value on a target by target basis. The range of check results is given below:
+
+| Info Check | Detail Level | Details shown |
+| --| -- | -- |
+| < 0 | No Info | Failed sensor check, no information shown |
+| 0 | Location | Target location (3d arrow), but unknown name |
+| 1 | Type | As above, but type defined (mech/vehicle/turret) |
+| 2 | Silhouette | As above, with Chassis as name (Atlas, Catapult) |
+| 3 | Vector | As above, adding Evasion Pips |
+| 4 or 5 | Surface Scan | As above, adding Armor & Structure percentages, paperdoll |
+| 6 or 7 | Surface Analysis   | As above, adding Weapon Types (as colored ???) |
+| 8 | Weapon Analysis | As above, with Weapon Names defined. Name is Chassis + Model (Atlas AS7-D, CPLT-C1) |
+| 9 | Structure Analysis | As above, plus current heat & stability, summary info (tonnage, jump jets, etc). Armor & structure includes current and max values. Name is Chassis + Variant name (Atlas ASS-HAT Foo, Catapult CPLT-C1 Bar) |
+| 10 | Deep Scan | As above plus component location, buffs and debuffs |
+| 11 | Dental Records | As above plus pilot name, info |
+
+### ECM Details
 
 When the source unit begins it's activation within an ECM bubble, its sensors will be __Jammed__ by the enemy ECM. Units in this state will have a debuff icon in the HUD stating they are _Jammed_ but the source will not be identified. Units will also display a floating notification when they begin their phase or end their movement within an ECM bubble. _Jammed_ units reduce their sensor check result by the ECM modifier of the jamming unit.  This modifier is variable, but typically will be in the -12 to -24 range. Some common values are:
 
@@ -119,19 +135,7 @@ Bloodhound Active Probe | +?
 
 ### Identification Level
 
-In _Low Visibility_ details about enemy units are often hidden unless you have a good sensors check or are equipped with _Active Probes_. This mod defines five __ID Levels__ which reflect a progressively more detailed knowledge of a target:
-
-| ID Level        | Type      | Name                | Weapons                       | Components | Evasion Pips | Armor / Structure               | Heat           | Stability      | Buffs/Debuffs |
-| --------------- | --------- | ------------------- | ----------------------------- | ---------- | ------------ | ------------------------------- | -------------- | -------------- | ------------- |
-| Silhouette ID   | Full View | Chassis only        | Hidden                        | Hidden     | Hidden       | Percentage Only                 | Hidden         | Hidden         | Hidden        |
-| Visual ID       | Full View | Chassis Only        | Type only                     | Hidden     | Shown        | Percentage Only                 | Shown          | Shown          | Hidden        |
-| Sensor ID       | Blip      | Chassis and Model   | Types Always / Names Randomly | Hidden     | Shown ?      | Percentage and Max Value        | Randomly Shown | Randomly Shown | Hidden        |
-| Active Probe ID | Blip      | Chassis and Variant | Shown                         | Shown      | Shown        | Percentage, Max, Current Values | Shown          | Shown          | Shown         |
-| No ID           | Hidden    | Hidden              | Hidden                        | Hidden     | Hidden       | Hidden                          | Hidden         | Hidden         | Hidden        |
-
 _Silhouette ID_ and _VisualID_ require the source unit to have __visibility__ to the target. _VisualID_ only occurs when the source is within 90m of the target, or the map visibility limit, whichever is smaller.
-
-_Sensor ID_ and _Active Probe ID_ require the source to have __detection__ to the target.
 
 ## Jamming Details
 TODO: Clean this up
