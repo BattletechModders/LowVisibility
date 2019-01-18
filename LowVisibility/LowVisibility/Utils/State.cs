@@ -30,9 +30,9 @@ namespace LowVisibility {
         
         // TODO: Do I need this anymore?
         public static string LastPlayerActivatedActorGUID;
-        public static Dictionary<string, int> JammedActors = new Dictionary<string, int>();
-        // TODO: Add narc'd actors
-
+        public static Dictionary<string, int> ECMJammedActors = new Dictionary<string, int>();
+        public static Dictionary<string, int> ECMProtectedActors = new Dictionary<string, int>();
+        
         public static bool TurnDirectorStarted = false;
         public const int ResultsToPrecalcuate = 16384;
         public static double[] CheckResults = new double[ResultsToPrecalcuate];
@@ -136,47 +136,62 @@ namespace LowVisibility {
 
         public static AbstractActor GetLastPlayerActivatedActor(CombatGameState Combat) {
             if (LastPlayerActivatedActorGUID == null) {
-                List<AbstractActor> playerActors = PlayerActors(Combat);
+                List<AbstractActor> playerActors = HostilityHelper.PlayerActors(Combat);
                 LastPlayerActivatedActorGUID = playerActors[0].GUID;
             }
             return Combat.FindActorByGUID(LastPlayerActivatedActorGUID);
         }
 
         // --- ECM JAMMING STATE TRACKING ---
-        public static bool IsJammed(AbstractActor actor) {
-            bool isJammed = JammedActors.ContainsKey(actor.GUID) ? true : false;
-            return isJammed;
+        public static int ECMJamming(AbstractActor actor) {
+            return ECMJammedActors.ContainsKey(actor.GUID) ? ECMJammedActors[actor.GUID] : 0;
         }
 
-        public static int JammingStrength(AbstractActor actor) {
-            return JammedActors.ContainsKey(actor.GUID) ? JammedActors[actor.GUID] : 0;
-        }
-
-        public static void JamActor(AbstractActor actor, int jammingStrength) {
+        public static void AddECMJamming(AbstractActor actor, int jammingStrength) {
             DynamicEWState dynamicState = GetDynamicState(actor);
-            if (!JammedActors.ContainsKey(actor.GUID)) {
-                JammedActors.Add(actor.GUID, jammingStrength);
-            } else if (jammingStrength > JammedActors[actor.GUID]) {
-                JammedActors[actor.GUID] = jammingStrength;
+            if (!ECMJammedActors.ContainsKey(actor.GUID)) {
+                ECMJammedActors.Add(actor.GUID, jammingStrength);
+            } else if (jammingStrength > ECMJammedActors[actor.GUID]) {
+                ECMJammedActors[actor.GUID] = jammingStrength;
             }            
         }
-        public static void UnjamActor(AbstractActor actor) {
-            if (JammedActors.ContainsKey(actor.GUID)) {
-                JammedActors.Remove(actor.GUID);
+        public static void RemoveECMJamming(AbstractActor actor) {
+            if (ECMJammedActors.ContainsKey(actor.GUID)) {
+                ECMJammedActors.Remove(actor.GUID);
             }            
         }
 
+        // --- ECM PROTECTION STATE TRACKING
+        public static int ECMProtection(AbstractActor actor) {
+            return ECMJammedActors.ContainsKey(actor.GUID) ? ECMProtectedActors[actor.GUID] : 0;
+        }
+
+        public static void AddECMProtection(AbstractActor actor, int protectionStrength) {
+            DynamicEWState dynamicState = GetDynamicState(actor);
+            if (!ECMProtectedActors.ContainsKey(actor.GUID)) {
+                ECMProtectedActors.Add(actor.GUID, protectionStrength);
+            } else if (protectionStrength > ECMProtectedActors[actor.GUID]) {
+                ECMProtectedActors[actor.GUID] = protectionStrength;
+            }
+        }
+        public static void RemoveECMProtection(AbstractActor actor) {
+            if (ECMProtectedActors.ContainsKey(actor.GUID)) {
+                ECMProtectedActors.Remove(actor.GUID);
+            }
+        }
         // --- FILE SAVE/READ BELOW ---
         private class SerializationState {
             public string LastPlayerActivatedActorGUID;
-            public Dictionary<string, int> jammedActors;
+            public Dictionary<string, int> ecmJammedActors;
+            public Dictionary<string, int> ecmProtectedActors;
             public Dictionary<string, HashSet<LockState>> SourceActorLockStates;
             public Dictionary<string, DynamicEWState> dynamicState;
             public Dictionary<string, StaticEWState> staticState;
         }
 
         public static void LoadStateData(string saveFileID) {
-            JammedActors.Clear();
+            ECMJammedActors.Clear();
+            ECMProtectedActors.Clear();
             SourceActorLockStates.Clear();
             DynamicEWState.Clear();
             StaticEWState.Clear();
@@ -195,7 +210,8 @@ namespace LowVisibility {
                     }
 
                     LastPlayerActivatedActorGUID = savedState != null ? savedState.LastPlayerActivatedActorGUID : null;
-                    JammedActors = savedState != null ? savedState.jammedActors : null;
+                    ECMJammedActors = savedState != null ? savedState.ecmJammedActors : null;
+                    ECMProtectedActors = savedState != null ? savedState.ecmProtectedActors: null;
                     SourceActorLockStates = savedState != null ? savedState.SourceActorLockStates : null;
                     DynamicEWState = savedState != null ? savedState.dynamicState: null;
                     StaticEWState = savedState != null ? savedState.staticState : null;
@@ -223,7 +239,8 @@ namespace LowVisibility {
             try {
                 SerializationState state = new SerializationState {
                     LastPlayerActivatedActorGUID = State.LastPlayerActivatedActorGUID,
-                    jammedActors = State.JammedActors,
+                    ecmJammedActors = State.ECMJammedActors,
+                    ecmProtectedActors = State.ECMProtectedActors,
                     SourceActorLockStates = State.SourceActorLockStates,
                     dynamicState= State.DynamicEWState,
                     staticState = State.StaticEWState
