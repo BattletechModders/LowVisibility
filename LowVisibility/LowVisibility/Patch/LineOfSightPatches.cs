@@ -110,6 +110,9 @@ namespace LowVisibility.Patch {
             // If you are beyond sensorRange or spotter range, visibility is none
             float distance = Vector3.Distance(sourcePosition, targetPosition);
             if (distance > adjustedSensorRange) {
+
+                // Check for Narc 
+
                 __result = VisibilityLevel.None;
                 return false;
             }

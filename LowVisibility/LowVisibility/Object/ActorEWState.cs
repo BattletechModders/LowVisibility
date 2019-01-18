@@ -36,12 +36,16 @@ namespace LowVisibility.Object {
         public const string TagPrefixStealth = "lv-stealth_m";
         public const string TagPrefixStealthRangeMod = "lv-stealth-range-mod_s";
         public const string TagPrefixStealthMoveMod = "lv-stealth-move-mod_m";
+        public const string TagPrefixScrambler = "lv-scrambler_m";
+        public const string TagPrefixNarcEffect = "lv-narc-effect_m";
+        public const string TagPrefixTagEffect = "lv-tag-effect";
 
         public int ecmMod = 0;
         public float ecmRange = 0;
         public int probeMod = 0;              
         public int stealthMod = 0;
         public int sensorMod = 0;
+        public int scramblerMod = 0;
 
         // Modifier for stealth range modification - min-short, short-medium, medium-long, long-max
         public int[] stealthRangeMod = new int[] { 0, 0, 0, 0 };
@@ -62,6 +66,7 @@ namespace LowVisibility.Object {
             int actorProbeMod = 0;
             int actorStealthMod = 0;
             int actorSensorMod = 0;
+            int actorScramblerMod = 0;
 
             int[] actorStealthRangeMod = null;
             int[] actorStealthMoveMod = null;
@@ -86,9 +91,9 @@ namespace LowVisibility.Object {
                             int range = Int32.Parse(split[2].Substring(1));
                             if (modifier >= actorEcmMod) {
                                 actorEcmMod = modifier;
-                                actorEcmRange = range * 30.0f;                                
+                                actorEcmRange = range * 30.0f;
                             } else {
-                                LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
+                                LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
                             }
                         }
                     } else if (tagLower.StartsWith(TagPrefixProbe)) {
@@ -100,7 +105,7 @@ namespace LowVisibility.Object {
                                 actorProbeMod = modifier;
                             }
                         } else {
-                            LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
+                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
                         }
                     } else if (tagLower.StartsWith(TagPrefixSensorBoost)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has SENSOR_BOOST component:{kv.Key} with tag:{tag}");
@@ -111,7 +116,7 @@ namespace LowVisibility.Object {
                                 actorSensorMod = modifier;
                             }
                         } else {
-                            LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
+                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
                         }
                     } else if (tagLower.StartsWith(TagPrefixStealth)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has STEALTH component:{kv.Key} with tag:{tag}");
@@ -122,7 +127,7 @@ namespace LowVisibility.Object {
                                 actorStealthMod = modifier;
                             }
                         } else {
-                            LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
+                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
                         }
                     } else if (tagLower.StartsWith(TagPrefixStealthRangeMod)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has STEALTH_RANGE_MOD component:{kv.Key} with tag:{tag}");
@@ -136,7 +141,7 @@ namespace LowVisibility.Object {
                                 actorStealthRangeMod = new int[] { shortRange, mediumRange, longRange, extremeRange };
                             }
                         } else {
-                            LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
+                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
                         }
                     } else if (tagLower.StartsWith(TagPrefixStealthMoveMod)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has STEALTH_MOVE_MOD component:{kv.Key} with tag:{tag}");
@@ -148,11 +153,22 @@ namespace LowVisibility.Object {
                                 actorStealthMoveMod = new int[] { modifier, moveStep };
                             }
                         } else {
-                            LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
+                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
                         }
                     } else if (tagLower.Equals(TagSharesSensors)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} shares sensors due to component:{kv.Key} with tag:{tag}");
                         actorSharesSensors = true;
+                    } else if (tagLower.StartsWith(TagPrefixScrambler)) {
+                        LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has SCRAMBLER component:{kv.Key} with tag:{tag}");
+                        string[] split = tag.Split('_');
+                        if (split.Length == 2) {
+                            int modifier = Int32.Parse(split[1].Substring(1));
+                            if (modifier >= actorScramblerMod) {
+                                actorScramblerMod = modifier;
+                            }
+                        } else {
+                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
+                        }
                     }
                 }
             }
@@ -185,7 +201,8 @@ namespace LowVisibility.Object {
             this.sensorMod = actorSensorMod;
             this.stealthMod = actorStealthMod;
             this.stealthRangeMod = actorStealthRangeMod ?? (new int[] { 0, 0, 0, 0 });
-            this.stealthMoveMod = actorStealthMoveMod ?? (new int[] { 0, 0 });            
+            this.stealthMoveMod = actorStealthMoveMod ?? (new int[] { 0, 0 });
+            this.scramblerMod = actorScramblerMod;
         }
 
         public override string ToString() {
@@ -193,6 +210,7 @@ namespace LowVisibility.Object {
                 $"probeMod:{probeMod} stealthMod:{stealthMod} " +
                 $"stealthRangeMod:{stealthRangeMod[0]}/{stealthRangeMod[1]}/{stealthRangeMod[2]}/{stealthRangeMod[3]} " +
                 $"stealthMoveMod:{stealthMoveMod[0]}/{stealthMoveMod[1]} " +
+                $"scramblerMod:{scramblerMod}" +
                 $"sharesSensors:{sharesSensors}";
         }
 

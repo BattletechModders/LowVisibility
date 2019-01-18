@@ -97,12 +97,22 @@ namespace LowVisibility.Patch {
                         });
                     }
                 }
-                
-                if (State.IsJammed(actor)) {
+
+                if (State.ECMProtection(actor) != 0) {
+                    showDebuffStringMethod.GetValue(new object[] {
+                        "uixSvgIcon_status_sensorsImpaired",
+                        new Text("ECM PROTECTION", new object[0]),
+                        new Text($"Unit is protected by friendly ECM and will be harder to detect by enemy units."),
+                        __instance.effectIconScale,
+                        false
+                    });
+                }
+
+                if (State.ECMJamming(actor) != 0) {
                     showDebuffStringMethod.GetValue(new object[] {
                         "uixSvgIcon_status_sensorsImpaired",
                         new Text("ECM JAMMING", new object[0]),
-                        new Text($"Unit is within an ECM jamming bubble that will make it difficult to detect other units.", new object[0]),
+                        new Text($"Unit is jammed by enemy ECM which makes enemy units harder to detect."),
                         __instance.effectIconScale,
                         false
                     });
@@ -118,6 +128,8 @@ namespace LowVisibility.Patch {
             float visualLockRange = ActorHelper.GetVisualLockRange(actor);
             float sensorsRange = ActorHelper.GetSensorsRange(actor);
             details.Add($"RANGE => Visual:{visualLockRange:0}m Sensors:{sensorsRange:0}m\n");
+
+            // TODO: Let players know what effect is impacting their vision
 
             details.Add($"  Range: Roll: ");
             float rangeMulti = 1.0f + ((dynamicState.rangeCheck + staticState.tacticsBonus) / 10.0f);
@@ -147,9 +159,9 @@ namespace LowVisibility.Patch {
                 details.Add($" + Probe: <color=#00FF00>{staticState.probeMod:0}</color>");
             }
 
-            if (State.IsJammed(actor)) {
-                checkResult -= State.JammingStrength(actor);
-                details.Add($" + Jammed: <color=#FF0000>{State.JammingStrength(actor):-0}</color>");
+            if (State.ECMJamming(actor) != 0) {
+                checkResult -= State.ECMJamming(actor);
+                details.Add($" + Jammed: <color=#FF0000>{State.ECMJamming(actor):-0}</color>");
             }
 
             details.Add(" = Result: ");

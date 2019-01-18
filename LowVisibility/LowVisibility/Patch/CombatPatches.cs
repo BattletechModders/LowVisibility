@@ -39,7 +39,7 @@ namespace LowVisibility.Patch {
         public static void Prefix(AbstractActor __instance) {
             if (State.TurnDirectorStarted) {
                 LowVisibility.Logger.LogIfDebug($"AbstractActor_UpdateLOSPositions:pre - entered for {CombatantHelper.Label(__instance)}.");
-                JammingHelper.ResolveJammingState(__instance);
+                ECMHelper.UpdateECMState(__instance);
 
                 bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
                 AbstractActor updateActor = isPlayer ? 
@@ -58,7 +58,7 @@ namespace LowVisibility.Patch {
             LowVisibility.Logger.LogIfDebug($"=== Mech:OnMovePhaseComplete:post - entered for {CombatantHelper.Label(__instance)}.");
 
             bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
-            if (isPlayer && State.IsJammed(__instance)) {
+            if (isPlayer && State.ECMJamming(__instance) != 0) {
                 // Send a floatie indicating the jamming
                 MessageCenter mc = __instance.Combat.MessageCenter;
                 mc.PublishMessage(new FloatieMessage(__instance.GUID, __instance.GUID, "JAMMED BY ECM", FloatieMessage.MessageNature.Debuff));

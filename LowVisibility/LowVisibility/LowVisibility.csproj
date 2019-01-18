@@ -69,7 +69,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helper\CombatantHelper.cs" />
-    <Compile Include="Helper\JammingHelper.cs" />
+    <Compile Include="Helper\ECMHelper.cs" />
+    <Compile Include="Helper\HostilityHelper.cs" />
     <Compile Include="Object\ActorEWState.cs" />
     <Compile Include="Helper\MapHelper.cs" />
     <Compile Include="Helper\ActorHelper.cs" />

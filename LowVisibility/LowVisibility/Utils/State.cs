@@ -32,6 +32,9 @@ namespace LowVisibility {
         public static string LastPlayerActivatedActorGUID;
         public static Dictionary<string, int> ECMJammedActors = new Dictionary<string, int>();
         public static Dictionary<string, int> ECMProtectedActors = new Dictionary<string, int>();
+
+        public static HashSet<string> NarcedActors = new HashSet<string>();
+        public static HashSet<string> TaggedActors = new HashSet<string>();
         
         public static bool TurnDirectorStarted = false;
         public const int ResultsToPrecalcuate = 16384;
