@@ -46,6 +46,19 @@ AbstractActor:
 
 #### Book Info
 
+Probe ranges are given as additional ranges from MaxTech, while ECM ranges come from the Master Rules. Those values are:
+
+* Guardian ECM: 6 hexes
+* Angel ECM: 6 hexes
+* CEWS (ECM): 3 hexes
+* BattleArmor ECM: 3 hexes
+* Light Active Probe: +3 hexes
+* Beagle: +4 hexes
+* Bloodhound: +8 hexes
+* Clan Active Probe: +7 hexes
+* CEWS: +8 hexes
+
+
 Information from various source books used in the creation of this mod is included here for reference purposes.
 
 * MaxTech gives visual range as

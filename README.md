@@ -111,98 +111,46 @@ The second check (the __info check__) determines how much target information the
 | 10 | Deep Scan | As above plus component location, buffs and debuffs |
 | 11 | Dental Records | As above plus pilot name, info |
 
-### ECM Details
+##### Visual Identification
 
-When the source unit begins it's activation within an ECM bubble, its sensors will be __Jammed__ by the enemy ECM. Units in this state will have a debuff icon in the HUD stating they are _Jammed_ but the source will not be identified. Units will also display a floating notification when they begin their phase or end their movement within an ECM bubble. _Jammed_ units reduce their sensor check result by the ECM modifier of the jamming unit.  This modifier is variable, but typically will be in the -12 to -24 range. Some common values are:
-
-ECM Component | Modifier
--- | --
-IS Guardian ECM | -15
-Clan Guardian ECM | -?
-Angel ECM | -?
-TODO | TODO
-
-A significant deviation from the _MaxTech_ rules is that multiple ECM bubbles DO NOT apply their full strength to jammed units. Instead, for each additional ECM jamming a source a flat -5 modifier is applied. This modifier is configurable in the settings section of the `LowVisibility/mod.json` file.
-
-#### Active Probe Modifier
-
-If a unit is _Jammed_ and has an __Active Probe__, it applies a positive modifier to the sensor check typically in the range of +1 to +8.
-
-Active Probe Component | Modifier
--- | --
-Beagle Active Probe | +?
-Bloodhound Active Probe | +?
-
-### Identification Level
+TODO: FIXME
 
 _Silhouette ID_ and _VisualID_ require the source unit to have __visibility__ to the target. _VisualID_ only occurs when the source is within 90m of the target, or the map visibility limit, whichever is smaller.
 
-## Jamming Details
-TODO: Clean this up
+### ECM Details
 
-* ```lv-jammer_mX_rY``` creates an ECM bubble in a circle of Y hexes (\*30 meters in game) around the source unit. The Jammer imposes a penalty of X to any sensor checks by jammed units.
-* ```lv-probe_mX``` is an active probe. It adds a bonus of X to sensor checks made by this unit.
+ECM components emit a bubble around the unit. After every movement occurs, all units are checked to see if they are within the ECM bubble of another unit.
 
-Probes of an equal tier penetrate jammers, to a T1 probe will penetrate a T1 jammer. This means the jammer won't add it's penalty to the source unit.
+If they are within an enemy ECM bubble, they gain an __ECM jamming__ modifier equal to the strength of the emitter. This reduces __both__ _Detection_ checks by the emitter strength.
 
-The MaxTech rulebook provides guidelines for how much of an impact ECM has on sensors. Because LowVisibility increases the dice 'roll' by a factor of 3, these modifiers are correspondingly increased. The table below lists the recommended modifier values for these scenarios:
+If the unit is within a friendly ECM bubble it gains __ECM protection__. This adds the friendly emitter's strength as a negative modifier to any _Detection Info_ checks made against the target.
 
-| Sensor | MaxTech (A./G.) | Angel ECM Mod | Guardian ECM Mod |
-| -- | -- | -- | -- |
-| Vehicle Sensor | 7 / 6 | -21 | -16 |
-| Mech Sensor | 6 / 5 | -18 | -15 |
-| Beagle | 5 / 4 | -15 | -12 |
-| Bloodhound | 4 / 3 | -12 | -9 |
-| Clan Active Probe | 3 / 2 | -9 | -6 |
+If there are multiple ECM emitters covering a target, the strongest modifier will be applied. Each additional emitter will add +1 strength to the strongest emitter's modifier. This value can be tweaked by changing the ``MultipleJammerPenalty`` in ``mod.json``.
 
-Assuming the ECM values above are used, and _Mech Sensors_ form the baseline at -18/-15 modifiers, recommended values for the active probe modifiers are:
+ECM components must have the tag ```lv-jammer_mX_rY``` to be recognized as an ECM emitter. The X value is the modifier the emitter adds as protection or jamming to the target. The Y value is the size of the ECM bubble generated, in hexes. A tag of __lv-jammer_m4_r8__ would apply to any targets within 8 hexes, apply a modifier of -4 to jammed enemies, and add 4 points of protection to friendly units.
 
-* Beagle: +3
-* Bloodhound: +6
-* Clan Active Probe: +9
+If an enemy unit within an ECM bubble is attempting to detect a friendly unit protected by the bubble, __both modifiers apply__. If there are two overlapping bubbles of __lv-jammer_m4_r8__ emitters, the enemy would have a total `-4 -1 = -5` penalty from being __jammed__, and a further `-4 -1 = -5` modifier due to the target having __protection__. Their checks would have a __-10__ modifier to detect the unit protected by both bubbles.
 
-Probe ranges are given as additional ranges from MaxTech, while ECM ranges come from the Master Rules. Those values are:
+#### Active Probe Details
 
-* Guardian ECM: 6 hexes
-* Angel ECM: 6 hexes
-* CEWS (ECM): 3 hexes
-* BattleArmor ECM: 3 hexes
-* Light Active Probe: +3 hexes
-* Beagle: +4 hexes
-* Bloodhound: +8 hexes
-* Clan Active Probe: +7 hexes
-* CEWS: +8 hexes
+`lv-probe_mX` is an active probe. It adds a bonus of X to sensor checks made by this unit.
 
-Pull this all together, recommended tags for this mod are:
 
-| Component | Tag |
-| -- | -- |
-| Guardian ECM | lv-jammer_t2_r6_m15 |
-| Angel ECM | lv-jammer_t3_r6_m18 |
-| CEWS | lv-jammer-t4_r3_m21 |
-| Beagle Active Probe | lv-probe-t1_r4_m3 |
-| Clan Active Probe | lv-probe-t1_r7_m9 |
-| Bloodhound Active Probe | lv-probe-t2_r8_m6 |
-| CEWS | lv-probe-t3_r3_m7 |
+#### Scrambler Details
 
-## Stealth
+`lv-scrambler_mX` is a
 
-Stealth systems reduce the chance of the unit being targeted with a visual or sensor lock.
+#### Stealth Details
 
-Component | Effect
--- | --
- __Chameleon Light Polarization Shield__ | TODO
-__Stealth Armor__ | TODO
-__Null-Signature System__ | TODO
-__Void-Signature System__ | TODO
+Stealth systems reduce the chance of the unit being detected with sensors. This makes them harder to find in the first place, but also makes them harder to attack as well. Stealth systems can have one or more of the following effects.
 
-```lv-stealth_mX``` - applies ECM to the target unit instead of generating a bubble. Won't jam enemies around the unit, but automatically defeats the sensor suit of equal or lower tier X.
+Components with the `lv-stealth_mX` tag reduce the _Detection Info_ check for a unit attempting to detect them.
 
-```lv-stealth-range-mod_sA_mB_lC_eD``` - applies A as a modifier to any attack against the target at short range, B at medium range, C at long range, and D at extreme range.
+Components with the `lv-stealth-range-mod_sA_mB_lC_eD` tag are more difficult to attack with ranged weapons. A is applied as a penalty to attacks against the target at short target. B is the penalty applied at medium range, C at long range, and D at extreme range.
 
-```lv-stealth-move-mod_mX_sZ``` - applies X as a modifier, and reduces it by -1 for each Y hexes the unit moves. m3_s2 would be a +3 modifier if the unit doesn't move, +2 if it moves 1-2 hexes, +1 for 3-4 hexes, +0 otherwise.
+Components with the `lv-stealth-move-mod_mX_sZ` tag are more difficult to attack if the unit is stationary. The value of X is a base penalty that applies to any attack against the target. This penalty is reduced by 1 for each Z hexes the target moves, until it the penalty is completely eliminated. A tag of __lv-stealth-move-mod_m3_s2__ would apply a +3 penalty if the unit did not move. If the unit moves 1 or 2 hexes, this penalty would be reduced to +2. If the unit moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
 
-## Narc Beacons
+#### Narc Beacon Details
 
 __WIP__
 RFC - thoughts on Narc beacon; I'll give it a tag like
@@ -213,7 +161,7 @@ The lack of range is to simplify the coding (complexity and checks). Once you're
 
 Narcs would only impact visibility, NOT sensor details. So you can see/target them, but details would still be hidden.
 
-## TAG
+#### TAG Details
 
 __WIP__
 For TAG, I'm thinking
