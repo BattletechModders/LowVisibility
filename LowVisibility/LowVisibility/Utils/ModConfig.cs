@@ -7,7 +7,7 @@ namespace LowVisibility {
 
         public bool FirstTurnForceFailedChecks = true;
 
-        public int MultipleJammerPenalty = 1;
+        public int MultipleECMSourceModifier = 1;
 
         // The base range (in hexes) for a unit's sensors
         public int SensorRangeMechType = 12;
@@ -49,7 +49,7 @@ namespace LowVisibility {
         public int ProbabilityMu = -2;
 
         public override string ToString() {
-            return $"Debug:{Debug}, Trace:{Trace}, FirstTurnForceFailedChecks:{FirstTurnForceFailedChecks}, MultipleJammerPenalty:{MultipleJammerPenalty}," +
+            return $"Debug:{Debug}, Trace:{Trace}, FirstTurnForceFailedChecks:{FirstTurnForceFailedChecks}, MultipleJammerPenalty:{MultipleECMSourceModifier}," +
                 $"SensorRanges= Mech:{SensorRangeMechType} Vehicle:{SensorRangeVehicleType} Turret:{SensorRangeTurretType} UnknownType:{SensorRangeUnknownType}" +
                 $"VisionRangeBaseDaylight:{VisionRangeBaseDaylight} VisionRangeBaseDimlight:{VisionRangeBaseDimlight} VisionRangeBaseNight:{VisionRangeBaseNight}" +
                 $"VisionRangeMultiRainSnow:{VisionRangeMultiRainSnow} VisionRangeMultiLightFog:{VisionRangeMultiLightFog} VisionRangeMultiHeavyFog:{VisionRangeMultiHeavyFog}" +
