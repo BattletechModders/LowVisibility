@@ -44,6 +44,8 @@ namespace LowVisibility.Patch {
             // Check for teamID; if it's not present, unit hasn't spawned yet. Defer to UnitSpawnPointGameLogic::SpawnUnit for these updates
             if (State.TurnDirectorStarted && __instance.TeamId != null) {
                 LowVisibility.Logger.LogIfDebug($"AbstractActor_UpdateLOSPositions:pre - entered for {CombatantHelper.Label(__instance)}.");
+
+                // Why am I doing this here, isntead of OnMovePhaseComplete? Is it to help the AI, which needs this frequently evaluated for it's routines?
                 ECMHelper.UpdateECMState(__instance);
                 VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
                 VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);

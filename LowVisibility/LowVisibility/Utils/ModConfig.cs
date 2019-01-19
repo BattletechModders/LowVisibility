@@ -47,7 +47,7 @@ namespace LowVisibility {
         // The inflection point of the probability distribution function.
         public int ProbabilitySigma = 4;
         // The inflection point of the probability distribution function.
-        public int ProbabilityMu = -2;
+        public int ProbabilityMu = -1;
 
         public override string ToString() {
             return $"Debug:{Debug}, Trace:{Trace}, FirstTurnForceFailedChecks:{FirstTurnForceFailedChecks}, MultipleJammerPenalty:{MultipleECMSourceModifier}," +
@@ -55,7 +55,7 @@ namespace LowVisibility {
                 $"VisionRangeBaseDaylight:{VisionRangeBaseDaylight} VisionRangeBaseDimlight:{VisionRangeBaseDimlight} VisionRangeBaseNight:{VisionRangeBaseNight}" +
                 $"VisionRangeMultiRainSnow:{VisionRangeMultiRainSnow} VisionRangeMultiLightFog:{VisionRangeMultiLightFog} VisionRangeMultiHeavyFog:{VisionRangeMultiHeavyFog}" +
                 $"VisionRangeMinimum:{VisionRangeMinimum} SensorRangeMinimum:{SensorRangeMinimum}, VisualIDRange:{VisualIDRange} " +
-                $"VisionOnlyRangeStep:{VisionOnlyRangeStep}, VisionOnlyPenalty:{VisionOnlyPenalty} SensorsOnlyPenalty:{SensorsOnlyPenalty}" +
+                $"VisionOnlyRangeStep:{VisionOnlyRangeStep}, VisionOnlyPenalty:{VisionOnlyPenalty} SensorsOnlyPenalty:{SensorsOnlyPenalty} " +
                 $"VisionOnlyCriticalPenalty:{VisionOnlyCriticalPenalty}, SensorsOnlyCriticalPenalty:{SensorsOnlyCriticalPenalty} " +
                 $"ProbabilitySigma:{ProbabilitySigma}, ProbabilityMu:{ProbabilityMu}";
 

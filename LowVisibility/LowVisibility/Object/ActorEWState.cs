@@ -311,9 +311,9 @@ namespace LowVisibility.Object {
         public int CalculateZoomVisionMod(float distance) {
             int penaltySteps = (int)Math.Floor(distance / (LowVisibility.Config.VisionOnlyRangeStep * 30.0f));
             int rangePenalty = penaltySteps * LowVisibility.Config.VisionOnlyPenalty;
-            int penalty = Math.Max(0, rangePenalty - this.zoomVision);
-            LowVisibility.Logger.LogIfDebug($"  Zoom Vision - at distance:{distance} Math.Floor(penaltySteps:{penaltySteps} * rangePenalty:{rangePenalty} " +
-                $"- zoomVision:{zoomVision}) = penalty:{penalty}");
+            int penalty = Math.Min(0, rangePenalty - this.zoomVision);
+            //LowVisibility.Logger.LogIfDebug($"  Zoom Vision - at distance:{distance} Math.Floor(penaltySteps:{penaltySteps} * rangePenalty:{rangePenalty} " +
+            //    $"- zoomVision:{zoomVision}) = penalty:{penalty}");
             return penalty;
         }
 

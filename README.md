@@ -70,11 +70,11 @@ At the start of every combat round, every unit (player or AI) makes two __sensor
 
 Each check is further modified by the source unit's tactics skill, as per the table below. (Skills 11-13 are for [RogueTech](http://roguetech.org) elite units).
 
-Skill |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |  10  | 11 | 12 | 13
--- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | --
-Modifier                  | +0 | +1 | +1 | +2 | +2 | +3 | +3 | +4 | +4 | +5 | +6 | +7 | +8
-+ Lvl 5 Ability | +0 | +1 | +1 | +2 | +3 | +4 | +4 | +5 | +5 | +6 | +7 | +8 | +9
-+ Level 8 Ability | +0 | +1 | +1 | +2 | +4 | +5 | +5 | +6 | +6 | +7 | +8 | +9 | +10
+| Skill |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |  10  | 11 | 12 | 13 |
+| -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- |
+| Modifier | +0 | +1 | +1 | +2 | +2 | +3 | +3 | +4 | +4 | +5 | +6 | +7 | +8 |
+| w/ Lvl 5 Ability | +0 | +1 | +1 | +2 | +3 | +4 | +4 | +5 | +5 | +6 | +7 | +8 | +9 |
+| w/ Lvl 8 Ability | +0 | +1 | +1 | +2 | +4 | +5 | +5 | +6 | +6 | +7 | +8 | +9 | +10 |
 
 #### Detection Range
 
@@ -247,7 +247,7 @@ Uses `lv-vision-heat_mX`
 - [] Saves occur on post-mission/pre-mission saves; should skip
 - [] Fix issues with VisualID - make it apply if close enough
 - [] Evasion pips display in T.HUD but not on the model
-- [] Add `lv-vision-zoom_m` and `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
+- [] Add `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
 - [] Make sensor lock not end your turn (SensorLockSequence)
 - [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
 - [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?

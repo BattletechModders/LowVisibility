@@ -32,6 +32,6 @@
         "SensorsOnlyCriticalPenalty" : 0.0,
         "MultipleECMSourceModifier" : 1,
         "ProbabilitySigma" : 4,
-        "ProbabilityMu" : -2
+        "ProbabilityMu" : -1
     }
 }

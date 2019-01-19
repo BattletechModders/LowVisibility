@@ -199,26 +199,26 @@ namespace LowVisibility.Helper {
             List<AbstractActor> targets = enemyActors.Union(neutralActors).ToList();
             List<ICombatant> combatants = new List<ICombatant>(targets.ToArray());
             foreach (AbstractActor source in playerActors) {                
-                source.VisibilityCache.RebuildCache(combatants);
+                source.VisibilityCache.UpdateCacheReciprocal(combatants);
             }
 
             LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Allies to Neutral and Enemies ====");
             foreach (AbstractActor source in alliedActors) {
-                source.VisibilityCache.RebuildCache(combatants);
+                source.VisibilityCache.UpdateCacheReciprocal(combatants);
             }
 
             LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Neutrals to players, allies and enemies. ====");
             targets = playerActors.Union(alliedActors).Union(enemyActors).ToList();
             combatants = new List<ICombatant>(targets.ToArray());
             foreach (AbstractActor source in neutralActors) {
-                source.VisibilityCache.RebuildCache(combatants);
+                source.VisibilityCache.UpdateCacheReciprocal(combatants);
             }
 
             LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Enemies to players, allies and neutrals. ====");
             targets = playerActors.Union(alliedActors).Union(neutralActors).ToList();
             combatants = new List<ICombatant>(targets.ToArray());
             foreach (AbstractActor source in enemyActors) {
-                source.VisibilityCache.RebuildCache(combatants);
+                source.VisibilityCache.UpdateCacheReciprocal(combatants);
             }
         }
 
@@ -328,22 +328,22 @@ namespace LowVisibility.Helper {
             bool sourceIsLocalPlayerAlly = source.Combat.HostilityMatrix.IsLocalPlayerFriendly(source.team) && !sourceIsPlayer;
 
             if (HostilityHelper.IsLocalPlayerEnemy(source)) {
-                unifiedLockState = UnifyLockState(HostilityHelper.EnemyToLocalPlayerActors(source.Combat), target);
+                unifiedLockState = UnifyLockState(source, HostilityHelper.EnemyToLocalPlayerActors(source.Combat), target);
                 LowVisibility.Logger.LogIfTrace($" == EnemyToLocalPlayerActors unifiedLockState is:{unifiedLockState}");
             } else if (HostilityHelper.IsLocalPlayerNeutral(source)) {
-                unifiedLockState = UnifyLockState(HostilityHelper.NeutralToLocalPlayerActors(source.Combat), target);
+                unifiedLockState = UnifyLockState(source, HostilityHelper.NeutralToLocalPlayerActors(source.Combat), target);
                 LowVisibility.Logger.LogIfTrace($" == NeutralToLocalPlayerActors unifiedLockState is:{unifiedLockState}");
             } else if (HostilityHelper.IsLocalPlayerAlly(source)) {
                 List<AbstractActor> actorsSharingVision = HostilityHelper.PlayerActors(source.Combat)
                     .Union(HostilityHelper.AlliedToLocalPlayerActors(source.Combat))
                     .ToList();
-                unifiedLockState = UnifyLockState(actorsSharingVision, target);
+                unifiedLockState = UnifyLockState(source, actorsSharingVision, target);
                 LowVisibility.Logger.LogIfTrace($" == AlliedToLocalPlayerActors unifiedLockState is:{unifiedLockState}");
             } else if (HostilityHelper.IsPlayer(source)) {
                 List<AbstractActor> actorsSharingVision = HostilityHelper.PlayerActors(source.Combat)
                     .Union(HostilityHelper.AlliedToLocalPlayerActors(source.Combat))
                     .ToList();
-                unifiedLockState = UnifyLockState(actorsSharingVision, target);
+                unifiedLockState = UnifyLockState(source, actorsSharingVision, target);
                 LowVisibility.Logger.LogIfTrace($" == PlayerActors unifiedLockState is:{unifiedLockState}");
             }
 
@@ -351,30 +351,35 @@ namespace LowVisibility.Helper {
             return unifiedLockState;
         }
 
-        public static LockState UnifyLockState(List<AbstractActor> actorsSharingState, AbstractActor target) {
+        public static LockState UnifyLockState(AbstractActor source, List<AbstractActor> actorsSharingState, AbstractActor target) {
             LockState lockState = new LockState {                
                 targetGUID = target.GUID,
                 sensorLockLevel = DetectionLevel.NoInfo,
                 visionLockLevel = VisionLockType.None
             };
 
-            // TOOD: Check for NEUTRALS
             foreach (AbstractActor actor in actorsSharingState) {
-                if (State.SourceActorLockStates.ContainsKey(actor.GUID)) {                    
-                    HashSet<LockState> actorLocks = State.SourceActorLockStates[actor.GUID];
-                    if (actorLocks != null) {                        
-                        LockState actorLockState = actorLocks?.FirstOrDefault(ls => ls.targetGUID == target.GUID);
-
+                if (State.SourceActorLockStates.ContainsKey(actor.GUID)) {                                        
+                    LockState actorLockToTarget = State.SourceActorLockStates[actor.GUID]?.FirstOrDefault(ls => ls.targetGUID == target.GUID);
+                    if (actorLockToTarget != null) {                                                
                         // Vision is always shared
-                        if (actorLockState != null && actorLockState.visionLockLevel > lockState.visionLockLevel) {                            
-                            lockState.visionLockLevel = actorLockState.visionLockLevel;
+                        if (actorLockToTarget.visionLockLevel > lockState.visionLockLevel) {                            
+                            lockState.visionLockLevel = actorLockToTarget.visionLockLevel;
+                            lockState.sourceGUID = actor.GUID;
+                        }
+
+                        // If we are the source, use our sensors.
+                        if (actor.GUID == source.GUID && actorLockToTarget.sensorLockLevel > lockState.sensorLockLevel) {
+                            LowVisibility.Logger.LogIfDebug($"  using source's sensors:{CombatantHelper.Label(actor)}");
+                            lockState.sensorLockLevel = actorLockToTarget.sensorLockLevel;
                             lockState.sourceGUID = actor.GUID;
                         }
 
                         // Sensors are conditionally shared
-                        StaticEWState friendlyEWConfig = State.GetStaticState(actor);
-                        if (actorLockState != null && friendlyEWConfig.sharesSensors && actorLockState.sensorLockLevel > lockState.sensorLockLevel) {
-                            lockState.sensorLockLevel = actorLockState.sensorLockLevel;
+                        StaticEWState actorEWConfig = State.GetStaticState(actor);
+                        if (actorEWConfig.sharesSensors && actorLockToTarget.sensorLockLevel > lockState.sensorLockLevel) {
+                            LowVisibility.Logger.LogIfDebug($"  sharing sensors from actor:{CombatantHelper.Label(actor)}");
+                            lockState.sensorLockLevel = actorLockToTarget.sensorLockLevel;
                             lockState.sourceGUID = actor.GUID;
                         }
                     }

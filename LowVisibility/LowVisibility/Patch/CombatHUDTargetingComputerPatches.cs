@@ -34,13 +34,6 @@ namespace LowVisibility.Patch {
                         ___HUD.Combat.LocalPlayerTeam.VisibilityToTarget(abstractActor) >= VisibilityLevel.Blip0Minimum)) {
                         Traverse.Create(__instance).Property("HoveredCombatant").SetValue(combatant);
                     }
-                    /*
-                    if (combatant.team != this.HUD.Combat.LocalPlayerTeam && 
-                        (abstractActor == null || this.HUD.Combat.LocalPlayerTeam.VisibilityToTarget(abstractActor) == VisibilityLevel.LOSFull))
-				    {
-					    this.HoveredCombatant = combatant;
-				    }
-                     */
                 }
             }
 
@@ -172,7 +165,7 @@ namespace LowVisibility.Patch {
                         weaponsLabel.SetActive(false);
                     }
                 } else {
-                    LowVisibility.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{CombatantHelper.Label(target)} is player, showing panel.");
+                    //LowVisibility.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{CombatantHelper.Label(target)} is player, showing panel.");
                 }
             }
         }

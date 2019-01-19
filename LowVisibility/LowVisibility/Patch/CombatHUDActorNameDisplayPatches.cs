@@ -198,4 +198,20 @@ namespace LowVisibility.Patch {
             }
         }
     }
+
+    // -- HIDE PILOT NAME PATCHES --
+    [HarmonyPatch(typeof(CombatHUDActorNameDisplay), "RefreshInfo")]
+    [HarmonyPatch(new Type[] { typeof(VisibilityLevel) } )]
+    public static class CombatHUDActorNameDisplay_RefreshInfo {
+
+        public static void Postfix(CombatHUDActorNameDisplay __instance, VisibilityLevel visLevel, AbstractActor ___displayedActor) {
+            if (___displayedActor != null && 
+                (HostilityHelper.IsLocalPlayerEnemy(___displayedActor) || HostilityHelper.IsLocalPlayerNeutral(___displayedActor))) {
+                LockState lockState = State.GetLockStateForLastActivatedAgainstTarget(___displayedActor);
+                if (lockState != null && lockState.sensorLockLevel < DetectionLevel.DentalRecords) {
+                    __instance.PilotNameText.SetText("Unidentified Pilot");
+                }
+            }
+        }
+    }
 }
