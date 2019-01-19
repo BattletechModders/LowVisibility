@@ -138,7 +138,11 @@ If an enemy unit within an ECM bubble is attempting to detect a friendly unit pr
 
 #### Scrambler Details
 
-`lv-scrambler_mX` is a
+**WIP**
+
+`lv-scrambler_mX` is an active type of stealth. It reduces the target's ability to lock onto the target;
+
+Should this increase visibility?
 
 #### Stealth Details
 
@@ -153,44 +157,90 @@ Components with the `lv-stealth-move-mod_mX_sZ` tag are more difficult to attack
 #### Narc Beacon Details
 
 __WIP__
-RFC - thoughts on Narc beacon; I'll give it a tag like
-lv_narc_mX
+
+`lv-narc-effect_m`
+
 . The modifier is compared against all friendly to the narc'd unit ECM . If the narc modifier is > friendly_ecm, it makes the unit visible to enemies no matter the range.
 
 The lack of range is to simplify the coding (complexity and checks). Once you're narc'd it's unlikely you'd get so far away that you'd be out of sensor range anyways, and it can guard against really bad sensor range checks.
 
-Narcs would only impact visibility, NOT sensor details. So you can see/target them, but details would still be hidden.
-
+    "tagData" : { 
+    	"tagList" : [ "lv-narc-effect_m8" ] 
+    },
 #### TAG Details
 
 __WIP__
 For TAG, I'm thinking
-lv_tag_mX
+`lv-tag-effect`
 , where X is a pretty big number (8-9). For each hex the target moves, that modifier gets reduced by -1. When a details check is made against the target, the current TAG bonus is added to the enemy check.
 
 I'm thinking the value of TAG is that it wouldn't be  impacted by ECM. That's not 'realistic' but it feels like a useful trait mechanically.
+
+```
+{ 
+"durationData":{
+    "duration" : 10,
+    "ticksOnActivations" : false,
+    "useActivationsOfTarget" : true,
+    "ticksOnEndOfRound" : false,
+    "ticksOnMovements" : true,
+    "stackLimit" : 1,
+    "clearedWhenAttacked" : false
+	},
+"targetingData" : {
+    "effectTriggerType" : "OnHit",
+    "triggerLimit" : 0,
+    "extendDurationOnTrigger" : 0,
+    "specialRules" : "NotSet",
+    "effectTargetType" : "NotSet",
+    "range" : 0,
+    "forcePathRebuild" : false,
+    "forceVisRebuild" : false,
+    "showInTargetPreview" : false,
+    "showInStatusPanel" : true
+    },
+"effectType" : "TagEffect",
+"Description" : {
+    "Id" : "TAG-Effect-Vision",
+    "Name" : "Target Acquired",
+    "Details" : "This target was TAG'ed. It will be much easier to see until it moves.",
+    "Icon" : "uixSvgIcon_artillery"
+},
+"nature" : "Debuff",
+"statisticData" : null,
+"tagData" : { 
+	"tagList" : [ "lv-tag-effect" ] 
+	},
+"floatieData" : null,
+"actorBurningData" : null,
+"vfxData" : null,
+"instantModData" : null,
+"poorlyMaintainedEffectData" : null
+}
+```
+
+
+
+
 
 ## Worklog
 
 ### WIP Features
 
-- [] Buildings should always be visible and not subject to ECM - breaks AI without this!
-  - __Preliminary testing seems to indicate this may be fixed__
+- [] Buildings should always be visible and not subject to ECM - breaks AI without this!__
   - Likely an issue that I'm dealing with AbstractActors everywhere, but can be an ICombatant
-- [] Allied units sometimes showing as blips instead of always full vision.
 - [] Saves occur on post-mission/pre-mission saves; should skip
-- [] Eliminate visual scan - vision lock is a limited amount of info
-- [] Add tactics bonus for L5 & L8, just like SBI.
+- [] Fix issues with VisualID - make it apply if close enough
 - [] Evasion pips display in T.HUD but not on the model
+- [] Add `lv-vision-zoom_m` and `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
+- [] Make sensor lock not end your turn (SensorLockSequence)
 - [] C3 slave should require a C3 master to share sensors. CEWS Nova should share with units that have CEWS Nova. (ask MXMach/LA for details)
 - [] FrostRaptor: @LadyAlekto so in a lance where c3m/c3s present... each adds +X to each other's detail / range checks?
   [4:17 PM] FrostRaptor: Same for c3i - each present in lance gives +X to lance members with it?
   [4:17 PM] LadyAlekto: yeah
-- [] scrambler_m0 tag; scrambles sensor checks at any range. Allows LA to build the 'IFF jammer' she wants. Sorta like stealth, but w/o the ECM requirement.
 - [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
 - [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
 - [] On shutdown, no stealth / ecm / etc applies
-- [] If possible, make SensorLock boost sensorrange by 2x for the remainder of the round.
 - [] Validate functionality works with saves - career, campaign, skirmish
 - [] Hide pilot details when not DentalRecords
 - [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
@@ -201,8 +251,6 @@ I'm thinking the value of TAG is that it wouldn't be  impacted by ECM. That's no
 - [] Component damage should eliminate ECM, AP, Stealth bonuses
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
 - [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
-- [] Implement Narc Effect - check status on target mech, if Effect.EffectData.tagData.tagList contains ```lv_effect_narc_rY_dZ```, narc Continues to emit for durationZ, Y is radius within which anybody can benefit from the Narc boost.
-- [] Implement Tag effects; ```lv-effect-tag_m?```. Tag differs from narc in that it's only during LOS? Others wants it tied to TAG effects and be for 1-2 activations.
 - [] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
 - [] Implement stealth multi-target prohibition
 - [] Reimplement sensor shadows?
@@ -215,9 +263,6 @@ I'm thinking the value of TAG is that it wouldn't be  impacted by ECM. That's no
 ### Possible Additions
 
 - [] Sensors should have a range within which they work; otherwise they are just a bonus to the roll. Making them have a specific range, and limiting vision details to probes, might be a way to go?
-- [] Add a ```lv-jammer-boost_mX``` and ```lv-probe-boost_mX``` that provide a flat +M to any attached jammer, probe. This allows them to build the 'IFF Jammer' they talked about.
-- [] Sensor info / penalty driven by range bands? You get more info at short range than long?
-- [] Hide/obfuscate some ranged attack tooltip information at low sensor levels (evasion, stealth), etc? If we do this, some folks won't understand why something is -2 or -3 until they get a better reading.
 - [] Add ability for a pilot to get a bad reading / critical failure. Tie to tactics as a roll, so poor pilots have it happen more often.  In failure, show wrong name/tonnage/information to confuse the player. May need some hidden marker indicating that this is a false lead - possibly a temporarily value that can be removed once we introduce the mod.
 - [] Should stealth have a visibility modifier that changes as you move move? I.e. 0.1 visibility if you don't move, 0.5 if you do, etc. (Think Chameleon shield - should make it harder to see the less you move)
 
