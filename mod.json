@@ -29,7 +29,7 @@
         "NoVisualLockRangePenaltyMulti" : 1.0,
         "NoSensorLockCriticalMultiPenalty" : 0.0,
         "NoVisualLockCriticalMultiPenalty" : 0.0,
-        "MultipleJammerPenalty" : 1,
+        "MultipleECMSourceModifier" : 1,
         "ProbabilitySigma" : 4,
         "ProbabilityMu" : -2
     }
