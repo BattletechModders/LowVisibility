@@ -92,7 +92,7 @@ namespace LowVisibility.Patch {
         public static bool Prefix(LineOfSight __instance, ref VisibilityLevel __result, 
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation) {
             // Skip if we aren't ready to process 
-            if (State.TurnDirectorStarted == false) { return true;  }
+            if (State.TurnDirectorStarted == false || (target as Building) != null) { return true;  }
 
             //LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - entered. ");
             //LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - stacktrace: {Environment.StackTrace}");
@@ -192,7 +192,6 @@ namespace LowVisibility.Patch {
                     }
                 }
             }
-
             __result = visibilityLevel;
 
             return false;
