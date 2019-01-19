@@ -236,6 +236,7 @@ I'm thinking the value of TAG is that it wouldn't be  impacted by ECM. That's no
 - [] Saves occur on post-mission/pre-mission saves; should skip
 - [] Fix issues with VisualID - make it apply if close enough
 - [] Evasion pips display in T.HUD but not on the model
+- [] Add `lv-probe-boost-m` modifier that boosts probe checks, stacks with itself.
 - [] Add `lv-vision-zoom_m` and `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
 - [] Make sensor lock not end your turn (SensorLockSequence)
 - [] C3 slave should require a C3 master to share sensors. CEWS Nova should share with units that have CEWS Nova. (ask MXMach/LA for details)

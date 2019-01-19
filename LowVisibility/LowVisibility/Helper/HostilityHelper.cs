@@ -8,16 +8,16 @@ namespace LowVisibility.Helper {
     public static class HostilityHelper {
 
         public static bool IsPlayer(AbstractActor actor) {
-            return actor != null && actor.team == actor.Combat.LocalPlayerTeam;
+            return actor != null && actor.TeamId == actor.Combat.LocalPlayerTeam.GUID;
         }
         public static bool IsLocalPlayerEnemy(AbstractActor actor) {
-            return actor != null && actor.Combat.HostilityMatrix.IsLocalPlayerEnemy(actor.team);
+            return actor != null && actor.Combat.HostilityMatrix.IsLocalPlayerEnemy(actor.TeamId);
         }
         public static bool IsLocalPlayerNeutral(AbstractActor actor) {
-            return actor != null && actor.Combat.HostilityMatrix.IsLocalPlayerNeutral(actor.team);
+            return actor != null && actor.Combat.HostilityMatrix.IsLocalPlayerNeutral(actor.TeamId);
         }
         public static bool IsLocalPlayerAlly(AbstractActor actor) {
-            return actor != null && actor.Combat.HostilityMatrix.IsLocalPlayerFriendly(actor.team) && !IsPlayer(actor);
+            return actor != null && actor.Combat.HostilityMatrix.IsLocalPlayerFriendly(actor.TeamId) && !IsPlayer(actor);
         }
 
         public static List<AbstractActor> PlayerActors(CombatGameState Combat) {

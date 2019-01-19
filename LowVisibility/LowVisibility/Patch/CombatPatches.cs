@@ -16,6 +16,7 @@ namespace LowVisibility.Patch {
                 return;
             }
 
+            ECMHelper.UpdateECMState(__instance);
             VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
             VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
 
@@ -40,14 +41,10 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(AbstractActor), "UpdateLOSPositions")]
     public static class AbstractActor_UpdateLOSPositions {
         public static void Prefix(AbstractActor __instance) {
-            if (State.TurnDirectorStarted) {
+            // Check for teamID; if it's not present, unit hasn't spawned yet. Defer to UnitSpawnPointGameLogic::SpawnUnit for these updates
+            if (State.TurnDirectorStarted && __instance.TeamId != null) {
                 LowVisibility.Logger.LogIfDebug($"AbstractActor_UpdateLOSPositions:pre - entered for {CombatantHelper.Label(__instance)}.");
                 ECMHelper.UpdateECMState(__instance);
-
-                bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
-                AbstractActor updateActor = isPlayer ? 
-                    __instance : 
-                    __instance.Combat.AllActors.Where(aa => aa.TeamId == __instance.Combat.LocalPlayerTeamGuid).First();
                 VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
                 VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
             }
