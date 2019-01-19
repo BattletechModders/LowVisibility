@@ -185,10 +185,7 @@ namespace LowVisibility.Object {
             // Determine pilot bonus
             int unitTacticsBonus = 0;
             if (actor.GetPilot() != null) {
-                int pilotTactics = actor.GetPilot().Tactics;                
-                int normedTactics = SkillHelper.NormalizeSkill(pilotTactics);
-                unitTacticsBonus = SkillHelper.ModifierBySkill[normedTactics];
-                // TODO: Add bonus for SensorLock
+                unitTacticsBonus = SkillHelper.GetTacticsModifier(actor.GetPilot());
             } else {
                 LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} HAS NO PILOT!");
             }

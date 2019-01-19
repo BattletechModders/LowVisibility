@@ -73,7 +73,7 @@ namespace LowVisibility.Helper {
             if (source.IsPilotable) {
                 Pilot pilot = source.GetPilot();
                 if (pilot != null) {
-                    int normdTactics = SkillHelper.NormalizeSkill(pilot.Tactics);
+                    int normdTactics = SkillHelper.GetTacticsModifier(pilot);
                     spottingTacticsMultipler = (float)normdTactics * source.Combat.Constants.Visibility.SpotterTacticsMultiplier;
                     //LowVisibility.Logger.LogIfDebug($"  actor:{CombatantHelper.Label(source)} with tactics:{pilot.Tactics}/{normdTactics} x " +
                     //    $"{source.Combat.Constants.Visibility.SpotterTacticsMultiplier} = spottingTacticsMulti:{spottingTacticsMultipler}");
