@@ -48,9 +48,9 @@ namespace LowVisibility.Helper {
             int normalizedVal = NormalizeSkill(skillValue);
             int mod = ModifierBySkill[normalizedVal];
             foreach (Ability ability in pilot.Abilities.Distinct()) {
-                LowVisibility.Logger.LogIfDebug($"Pilot {pilot.Name} has ability:{ability.Def.Id}.");
+                LowVisibility.Logger.LogIfTrace($"Pilot {pilot.Name} has ability:{ability.Def.Id}.");
                 if (ability.Def.Id.ToLower().Equals(abilityDefIdL5.ToLower()) || ability.Def.Id.ToLower().Equals(abilityDefIdL8.ToLower())) {
-                    LowVisibility.Logger.LogIfDebug($"Pilot {pilot.Name} has targeted ability:{ability.Def.Id}, boosting their modifier.");
+                    LowVisibility.Logger.LogIfTrace($"Pilot {pilot.Name} has targeted ability:{ability.Def.Id}, boosting their modifier.");
                     mod += 1;
                 }
 
