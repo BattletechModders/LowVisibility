@@ -16,6 +16,9 @@ namespace LowVisibility.Patch {
                 return;
             }
 
+            VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
+            VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
+
             LowVisibility.Logger.LogIfTrace($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantHelper.Label(__instance)}");
             bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
             if (isPlayer) {
