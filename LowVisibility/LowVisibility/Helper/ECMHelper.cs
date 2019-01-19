@@ -98,7 +98,7 @@ namespace LowVisibility.Helper {
                     : new List<Effect>();
             LowVisibility.Logger.LogIfTrace($"  -- target:{CombatantHelper.Label(source)} has:{(tagEffects != null ? tagEffects.Count : 0)} TAG effects");
             int tagEffect = 0;
-            foreach (Effect effect in narcEffects) {
+            foreach (Effect effect in tagEffects) {
                 string effectTag = effect?.EffectData?.tagData?.tagList?.FirstOrDefault(t => t.StartsWith(StaticEWState.TagPrefixTagEffect));
                 tagEffect = effect.Duration.numMovementsRemaining;
             }
