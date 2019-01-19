@@ -112,6 +112,17 @@ namespace LowVisibility.Patch {
             if (distance > adjustedSensorRange) {
 
                 // Check for Narc 
+                if (targetActor != null && State.NARCEffect(targetActor) != 0) {
+                    int delta = State.NARCEffect(targetActor) - State.ECMProtection(targetActor);
+                    LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active " +
+                        $"narc effect {State.NARCEffect(targetActor)} vs. ECM Protection:{State.ECMProtection(targetActor)}, delta is:{delta}");
+
+                    if (delta >= 1) {
+                        LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active narc effect, marking them visible!");
+                        __result = VisibilityLevel.Blip4Maximum;
+                        return false;
+                    }
+                }
 
                 __result = VisibilityLevel.None;
                 return false;
@@ -169,7 +180,17 @@ namespace LowVisibility.Patch {
 
                 // If EW effects have rendered the target invisible, break the lock
                 visibilityLevel = GetUnifiedVisibilityLevel(source, targetActor);
-                //LowVisibility.Logger.LogIfDebug($"VTTWPAR Source:{CombatantHelper.Label(source)} has lockState:{lockState} to target:{targetActor as AbstractActor}");                
+                //LowVisibility.Logger.LogIfDebug($"VTTWPAR Source:{CombatantHelper.Label(source)} has lockState:{lockState} to target:{targetActor as AbstractActor}");  
+
+                // Check for Narc 
+                if (State.NARCEffect(targetActor) != 0 && visibilityLevel < VisibilityLevel.Blip4Maximum) {
+                    int delta = State.NARCEffect(targetActor) - State.ECMProtection(targetActor);
+                    if (delta >= 1) {
+                        LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active narc effect, marking them visible!");
+                        __result = VisibilityLevel.Blip4Maximum;
+                        return false;
+                    }
+                }
             }
 
             __result = visibilityLevel;

@@ -10,20 +10,22 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(GameInstance), "Load")]
     [HarmonyPatch(new Type[] { typeof(GameInstanceSave) })]
     public static class GameInstance_Load {
+
         public static void Postfix(GameInstance __instance, GameInstanceSave save) {
-            LowVisibility.Logger.LogIfDebug($"Loading saveGame with fileId:{save.FileID}.");
+            LowVisibility.Logger.LogIfDebug($"Loading saveGame with fileId:{save.FileID} with reason:{save.SaveReason}");
             State.LoadStateData(save.FileID);
         }
     }
 
     [HarmonyPatch()]
     public static class GameInstance_SaveComplete {
+
         public static MethodInfo TargetMethod() {
             return AccessTools.Method(typeof(GameInstance), "SaveComplete", new Type[] { typeof(StructureSaveComplete), typeof(bool) });
         }
 
         public static void Postfix(GameInstance __instance, StructureSaveComplete message, bool quit) {
-            LowVisibility.Logger.LogIfDebug($"Creating saveGame with fileId:{message.Slot.FileID}.");
+            LowVisibility.Logger.LogIfDebug($"Creating saveGame with fileId:{message.Slot.FileID} with reason:{message.Slot.SaveReason}");
             State.SaveStateData(message.Slot.FileID);
         }
     }

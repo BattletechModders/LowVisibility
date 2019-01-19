@@ -125,6 +125,12 @@ namespace LowVisibility.Patch {
         
         public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames, CombatHUDStatusPanel ___StatusPanel) {
             //KnowYourFoe.Logger.Log("CombatHUDTargetingComputer:RefreshActorInfo:post - entered.");
+            if (__instance.ActivelyShownCombatant == null || 
+                __instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID)) {
+                // Let the native method handle it
+                return;
+            }
+
             if (__instance.ActivelyShownCombatant != null) {
 
                 ICombatant target = __instance.ActivelyShownCombatant;

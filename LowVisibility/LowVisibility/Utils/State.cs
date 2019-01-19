@@ -30,11 +30,12 @@ namespace LowVisibility {
         
         // TODO: Do I need this anymore?
         public static string LastPlayerActivatedActorGUID;
+
+        // -- State related to ECM/effects
         public static Dictionary<string, int> ECMJammedActors = new Dictionary<string, int>();
         public static Dictionary<string, int> ECMProtectedActors = new Dictionary<string, int>();
-
-        public static HashSet<string> NarcedActors = new HashSet<string>();
-        public static HashSet<string> TaggedActors = new HashSet<string>();
+        public static Dictionary<string, int> NarcedActors = new Dictionary<string, int>();
+        public static Dictionary<string, int> TaggedActors = new Dictionary<string, int>();
         
         public static bool TurnDirectorStarted = false;
         public const int ResultsToPrecalcuate = 16384;
@@ -150,12 +151,11 @@ namespace LowVisibility {
             return ECMJammedActors.ContainsKey(actor.GUID) ? ECMJammedActors[actor.GUID] : 0;
         }
 
-        public static void AddECMJamming(AbstractActor actor, int jammingStrength) {
-            DynamicEWState dynamicState = GetDynamicState(actor);
+        public static void AddECMJamming(AbstractActor actor, int modifier) {
             if (!ECMJammedActors.ContainsKey(actor.GUID)) {
-                ECMJammedActors.Add(actor.GUID, jammingStrength);
-            } else if (jammingStrength > ECMJammedActors[actor.GUID]) {
-                ECMJammedActors[actor.GUID] = jammingStrength;
+                ECMJammedActors.Add(actor.GUID, modifier);
+            } else if (modifier > ECMJammedActors[actor.GUID]) {
+                ECMJammedActors[actor.GUID] = modifier;
             }            
         }
         public static void RemoveECMJamming(AbstractActor actor) {
@@ -166,15 +166,14 @@ namespace LowVisibility {
 
         // --- ECM PROTECTION STATE TRACKING
         public static int ECMProtection(AbstractActor actor) {
-            return ECMJammedActors.ContainsKey(actor.GUID) ? ECMProtectedActors[actor.GUID] : 0;
+            return ECMProtectedActors.ContainsKey(actor.GUID) ? ECMProtectedActors[actor.GUID] : 0;
         }
 
-        public static void AddECMProtection(AbstractActor actor, int protectionStrength) {
-            DynamicEWState dynamicState = GetDynamicState(actor);
+        public static void AddECMProtection(AbstractActor actor, int modifier) {            
             if (!ECMProtectedActors.ContainsKey(actor.GUID)) {
-                ECMProtectedActors.Add(actor.GUID, protectionStrength);
-            } else if (protectionStrength > ECMProtectedActors[actor.GUID]) {
-                ECMProtectedActors[actor.GUID] = protectionStrength;
+                ECMProtectedActors.Add(actor.GUID, modifier);
+            } else if (modifier > ECMProtectedActors[actor.GUID]) {
+                ECMProtectedActors[actor.GUID] = modifier;
             }
         }
         public static void RemoveECMProtection(AbstractActor actor) {
@@ -182,6 +181,43 @@ namespace LowVisibility {
                 ECMProtectedActors.Remove(actor.GUID);
             }
         }
+
+        // --- ECM NARC EFFECT
+        public static int NARCEffect(AbstractActor actor) {
+            return NarcedActors.ContainsKey(actor.GUID) ? NarcedActors[actor.GUID] : 0;
+        }
+
+        public static void AddNARCEffect(AbstractActor actor, int modifier) {
+            if (!NarcedActors.ContainsKey(actor.GUID)) {
+                NarcedActors.Add(actor.GUID, modifier);
+            } else if (modifier > NarcedActors[actor.GUID]) {
+                NarcedActors[actor.GUID] = modifier;
+            }
+        }
+        public static void RemoveNARCEffect(AbstractActor actor) {
+            if (NarcedActors.ContainsKey(actor.GUID)) {
+                NarcedActors.Remove(actor.GUID);
+            }
+        }
+
+        // --- ECM TAG EFFECT
+        public static int TAGEffect(AbstractActor actor) {
+            return TaggedActors.ContainsKey(actor.GUID) ? TaggedActors[actor.GUID] : 0;
+        }
+
+        public static void AddTAGEffect(AbstractActor actor, int modifier) {
+            if (!TaggedActors.ContainsKey(actor.GUID)) {
+                TaggedActors.Add(actor.GUID, modifier);
+            } else if (modifier > TaggedActors[actor.GUID]) {
+                TaggedActors[actor.GUID] = modifier;
+            }
+        }
+        public static void RemoveTAGEffect(AbstractActor actor) {
+            if (TaggedActors.ContainsKey(actor.GUID)) {
+                TaggedActors.Remove(actor.GUID);
+            }
+        }
+
         // --- FILE SAVE/READ BELOW ---
         private class SerializationState {
             public string LastPlayerActivatedActorGUID;

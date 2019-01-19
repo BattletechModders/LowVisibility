@@ -150,58 +150,17 @@ namespace LowVisibility.Helper {
                 }
 
                 // Check for a Narc effect
-                List<Effect> allEffects = target.Combat.EffectManager.GetAllEffectsTargeting(target);
-                List <Effect> narcEffects = allEffects != null
-                    ? allEffects.Where(e => e?.EffectData?.tagData?.tagList != null)
-                        .Where(e => e.EffectData.tagData.tagList.Any(s => s.Contains(StaticEWState.TagPrefixNarcEffect)))
-                        .ToList()
-                    : new List<Effect>();
-                LowVisibility.Logger.LogIfDebug($"  -- target:{CombatantHelper.Label(target)} has:{(narcEffects != null ? narcEffects.Count : 0)} NARC effects");
-                int narcEffect = 0;
-                foreach (Effect effect in narcEffects) {
-                    string effectTag = effect?.EffectData?.tagData?.tagList?.FirstOrDefault(t => t.StartsWith(StaticEWState.TagPrefixNarcEffect));
-                    if (effectTag != null) {
-                        string[] split = effectTag.Split('_');
-                        if (split.Length == 2) {
-                            int modifier = int.Parse(split[1].Substring(1));
-                            if (modifier > narcEffect) {
-                                narcEffect = modifier;
-                                LowVisibility.Logger.LogIfDebug($"  Effect:{effect.EffectData.Description.Id} adding modifier:{modifier}.");
-                            }
-                        } else {
-                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(target)} - MALFORMED EFFECT TAG -:{effect}");
-                        }
-                    }
-                }
-                if (narcEffect != 0) {
-                    LowVisibility.Logger.LogIfDebug($"  -- target:{CombatantHelper.Label(target)} has NARC beacon with value:{narcEffect}");
-                    if (State.ECMProtection(target) >= narcEffect) {
-                        LowVisibility.Logger.LogIfDebug($"  -- target:{CombatantHelper.Label(target)} has NARC beacon mod:{narcEffect} " +
-                            $"and ECM protection:{State.ECMProtection(target)}. NARC has no effect.");
-                    } else {
-                        int delta = narcEffect - State.ECMProtection(target);
-                        LowVisibility.Logger.LogIfDebug($"  -- target:{CombatantHelper.Label(target)} has NARC beacon with modifier:{narcEffect} " +
-                            $"and ECM protection:{State.ECMProtection(target)}. Applied delta:{delta} to increase sourceCheckResult to:{modifiedSourceCheck}");
-                    }
-                    // TODO: CHECK FOR PROTECTION
+                if (State.NARCEffect(target) != 0) {
+                    modifiedSourceCheck += State.NARCEffect(target);
+                    LowVisibility.Logger.LogIfDebug($"  -- target:{CombatantHelper.Label(target)} has NARC effect:{State.NARCEffect(target)}, " +
+                        $"increasing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
                 // Check for a Tag effect
-                List<Effect> tagEffects = allEffects != null 
-                    ? allEffects.Where(e => e?.EffectData?.tagData?.tagList != null)
-                        .Where(e => e.EffectData.tagData.tagList.Contains(StaticEWState.TagPrefixTagEffect))
-                        .ToList()
-                    : new List<Effect>();
-                LowVisibility.Logger.LogIfDebug($"  -- target:{CombatantHelper.Label(target)} has:{(tagEffects != null ? tagEffects.Count : 0)} TAG effects");
-                int tagEffect = 0;
-                foreach (Effect effect in narcEffects) {
-                    string effectTag = effect?.EffectData?.tagData?.tagList?.FirstOrDefault(t => t.StartsWith(StaticEWState.TagPrefixTagEffect));
-                    tagEffect = effect.Duration.numMovementsRemaining;
-                }
-                if (tagEffect != 0) {
-                    modifiedSourceCheck += tagEffect;
-                    LowVisibility.Logger.LogIfDebug($"  -- target:{CombatantHelper.Label(target)} has TAG with value:{tagEffect}, " +
-                        $"increased sourceCheckResult to:{modifiedSourceCheck}");
+                if (State.TAGEffect(target) != 0) {
+                    modifiedSourceCheck += State.TAGEffect(target);
+                    LowVisibility.Logger.LogIfDebug($"  -- target:{CombatantHelper.Label(target)} has TAG effect:{State.TAGEffect(target)}, " +
+                        $"increasing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
                 // Determine the final lockLevelCheck
@@ -223,31 +182,33 @@ namespace LowVisibility.Helper {
         }
 
         public static void UpdateVisibilityForAllTeams(CombatGameState Combat) {
+            LowVisibility.Logger.LogIfDebug($"  ==== Updating Visibility for All Teams ====");
+
             List<AbstractActor> playerActors = HostilityHelper.PlayerActors(Combat);
             List<AbstractActor> alliedActors = HostilityHelper.AlliedToLocalPlayerActors(Combat);
             List<AbstractActor> enemyActors = HostilityHelper.EnemyToLocalPlayerActors(Combat);
             List<AbstractActor> neutralActors = HostilityHelper.NeutralToLocalPlayerActors(Combat);
-
-            LowVisibility.Logger.LogIfDebug($"  ==== Updating Visibility for Players to Neutral and Enemies ====");
+            
+            LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Players to Neutral and Enemies ====");
             List<AbstractActor> targets = enemyActors.Union(neutralActors).ToList();
             List<ICombatant> combatants = new List<ICombatant>(targets.ToArray());
             foreach (AbstractActor source in playerActors) {                
                 source.VisibilityCache.RebuildCache(combatants);
             }
 
-            LowVisibility.Logger.LogIfDebug($"  ==== Updating Visibility for Allies to Neutral and Enemies ====");
+            LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Allies to Neutral and Enemies ====");
             foreach (AbstractActor source in alliedActors) {
                 source.VisibilityCache.RebuildCache(combatants);
             }
 
-            LowVisibility.Logger.LogIfDebug($"  ==== Updating Visibility for Neutrals to players, allies and enemies. ====");
+            LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Neutrals to players, allies and enemies. ====");
             targets = playerActors.Union(alliedActors).Union(enemyActors).ToList();
             combatants = new List<ICombatant>(targets.ToArray());
             foreach (AbstractActor source in neutralActors) {
                 source.VisibilityCache.RebuildCache(combatants);
             }
 
-            LowVisibility.Logger.LogIfDebug($"  ==== Updating Visibility for Enemies to players, allies and neutrals. ====");
+            LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Enemies to players, allies and neutrals. ====");
             targets = playerActors.Union(alliedActors).Union(neutralActors).ToList();
             combatants = new List<ICombatant>(targets.ToArray());
             foreach (AbstractActor source in enemyActors) {
