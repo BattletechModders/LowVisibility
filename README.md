@@ -164,9 +164,13 @@ __WIP__
 
 The lack of range is to simplify the coding (complexity and checks). Once you're narc'd it's unlikely you'd get so far away that you'd be out of sensor range anyways, and it can guard against really bad sensor range checks.
 
-    "tagData" : { 
-    	"tagList" : [ "lv-narc-effect_m8" ] 
-    },
+    "statusEffects": [{
+        ...
+        "tagData" : { 
+    		"tagList" : [ "lv-narc-effect_m8" ] 
+    	},
+    }]
+    
 #### TAG Details
 
 __WIP__
@@ -177,7 +181,7 @@ For TAG, I'm thinking
 I'm thinking the value of TAG is that it wouldn't be  impacted by ECM. That's not 'realistic' but it feels like a useful trait mechanically.
 
 ```
-{ 
+"statusEffects": [{
 "durationData":{
     "duration" : 10,
     "ticksOnActivations" : false,
@@ -216,7 +220,7 @@ I'm thinking the value of TAG is that it wouldn't be  impacted by ECM. That's no
 "vfxData" : null,
 "instantModData" : null,
 "poorlyMaintainedEffectData" : null
-}
+}]
 ```
 
 
