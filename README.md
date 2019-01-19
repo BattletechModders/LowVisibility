@@ -244,28 +244,23 @@ Uses `lv-vision-heat_mX`
 ## Worklog
 
 ### WIP Features
-- [] Saves occur on post-mission/pre-mission saves; should skip
-- [] Fix issues with VisualID - make it apply if close enough
-- [] Evasion pips display in T.HUD but not on the model
-- [] Add `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
-- [] Make sensor lock not end your turn (SensorLockSequence)
-- [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
-- [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
-- [] On shutdown, no stealth / ecm / etc applies
-- [] Validate functionality works with saves - career, campaign, skirmish
-- [] Hide pilot details when not DentalRecords
-- [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
-- [] BUG - Weapons summary shown when beyond sensors range
-- [] BUG - Units disappear from view in some cases. Doesn't appear related to the previous behavior, but is related.
-- [] Component damage should eliminate ECM, AP, Stealth bonuses
-- [] ```lv_shared_spotter``` tag on pilots to share LOS
-- [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
-- [] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
-- [] Implement stealth multi-target prohibition
-- [] Reimplement sensor shadows?
-- [] ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
-- [] Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
-- [] injuries reduce sensor check
+[] Add `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
+[] Make sensor lock not end your turn (SensorLockSequence)
+[] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
+[] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
+[] On shutdown, no stealth / ecm / etc applies
+[] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
+[] BUG - Weapons summary shown when beyond sensors range
+[] BUG - Units disappear from view in some cases. Doesn't appear related to the previous behavior, but is related.
+[] Component damage should eliminate ECM, AP, Stealth bonuses
+[] ```lv_shared_spotter``` tag on pilots to share LOS
+[] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
+[] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
+[] Implement stealth multi-target prohibition
+[] Reimplement sensor shadows?
+[] ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
+[] Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
+[] injuries reduce sensor check
 
 ### Possible Additions
 
@@ -291,3 +286,8 @@ Uses `lv-vision-heat_mX`
 - [x] BUG - When you overheat a mech, it disappears from vision
 - [x] Add multiple ECM penalty to sensor check
 - [x] VisionLock and VisualID ranges should be modified by equipment.
+- [x] Saves occur on post-mission/pre-mission saves; should skip
+- [x] Validate functionality works with saves - career, campaign, skirmish
+- [x] Fix issues with VisualID - make it apply if close enough
+- [x] Hide pilot details when not DentalRecords
+- [x] Evasion pips display in T.HUD but not on the model

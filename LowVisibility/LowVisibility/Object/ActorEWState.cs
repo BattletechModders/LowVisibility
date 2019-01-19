@@ -139,9 +139,7 @@ namespace LowVisibility.Object {
                         string[] split = tag.Split('_');
                         if (split.Length == 2) {
                             int modifier = Int32.Parse(split[1].Substring(1));
-                            if (modifier >= actorScramblerMod) {
-                                actorScramblerMod = modifier;
-                            }
+                            actorScramblerMod += modifier;
                         } else {
                             LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
                         }

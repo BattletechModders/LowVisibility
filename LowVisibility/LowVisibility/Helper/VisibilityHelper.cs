@@ -370,7 +370,7 @@ namespace LowVisibility.Helper {
 
                         // If we are the source, use our sensors.
                         if (actor.GUID == source.GUID && actorLockToTarget.sensorLockLevel > lockState.sensorLockLevel) {
-                            LowVisibility.Logger.LogIfDebug($"  using source's sensors:{CombatantHelper.Label(actor)}");
+                            //LowVisibility.Logger.LogIfDebug($"  using source's sensors:{CombatantHelper.Label(actor)}");
                             lockState.sensorLockLevel = actorLockToTarget.sensorLockLevel;
                             lockState.sourceGUID = actor.GUID;
                         }

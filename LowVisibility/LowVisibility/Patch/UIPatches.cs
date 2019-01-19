@@ -34,10 +34,9 @@ namespace LowVisibility.Patch {
                         LockState lockState = State.GetLockStateForLastActivatedAgainstTarget(target);
 
                         if (lockState.sensorLockLevel < DetectionLevel.Vector) {
-                            // Hide the evasive indicator, hide the buffs and debuffs
-                            Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
-                            hideEvasionIndicatorMethod.GetValue();
-
+                            //// Hide the evasive indicator, hide the buffs and debuffs
+                            //Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
+                            //hideEvasionIndicatorMethod.GetValue();
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
                         } else if (lockState.sensorLockLevel < DetectionLevel.StructureAnalysis) {

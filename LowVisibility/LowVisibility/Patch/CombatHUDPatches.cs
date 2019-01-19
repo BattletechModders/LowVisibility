@@ -195,7 +195,7 @@ namespace LowVisibility.Patch {
                 }
 
                 if (lockState.visionLockLevel == VisionLockType.None) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", LowVisibility.Config.SensorsOnlyPenalty });
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", (int)LowVisibility.Config.SensorsOnlyPenalty });
                 }
 
                 StaticEWState targetEWConfig = State.GetStaticState(target as AbstractActor);
