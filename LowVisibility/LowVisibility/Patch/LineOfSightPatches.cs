@@ -118,7 +118,7 @@ namespace LowVisibility.Patch {
                         $"narc effect {State.NARCEffect(targetActor)} vs. ECM Protection:{State.ECMProtection(targetActor)}, delta is:{delta}");
 
                     if (delta >= 1) {
-                        LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active narc effect, marking them visible!");
+                        LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active NARC effect, marking them visible!");
                         __result = VisibilityLevel.Blip4Maximum;
                         return false;
                     }
@@ -186,7 +186,7 @@ namespace LowVisibility.Patch {
                 if (State.NARCEffect(targetActor) != 0 && visibilityLevel < VisibilityLevel.Blip4Maximum) {
                     int delta = State.NARCEffect(targetActor) - State.ECMProtection(targetActor);
                     if (delta >= 1) {
-                        LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active narc effect, marking them visible!");
+                        LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active NARC effect, marking them visible!");
                         __result = VisibilityLevel.Blip4Maximum;
                         return false;
                     }
