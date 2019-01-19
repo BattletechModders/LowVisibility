@@ -31,6 +31,7 @@ namespace LowVisibility.Object {
 
         public const string TagPrefixJammer = "lv-jammer_m";
         public const string TagPrefixProbe = "lv-probe_m";
+        public const string TagPrefixProbeBoost = "lv-probe-boost_m";
         public const string TagPrefixSensorBoost = "lv-sensor-boost_m";
         public const string TagSharesSensors = "lv-shares-sensors";
         public const string TagPrefixStealth = "lv-stealth_m";
@@ -44,12 +45,16 @@ namespace LowVisibility.Object {
 
         public int ecmMod = 0;
         public float ecmRange = 0;
-        public int probeMod = 0;              
+        public int probeMod = 0;
+        
         public int stealthMod = 0;
-        public int sensorMod = 0;
         public int scramblerMod = 0;
+
         public int zoomVision = 0;
         public int heatVision = 0;
+
+        public int probeBoostMod = 0;
+        public int sensorBoostMod = 0;
 
         // Modifier for stealth range modification - min-short, short-medium, medium-long, long-max
         public int[] stealthRangeMod = new int[] { 0, 0, 0, 0 };
@@ -67,12 +72,17 @@ namespace LowVisibility.Object {
             // Check tags for any ecm/sensors
             int actorEcmMod = 0;
             float actorEcmRange = 0;
+
             int actorProbeMod = 0;
+
             int actorStealthMod = 0;
-            int actorSensorMod = 0;
             int actorScramblerMod = 0;
+
             int actorZoomVision = 0;
             int actorHeatVision = 0;
+
+            int actorProbeBoostMod = 0;
+            int actorSensorBoostMod = 0;
 
             int[] actorStealthRangeMod = null;
             int[] actorStealthMoveMod = null;
@@ -113,17 +123,6 @@ namespace LowVisibility.Object {
                         } else {
                             LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
                         }
-                    } else if (tagLower.StartsWith(TagPrefixSensorBoost)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has SENSOR_BOOST component:{kv.Key} with tag:{tag}");
-                        string[] split = tag.Split('_');
-                        if (split.Length == 2) {
-                            int modifier = Int32.Parse(split[1].Substring(1));
-                            if (modifier >= actorSensorMod) {
-                                actorSensorMod = modifier;
-                            }
-                        } else {
-                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
-                        }
                     } else if (tagLower.StartsWith(TagPrefixStealth)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has STEALTH component:{kv.Key} with tag:{tag}");
                         string[] split = tag.Split('_');
@@ -131,6 +130,17 @@ namespace LowVisibility.Object {
                             int modifier = Int32.Parse(split[1].Substring(1));
                             if (modifier >= actorStealthMod) {
                                 actorStealthMod = modifier;
+                            }
+                        } else {
+                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
+                        }
+                    } else if (tagLower.StartsWith(TagPrefixScrambler)) {
+                        LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has SCRAMBLER component:{kv.Key} with tag:{tag}");
+                        string[] split = tag.Split('_');
+                        if (split.Length == 2) {
+                            int modifier = Int32.Parse(split[1].Substring(1));
+                            if (modifier >= actorScramblerMod) {
+                                actorScramblerMod = modifier;
                             }
                         } else {
                             LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
@@ -164,17 +174,6 @@ namespace LowVisibility.Object {
                     } else if (tagLower.Equals(TagSharesSensors)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} shares sensors due to component:{kv.Key} with tag:{tag}");
                         actorSharesSensors = true;
-                    } else if (tagLower.StartsWith(TagPrefixScrambler)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has SCRAMBLER component:{kv.Key} with tag:{tag}");
-                        string[] split = tag.Split('_');
-                        if (split.Length == 2) {
-                            int modifier = Int32.Parse(split[1].Substring(1));
-                            if (modifier >= actorScramblerMod) {
-                                actorScramblerMod = modifier;
-                            }
-                        } else {
-                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
-                        }
                     } else if (tagLower.StartsWith(TagPrefixZoomVision)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has ZOOM VISION component:{kv.Key} with tag:{tag}");
                         string[] split = tag.Split('_');
@@ -197,6 +196,24 @@ namespace LowVisibility.Object {
                         } else {
                             LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
                         }
+                    } else if (tagLower.StartsWith(TagPrefixProbeBoost)) {
+                        LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has PROBE BOOST component:{kv.Key} with tag:{tag}");
+                        string[] split = tag.Split('_');
+                        if (split.Length == 2) {
+                            int modifier = Int32.Parse(split[1].Substring(1));
+                            actorProbeBoostMod += modifier;
+                        } else {
+                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
+                        }
+                    } else if (tagLower.StartsWith(TagPrefixSensorBoost)) {
+                        LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has SENSOR BOOST component:{kv.Key} with tag:{tag}");
+                        string[] split = tag.Split('_');
+                        if (split.Length == 2) {
+                            int modifier = Int32.Parse(split[1].Substring(1));
+                            actorSensorBoostMod += modifier;
+                        } else {
+                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
+                        }
                     }
                 }
             }
@@ -208,8 +225,6 @@ namespace LowVisibility.Object {
                 actorEcmMod = 0;
             }
 
-            // TODO: Check that stealth-move-mod/stealth-range-mod has an active stealth system
-
             // Determine pilot bonus
             int unitTacticsBonus = 0;
             if (actor.GetPilot() != null) {
@@ -218,23 +233,30 @@ namespace LowVisibility.Object {
                 LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} HAS NO PILOT!");
             }
 
+            this.tacticsBonus = unitTacticsBonus;
+            
             this.ecmMod = actorEcmMod;
             this.ecmRange = actorEcmRange;
             this.probeMod = actorProbeMod;
-            this.tacticsBonus = unitTacticsBonus;
-            this.sharesSensors = actorSharesSensors;
-            this.sensorMod = actorSensorMod;
+            
             this.stealthMod = actorStealthMod;
+            this.scramblerMod = actorScramblerMod;
+
             this.stealthRangeMod = actorStealthRangeMod ?? (new int[] { 0, 0, 0, 0 });
             this.stealthMoveMod = actorStealthMoveMod ?? (new int[] { 0, 0 });
-            this.scramblerMod = actorScramblerMod;
+            
             this.zoomVision = actorZoomVision;
             this.heatVision = actorHeatVision;
+
+            this.probeBoostMod = actorProbeBoostMod;
+            this.sensorBoostMod = actorSensorBoostMod;
+
+            this.sharesSensors = actorSharesSensors;
         }
 
         public override string ToString() {
-            return $"tacticsBonus:+{tacticsBonus} ecmMod:{ecmMod} ecmRange:{ecmRange} " +
-                $"probeMod:{probeMod} stealthMod:{stealthMod} " +
+            return $"tacticsBonus:{tacticsBonus} sensorsBoostMod:{sensorBoostMod} ecmMod:{ecmMod} ecmRange:{ecmRange} " +
+                $"probeMod:{probeMod} probeBoostMod:{probeBoostMod} stealthMod:{stealthMod} " +
                 $"stealthRangeMod:{stealthRangeMod[0]}/{stealthRangeMod[1]}/{stealthRangeMod[2]}/{stealthRangeMod[3]} " +
                 $"stealthMoveMod:{stealthMoveMod[0]}/{stealthMoveMod[1]} " +
                 $"scramblerMod:{scramblerMod} zoomVision:{zoomVision} heatVision:{heatVision}" +
@@ -251,7 +273,7 @@ namespace LowVisibility.Object {
             return hasMod;
         }
 
-        public int StealthRangeModAtDistance(Weapon weapon, float distance) {
+        public int CalculateStealthRangeMod(Weapon weapon, float distance) {
             int rangeMod = 0;
             if (this.stealthRangeMod[0] != 0 && distance < weapon.ShortRange) {
                 rangeMod = this.stealthRangeMod[0];
@@ -269,7 +291,7 @@ namespace LowVisibility.Object {
             return rangeMod;
         }
 
-        public int StealthMoveModForActor(AbstractActor owner) {
+        public int CalculateStealthMoveMod(AbstractActor owner) {
             int moveMod = 0;
             if (owner != null && this.stealthMoveMod[0] != 0) {
                 int hexesMoved = (int)Math.Floor(owner.DistMovedThisRound / 30.0);
@@ -284,6 +306,15 @@ namespace LowVisibility.Object {
             }
 
             return moveMod;
+        }
+
+        public int CalculateZoomVisionMod(float distance) {
+            int penaltySteps = (int)Math.Floor(distance / (LowVisibility.Config.VisionOnlyRangeStep * 30.0f));
+            int rangePenalty = penaltySteps * LowVisibility.Config.VisionOnlyPenalty;
+            int penalty = Math.Max(0, rangePenalty - this.zoomVision);
+            LowVisibility.Logger.LogIfDebug($"  Zoom Vision - at distance:{distance} Math.Floor(penaltySteps:{penaltySteps} * rangePenalty:{rangePenalty} " +
+                $"- zoomVision:{zoomVision}) = penalty:{penalty}");
+            return penalty;
         }
 
     };

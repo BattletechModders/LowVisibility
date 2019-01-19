@@ -159,6 +159,16 @@ namespace LowVisibility.Patch {
                 details.Add($" + Probe: <color=#00FF00>{staticState.probeMod:0}</color>");
             }
 
+            if (staticState.probeBoostMod > 0) {
+                checkResult += staticState.probeBoostMod;
+                details.Add($" + ProbeBoost: <color=#00FF00>{staticState.probeBoostMod:0}</color>");
+            }
+
+            if (staticState.sensorBoostMod > 0) {
+                checkResult += staticState.sensorBoostMod;
+                details.Add($" + SensorBoost: <color=#00FF00>{staticState.sensorBoostMod:0}</color>");
+            }
+
             if (State.ECMJamming(actor) != 0) {
                 checkResult -= State.ECMJamming(actor);
                 details.Add($" + Jammed: <color=#FF0000>{State.ECMJamming(actor):-0}</color>");

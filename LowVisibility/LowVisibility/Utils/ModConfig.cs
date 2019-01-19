@@ -34,14 +34,15 @@ namespace LowVisibility {
         // The minium range for sensors, no matter the circumstances
         public int SensorRangeMinimum = 6;
 
-        // The applied when the attacker has visual but not sensor lock to a target. Multiplies the range penalty.
-        public float NoSensorLockRangePenaltyMulti = 0.5f;
-        // The applied when the attacker has sensor but not visual lock to a target. Multiplies the range penalty.
-        public float NoVisualLockRangePenaltyMulti = 1.0f;
+        // When an attacker only has visual lock to the target, apply the peanlty for each N hexes away the target is
+        public int VisionOnlyRangeStep = 3;
+        public int VisionOnlyPenalty = -1;
+        public float VisionOnlyCriticalPenalty = 0.0f;
 
+        // The applied when the attacker has sensor but not visual lock to a target. Multiplies the range penalty.
+        public float SensorsOnlyPenalty = -2;
         // TODO: No sensor lock reduces critical / called shot penalties
-        public float NoSensorLockCriticalMultiPenalty = 0.0f;
-        public float NoVisualLockCriticalMultiPenalty = 0.0f;
+        public float SensorsOnlyCriticalPenalty = 0.0f;
 
         // The inflection point of the probability distribution function.
         public int ProbabilitySigma = 4;
@@ -54,8 +55,8 @@ namespace LowVisibility {
                 $"VisionRangeBaseDaylight:{VisionRangeBaseDaylight} VisionRangeBaseDimlight:{VisionRangeBaseDimlight} VisionRangeBaseNight:{VisionRangeBaseNight}" +
                 $"VisionRangeMultiRainSnow:{VisionRangeMultiRainSnow} VisionRangeMultiLightFog:{VisionRangeMultiLightFog} VisionRangeMultiHeavyFog:{VisionRangeMultiHeavyFog}" +
                 $"VisionRangeMinimum:{VisionRangeMinimum} SensorRangeMinimum:{SensorRangeMinimum}, VisualIDRange:{VisualIDRange} " +
-                $"NoSensorLockRangePenaltyMulti:{NoSensorLockRangePenaltyMulti}, NoVisualLockRangePenaltyMulti:{NoVisualLockRangePenaltyMulti} " +
-                $"NoSensorLockCriticalMultiPenalty:{NoSensorLockCriticalMultiPenalty}, NoVisualLockCriticalMultiPenalty:{NoVisualLockCriticalMultiPenalty} " +
+                $"VisionOnlyRangeStep:{VisionOnlyRangeStep}, VisionOnlyPenalty:{VisionOnlyPenalty} SensorsOnlyPenalty:{SensorsOnlyPenalty}" +
+                $"VisionOnlyCriticalPenalty:{VisionOnlyCriticalPenalty}, SensorsOnlyCriticalPenalty:{SensorsOnlyCriticalPenalty} " +
                 $"ProbabilitySigma:{ProbabilitySigma}, ProbabilityMu:{ProbabilityMu}";
 
 

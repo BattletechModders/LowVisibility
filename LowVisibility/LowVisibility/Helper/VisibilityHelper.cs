@@ -126,9 +126,15 @@ namespace LowVisibility.Helper {
                         $"increasing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
-                if (sourceStaticState.sensorMod != 0) {
+                if (sourceStaticState.probeBoostMod != 0) {
+                    modifiedSourceCheck += sourceStaticState.probeBoostMod;
+                    LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} has Probe Boost with strength:{sourceStaticState.probeBoostMod}, " +
+                        $"increasing sourceCheckResult to:{modifiedSourceCheck}");
+                }
+
+                if (sourceStaticState.sensorBoostMod != 0) {
                     modifiedSourceCheck += sourceStaticState.probeMod;
-                    LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} has sensorMod with strength:{sourceStaticState.sensorMod}, " +
+                    LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} has sensorMod with strength:{sourceStaticState.sensorBoostMod}, " +
                         $"increasing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 

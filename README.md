@@ -117,7 +117,12 @@ TODO: FIXME
 
 _Silhouette ID_ and _VisualID_ require the source unit to have __visibility__ to the target. _VisualID_ only occurs when the source is within 90m of the target, or the map visibility limit, whichever is smaller.
 
-### ECM Details
+Document penalties for sensor lock only (-2), vision only (range based, offset by zoom)
+
+## EW Components
+The sections below define behaviors exposed through components, such as equipment and weapons.
+
+### ECM
 
 ECM components emit a bubble around the unit. After every movement occurs, all units are checked to see if they are within the ECM bubble of another unit.
 
@@ -131,12 +136,15 @@ ECM components must have the tag ```lv-jammer_mX_rY``` to be recognized as an EC
 
 If an enemy unit within an ECM bubble is attempting to detect a friendly unit protected by the bubble, __both modifiers apply__. If there are two overlapping bubbles of __lv-jammer_m4_r8__ emitters, the enemy would have a total `-4 -1 = -5` penalty from being __jammed__, and a further `-4 -1 = -5` modifier due to the target having __protection__. Their checks would have a __-10__ modifier to detect the unit protected by both bubbles.
 
-#### Active Probe Details
+### Active Probes
 
 `lv-probe_mX` is an active probe. It adds a bonus of X to sensor checks made by this unit.
 
+#### Active Probe Modifier
 
-#### Scrambler Details
+`lv-probe-boost_mX` applies X as modifier to any active probe. Multiple values are cumulative.
+
+### Scramblers
 
 **WIP**
 
@@ -144,7 +152,7 @@ If an enemy unit within an ECM bubble is attempting to detect a friendly unit pr
 
 Should this increase visibility?
 
-#### Stealth Details
+### Stealth
 
 Stealth systems reduce the chance of the unit being detected with sensors. This makes them harder to find in the first place, but also makes them harder to attack as well. Stealth systems can have one or more of the following effects.
 
@@ -154,7 +162,7 @@ Components with the `lv-stealth-range-mod_sA_mB_lC_eD` tag are more difficult to
 
 Components with the `lv-stealth-move-mod_mX_sZ` tag are more difficult to attack if the unit is stationary. The value of X is a base penalty that applies to any attack against the target. This penalty is reduced by 1 for each Z hexes the target moves, until it the penalty is completely eliminated. A tag of __lv-stealth-move-mod_m3_s2__ would apply a +3 penalty if the unit did not move. If the unit moves 1 or 2 hexes, this penalty would be reduced to +2. If the unit moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
 
-#### Narc Beacon Details
+### Narc Beacons
 
 __WIP__
 
@@ -170,8 +178,8 @@ The lack of range is to simplify the coding (complexity and checks). Once you're
     		"tagList" : [ "lv-narc-effect_m8" ] 
     	},
     }]
-    
-#### TAG Details
+
+### TAG
 
 __WIP__
 For TAG, I'm thinking
@@ -222,36 +230,32 @@ I'm thinking the value of TAG is that it wouldn't be  impacted by ECM. That's no
 "poorlyMaintainedEffectData" : null
 }]
 ```
+### Sensor  Mods
+Uses `lv-sensor-boost_mX` tag; applies X as a modifier to all sensor rolls. Multiple values are cumulative.
 
+### Visual Zoom
+WIP
+Uses `lv-vision-zoom_mX`
 
-
-
+### Heat Vision
+WIP
+Uses `lv-vision-heat_mX`
 
 ## Worklog
 
 ### WIP Features
-
-- [] Buildings should always be visible and not subject to ECM - breaks AI without this!__
-  - Likely an issue that I'm dealing with AbstractActors everywhere, but can be an ICombatant
 - [] Saves occur on post-mission/pre-mission saves; should skip
 - [] Fix issues with VisualID - make it apply if close enough
 - [] Evasion pips display in T.HUD but not on the model
-- [] Add `lv-probe-boost-m` modifier that boosts probe checks, stacks with itself.
 - [] Add `lv-vision-zoom_m` and `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
 - [] Make sensor lock not end your turn (SensorLockSequence)
-- [] C3 slave should require a C3 master to share sensors. CEWS Nova should share with units that have CEWS Nova. (ask MXMach/LA for details)
-- [] FrostRaptor: @LadyAlekto so in a lance where c3m/c3s present... each adds +X to each other's detail / range checks?
-  [4:17 PM] FrostRaptor: Same for c3i - each present in lance gives +X to lance members with it?
-  [4:17 PM] LadyAlekto: yeah
 - [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
 - [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
 - [] On shutdown, no stealth / ecm / etc applies
 - [] Validate functionality works with saves - career, campaign, skirmish
 - [] Hide pilot details when not DentalRecords
 - [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
-- [] BUG - Tactics skill should influence chassis name, blip type (CombatNameHelper, LineOfSightPatches)
 - [] BUG - Weapons summary shown when beyond sensors range
-- [] BUG - Status buffs shown on low-end checks. Should be on 8+.
 - [] BUG - Units disappear from view in some cases. Doesn't appear related to the previous behavior, but is related.
 - [] Component damage should eliminate ECM, AP, Stealth bonuses
 - [] ```lv_shared_spotter``` tag on pilots to share LOS
@@ -259,10 +263,8 @@ I'm thinking the value of TAG is that it wouldn't be  impacted by ECM. That's no
 - [] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
 - [] Implement stealth multi-target prohibition
 - [] Reimplement sensor shadows?
-- [] No Lock penalties are multipliers for range penalties; 0.5 for visual, 1.0 for sensor. So at short range you get a -1 for sensors, -2 at medium, etc. Reflects that it's harder to shoot someone without a lock the further out you get.
+- [] ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
 - [] Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
-- [] Add a ```lv-sensor-roll-mod_m``` tag that provides a modifier to the sensor check (positive or negative)
-- [] Modify called shot critical, % when making a shot w/o lock_
 - [] injuries reduce sensor check
 
 ### Possible Additions

@@ -187,25 +187,28 @@ namespace LowVisibility.Patch {
             if (targetActor != null) {
                 //LowVisibility.Logger.LogIfDebug($"___CombatHUDTargetingComputer - SetHitChance for source:{CombatantHelper.Label(targetActor)} target:{CombatantHelper.Label(targetActor)}");
                 LockState lockState = GetUnifiedLockStateForTarget(actor, targetActor);
+                float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
+                StaticEWState attackerEWConfig = State.GetStaticState(actor);
+
                 if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", (int)LowVisibility.Config.NoSensorLockRangePenaltyMulti });
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", attackerEWConfig.CalculateZoomVisionMod(distance) });
                 }
+
                 if (lockState.visionLockLevel == VisionLockType.None) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", (int)LowVisibility.Config.NoVisualLockRangePenaltyMulti });
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", LowVisibility.Config.SensorsOnlyPenalty });
                 }
 
                 StaticEWState targetEWConfig = State.GetStaticState(target as AbstractActor);
                 if (targetEWConfig.HasStealthRangeMod()) {
-                    float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
                     Weapon weapon = __instance.DisplayedWeapon;
-                    int weaponStealthMod = targetEWConfig.StealthRangeModAtDistance(weapon, distance);
+                    int weaponStealthMod = targetEWConfig.CalculateStealthRangeMod(weapon, distance);
                     if (weaponStealthMod != 0) {
                         AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - RANGE", weaponStealthMod });
                     }
                 }
 
                 if (targetEWConfig.HasStealthMoveMod()) {
-                    int stealthMoveMod = targetEWConfig.StealthMoveModForActor(target as AbstractActor);
+                    int stealthMoveMod = targetEWConfig.CalculateStealthMoveMod(target as AbstractActor);
                     if (stealthMoveMod != 0) {
                         AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - MOVEMENT", stealthMoveMod });
                     }
