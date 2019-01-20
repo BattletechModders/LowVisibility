@@ -74,7 +74,7 @@ namespace LowVisibility.Patch {
                 }
 
                 if (lockState.visionLockLevel == VisionLockType.None) {
-                    __result = string.Format("{0}NO VISUAL LOCK {1:+#;-#}; ", __result, LowVisibility.Config.SensorsOnlyPenalty);
+                    __result = string.Format("{0}NO VISUAL LOCK {1:+#;-#}; ", __result, (int)LowVisibility.Config.SensorsOnlyPenalty);
                 }
 
                 StaticEWState targetEWConfig = State.GetStaticState(targetActor);

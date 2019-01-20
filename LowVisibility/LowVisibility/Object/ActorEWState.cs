@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using HBS.Collections;
 using LowVisibility.Helper;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,13 +9,15 @@ using static LowVisibility.Helper.ActorHelper;
 
 namespace LowVisibility.Object {
 
+    //[JsonConverter(typeof(DynamicEWStateConverter))]
     class DynamicEWState {
+
         public int rangeCheck;
         public int detailCheck;
 
         public DynamicEWState() {
-            this.rangeCheck = 0;
-            this.detailCheck = 0;
+            rangeCheck = 0;
+            detailCheck = 0;
         }
 
         public DynamicEWState(int rangeCheck, int detailCheck) {
@@ -24,6 +27,22 @@ namespace LowVisibility.Object {
 
         public override string ToString() {
             return $"rangeCheck:{rangeCheck} detailCheck:{detailCheck}";
+        }
+    }
+
+    public class DynamicEWStateConverter : JsonConverter {
+        public override bool CanConvert(Type objectType) {
+            return objectType.GetType().IsClass;
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
+            DynamicEWState state = new DynamicEWState();            
+
+            return state;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
+            throw new NotImplementedException();
         }
     }
 

@@ -244,7 +244,8 @@ Uses `lv-vision-heat_mX`
 ## Worklog
 
 ### WIP Features
-[] Add `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
+- [] Add `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
+- [] Armor/structure exact values are being show, not just as ??
 [] Make sensor lock not end your turn (SensorLockSequence)
 [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
 [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?

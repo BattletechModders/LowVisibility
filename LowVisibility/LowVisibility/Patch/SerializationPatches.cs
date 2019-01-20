@@ -12,10 +12,8 @@ namespace LowVisibility.Patch {
     public static class GameInstance_Load {
 
         public static void Postfix(GameInstance __instance, GameInstanceSave save) {
-            if (save.HasCombatData) {
-                LowVisibility.Logger.LogIfDebug($"Loading saveGame with fileId:{save.FileID} with reason:{save.SaveReason}");
-                State.LoadStateData(save.FileID);
-            }
+            LowVisibility.Logger.LogIfDebug($"Loading  saveGame with fileId:{save.FileID}");
+           // State.LoadStateData(save.FileID);
         }
     }
 

@@ -126,11 +126,12 @@ namespace LowVisibility.Patch {
             List<string> details = new List<string>();
             float visualLockRange = ActorHelper.GetVisualLockRange(actor);
             float sensorsRange = ActorHelper.GetSensorsRange(actor);
-            details.Add($"RANGE => Visual:{visualLockRange:0}m Sensors:{sensorsRange:0}m\n");
+            float visualScanRange = ActorHelper.GetVisualScanRange(actor);
+            details.Add($"Visual => Range:{visualLockRange:0}m Scan:{visualScanRange}m Weather:\n");
 
             // TODO: Let players know what effect is impacting their vision
 
-            details.Add($"  Range: Roll: ");
+            details.Add($" Sensor Range:{sensorsRange:0}m Roll: ");
             float rangeMulti = 1.0f + ((dynamicState.rangeCheck + staticState.tacticsBonus) / 10.0f);
             if (dynamicState.rangeCheck >= 0) {
                 details.Add($"<color=#00FF00>{dynamicState.rangeCheck:+0}</color> + " +
@@ -143,7 +144,7 @@ namespace LowVisibility.Patch {
             }
             details.Add("\n");
 
-            details.Add($" Info: => ");
+            details.Add($" Sensor Info: => ");
             int checkResult = dynamicState.detailCheck;
             if (dynamicState.detailCheck >= 0) {
                 details.Add($"Roll: <color=#00FF00>{dynamicState.detailCheck:0}</color>");

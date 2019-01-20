@@ -4,10 +4,13 @@ using LowVisibility.Helper;
 using LowVisibility.Object;
 using LowVisibility.Redzen;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using static LowVisibility.Helper.MapHelper;
 using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility {
@@ -17,11 +20,8 @@ namespace LowVisibility {
         public const string ModSaveSubdir = "LowVisibility";
         public const string ModSavesDir = "ModSaves";
 
-        // The vision range of the map
-        private static float mapVisionRange = 0.0f;
-
-        // The range at which you can do visualID, modified by the mapVisionRange
-        private static float mapVisualScanRange = 0.0f;
+        // Map data
+        public static MapConfig MapConfig;
 
         // -- Mutable state
         public static Dictionary<string, DynamicEWState> DynamicEWState = new Dictionary<string, DynamicEWState>();
@@ -44,23 +44,21 @@ namespace LowVisibility {
 
         // --- Methods Below ---
         public static float GetMapVisionRange() {
-            if (mapVisionRange == 0) {
-                InitMapVisionRange();
+            if (MapConfig == null) {
+                InitMapConfig();
             }
-            return mapVisionRange;
+            return MapConfig == null ? 0.0f : MapConfig.visionRange;
         }
 
         public static float GetVisualIDRange() {
-            if (mapVisionRange == 0) {
-                InitMapVisionRange();
+            if (MapConfig == null) {
+                InitMapConfig();
             }
-            return mapVisualScanRange;
+            return MapConfig == null ? 0.0f : MapConfig.scanRange;
         }
 
-        public static void InitMapVisionRange() {
-            mapVisionRange = MapHelper.CalculateMapVisionRange();
-            mapVisualScanRange = Math.Min(mapVisionRange, LowVisibility.Config.VisualIDRange * 30.0f);
-            LowVisibility.Logger.Log($"Vision ranges: calculated map range:{mapVisionRange} configured visualID range:{LowVisibility.Config.VisualIDRange} map visualID range:{mapVisualScanRange}");
+        public static void InitMapConfig() {
+            MapConfig = MapHelper.ParseCurrentMap();            
         }
 
         // --- Methods for SourceActorLockStates
@@ -218,51 +216,81 @@ namespace LowVisibility {
             }
         }
 
+        /*
+              // -- Mutable state
+        public static Dictionary<string, DynamicEWState> DynamicEWState = new Dictionary<string, DynamicEWState>();
+        public static Dictionary<string, StaticEWState> StaticEWState = new Dictionary<string, StaticEWState>();
+        public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
+        
+        // TODO: Do I need this anymore?
+        public static string LastPlayerActivatedActorGUID;
+
+        // -- State related to ECM/effects
+        public static Dictionary<string, int> ECMJammedActors = new Dictionary<string, int>();
+        public static Dictionary<string, int> ECMProtectedActors = new Dictionary<string, int>();
+        public static Dictionary<string, int> NarcedActors = new Dictionary<string, int>();
+        public static Dictionary<string, int> TaggedActors = new Dictionary<string, int>();
+        
+        public static bool TurnDirectorStarted = false;
+        public const int ResultsToPrecalcuate = 16384;
+        public static double[] CheckResults = new double[ResultsToPrecalcuate];
+        public static int CheckResultIdx = 0;   
+    */
+
         // --- FILE SAVE/READ BELOW ---
-        private class SerializationState {
-            public string LastPlayerActivatedActorGUID;
-            public Dictionary<string, int> ecmJammedActors;
-            public Dictionary<string, int> ecmProtectedActors;
-            public Dictionary<string, HashSet<LockState>> SourceActorLockStates;
+        public class SerializationState {
             public Dictionary<string, DynamicEWState> dynamicState;
             public Dictionary<string, StaticEWState> staticState;
+            public Dictionary<string, HashSet<LockState>> SourceActorLockStates;
+
+            public string LastPlayerActivatedActorGUID;
+
+            public Dictionary<string, int> ecmJammedActors;
+            public Dictionary<string, int> ecmProtectedActors;
+            public Dictionary<string, int> narcedActors;
+            public Dictionary<string, int> taggedActors;
         }
 
         public static void LoadStateData(string saveFileID) {
             ECMJammedActors.Clear();
             ECMProtectedActors.Clear();
+            NarcedActors.Clear();
+            TaggedActors.Clear();
             SourceActorLockStates.Clear();
             DynamicEWState.Clear();
             StaticEWState.Clear();
-
-            string normalizedFileID = saveFileID.Replace('\\', '_');
+            
+            string normalizedFileID = saveFileID.Replace('/', '_');
             FileInfo stateFilePath = CalculateFilePath(normalizedFileID);
             if (stateFilePath.Exists) {
-                //KnowYourFoe.Logger.LogIfDebug($"Reading saved state from file:{campaignFile.FullName}.");
+                LowVisibility.Logger.Log($"Reading saved state from file:{stateFilePath.FullName}.");
                 // Read the file
                 try {
                     SerializationState savedState = null;
                     using (StreamReader r = new StreamReader(stateFilePath.FullName)) {
                         string json = r.ReadToEnd();
+                        //LowVisibility.Logger.Log($"State json is: {json}");
                         savedState = JsonConvert.DeserializeObject<SerializationState>(json);
-                        //KnowYourFoe.Logger.LogIfDebug($"Successfully read state from file:{campaignFile.FullName}.");
+                        LowVisibility.Logger.Log($"Serialized state from JSON");
                     }
 
-                    LastPlayerActivatedActorGUID = savedState != null ? savedState.LastPlayerActivatedActorGUID : null;
-                    ECMJammedActors = savedState != null ? savedState.ecmJammedActors : null;
-                    ECMProtectedActors = savedState != null ? savedState.ecmProtectedActors: null;
-                    SourceActorLockStates = savedState != null ? savedState.SourceActorLockStates : null;
-                    DynamicEWState = savedState != null ? savedState.dynamicState: null;
-                    StaticEWState = savedState != null ? savedState.staticState : null;
+                    DynamicEWState = savedState?.dynamicState;
+                    StaticEWState = savedState?.staticState;
+                    SourceActorLockStates = savedState?.SourceActorLockStates;
 
+                    LastPlayerActivatedActorGUID = savedState?.LastPlayerActivatedActorGUID;
+
+                    ECMJammedActors = savedState?.ecmJammedActors;
+                    ECMProtectedActors = savedState?.ecmProtectedActors;
+                    NarcedActors = savedState?.narcedActors;
+                    TaggedActors = savedState?.taggedActors;
+                    
                     LowVisibility.Logger.Log($"Loaded save state from file:{stateFilePath.FullName}.");
                 } catch (Exception e) {
                     LowVisibility.Logger.Log($"Failed to read saved state from:{stateFilePath.FullName} due to e:{e.Message}");                    
                 }
             } else {
-                //LowVisibility.Logger.Log($"Creating new saved state for campaign seed:{CampaignID}.");
-                //// New campaign, create the structure of the file
-                //IdentifiedDefs = new Dictionary<string, DetectLevel>();
+                LowVisibility.Logger.Log($"FilePath:{stateFilePath} does not exist, cannot load file!");
             }
         }
 
@@ -277,12 +305,16 @@ namespace LowVisibility {
 
             try {
                 SerializationState state = new SerializationState {
+                    dynamicState = State.DynamicEWState,
+                    staticState = State.StaticEWState,
+                    SourceActorLockStates = State.SourceActorLockStates,
+
                     LastPlayerActivatedActorGUID = State.LastPlayerActivatedActorGUID,
+
                     ecmJammedActors = State.ECMJammedActors,
                     ecmProtectedActors = State.ECMProtectedActors,
-                    SourceActorLockStates = State.SourceActorLockStates,
-                    dynamicState= State.DynamicEWState,
-                    staticState = State.StaticEWState
+                    narcedActors = State.NarcedActors,
+                    taggedActors = State.TaggedActors
                 };
                             
                 using (StreamWriter w = new StreamWriter(saveStateFilePath.FullName, false)) {

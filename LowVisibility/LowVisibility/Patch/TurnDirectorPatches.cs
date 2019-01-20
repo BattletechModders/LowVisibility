@@ -17,7 +17,7 @@ namespace LowVisibility.Patch {
 
             // Initialize the probabilities
             State.InitializeCheckResults();
-            State.InitMapVisionRange();
+            State.InitMapConfig();
             State.TurnDirectorStarted = true;
 
             // Do a pre-encounter populate 
@@ -53,6 +53,7 @@ namespace LowVisibility.Patch {
         public static void Postfix(TurnDirector __instance) {
             LowVisibility.Logger.LogIfDebug("TurnDirector:InitFromSave:post - entered.");
             // TODO: VERIFY THIS RUNS WITH OR WITHOUT INIT()
+            State.InitMapConfig();
         }
     }
 
