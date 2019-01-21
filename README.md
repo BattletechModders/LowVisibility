@@ -119,7 +119,7 @@ _Silhouette ID_ and _VisualID_ require the source unit to have __visibility__ to
 
 Document penalties for sensor lock only (-2), vision only (range based, offset by zoom)
 
-## EW Components
+## Components
 The sections below define behaviors exposed through components, such as equipment and weapons.
 
 ### ECM
@@ -136,7 +136,7 @@ ECM components must have the tag ```lv-jammer_mX_rY``` to be recognized as an EC
 
 If an enemy unit within an ECM bubble is attempting to detect a friendly unit protected by the bubble, __both modifiers apply__. If there are two overlapping bubbles of __lv-jammer_m4_r8__ emitters, the enemy would have a total `-4 -1 = -5` penalty from being __jammed__, and a further `-4 -1 = -5` modifier due to the target having __protection__. Their checks would have a __-10__ modifier to detect the unit protected by both bubbles.
 
-### Sensors Modifiers
+### Active Probes
 
 Some components apply a modifier to the unit's _Sensors Range Check_ and _Sensors Info Check_. These generally add a bonus that increases sensors range, and improves resolution of target details.
 
@@ -151,7 +151,7 @@ To build __Active Probes__, you should use the `lv-probe_mX` modifier to ensure 
 
 These modifiers apply to both range and info. If you only want longer ranged sensors, use the `SensorRangeMultiplier` and `SensorDistanceAbsolute` on the component instead.
 
-### Stealth Sensor Modifiers
+### Stealth
 
 Stealth components reduce an opponent's ability to sensor lock the protected unit. Stealth only applied to the unit directly, and has no effect when the enemy attempts to detect other friendly units. Stealth generally applies a penalty to the opponent's check, which reduces the _Sensors Info Check_. Stealth does not impact an opponent's _Sensors Range Check_.
 
@@ -162,20 +162,9 @@ The modifiers from the `lv-stealth_mX` and `lv-scrambler_mX` tags are additive. 
 
 > Example: A unit has components with tags lv-stealth_m2, lv-scrambler_m-2, lv-scrambler_m-3. The stealth modifier is 2 (from lv-stealth_m2), - 2 (lv-scrambler_m-2) - 3 (lv-scrambler_m-3) = -3. This unit would add +3 to any sensor range and info checks against it, because it's stealth modifier is negative.
 
-#### Stealth Attack Modifiers
+## Effects
 
-In addition to making sensor detection difficult, stealth can make it hard to attack a target at range. To reflect that _LowVisibility_ exposes a few tags that add special case modifiers to the attack roll.
-
-* Components with the `lv-stealth-range-mod_sA_mB_lC_eD` apply a penalty to an attacker's weapons based upon their range to the target. A penalty of A is applied against targets at short range, B at medium range, C at long range, and D at extreme range.
-* Components with the `lv-stealth-move-mod_mX_sZ` tag apply a penalty that is strongest when the target doesn't move. X is the base penalty that applies to any attack against the target. This penalty decays by 1 for each Z hexes the target moves, until it the penalty is completely eliminated.
-
-> Example One: A tag of `lv-stealth-range-mod_s1_m2_l3_e4` would apply a +1 penalty at short range, +2 at medium range, +3 at long range and +4 at extreme range. This range is applied per weapon, so the attacker may experience different penalties for different weapons they fire.
-
-> Example Two: A tag of `lv-stealth-move-mod_m3_s2` applies a +3 penalty to the attacker if the target does not move. If the target moves 1 or 2 hexes, this penalty would be reduced (by -1) to +2. If the target moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
-
-### ECM
-
-
+The sections below discuss electronic warfare effects allowed by  _LowVisibility_.
 
 ### Narc Effect
 
@@ -249,17 +238,40 @@ An example effect that uses this tag is below:
 }]
 ```
 
-### Visual Zoom
-WIP
-Uses `lv-vision-zoom_mX`
+## Attack Modifiers
+Once a target has been detected it can be attacked normally, though attacks may suffer penalties based upon how strong of a lock they have to the target.
 
-### Heat Vision
-WIP
-Uses `lv-vision-heat_mX`
+If an attacker only has _sensor lock_ to the target, they suffer a __Sensors Only__ attack penalty of +2 (_SensorsOnlyPenalty_).
 
-## Worklog
+If an attacker only has _visual lock_ to the target, they suffer a __Vision Only__ attack penalty based upon their distance to the target. For every 3 hexes away (_VisionOnlyRangeStep_) the attacker suffers a +1 attack penalty (_VisionOnlyPenalty_), regardless of the weapon used.
 
-### WIP Features
+These penalties described can be adjusted by editing `LowVisibility/mod.json`.
+
+### Zoom Vision
+
+BattleTech has a long standing tradition of zoom vision being a standard feature on cockpits. To support this, components with the `lv-vision-zoom_mX` tag will apply an attack bonus that offsets any vision-only penalty. For each point of X, one point of __Vision Only__ penalty if offset. This can not provide a bonus to attack, only offset the penalty above.
+
+### Thermal Vision
+
+__WIP: PLANNED BUT NOT COMPLETE__
+__TODO: Cap the bonus? Make it +1 and the X is the cap? Make the -1 hard-coded and the division part of the tag?__
+
+Like zoom vision, detecting an opponent through thermal vision has been a stable of BattleTech games back to MW2. Components with the `lv-vision-thermal_mX` mimic this effect by applying an attack bonus that increases the the more the target heat goes up. The attacker gains a -X bonus to their attack for each 10 (_ThermalVisionDivisor_) points of heat the target currently has.
+
+The _ThermalVisionDivisor_ can be modified by editing `LowVisibility/mod.json`.
+
+### Stealth Attack Modifiers
+
+In addition to making sensor detection difficult, stealth can make it hard to attack a target at range. To reflect that _LowVisibility_ exposes a few tags that add special case modifiers to the attack roll.
+
+* Components with the `lv-stealth-range-mod_sA_mB_lC_eD` apply a penalty to an attacker's weapons based upon their range to the target. A penalty of A is applied against targets at short range, B at medium range, C at long range, and D at extreme range.
+* Components with the `lv-stealth-move-mod_mX_sZ` tag apply a penalty that is strongest when the target doesn't move. X is the base penalty that applies to any attack against the target. This penalty decays by 1 for each Z hexes the target moves, until it the penalty is completely eliminated.
+
+> Example One: A tag of `lv-stealth-range-mod_s1_m2_l3_e4` would apply a +1 penalty at short range, +2 at medium range, +3 at long range and +4 at extreme range. This range is applied per weapon, so the attacker may experience different penalties for different weapons they fire.
+
+> Example Two: A tag of `lv-stealth-move-mod_m3_s2` applies a +3 penalty to the attacker if the target does not move. If the target moves 1 or 2 hexes, this penalty would be reduced (by -1) to +2. If the target moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
+
+## WIP Features
 - [] BUG: stealth_move_mod is unbounded, can result in a +81 bonuses
 - [] BUG: Major performance hit on assault base missions; takes 2-3 seconds per move. Investigate why this is.
 - [] BUG: Narc, Tag not cleaned up on combat end. Causes some NPEs.
