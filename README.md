@@ -57,7 +57,7 @@ Base Vision Range | Light |  Tags
 Vision Multiplier | Tags
 -- | --
 x0.7 | mood_weatherRain, mood_weatherSnow
-x0.5 | mood_fogLight,
+x0.5 | mood_fogLight
 x0.3 | mood_fogHeavy
 
 A map with _dim light_ and _rain_ has a vision range of `11 hexes * 30.0m * 0.7 = 231m`. Any _SpottingVisibilityMultiplier_ or _SpottingVisibilityAbsolute_ modifiers on the unit increase this base range as normal.
@@ -136,57 +136,75 @@ ECM components must have the tag ```lv-jammer_mX_rY``` to be recognized as an EC
 
 If an enemy unit within an ECM bubble is attempting to detect a friendly unit protected by the bubble, __both modifiers apply__. If there are two overlapping bubbles of __lv-jammer_m4_r8__ emitters, the enemy would have a total `-4 -1 = -5` penalty from being __jammed__, and a further `-4 -1 = -5` modifier due to the target having __protection__. Their checks would have a __-10__ modifier to detect the unit protected by both bubbles.
 
-### Active Probes
+### Sensors Modifiers
 
-`lv-probe_mX` is an active probe. It adds a bonus of X to sensor checks made by this unit.
+Some components apply a modifier to the unit's _Sensors Range Check_ and _Sensors Info Check_. These generally add a bonus that increases sensors range, and improves resolution of target details.
 
-#### Active Probe Modifier
+* Components with a `lv-probe_mX` apply the highest value of X as a modifier to the unit's sensor checks. Only the best value is applied, and negative values are ignored.
+* Components with a `lv-probe-boost_mX` tag sum their X values, and apply the result as a modifier to sensor checks. Negative values for X are allowed.
 
-`lv-probe-boost_mX` applies X as modifier to any active probe. Multiple values are cumulative.
+The modifiers from the `lv-probe_mX` and `lv-probe-boost_mX` tags are additive. If a unit has both, their sensors are improved by the sum of each modifier.
 
-### Scramblers
+> Example: A unit has components with tags lv-probe_m2, lv-probe_m3, lv-probe-boost_m2, lv-probe-boost_m. The sensor check modifier is 3 (from lv-probe_m3, which causes lv-probe_m2 to be ignored), + 2 (lv-probe-boost_m2) + 1 (lv-probe-boost_m1) = 6. This unit would add +6 to any sensor range and info checks it makes.
 
-**WIP**
+To build __Active Probes__, you should use the `lv-probe_mX` modifier to ensure only the strongest probe is used. `lv-probe-boost_mX` can be used to build equipment that reduces sensors, reflecting poor equipment.
 
-`lv-scrambler_mX` is an active type of stealth. It reduces the target's ability to lock onto the target;
+These modifiers apply to both range and info. If you only want longer ranged sensors, use the `SensorRangeMultiplier` and `SensorDistanceAbsolute` on the component instead.
 
-Should this increase visibility?
+### Stealth Sensor Modifiers
 
-### Stealth
+Stealth components reduce an opponent's ability to sensor lock the protected unit. Stealth only applied to the unit directly, and has no effect when the enemy attempts to detect other friendly units. Stealth generally applies a penalty to the opponent's check, which reduces the _Sensors Info Check_. Stealth does not impact an opponent's _Sensors Range Check_.
 
-Stealth systems reduce the chance of the unit being detected with sensors. This makes them harder to find in the first place, but also makes them harder to attack as well. Stealth systems can have one or more of the following effects.
+* Components with a `lv-stealth_mX` apply the highest value of X to the unit's stealth modifier. Only the best value is applied, and negative values are ignored.
+* Components with a `lv-scrambler_mX` tag sum their X values, and apply the result to the unit's stealth modifier. Negative values for X are allowed.
 
-Components with the `lv-stealth_mX` tag reduce the _Detection Info_ check for a unit attempting to detect them.
+The modifiers from the `lv-stealth_mX` and `lv-scrambler_mX` tags are additive. If a unit has both, their sensors are improved by the sum of each modifier.
 
-Components with the `lv-stealth-range-mod_sA_mB_lC_eD` tag are more difficult to attack with ranged weapons. A is applied as a penalty to attacks against the target at short target. B is the penalty applied at medium range, C at long range, and D at extreme range.
+> Example: A unit has components with tags lv-stealth_m2, lv-scrambler_m-2, lv-scrambler_m-3. The stealth modifier is 2 (from lv-stealth_m2), - 2 (lv-scrambler_m-2) - 3 (lv-scrambler_m-3) = -3. This unit would add +3 to any sensor range and info checks against it, because it's stealth modifier is negative.
 
-Components with the `lv-stealth-move-mod_mX_sZ` tag are more difficult to attack if the unit is stationary. The value of X is a base penalty that applies to any attack against the target. This penalty is reduced by 1 for each Z hexes the target moves, until it the penalty is completely eliminated. A tag of __lv-stealth-move-mod_m3_s2__ would apply a +3 penalty if the unit did not move. If the unit moves 1 or 2 hexes, this penalty would be reduced to +2. If the unit moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
+#### Stealth Attack Modifiers
 
-### Narc Beacons
+In addition to making sensor detection difficult, stealth can make it hard to attack a target at range. To reflect that _LowVisibility_ exposes a few tags that add special case modifiers to the attack roll.
 
-__WIP__
+* Components with the `lv-stealth-range-mod_sA_mB_lC_eD` apply a penalty to an attacker's weapons based upon their range to the target. A penalty of A is applied against targets at short range, B at medium range, C at long range, and D at extreme range.
+* Components with the `lv-stealth-move-mod_mX_sZ` tag apply a penalty that is strongest when the target doesn't move. X is the base penalty that applies to any attack against the target. This penalty decays by 1 for each Z hexes the target moves, until it the penalty is completely eliminated.
 
-`lv-narc-effect_m`
+> Example One: A tag of `lv-stealth-range-mod_s1_m2_l3_e4` would apply a +1 penalty at short range, +2 at medium range, +3 at long range and +4 at extreme range. This range is applied per weapon, so the attacker may experience different penalties for different weapons they fire.
 
-. The modifier is compared against all friendly to the narc'd unit ECM . If the narc modifier is > friendly_ecm, it makes the unit visible to enemies no matter the range.
+> Example Two: A tag of `lv-stealth-move-mod_m3_s2` applies a +3 penalty to the attacker if the target does not move. If the target moves 1 or 2 hexes, this penalty would be reduced (by -1) to +2. If the target moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
 
-The lack of range is to simplify the coding (complexity and checks). Once you're narc'd it's unlikely you'd get so far away that you'd be out of sensor range anyways, and it can guard against really bad sensor range checks.
+### ECM
 
-    "statusEffects": [{
-        ...
-        "tagData" : { 
-    		"tagList" : [ "lv-narc-effect_m8" ] 
-    	},
-    }]
 
-### TAG
 
-__WIP__
-For TAG, I'm thinking
-`lv-tag-effect`
-, where X is a pretty big number (8-9). For each hex the target moves, that modifier gets reduced by -1. When a details check is made against the target, the current TAG bonus is added to the enemy check.
+### Narc Effect
 
-I'm thinking the value of TAG is that it wouldn't be  impacted by ECM. That's not 'realistic' but it feels like a useful trait mechanically.
+Narc beacons launch a small transmitter that attaches to the target and broadcasts their location. _LowVisibility_ provides an effect tag that mimics this effect by providing a strong bonus to sensor detect checks for targets that have been narc'd.
+
+Any effect that attaches the `lv-narc-effect_mX` tag will apply X as a modifier to sensor checks against the unit under the effect. If this modifier is greater than the affected unit's ECM protection the unit will be marked as a sensor blip regardless of sensor range. Units within sensor range will apply the difference as a modifier to any _sensor info checks_.
+
+> Example: A unit has a `lv-narc-effect_m6` applied to it from a Narc beacon. The unit has ECM protection of 4, so the Narc's effect becomes 6 -4 = 2. The unit's will be visible as a blip at any range, and ay sensor info checks against the unit gain a +2.
+
+An example of attaching this tag to an effect is below:
+
+```
+"statusEffects": [{
+    ...
+    "tagData" : {
+    "tagList" : [ "lv-narc-effect_m8" ]
+  },
+}]
+```
+
+### TAG Effect
+
+TAG emitters are special sensors that provide deep information on a target so long as they can be targeted with a laser-like beam. _LowVisibility_ mimics this effect by providing a _sensor info modifier_ that decays as the target moves. TAG effects are NOT impacted by ECM protection, which provides a way for players to fight against opponents with strong ECM.
+
+Any effect that incorporates the `lv-tag-effect` provides a _sensor check_ equal to the duration of the effect. Any friendly unit applies this bonus to their _sensor info check_. This effect is intended to be placed on a status effect with durationData that uses `ticksOnMovements: true`. `ticksOnMovements` causes the effect duration to be reduced by one for each hex the unit moves, which provides the decay effect we expect.
+
+> Example: A unit has an effect with the `lv-tag-effect` applied to it, with an effect duration of 10. Sensor info checks against the target would gain a bonus of +10. If the target moves 4 hexes, the duration would reduce to 6, which also reduces the sensor info check bonus to +6. Once the target moved another 6 hexes the bonus would completely decay.
+
+An example effect that uses this tag is below:
 
 ```
 "statusEffects": [{
@@ -214,14 +232,14 @@ I'm thinking the value of TAG is that it wouldn't be  impacted by ECM. That's no
 "effectType" : "TagEffect",
 "Description" : {
     "Id" : "TAG-Effect-Vision",
-    "Name" : "Target Acquired",
-    "Details" : "This target was TAG'ed. It will be much easier to see until it moves.",
+    "Name" : "TAG'd - Visibility",
+    "Details" : "This will be much easier to sensor lock until it moves.",
     "Icon" : "uixSvgIcon_artillery"
 },
 "nature" : "Debuff",
 "statisticData" : null,
-"tagData" : { 
-	"tagList" : [ "lv-tag-effect" ] 
+"tagData" : {
+	"tagList" : [ "lv-tag-effect" ]
 	},
 "floatieData" : null,
 "actorBurningData" : null,
@@ -230,8 +248,6 @@ I'm thinking the value of TAG is that it wouldn't be  impacted by ECM. That's no
 "poorlyMaintainedEffectData" : null
 }]
 ```
-### Sensor  Mods
-Uses `lv-sensor-boost_mX` tag; applies X as a modifier to all sensor rolls. Multiple values are cumulative.
 
 ### Visual Zoom
 WIP
@@ -244,41 +260,43 @@ Uses `lv-vision-heat_mX`
 ## Worklog
 
 ### WIP Features
-- [] Add `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
-- [] Armor/structure exact values are being show, not just as ??
-- [] Make sensor lock not end your turn (SensorLockSequence)
-- [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
-- [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
-- [] On shutdown, no stealth / ecm / etc applies
-- [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
-- [] BUG - Weapons summary shown when beyond sensors range
-- [] BUG - Units disappear from view in some cases. Doesn't appear related to the previous behavior, but is related.
-- [] Component damage should eliminate ECM, AP, Stealth bonuses
-- [] ```lv_shared_spotter``` tag on pilots to share LOS
-- [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
-- [] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
-- [] Implement stealth multi-target prohibition
-- [] Reimplement sensor shadows?
-- [] ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
-- [] Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
-- [] injuries reduce sensor check
+- [] BUG: stealth_move_mod is unbounded, can result in a +81 bonuses
+- [] BUG: Major performance hit on assault base missions; takes 2-3 seconds per move. Investigate why this is.
+- [] BUG: Narc, Tag not cleaned up on combat end. Causes some NPEs.
+- [] BUG: Stability & heat bars showing on vehicles & turrets for some reason.
+- [] BUG: Enemies not following the sensor blackout on turn one; there are cases where they get to attack anyways.
+- [] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
+- [] BUG: Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
+- [] BUG: Weapons summary shown when beyond sensors range with a high check.
+- [] BUG: Units remain in vision even when units move away. Investigate why this occurs.
+- [] BUG: Have to select a unit after save for GameRepresentations to be rendered.
+- [] BUG: If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
+- [] BUG: Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
+- [] FEATURE: Rename `lv-scrambler_mX` to `lv-stealth-boost_mX` to match probes.
+- [] FEATURE: Rename active probes to `lv-sensormod-highest_mX` and `lv-sensormod-sum_mX`
+- [] FEATURE: Add `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
+- [] Armor/structure exact values are being shown, not just as ??
+- [] FEATURE: Make sensor lock not end your turn (SensorLockSequence)
+- [] FEATURE: ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
+- [] FEATURE: On shutdown, no stealth / ecm / etc applies
+- [] FEATURE: Component damage should eliminate ECM, AP, Stealth bonuses
+- [] FEATURE: ```lv_shared_spotter``` tag on pilots to share LOS
+- [] FEATURE: Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
+- [] FEATURE: Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
+- [] FEATURE: Implement stealth multi-target prohibition
+- [] FEATURE: Reimplement sensor shadows?
+- [] FEATURE: Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
+- [] FEATURE: injuries reduce sensor check
 
 ### Possible Additions
 
-- [] Sensors should have a range within which they work; otherwise they are just a bonus to the roll. Making them have a specific range, and limiting vision details to probes, might be a way to go?
 - [] Add ability for a pilot to get a bad reading / critical failure. Tie to tactics as a roll, so poor pilots have it happen more often.  In failure, show wrong name/tonnage/information to confuse the player. May need some hidden marker indicating that this is a false lead - possibly a temporarily value that can be removed once we introduce the mod.
 - [] Should stealth have a visibility modifier that changes as you move move? I.e. 0.1 visibility if you don't move, 0.5 if you do, etc. (Think Chameleon shield - should make it harder to see the less you move)
-
 - [] Experiment with AllowRearArcSpotting:false in CombatGameConstants.json
-
 - [] SensorLock becomes passive ability that doubles your tactics, boosts sensor detect level by +1 (for 'what you know'). Eliminate it as a menu item, ensure forceVisRebuild never gets called.
-
 - [] Add a 'lv-dentist' tag that always provides the highest rating of info
-
 - [] Add a 'lv-ninja' tag that always hides all the information of a unit.
-
 - [] Add a 'lv-vision-lowlight_rX' for low-light vision; increases visual range during a non-daylight mood
-
 - [] Add a 'lv-sensor-heat_rX_hY' for heat vision; increases detection of units with high heat ratings. For every Y heat, add +1 to the sensor check for this unit.
 
 ### To Document
@@ -291,4 +309,3 @@ Uses `lv-vision-heat_mX`
 - [x] Validate functionality works with saves - career, campaign, skirmish
 - [x] Fix issues with VisualID - make it apply if close enough
 - [x] Hide pilot details when not DentalRecords
-- [x] Evasion pips display in T.HUD but not on the model
