@@ -246,22 +246,22 @@ Uses `lv-vision-heat_mX`
 ### WIP Features
 - [] Add `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
 - [] Armor/structure exact values are being show, not just as ??
-[] Make sensor lock not end your turn (SensorLockSequence)
-[] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
-[] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
-[] On shutdown, no stealth / ecm / etc applies
-[] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
-[] BUG - Weapons summary shown when beyond sensors range
-[] BUG - Units disappear from view in some cases. Doesn't appear related to the previous behavior, but is related.
-[] Component damage should eliminate ECM, AP, Stealth bonuses
-[] ```lv_shared_spotter``` tag on pilots to share LOS
-[] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
-[] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
-[] Implement stealth multi-target prohibition
-[] Reimplement sensor shadows?
-[] ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
-[] Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
-[] injuries reduce sensor check
+- [] Make sensor lock not end your turn (SensorLockSequence)
+- [] Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
+- [] If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
+- [] On shutdown, no stealth / ecm / etc applies
+- [] BUG - Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
+- [] BUG - Weapons summary shown when beyond sensors range
+- [] BUG - Units disappear from view in some cases. Doesn't appear related to the previous behavior, but is related.
+- [] Component damage should eliminate ECM, AP, Stealth bonuses
+- [] ```lv_shared_spotter``` tag on pilots to share LOS
+- [] Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
+- [] Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
+- [] Implement stealth multi-target prohibition
+- [] Reimplement sensor shadows?
+- [] ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
+- [] Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
+- [] injuries reduce sensor check
 
 ### Possible Additions
 
