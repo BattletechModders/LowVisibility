@@ -44,7 +44,20 @@ This section contains describes how to customize the mod's behavior. The values 
 
 While not necessary, it's suggested that you are familiar with the information in the [Low Visibility Design Doc](DesignDoc.md).
 
-### Environmental Modifiers for Visual Lock
+### Visual Detection
+
+The range of visual detection in _LowVisibility_ is typically much less than vanilla. Because sensor locks allow targeting and attacks, visual ranges have been reduced. Hopefully this provides a verisimilitude of an environment where both are necessary to survival.
+
+No matter the circumstances, vision range cannot drop below a number of hexes equal to _VisionRangeMinimum_. This value can be edited in `LowVisibility/mod.json` and defaults to 2 hexes.
+
+#### Visual Identification
+
+In _LowVisibility_ many opponent details are hidden to simulate the uncertainty pilots would experience on the BattleTech battlefield.
+Sensors are the best way to gain detailed information on your opponent (see the [Sensor Info](#Sensor-Info) section below), but the Mk.1 eyeball can be useful as well.
+
+If a unit has visual lock to a target and is within a short distance, they can approximate many target details. Units within _VisualIDRange_ (which defaults to 5 hexes) will treat any opponent unit as if they have __Surface Analysis__.
+
+#### Environmental Modifiers
 
 _Visual Lock_ is heavily influenced by the environment of the map. Each map contains one or more _mood_ tags that influence the vision range on that map. When each map is loaded, a base vision range is calculated for every unit from these tags. Flags related to the ambient light the a base vision range, while flags related to obscurement provide a multiplier that reduces this range.
 
@@ -62,7 +75,7 @@ x0.3 | mood_fogHeavy
 
 A map with _dim light_ and _rain_ has a vision range of `11 hexes * 30.0m * 0.7 = 231m`. Any _SpottingVisibilityMultiplier_ or _SpottingVisibilityAbsolute_ modifiers on the unit increase this base range as normal.
 
-### Detection
+### Sensor Detection
 
 At the start of every combat round, every unit (player or AI) makes two __sensor checks__. Each check is a random value between -14 to +14, assigned as per a normal distribution (aka a bell curve). The distribution uses mu=-2 and a sigma=4 value, resulting in a wide curve that's centered at the -2 result.
 
@@ -76,7 +89,7 @@ Each check is further modified by the source unit's tactics skill, as per the ta
 | w/ Lvl 5 Ability | +0 | +1 | +1 | +2 | +3 | +4 | +4 | +5 | +5 | +6 | +7 | +8 | +9 |
 | w/ Lvl 8 Ability | +0 | +1 | +1 | +2 | +4 | +5 | +5 | +6 | +6 | +7 | +8 | +9 | +10 |
 
-#### Detection Range
+#### Sensor Range
 
 The first check (the __range check__) is used to determine the unit's sensor range this turn. Each unit has a base sensor range determined by its type, as given in the table below. This range is increased by _SensorDistanceMultiplier_ and _SensorDistanceAbsolute_ values normally, allowing variation in unit sensor ranges.
 
@@ -89,11 +102,23 @@ The first check (the __range check__) is used to determine the unit's sensor ran
 
 The range check result is divided by ten, then used as a multiplier against the unit's sensor range. A range check result of +3 yields a  sensor range multiplier of (1 + 3/10) = 1.3x. A negative range check of -2 would result in a multiplier of (1.0 - 2/10) = 0.8x.
 
-##### First Turn Protection
+No matter the circumstances, sensors range cannot drop below a number of hexes equal to _SensorRangeMinimum_. This value can be edited in `LowVisibility/mod.json` and defaults to 6 hexes.
 
-On the very first turn of every combat, every unit (friendly, neutral, or foe) always fail their __range check__. This ensures players can move away from their deployment zone before the AI has a chance to attack them. This behavior can be disabled by setting `FirstTurnForceFailedChecks` to __false__ in `mod.json`.
+##### Target Signature
 
-#### Detection Info
+A unit's sensors define the range at which they can see a standard target in normal conditions. Equipment and environment can result in a target that's easier or harder to see, which is expressed through their __signature__ rating. This rating is typically hidden, though components in the Mechlab will indicate any increases or reductions in signature.
+
+Target signatures act as a multiplier to the sensor range. If a unit has a sensor range check that resulted in sensors range 400:
+
+  * A hard to detect target with signature 0.5 would only be detectable at 200m or closer.
+  * A standard target with signature 1.0 would be detectable at 400m or closer.
+  * An easy to detect target with signature 1.2 would be detectable at 480m.
+
+__EVEN IF A TARGET IS WITHIN YOUR SENSOR RANGE AND YOU HAVE A GOOD CHECK, IT DOES NOT GUARANTEE YOU CAN DETECT THEM.__ Their signature can reduce your effective range without you ever knowing.
+
+Players should note that forests provide a 0.8 signature, while water applies a 1.2. 
+
+#### Sensor Info
 
 The second check (the __info check__) determines how much target information the unit will receive this round. This check is applicable for optimal conditions - enemy ECM and other effects can reduce this value on a target by target basis. The range of check results is given below:
 
@@ -111,13 +136,9 @@ The second check (the __info check__) determines how much target information the
 | 10 | Deep Scan | As above plus component location, buffs and debuffs |
 | 11 | Dental Records | As above plus pilot name, info |
 
-##### Visual Identification
+### First Turn Protection
 
-TODO: FIXME
-
-_Silhouette ID_ and _VisualID_ require the source unit to have __visibility__ to the target. _VisualID_ only occurs when the source is within 90m of the target, or the map visibility limit, whichever is smaller.
-
-Document penalties for sensor lock only (-2), vision only (range based, offset by zoom)
+On the very first turn of every combat, every unit (friendly, neutral, or foe) always fail their __range check__. This ensures players can move away from their deployment zone before the AI has a chance to attack them. This behavior can be disabled by setting `FirstTurnForceFailedChecks` to __false__ in `mod.json`.
 
 ## Components
 The sections below define behaviors exposed through components, such as equipment and weapons.
@@ -276,6 +297,7 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 - [] BUG: Major performance hit on assault base missions; takes 2-3 seconds per move. Investigate why this is.
 - [] BUG: Narc, Tag not cleaned up on combat end. Causes some NPEs.
 - [] BUG: Stability & heat bars showing on vehicles & turrets for some reason.
+- [] BUG: SensorRange not respecting SensorRangeMinimum.
 - [] BUG: Enemies not following the sensor blackout on turn one; there are cases where they get to attack anyways.
 - [] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
 - [] BUG: Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
@@ -286,7 +308,8 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 - [] BUG: Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
 - [] FEATURE: Rename `lv-scrambler_mX` to `lv-stealth-boost_mX` to match probes.
 - [] FEATURE: Rename active probes to `lv-sensormod-highest_mX` and `lv-sensormod-sum_mX`
-- [] FEATURE: Add `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
+- [] FEATURE: Add `lv-vision-thermal_m` modifiers; reduces direct fire penalty, but at different ranges
+- [] FEATURE: Show signature, visibilty modifiers for target on the tooltips.
 - [] Armor/structure exact values are being shown, not just as ??
 - [] FEATURE: Make sensor lock not end your turn (SensorLockSequence)
 - [] FEATURE: ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
@@ -312,12 +335,7 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 - [] Add a 'lv-sensor-heat_rX_hY' for heat vision; increases detection of units with high heat ratings. For every Y heat, add +1 to the sensor check for this unit.
 
 ### To Document
-- [x] First turn auto-fail; everybody fails their check on the first turn. Show 'powering up' sensors or something like that?
-- [x] Add a minimum for sensor range, visual range. You can't go below that. Maybe 6/3?
 - [x] BUG - When you overheat a mech, it disappears from vision
-- [x] Add multiple ECM penalty to sensor check
 - [x] VisionLock and VisualID ranges should be modified by equipment.
-- [x] Saves occur on post-mission/pre-mission saves; should skip
-- [x] Validate functionality works with saves - career, campaign, skirmish
 - [x] Fix issues with VisualID - make it apply if close enough
 - [x] Hide pilot details when not DentalRecords
