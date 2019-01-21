@@ -5,6 +5,16 @@ This mod has been designed to work with [RogueTech](http://roguetech.org). In th
 
 __WARNING: THIS MOD LIKELY BREAKS SKIRMISH MULTIPLAYER.__ It has not been tested, but all due to the way it's been implemented my guess is that it won't work. You have been warned!
 
+## Summary
+
+This mod is comprehensive, but a short summary of changes in the mod include:
+
+* Sensor blips can now be targeted and attacked, allowing long range builds to be more viable.
+* ECM bubbles provide protection for allies and reduce enemy sensors.
+* Enemy details are hidden and are only revealed to strong sensors and/or pilots with high Tactics.
+* The environment can reduce visibility due to snow, rain, night, etc. This makes sensors critical to success on those maps.
+* Stealth can hide enemy mechs (and your own!) allowing you to close range safely.
+
 ## Target Detection
 
 What you can detect is defined by your unit's _visual lock_ or _sensor lock_. __Visual Lock__ occurs when your unit can visually identify a target, while __Sensor Lock__ occurs when your unit can identify a target using electronics. A unit can have one, both or no lock to a target, depending on various factors (described below).
@@ -116,7 +126,7 @@ Target signatures act as a multiplier to the sensor range. If a unit has a senso
 
 __EVEN IF A TARGET IS WITHIN YOUR SENSOR RANGE AND YOU HAVE A GOOD CHECK, IT DOES NOT GUARANTEE YOU CAN DETECT THEM.__ Their signature can reduce your effective range without you ever knowing.
 
-Players should note that forests provide a 0.8 signature, while water applies a 1.2. 
+Players should note that forests provide a 0.8 signature, while water applies a 1.2.
 
 #### Sensor Info
 
@@ -182,6 +192,8 @@ Stealth components reduce an opponent's ability to sensor lock the protected uni
 The modifiers from the `lv-stealth_mX` and `lv-scrambler_mX` tags are additive. If a unit has both, their sensors are improved by the sum of each modifier.
 
 > Example: A unit has components with tags lv-stealth_m2, lv-scrambler_m-2, lv-scrambler_m-3. The stealth modifier is 2 (from lv-stealth_m2), - 2 (lv-scrambler_m-2) - 3 (lv-scrambler_m-3) = -3. This unit would add +3 to any sensor range and info checks against it, because it's stealth modifier is negative.
+
+__Design Note:__  Stealth closely approximates the sensor and signature spectrum HBS already has in the game. _LowVisibility's_ stealth was created to be less binary than signature reductions. Signature modifiers also hide a target, by reducing the range at which the target can be detected. Sensor modifiers can increase the range, allowing a push and pull between them that mimics TT stealth. However, Stealth reduces the info level (not the range), which allows high-sensor builds to still have a chance to detect them for targeting purposes, without knowing their details.
 
 ## Effects
 
