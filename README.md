@@ -282,16 +282,24 @@ These penalties described can be adjusted by editing `LowVisibility/mod.json`.
 
 ### Zoom Vision
 
-BattleTech has a long standing tradition of zoom vision being a standard feature on cockpits. To support this, components with the `lv-vision-zoom_mX` tag will apply an attack bonus that offsets any vision-only penalty. For each point of X, one point of __Vision Only__ penalty if offset. This can not provide a bonus to attack, only offset the penalty above.
+__WIP: PLANNED BUT NOT COMPLETE__
+
+BattleTech has a long standing tradition of zoom vision being a standard feature on cockpits. To support this, components with the `lv-vismode-zoom_mX_sY` tag apply an attack bonus that decays over distance. Each point of X applies as a -1 bonus to the attack roll. For each Y hexes between the attacker and the target, the bonus is reduced by one, until no bonus is provided.
+
+> Example: A unit has a component with tag `lv-vismode-zoom_m3_s8`. For any **ranged** attack between 0-8 hexes, the attacker applies a -3 attack bonus. For attacks between 9-16 hexes, the attacker applies a -2 bonus. At 17-24 hexes the bonus is -1, and at 25+ hexes there is no bonus.
+
+This bonus only applies ranged attacks. This bonus does not stack with other vision bonuses. An attacker with multiple vismode components applies the highest bonus to an attack, plus +1 for each addition vismode that provides a bonus.
+
 
 ### Thermal Vision
 
 __WIP: PLANNED BUT NOT COMPLETE__
-__TODO: Cap the bonus? Make it +1 and the X is the cap? Make the -1 hard-coded and the division part of the tag?__
 
-Like zoom vision, detecting an opponent through thermal vision has been a stable of BattleTech games back to MW2. Components with the `lv-vision-thermal_mX` mimic this effect by applying an attack bonus that increases the the more the target heat goes up. The attacker gains a -X bonus to their attack for each 10 (_ThermalVisionDivisor_) points of heat the target currently has.
+Like zoom vision, detecting an opponent through thermal vision has been a stable of BattleTech games back to MW2. Components with the `lv-vismode-thermal_mX_dY` mimic this effect by applying an attack bonus that increases the as the target heats up. The attacker gains a -X bonus to their attack for each Y points of heat the target currently has. This bonus cannot exceed _ThermalVisionMaxBonus_, defined in `LowVisibility/mod.json`.
 
-The _ThermalVisionDivisor_ can be modified by editing `LowVisibility/mod.json`.
+> Example: A unit has a component with tag `lv-vismode-thermal_m1_d20`. For any **ranged** attack where the target has 20 heat or less, the attack gains no bonus. If the target has 20-40 heat the attack has a -1 bonus, for 41-60 heat it has a -2 bonus, and so on.
+
+This bonus only applies ranged attacks. This bonus does not stack with other vision bonuses. An attacker with multiple vismode components applies the highest bonus to an attack, plus +1 for each addition vismode that provides a bonus.
 
 ### Stealth Attack Modifiers
 
