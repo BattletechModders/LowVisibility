@@ -4,12 +4,10 @@ using LowVisibility.Helper;
 using LowVisibility.Object;
 using LowVisibility.Redzen;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using static LowVisibility.Helper.MapHelper;
 using static LowVisibility.Helper.VisibilityHelper;
 
@@ -216,27 +214,6 @@ namespace LowVisibility {
             }
         }
 
-        /*
-              // -- Mutable state
-        public static Dictionary<string, DynamicEWState> DynamicEWState = new Dictionary<string, DynamicEWState>();
-        public static Dictionary<string, StaticEWState> StaticEWState = new Dictionary<string, StaticEWState>();
-        public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
-        
-        // TODO: Do I need this anymore?
-        public static string LastPlayerActivatedActorGUID;
-
-        // -- State related to ECM/effects
-        public static Dictionary<string, int> ECMJammedActors = new Dictionary<string, int>();
-        public static Dictionary<string, int> ECMProtectedActors = new Dictionary<string, int>();
-        public static Dictionary<string, int> NarcedActors = new Dictionary<string, int>();
-        public static Dictionary<string, int> TaggedActors = new Dictionary<string, int>();
-        
-        public static bool TurnDirectorStarted = false;
-        public const int ResultsToPrecalcuate = 16384;
-        public static double[] CheckResults = new double[ResultsToPrecalcuate];
-        public static int CheckResultIdx = 0;   
-    */
-
         // --- FILE SAVE/READ BELOW ---
         public class SerializationState {
             public Dictionary<string, DynamicEWState> dynamicState;
@@ -259,11 +236,11 @@ namespace LowVisibility {
             SourceActorLockStates.Clear();
             DynamicEWState.Clear();
             StaticEWState.Clear();
-            
+
             string normalizedFileID = saveFileID.Replace('/', '_');
             FileInfo stateFilePath = CalculateFilePath(normalizedFileID);
             if (stateFilePath.Exists) {
-                LowVisibility.Logger.Log($"Reading saved state from file:{stateFilePath.FullName}.");
+                //LowVisibility.Logger.Log($"Reading saved state from file:{stateFilePath.FullName}.");
                 // Read the file
                 try {
                     SerializationState savedState = null;
@@ -271,26 +248,33 @@ namespace LowVisibility {
                         string json = r.ReadToEnd();
                         //LowVisibility.Logger.Log($"State json is: {json}");
                         savedState = JsonConvert.DeserializeObject<SerializationState>(json);
-                        LowVisibility.Logger.Log($"Serialized state from JSON");
                     }
 
-                    DynamicEWState = savedState?.dynamicState;
-                    StaticEWState = savedState?.staticState;
-                    SourceActorLockStates = savedState?.SourceActorLockStates;
+                    State.DynamicEWState = savedState.dynamicState;
+                    LowVisibility.Logger.Log($"  -- DynamicEWState.count: {savedState.dynamicState.Count}");
+                    State.StaticEWState = savedState.staticState;
+                    LowVisibility.Logger.Log($"  -- StaticEWState.count: {savedState.staticState.Count}");
+                    State.SourceActorLockStates = savedState.SourceActorLockStates;
+                    LowVisibility.Logger.Log($"  -- SourceActorLockStates.count: {savedState.SourceActorLockStates.Count}");
 
-                    LastPlayerActivatedActorGUID = savedState?.LastPlayerActivatedActorGUID;
+                    State.LastPlayerActivatedActorGUID = savedState.LastPlayerActivatedActorGUID;
+                    LowVisibility.Logger.Log($"  -- LastPlayerActivatedActorGUID: {LastPlayerActivatedActorGUID}");
 
-                    ECMJammedActors = savedState?.ecmJammedActors;
-                    ECMProtectedActors = savedState?.ecmProtectedActors;
-                    NarcedActors = savedState?.narcedActors;
-                    TaggedActors = savedState?.taggedActors;
-                    
+                    State.ECMJammedActors = savedState.ecmJammedActors;
+                    LowVisibility.Logger.Log($"  -- ecmJammedActors.count: {savedState.ecmJammedActors.Count}");
+                    State.ECMProtectedActors = savedState.ecmProtectedActors;
+                    LowVisibility.Logger.Log($"  -- ecmProtectedActors.count: {savedState.ecmProtectedActors.Count}");
+                    State.NarcedActors = savedState.narcedActors;
+                    LowVisibility.Logger.Log($"  -- narcedActors.count: {savedState.narcedActors.Count}");
+                    State.TaggedActors = savedState.taggedActors;
+                    LowVisibility.Logger.Log($"  -- taggedActors.count: {savedState.taggedActors.Count}");
+
                     LowVisibility.Logger.Log($"Loaded save state from file:{stateFilePath.FullName}.");
                 } catch (Exception e) {
-                    LowVisibility.Logger.Log($"Failed to read saved state from:{stateFilePath.FullName} due to e:{e.Message}");                    
+                    LowVisibility.Logger.Log($"Failed to read saved state due to e: '{e.Message}'");                    
                 }
             } else {
-                LowVisibility.Logger.Log($"FilePath:{stateFilePath} does not exist, cannot load file!");
+                LowVisibility.Logger.Log($"FilePath:{stateFilePath} does not exist, not loading file.");
             }
         }
 

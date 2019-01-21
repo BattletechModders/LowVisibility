@@ -180,7 +180,7 @@ namespace LowVisibility.Patch {
 
                 // If EW effects have rendered the target invisible, break the lock
                 visibilityLevel = GetUnifiedVisibilityLevel(source, targetActor);
-                //LowVisibility.Logger.LogIfDebug($"VTTWPAR Source:{CombatantHelper.Label(source)} has lockState:{lockState} to target:{targetActor as AbstractActor}");  
+                //LowVisibility.Logger.Log($"VTTWPAR Source:{CombatantHelper.Label(source)} has visibilityLevel:{visibilityLevel} to target:{CombatantHelper.Label(target)}");  
 
                 // Check for Narc 
                 if (State.NARCEffect(targetActor) != 0 && visibilityLevel < VisibilityLevel.Blip4Maximum) {

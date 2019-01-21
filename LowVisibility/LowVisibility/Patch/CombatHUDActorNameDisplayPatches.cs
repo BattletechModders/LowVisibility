@@ -159,7 +159,7 @@ namespace LowVisibility.Patch {
             CombatHUDTooltipHoverElement ___ToolTip = (CombatHUDTooltipHoverElement)Traverse.Create(__instance).Property("ToolTip").GetValue();
 
             //KnowYourFoe.Logger.Log($"CombatHUDMechTrayArmorHover:OnPointerEnter:post - entered.");
-            if (___Readout != null && ___Readout.DisplayedMech != null) {
+            if (___Readout != null && ___Readout.DisplayedMech != null && ___Readout.DisplayedMech.Combat != null && ___ToolTip != null) {
                 Mech target = ___Readout.DisplayedMech;
                 bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                 if (!isPlayer) {
@@ -182,7 +182,7 @@ namespace LowVisibility.Patch {
             CombatHUDTooltipHoverElement ___ToolTip = (CombatHUDTooltipHoverElement)Traverse.Create(__instance).Property("ToolTip").GetValue();
 
             //KnowYourFoe.Logger.Log($"CombatHUDMechTrayArmorHover:OnPointerEnter:post - entered.");
-            if (___Readout != null && ___Readout.DisplayedVehicle != null) {
+            if (___Readout != null && ___Readout.DisplayedVehicle != null && ___Readout.DisplayedVehicle.Combat != null && ___ToolTip != null) {
                 Vehicle target = ___Readout.DisplayedVehicle;
                 bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                 if (!isPlayer) {

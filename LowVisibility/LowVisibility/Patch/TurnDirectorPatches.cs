@@ -3,6 +3,8 @@ using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using static LowVisibility.Helper.ActorHelper;
 
@@ -12,8 +14,10 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(TurnDirector), "OnEncounterBegin")]
     public static class TurnDirector_OnEncounterBegin {
 
+        public static bool IsFromSave = false;
+
         public static void Prefix(TurnDirector __instance) {
-            LowVisibility.Logger.LogIfTrace("=== TurnDirector:OnEncounterBegin:pre - entered.");
+            LowVisibility.Logger.Log("=== TurnDirector:OnEncounterBegin:pre - entered.");
 
             // Initialize the probabilities
             State.InitializeCheckResults();
@@ -22,38 +26,33 @@ namespace LowVisibility.Patch {
 
             // Do a pre-encounter populate 
             if (__instance != null && __instance.Combat != null && __instance.Combat.AllActors != null) {
-                AbstractActor randomPlayerActor = null;
-                foreach (AbstractActor actor in __instance.Combat.AllActors) {
-                    if (actor != null) {
-                        // Parse their EW config
-                        StaticEWState actorEWConfig = new StaticEWState(actor);
-                        State.StaticEWState[actor.GUID] = actorEWConfig;
+                // If we are coming from a save, don't recalculate everything - just roll with what we already have
+                if (!IsFromSave) {
+                    AbstractActor randomPlayerActor = null;
+                    foreach (AbstractActor actor in __instance.Combat.AllActors) {
+                        if (actor != null) {
+                            // Parse their EW config
+                            StaticEWState actorEWConfig = new StaticEWState(actor);
+                            State.StaticEWState[actor.GUID] = actorEWConfig;
 
-                        // Make a pre-encounter detectCheck for them
-                        State.BuildDynamicState(actor);
-                        LowVisibility.Logger.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} has detectCheck:{State.GetDynamicState(actor).ToString()} at load/start");
+                            // Make a pre-encounter detectCheck for them
+                            State.BuildDynamicState(actor);
+                            LowVisibility.Logger.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} has detectCheck:{State.GetDynamicState(actor).ToString()} at load/start");
 
-                        bool isPlayer = actor.TeamId == __instance.Combat.LocalPlayerTeamGuid;
-                        if (isPlayer && randomPlayerActor == null) {
-                            randomPlayerActor = actor;
+                            bool isPlayer = actor.TeamId == __instance.Combat.LocalPlayerTeamGuid;
+                            if (isPlayer && randomPlayerActor == null) {
+                                randomPlayerActor = actor;
+                            }
+
+                        } else {
+                            LowVisibility.Logger.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} was NULL!");
                         }
-
-                    } else {
-                        LowVisibility.Logger.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} was NULL!");
                     }
                 }
+
                 VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
                 VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
             }
-        }
-    }
-
-    [HarmonyPatch(typeof(TurnDirector), "InitFromSave")]
-    public static class TurnDirector_InitFromSave {
-        public static void Postfix(TurnDirector __instance) {
-            LowVisibility.Logger.LogIfDebug("TurnDirector:InitFromSave:post - entered.");
-            // TODO: VERIFY THIS RUNS WITH OR WITHOUT INIT()
-            State.InitMapConfig();
         }
     }
 
@@ -69,8 +68,8 @@ namespace LowVisibility.Patch {
             LowVisibility.Logger.LogIfTrace("=== TurnDirector:BeginNewRound:post - entered.");
 
             // Update the current vision for all allied and friendly units
-            foreach (AbstractActor actor in __instance.Combat.AllActors) {                
-                
+            foreach (AbstractActor actor in __instance.Combat.AllActors) {
+
 
                 if (LowVisibility.Config.FirstTurnForceFailedChecks && __instance.CurrentRound == 0) {
                     LowVisibility.Logger.Log("=== TurnDirector:Forcing sensor checks to negative values for first round.");
@@ -109,5 +108,18 @@ namespace LowVisibility.Patch {
         }
     }
 
+    [HarmonyPatch()]
+    public static class EncounterLayerParent_InitFromSavePassTwo {
 
+        // Private method can't be patched by annotations, so use MethodInfo
+        public static MethodInfo TargetMethod() {
+            return AccessTools.Method(typeof(EncounterLayerParent), "InitFromSavePassTwo", new Type[] { typeof(CombatGameState) });
+        }
+
+        public static void Postfix(EncounterLayerParent __instance, CombatGameState combat) {
+            LowVisibility.Logger.Log("EncounterLayerParent:InitFromSavePassTwo:post - entered.");
+
+            TurnDirector_OnEncounterBegin.IsFromSave = true;
+        }
+    }
 }

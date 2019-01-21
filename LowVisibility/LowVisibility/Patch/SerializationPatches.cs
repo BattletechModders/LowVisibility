@@ -13,7 +13,7 @@ namespace LowVisibility.Patch {
 
         public static void Postfix(GameInstance __instance, GameInstanceSave save) {
             LowVisibility.Logger.LogIfDebug($"Loading  saveGame with fileId:{save.FileID}");
-           // State.LoadStateData(save.FileID);
+            State.LoadStateData(save.FileID);
         }
     }
 

@@ -38,6 +38,9 @@ namespace LowVisibility.Helper {
         }
 
         public static HashSet<LockState> CalculateTargetLocks(AbstractActor source, List<AbstractActor> targets) {
+
+            if (source == null || source.VisibilityCache == null || targets == null) { return null; }
+
             HashSet<LockState> locksToTargets = new HashSet<LockState>();
 
             foreach (AbstractActor target in targets) {
@@ -472,7 +475,7 @@ namespace LowVisibility.Helper {
             return unifiedVisibility;
         }
 
-        private static VisibilityLevel UnifyVision(List<AbstractActor> unitsSharingVision, AbstractActor target) {
+        public static VisibilityLevel UnifyVision(List<AbstractActor> unitsSharingVision, AbstractActor target) {
             VisibilityLevel visibilityLevel = VisibilityLevel.None;
 
             foreach (AbstractActor actor in unitsSharingVision) {
@@ -496,7 +499,7 @@ namespace LowVisibility.Helper {
             return visibilityLevel;
         }
 
-        private static VisibilityLevel UnifySensorVisibility(List<AbstractActor> unitsSharingSensors, AbstractActor target) {
+        public static VisibilityLevel UnifySensorVisibility(List<AbstractActor> unitsSharingSensors, AbstractActor target) {
             VisibilityLevel visibilityLevel = VisibilityLevel.None;
 
             foreach (AbstractActor sensorSharingActor in unitsSharingSensors) {

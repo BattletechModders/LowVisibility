@@ -30,22 +30,6 @@ namespace LowVisibility.Object {
         }
     }
 
-    public class DynamicEWStateConverter : JsonConverter {
-        public override bool CanConvert(Type objectType) {
-            return objectType.GetType().IsClass;
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
-            DynamicEWState state = new DynamicEWState();            
-
-            return state;
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
-            throw new NotImplementedException();
-        }
-    }
-
     public class StaticEWState {
 
         public const string TagPrefixJammer = "lv-jammer_m";
@@ -86,6 +70,10 @@ namespace LowVisibility.Object {
 
         // Whether this actor will share sensor data with others
         public bool sharesSensors = false;
+
+        public StaticEWState() {
+
+        }
 
         public StaticEWState(AbstractActor actor) {
             // Check tags for any ecm/sensors
@@ -328,7 +316,7 @@ namespace LowVisibility.Object {
         public int CalculateZoomVisionMod(float distance) {
             int penaltySteps = (int)Math.Floor(distance / (LowVisibility.Config.VisionOnlyRangeStep * 30.0f));
             int rangePenalty = penaltySteps * LowVisibility.Config.VisionOnlyPenalty;
-            int penalty = Math.Min(0, rangePenalty - this.zoomVision);
+            int penalty = Math.Max(0, rangePenalty - this.zoomVision);
             //LowVisibility.Logger.LogIfDebug($"  Zoom Vision - at distance:{distance} Math.Floor(penaltySteps:{penaltySteps} * rangePenalty:{rangePenalty} " +
             //    $"- zoomVision:{zoomVision}) = penalty:{penalty}");
             return penalty;
