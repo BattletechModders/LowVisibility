@@ -3,8 +3,6 @@ using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using static LowVisibility.Helper.ActorHelper;
 
@@ -98,13 +96,7 @@ namespace LowVisibility.Patch {
     public static class TurnDirector_OnCombatGameDestroyed {
         public static void Postfix(TurnDirector __instance) {
             // Remove all combat state
-            State.DynamicEWState.Clear();
-            State.StaticEWState.Clear();
-            State.SourceActorLockStates.Clear();
-            State.LastPlayerActivatedActorGUID = null;
-            State.ECMJammedActors.Clear();
-            State.ECMProtectedActors.Clear();
-            State.TurnDirectorStarted = false;
+            State.ClearStateOnCombatGameDestroyed();
         }
     }
 

@@ -69,7 +69,8 @@ namespace LowVisibility.Patch {
         public static void Postfix(Mech __instance) {
             LowVisibility.Logger.LogIfDebug($"=== Mech:OnMovePhaseComplete:post - entered for {CombatantHelper.Label(__instance)}.");
 
-            DEBUG_ToggleForcedVisibility(false, __instance.Combat);
+            // TODO: Disabling to see if this causes audio glitches
+            //DEBUG_ToggleForcedVisibility(false, __instance.Combat);
             bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
             if (isPlayer && State.ECMJamming(__instance) != 0) {
                 // Send a floatie indicating the jamming

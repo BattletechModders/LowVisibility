@@ -41,6 +41,22 @@ namespace LowVisibility {
         public static int CheckResultIdx = 0;
 
         // --- Methods Below ---
+        public static void ClearStateOnCombatGameDestroyed() {
+            State.DynamicEWState.Clear();
+            State.StaticEWState.Clear();
+            State.SourceActorLockStates.Clear();
+
+            State.LastPlayerActivatedActorGUID = null;
+
+            State.ECMJammedActors.Clear();
+            State.ECMProtectedActors.Clear();
+            State.NarcedActors.Clear();
+            State.TaggedActors.Clear();
+
+            State.TurnDirectorStarted = false;
+        }
+
+
         public static float GetMapVisionRange() {
             if (MapConfig == null) {
                 InitMapConfig();

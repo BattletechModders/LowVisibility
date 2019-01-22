@@ -303,7 +303,7 @@ namespace LowVisibility.Object {
                 //LowVisibility.Logger.LogIfDebug($"  StealthMoveMod - actor:{CombatantHelper.Label(owner)} " +
                 //    $"hasMovedThisRound:{owner.HasMovedThisRound} distMovedThisRound:{owner.DistMovedThisRound} which is hexesMoved:{hexesMoved}");
                 moveMod = this.stealthMoveMod[0];
-                while (hexesMoved > 0) {
+                while (hexesMoved > 0 && moveMod > 0) {
                     moveMod--;
                     hexesMoved -= this.stealthMoveMod[1];
                 }
