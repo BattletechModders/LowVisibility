@@ -19,10 +19,12 @@ namespace LowVisibility.Helper {
 
             StaticEWState staticState = State.GetStaticState(source);
             DynamicEWState dynamicState = State.GetDynamicState(source);
-            float checkMulti = 1.0f + ((dynamicState.rangeCheck + staticState.tacticsBonus)/ 10.0f);
+            float checkMulti = 1.0f + ((dynamicState.rangeCheck + staticState.CalculateProbeModifier())/ 10.0f);
 
             float sensorsRange = ((rangeForType * 30) * rangeMulti + rangeMod) * checkMulti;
-            if (sensorsRange < LowVisibility.Config.SensorRangeMinimum) { sensorsRange = LowVisibility.Config.SensorRangeMinimum; }
+            if (sensorsRange < LowVisibility.Config.SensorRangeMinimum * 30.0f) {
+                sensorsRange = LowVisibility.Config.SensorRangeMinimum * 30.0f;
+            }
 
             LowVisibility.Logger.LogIfTrace($"{CombatantHelper.Label(source)} has sensorsRange:{sensorsRange} = " +
                 $"((rangeForType:{rangeForType} * 30.0) * rangeMulti:{rangeMulti} + rangeMod:{rangeMod}) * checkMulti:{checkMulti}");

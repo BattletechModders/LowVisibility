@@ -31,6 +31,31 @@ namespace LowVisibility.Patch {
                 float allSpotterAbsolutes = __instance.GetAllSpotterAbsolutes(source);
                 __result = baseSpotterDistance * allSpotterMultipliers + allSpotterAbsolutes;
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(LineOfSight), "GetAdjustedSpotterRange")]
+    [HarmonyPatch(new Type[] { typeof(AbstractActor), typeof(ICombatant) })]
+    public static class LineOfSight_GetAdjustedSpotterRange {
+        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source, ICombatant target) {
+
+            if (__instance != null && source != null) {
+                
+                float targetVisibility = 1f;
+                AbstractActor abstractActor = target as AbstractActor;
+                if (abstractActor != null) {
+                    targetVisibility = __instance.GetTargetVisibility(abstractActor);
+                }
+
+                float spotterRange = __instance.GetSpotterRange(source);
+                float visibilityModifiedRange = spotterRange * targetVisibility;
+
+                if (visibilityModifiedRange < LowVisibility.Config.VisionRangeMinimum * 30.0f) {
+                    visibilityModifiedRange = LowVisibility.Config.VisionRangeMinimum * 30.0f;
+                }
+
+                __result = visibilityModifiedRange;
+            }
 
         }
     }
@@ -60,6 +85,10 @@ namespace LowVisibility.Patch {
                 //}
 
                 float signatureModifiedRange = sourceSensorRange * targetSignature;
+                if (signatureModifiedRange < LowVisibility.Config.SensorRangeMinimum * 30.0f) {
+                    signatureModifiedRange = LowVisibility.Config.SensorRangeMinimum * 30.0f;
+                }
+
                 //LowVisibility.Logger.Log($"For sourceSensorRange:{sourceSensorRange} and targetSignature:{targetSignature} adjustedRange is:{signatureModifiedRange}");
                 __result = signatureModifiedRange;
             }

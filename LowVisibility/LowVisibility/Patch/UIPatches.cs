@@ -127,60 +127,81 @@ namespace LowVisibility.Patch {
             float visualLockRange = ActorHelper.GetVisualLockRange(actor);
             float sensorsRange = ActorHelper.GetSensorsRange(actor);
             float visualScanRange = ActorHelper.GetVisualScanRange(actor);
-            details.Add($"Visual => Range:{visualLockRange:0}m Scan:{visualScanRange}m Weather:\n");
+            details.Add($"Visual Lock:{visualLockRange:0}m Scan:{visualScanRange}m [{State.MapConfig.UILabel()}]\n");
 
-            // TODO: Let players know what effect is impacting their vision
-
-            details.Add($" Sensor Range:{sensorsRange:0}m Roll: ");
-            float rangeMulti = 1.0f + ((dynamicState.rangeCheck + staticState.tacticsBonus) / 10.0f);
+            List<string> sensorDetails = new List<string>();
+            sensorDetails.Add(" Range Roll:");
+            float rangeMulti = 1.0f + ((dynamicState.rangeCheck + staticState.CalculateProbeModifier()) / 10.0f);
             if (dynamicState.rangeCheck >= 0) {
-                details.Add($"<color=#00FF00>{dynamicState.rangeCheck:+0}</color> + " +
-                    $"Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color> = " +
-                    $"Multi: <color=#00FF00>x{rangeMulti:0.00}</color>");
+                sensorDetails.Add($"<color=#00FF00>{dynamicState.rangeCheck:+0}</color>");                                        
             } else {
-                details.Add($"<color=#FF0000>{dynamicState.rangeCheck:0}</color> + " +
-                    $"Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color> = " +
-                    $"Multi: <color=#FF0000>x{rangeMulti:0.00}</color>");                
+                sensorDetails.Add($"<color=#FF0000>{dynamicState.rangeCheck:0}</color>");
             }
-            details.Add("\n");
 
-            details.Add($" Sensor Info: => ");
-            int checkResult = dynamicState.detailCheck;
-            if (dynamicState.detailCheck >= 0) {
-                details.Add($"Roll: <color=#00FF00>{dynamicState.detailCheck:0}</color>");
+            sensorDetails.Add($" + Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color>");
+
+            if (staticState.probeMod > 0) {
+                sensorDetails.Add($" + Probe:<color=#00FF00>{staticState.probeMod:0}</color>");
+            }
+
+            if (staticState.probeBoostMod > 0) {
+                sensorDetails.Add($" + ProbeBoost:<color=#00FF00>{staticState.probeBoostMod:0}</color>");
+            }
+
+            if (rangeMulti >= 1.0) {
+                sensorDetails.Add($" = <color=#00FF00>x{rangeMulti:0.00}</color>");
             } else {
-                details.Add($"Roll: <color=#FF0000>{dynamicState.detailCheck:0}</color>");
+                sensorDetails.Add($" = <color=#FF0000>x{rangeMulti:0.00}</color>");
+            }
+
+            sensorDetails.Add("]\n");
+
+            // Sensor Info below
+            int checkResult = dynamicState.detailCheck;
+
+            sensorDetails.Add($" Info Roll:");            
+            if (dynamicState.detailCheck >= 0) {
+                sensorDetails.Add($"<color=#00FF00>{dynamicState.detailCheck:0}</color>");
+            } else {
+                sensorDetails.Add($"<color=#FF0000>{dynamicState.detailCheck:0}</color>");
             }
             checkResult += staticState.tacticsBonus;
-            details.Add($" + Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color>");                        
+            sensorDetails.Add($" + Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color>");                        
 
             if (staticState.probeMod > 0) {
                 checkResult += staticState.probeMod;
-                details.Add($" + Probe: <color=#00FF00>{staticState.probeMod:0}</color>");
+                sensorDetails.Add($" + Probe: <color=#00FF00>{staticState.probeMod:0}</color>");
             }
 
             if (staticState.probeBoostMod > 0) {
                 checkResult += staticState.probeBoostMod;
-                details.Add($" + ProbeBoost: <color=#00FF00>{staticState.probeBoostMod:0}</color>");
-            }
-
-            if (staticState.sensorBoostMod > 0) {
-                checkResult += staticState.sensorBoostMod;
-                details.Add($" + SensorBoost: <color=#00FF00>{staticState.sensorBoostMod:0}</color>");
+                sensorDetails.Add($" + ProbeBoost: <color=#00FF00>{staticState.probeBoostMod:0}</color>");
             }
 
             if (State.ECMJamming(actor) != 0) {
                 checkResult -= State.ECMJamming(actor);
-                details.Add($" + Jammed: <color=#FF0000>{State.ECMJamming(actor):-0}</color>");
+                sensorDetails.Add($" + Jammed: <color=#FF0000>{State.ECMJamming(actor):-0}</color>");
             }
 
-            details.Add(" = Result: ");
+            sensorDetails.Add(" = Result: ");
             if (checkResult >= 0) {
-                details.Add($"<color=#00FF00>{checkResult:0}</color>");
+                sensorDetails.Add($"<color=#00FF00>{checkResult:0}</color>");
             } else {
-                details.Add($"<color=#FF0000>{checkResult:0}</color>");
+                sensorDetails.Add($"<color=#FF0000>{checkResult:0}</color>");
             }
-            details.Add("\n");
+            sensorDetails.Add("\n");
+
+            // Sensor range
+            DetectionLevel checkLevel = DetectionLevel.NoInfo;
+            if (checkLevel > DetectionLevel.DentalRecords) {
+                checkLevel = DetectionLevel.DentalRecords;
+            } else if (checkLevel < DetectionLevel.NoInfo) {
+                checkLevel = DetectionLevel.NoInfo;
+            } else {
+                checkLevel = (DetectionLevel)checkResult;
+            }
+            details.Add($"Sensors Lock:{sensorsRange:0}m Info:[{checkLevel.Label()}]\n");
+            details.AddRange(sensorDetails);
 
             // Sensor check:(+/-0) SensorScanLevel:
             if (staticState.ecmMod != 0) {

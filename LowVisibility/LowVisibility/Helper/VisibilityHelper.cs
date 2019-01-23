@@ -97,13 +97,16 @@ namespace LowVisibility.Helper {
             float distance = Vector3.Distance(source.CurrentPosition, target.CurrentPosition);
             float targetVisibility = CalculateTargetVisibility(target);
 
-            float pilotVisualLockRange = ActorHelper.GetVisualLockRange(source);
-            float visualLockRange = pilotVisualLockRange * targetVisibility;
+            float visualScanRange = ActorHelper.GetVisualScanRange(source);
+            float targetModifiedScanRange = visualScanRange * targetVisibility;
+            if (targetModifiedScanRange < LowVisibility.Config.VisionRangeMinimum * 30.0f) {
+                targetModifiedScanRange = LowVisibility.Config.VisionRangeMinimum * 30.0f;
+            }
 
-            if (distance <= visualLockRange) { newLockState.visionLockLevel = VisionLockType.VisualID; }
+            if (distance <= targetModifiedScanRange) { newLockState.visionLockLevel = VisionLockType.VisualID; }
 
             // TODO: Check for failed visual lock and adjust appropriately. Requires visionLockLevel to change to DetectionLevel
-            LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} has visualLockRange:{visualLockRange} and is distance:{distance} " +
+            LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} has visualLockRange:{targetModifiedScanRange} and is distance:{distance} " +
                 $"from target:{CombatantHelper.Label(target)} with visibility:{targetVisibility} - visionLockType:{newLockState.visionLockLevel}");
 
             // -- Determine sensor lock            
@@ -132,12 +135,6 @@ namespace LowVisibility.Helper {
                 if (sourceStaticState.probeBoostMod != 0) {
                     modifiedSourceCheck += sourceStaticState.probeBoostMod;
                     LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} has Probe Boost with strength:{sourceStaticState.probeBoostMod}, " +
-                        $"increasing sourceCheckResult to:{modifiedSourceCheck}");
-                }
-
-                if (sourceStaticState.sensorBoostMod != 0) {
-                    modifiedSourceCheck += sourceStaticState.probeMod;
-                    LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} has sensorMod with strength:{sourceStaticState.sensorBoostMod}, " +
                         $"increasing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
