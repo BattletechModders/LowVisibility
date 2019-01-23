@@ -26,7 +26,7 @@ namespace LowVisibility.Patch {
 
         public static void Postfix(GameInstance __instance, StructureSaveComplete message, bool quit) {
             if (message.Slot.HasCombatData) {
-                LowVisibility.Logger.LogIfDebug($"Creating combat saveGame with fileId:{message.Slot.FileID} with reason:{message.Slot.SaveReason}");
+                LowVisibility.Logger.LogIfDebug($"Creating combat saveGame with fileId:{message.Slot.FileID}");
                 State.SaveStateData(message.Slot.FileID);
             }
         }
