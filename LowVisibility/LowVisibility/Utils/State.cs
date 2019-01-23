@@ -95,7 +95,7 @@ namespace LowVisibility {
         // --- Methods manipulating DynamicEWState
         public static DynamicEWState GetDynamicState(AbstractActor actor) {
             if (!DynamicEWState.ContainsKey(actor.GUID)) {
-                LowVisibility.Logger.Log($"WARNING: DyanmicEWState for actor:{actor.GUID} was not found. Creating!");
+                LowVisibility.Logger.Log($"WARNING: DynamicEWState for actor:{actor.GUID} was not found. Creating!");
                 BuildDynamicState(actor);
             }
             return DynamicEWState[actor.GUID];
@@ -207,7 +207,7 @@ namespace LowVisibility {
             }
         }
         public static void RemoveNARCEffect(AbstractActor actor) {
-            if (NarcedActors.ContainsKey(actor.GUID)) {
+            if (NarcedActors != null && actor != null && NarcedActors.ContainsKey(actor.GUID)) {
                 NarcedActors.Remove(actor.GUID);
             }
         }
@@ -225,7 +225,7 @@ namespace LowVisibility {
             }
         }
         public static void RemoveTAGEffect(AbstractActor actor) {
-            if (TaggedActors.ContainsKey(actor.GUID)) {
+            if (TaggedActors != null && actor != null && TaggedActors.ContainsKey(actor.GUID)) {
                 TaggedActors.Remove(actor.GUID);
             }
         }
@@ -253,7 +253,7 @@ namespace LowVisibility {
             DynamicEWState.Clear();
             StaticEWState.Clear();
 
-            string normalizedFileID = saveFileID.Replace('/', '_');
+            string normalizedFileID = saveFileID.Substring(5);
             FileInfo stateFilePath = CalculateFilePath(normalizedFileID);
             if (stateFilePath.Exists) {
                 //LowVisibility.Logger.Log($"Reading saved state from file:{stateFilePath.FullName}.");
@@ -295,7 +295,7 @@ namespace LowVisibility {
         }
 
         public static void SaveStateData(string saveFileID) {
-            string normalizedFileID = saveFileID.Replace('\\', '_');
+            string normalizedFileID = saveFileID.Substring(5);
             FileInfo saveStateFilePath = CalculateFilePath(normalizedFileID);
             LowVisibility.Logger.Log($"Saving to filePath:{saveStateFilePath.FullName}.");
             if (saveStateFilePath.Exists) {
@@ -327,18 +327,19 @@ namespace LowVisibility {
             }
         }
 
-        private static FileInfo CalculateFilePath(string campaignId) {
+        private static FileInfo CalculateFilePath(string saveID) {
             // Starting path should be battletech\mods\KnowYourFoe
-            string[] directories = LowVisibility.ModDir.Split(Path.DirectorySeparatorChar);
             DirectoryInfo modsDir = Directory.GetParent(LowVisibility.ModDir);
             DirectoryInfo battletechDir = modsDir.Parent;
 
-            // We want to write to Battletech\ModSaves\KnowYourFoe
+            // We want to write to Battletech\ModSaves\<ModName>
             DirectoryInfo modSavesDir = battletechDir.CreateSubdirectory(ModSavesDir);
             DirectoryInfo modSaveSubdir = modSavesDir.CreateSubdirectory(ModSaveSubdir);
+            LowVisibility.Logger.Log($"Mod saves will be written to: ({modSaveSubdir.FullName}).");
 
-            // Finally check to see if the file exists
-            string campaignFilePath = Path.Combine(modSaveSubdir.FullName, $"{campaignId}.json");
+            //Finally combine the paths
+            string campaignFilePath = Path.Combine(modSaveSubdir.FullName, $"{saveID}.json");
+            LowVisibility.Logger.Log($"campaignFilePath is: ({campaignFilePath}).");
             return new FileInfo(campaignFilePath);
         }
 

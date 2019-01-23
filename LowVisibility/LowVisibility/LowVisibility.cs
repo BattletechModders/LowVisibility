@@ -27,7 +27,8 @@ namespace LowVisibility {
                 LowVisibility.Config = new ModConfig();
             }
 
-            Logger = new Logger(modDirectory, "low_visibility");            
+            Logger = new Logger(modDirectory, "low_visibility");
+            Logger.LogIfDebug($"ModDir is:{modDirectory}");
             Logger.LogIfDebug($"mod.json settings are:({settingsJSON})");
             Logger.LogIfDebug($"mergedConfig is:{LowVisibility.Config}");
 
