@@ -194,7 +194,6 @@ namespace LowVisibility.Patch {
                         //KnowYourFoe.Logger.LogIfDebug($"CombatHUDMechTrayArmorHover:OnPointerEnter:post - components should be shown for actor:{target.DisplayName}_{target.GetPilot().Name}");
                     }
                 }
-
             }
         }
     }
@@ -205,7 +204,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDActorNameDisplay_RefreshInfo {
 
         public static void Postfix(CombatHUDActorNameDisplay __instance, VisibilityLevel visLevel, AbstractActor ___displayedActor) {
-            if (___displayedActor != null && 
+            if (___displayedActor != null && State.LastPlayerActivatedActorGUID != null && 
                 (HostilityHelper.IsLocalPlayerEnemy(___displayedActor) || HostilityHelper.IsLocalPlayerNeutral(___displayedActor))) {
                 LockState lockState = State.GetLockStateForLastActivatedAgainstTarget(___displayedActor);
                 if (lockState != null && lockState.sensorLockLevel < DetectionLevel.DentalRecords) {
