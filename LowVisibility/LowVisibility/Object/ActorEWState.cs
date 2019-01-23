@@ -1,7 +1,6 @@
 ﻿using BattleTech;
 using HBS.Collections;
 using LowVisibility.Helper;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,31 +32,38 @@ namespace LowVisibility.Object {
     public class StaticEWState {
 
         public const string TagPrefixJammer = "lv-jammer_m";
+
         public const string TagPrefixProbe = "lv-probe_m";
         public const string TagPrefixProbeBoost = "lv-probe-boost_m";
-        public const string TagPrefixSensorBoost = "lv-sensor-boost_m";
+
         public const string TagSharesSensors = "lv-shares-sensors";
+
         public const string TagPrefixStealth = "lv-stealth_m";
+        public const string TagPrefixScrambler = "lv-scrambler_m";
+
         public const string TagPrefixStealthRangeMod = "lv-stealth-range-mod_s";
         public const string TagPrefixStealthMoveMod = "lv-stealth-move-mod_m";
-        public const string TagPrefixScrambler = "lv-scrambler_m";
+
         public const string TagPrefixNarcEffect = "lv-narc-effect_m";
         public const string TagPrefixTagEffect = "lv-tag-effect";
-        public const string TagPrefixZoomVision = "lv-vision-zoom_m";
-        public const string TagPrefixHeatVision = "lv-vision-heat_m";
+
+        public const string TagPrefixVismodeZoom = "lv-vismode-zoom_m";
+        public const string TagPrefixVismodeHeat = "lv-vismode-heat_m";
 
         public int ecmMod = 0;
         public float ecmRange = 0;
+
         public int probeMod = 0;
-        
+        public int probeBoostMod = 0;
+
         public int stealthMod = 0;
         public int scramblerMod = 0;
 
-        public int zoomVision = 0;
-        public int heatVision = 0;
+        public int vismodeZoomMod = 0;
+        public int vismodeZoomStep = 0;
 
-        public int probeBoostMod = 0;
-        public int sensorBoostMod = 0;
+        public int vismodeHeatMod = 0;
+        public int vismodeHeatDivisor = 0;
 
         // Modifier for stealth range modification - min-short, short-medium, medium-long, long-max
         public int[] stealthRangeMod = new int[] { 0, 0, 0, 0 };
@@ -85,11 +91,13 @@ namespace LowVisibility.Object {
             int actorStealthMod = 0;
             int actorScramblerMod = 0;
 
-            int actorZoomVision = 0;
-            int actorHeatVision = 0;
+            int actorVismodeZoomMod = 0;
+            int actorVismodeZoomStep = 0;
+
+            int actorVismodeHeatMod = 0;
+            int actorVismodeHeatDivisor = 0;
 
             int actorProbeBoostMod = 0;
-            int actorSensorBoostMod = 0;
 
             int[] actorStealthRangeMod = null;
             int[] actorStealthMoveMod = null;
@@ -179,24 +187,28 @@ namespace LowVisibility.Object {
                     } else if (tagLower.Equals(TagSharesSensors)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} shares sensors due to component:{kv.Key} with tag:{tag}");
                         actorSharesSensors = true;
-                    } else if (tagLower.StartsWith(TagPrefixZoomVision)) {
+                    } else if (tagLower.StartsWith(TagPrefixVismodeZoom)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has ZOOM VISION component:{kv.Key} with tag:{tag}");
                         string[] split = tag.Split('_');
-                        if (split.Length == 2) {
-                            int modifier = Int32.Parse(split[1].Substring(1));
-                            if (modifier >= actorZoomVision) {
-                                actorZoomVision = modifier;
+                        if (split.Length == 3) {
+                            int modifier = int.Parse(split[1].Substring(1));
+                            int step = int.Parse(split[2].Substring(1));
+                            if (modifier >= actorVismodeZoomMod) {
+                                actorVismodeZoomMod = modifier;
+                                actorVismodeZoomStep = step;
                             }
                         } else {
                             LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
                         }
-                    } else if (tagLower.StartsWith(TagPrefixHeatVision)) {
+                    } else if (tagLower.StartsWith(TagPrefixVismodeHeat)) {
                         LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has HEAT VISION component:{kv.Key} with tag:{tag}");
                         string[] split = tag.Split('_');
-                        if (split.Length == 2) {
-                            int modifier = Int32.Parse(split[1].Substring(1));
-                            if (modifier >= actorHeatVision) {
-                                actorHeatVision = modifier;
+                        if (split.Length == 3) {
+                            int modifier = int.Parse(split[1].Substring(1));
+                            int divisor = int.Parse(split[2].Substring(1));
+                            if (modifier >= actorVismodeHeatMod) {
+                                actorVismodeHeatMod = modifier;
+                                actorVismodeHeatDivisor = divisor;
                             }
                         } else {
                             LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
@@ -207,15 +219,6 @@ namespace LowVisibility.Object {
                         if (split.Length == 2) {
                             int modifier = Int32.Parse(split[1].Substring(1));
                             actorProbeBoostMod += modifier;
-                        } else {
-                            LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
-                        }
-                    } else if (tagLower.StartsWith(TagPrefixSensorBoost)) {
-                        LowVisibility.Logger.LogIfDebug($"Actor:{CombatantHelper.Label(actor)} has SENSOR BOOST component:{kv.Key} with tag:{tag}");
-                        string[] split = tag.Split('_');
-                        if (split.Length == 2) {
-                            int modifier = Int32.Parse(split[1].Substring(1));
-                            actorSensorBoostMod += modifier;
                         } else {
                             LowVisibility.Logger.Log($"Actor:{CombatantHelper.Label(actor)} - MALFORMED TAG -:{tag}");
                         }
@@ -242,29 +245,33 @@ namespace LowVisibility.Object {
             
             this.ecmMod = actorEcmMod;
             this.ecmRange = actorEcmRange;
+
             this.probeMod = actorProbeMod;
-            
+            this.probeBoostMod = actorProbeBoostMod;
+
             this.stealthMod = actorStealthMod;
             this.scramblerMod = actorScramblerMod;
 
             this.stealthRangeMod = actorStealthRangeMod ?? (new int[] { 0, 0, 0, 0 });
             this.stealthMoveMod = actorStealthMoveMod ?? (new int[] { 0, 0 });
             
-            this.zoomVision = actorZoomVision;
-            this.heatVision = actorHeatVision;
+            this.vismodeZoomMod = actorVismodeZoomMod;
+            this.vismodeZoomStep = actorVismodeZoomStep;
 
-            this.probeBoostMod = actorProbeBoostMod;
-            this.sensorBoostMod = actorSensorBoostMod;
+            this.vismodeHeatMod = actorVismodeHeatMod;
+            this.vismodeHeatDivisor = actorVismodeHeatDivisor;
+
 
             this.sharesSensors = actorSharesSensors;
         }
 
         public override string ToString() {
-            return $"tacticsBonus:{tacticsBonus} sensorsBoostMod:{sensorBoostMod} ecmMod:{ecmMod} ecmRange:{ecmRange} " +
-                $"probeMod:{probeMod} probeBoostMod:{probeBoostMod} stealthMod:{stealthMod} " +
+            return $"tacticsBonus:{tacticsBonus}ecmMod:{ecmMod} ecmRange:{ecmRange} " +
+                $"probeMod:{probeMod} probeBoostMod:{probeBoostMod} stealthMod:{stealthMod} scramblerMod:{scramblerMod} " +
                 $"stealthRangeMod:{stealthRangeMod[0]}/{stealthRangeMod[1]}/{stealthRangeMod[2]}/{stealthRangeMod[3]} " +
                 $"stealthMoveMod:{stealthMoveMod[0]}/{stealthMoveMod[1]} " +
-                $"scramblerMod:{scramblerMod} zoomVision:{zoomVision} heatVision:{heatVision}" +
+                $"viszmoeZoomMod:{vismodeZoomMod} vismodeZoomStep:{vismodeZoomStep} " +
+                $"vismodeHeatMod:{vismodeHeatMod} vismodeHeatDiv:{vismodeHeatDivisor}" +
                 $"sharesSensors:{sharesSensors}";
         }
 
@@ -299,27 +306,54 @@ namespace LowVisibility.Object {
         public int CalculateStealthMoveMod(AbstractActor owner) {
             int moveMod = 0;
             if (owner != null && this.stealthMoveMod[0] != 0) {
-                int hexesMoved = (int)Math.Floor(owner.DistMovedThisRound / 30.0);
-                //LowVisibility.Logger.LogIfDebug($"  StealthMoveMod - actor:{CombatantHelper.Label(owner)} " +
-                //    $"hasMovedThisRound:{owner.HasMovedThisRound} distMovedThisRound:{owner.DistMovedThisRound} which is hexesMoved:{hexesMoved}");
-                moveMod = this.stealthMoveMod[0];
-                while (hexesMoved > 0 && moveMod > 0) {
-                    moveMod--;
-                    hexesMoved -= this.stealthMoveMod[1];
-                }
+                moveMod = GetModifierForRangeDecay(owner.DistMovedThisRound, this.stealthMoveMod[0], this.stealthMoveMod[1]);
                 //LowVisibility.Logger.LogIfDebug($"  StealthMoveMod - actor:{CombatantHelper.Label(owner)} has moveMod:{moveMod}");
             }
-
             return moveMod;
         }
 
-        public int CalculateZoomVisionMod(float distance) {
-            int penaltySteps = (int)Math.Floor(distance / (LowVisibility.Config.VisionOnlyRangeStep * 30.0f));
-            int rangePenalty = penaltySteps * LowVisibility.Config.VisionOnlyPenalty;
-            int penalty = Math.Max(0, rangePenalty - this.zoomVision);
-            //LowVisibility.Logger.LogIfDebug($"  Zoom Vision - at distance:{distance} Math.Floor(penaltySteps:{penaltySteps} * rangePenalty:{rangePenalty} " +
-            //    $"- zoomVision:{zoomVision}) = penalty:{penalty}");
-            return penalty;
+        public VisionModeModifer CalculateVisionModeModifier(ICombatant target, float distance) {
+
+            int zoomMod = 0;
+            if (vismodeZoomMod != 0) {
+                zoomMod = GetModifierForRangeDecay(distance, this.vismodeZoomMod, this.vismodeZoomStep);
+            }
+
+            Mech targetMech = target as Mech;
+            double targetHeat = targetMech != null ? (double)targetMech.CurrentHeat : 0.0;
+            int heatMod = 0;
+            if (vismodeHeatMod != 0 && targetHeat > 0) {
+                int heatModRaw = (int)Math.Floor(targetHeat / vismodeHeatDivisor);
+                heatMod = heatModRaw <= LowVisibility.Config.HeatVisionMaxBonus ? heatModRaw : LowVisibility.Config.HeatVisionMaxBonus;
+            }
+
+            // Attack bonuses are negatives, penalties are positives
+            VisionModeModifer vmod = new VisionModeModifer {
+                modifier = zoomMod > heatMod ? -1 * zoomMod : -1 * heatMod,
+                label = zoomMod > heatMod ? "ZOOM VISION" : "HEAT VISION"
+            };
+            if (zoomMod > 0 && heatMod > 0) { vmod.modifier++; }
+
+            return zoomMod == 0 && heatMod == 0 ? new VisionModeModifer() : vmod; 
+        }
+
+        public class VisionModeModifer {
+            public int modifier;
+            public string label;
+        }
+
+        public int CalculateProbeModifier() {
+            return tacticsBonus + probeMod + probeBoostMod;
+        }
+
+        private int GetModifierForRangeDecay(float distance, int initial, int step) {
+            int decayingMod = initial;
+            int distInHexes = (int)Math.Floor(distance / 30.0f);            
+            while (distInHexes > 0 && decayingMod > 0) {
+                decayingMod--;
+                distInHexes -= step;
+            }
+            return decayingMod;
         }
 
     };

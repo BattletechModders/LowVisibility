@@ -7,6 +7,7 @@ using System;
 using System.Reflection;
 using UnityEngine;
 using static LowVisibility.Helper.VisibilityHelper;
+using static LowVisibility.Object.StaticEWState;
 
 namespace LowVisibility.Patch {
 
@@ -191,11 +192,16 @@ namespace LowVisibility.Patch {
                 StaticEWState attackerEWConfig = State.GetStaticState(actor);
 
                 if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", attackerEWConfig.CalculateZoomVisionMod(distance) });
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", LowVisibility.Config.VisionOnlyPenalty});
                 }
 
                 if (lockState.visionLockLevel == VisionLockType.None) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", (int)LowVisibility.Config.SensorsOnlyPenalty });
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", LowVisibility.Config.SensorsOnlyPenalty });
+                }
+                
+                VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance);
+                if (vismodeMod.modifier != 0) {
+                    AddToolTipDetailMethod.GetValue(new object[] { vismodeMod.label, vismodeMod.modifier });
                 }
 
                 StaticEWState targetEWConfig = State.GetStaticState(target as AbstractActor);

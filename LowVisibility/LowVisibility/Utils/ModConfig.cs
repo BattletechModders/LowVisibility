@@ -7,8 +7,6 @@ namespace LowVisibility {
 
         public bool FirstTurnForceFailedChecks = true;
 
-        public int MultipleECMSourceModifier = 1;
-
         // The base range (in hexes) for a unit's sensors
         public int SensorRangeMechType = 12;
         public int SensorRangeVehicleType  = 9;
@@ -25,24 +23,27 @@ namespace LowVisibility {
         public float VisionRangeMultiLightFog = 0.66f;
         public float VisionRangeMultiHeavyFog = 0.33f;
 
-        // The range (in hexes) from which you can identify some elements of a unit
-        public int VisualIDRange = 5;
-
         // The minium range for vision, no matter the circumstances
-        public int VisionRangeMinimum = 2;
+        public int VisionRangeMinimum = 3;
 
         // The minium range for sensors, no matter the circumstances
-        public int SensorRangeMinimum = 6;
+        public int SensorRangeMinimum = 8;
 
-        // When an attacker only has visual lock to the target, apply the peanlty for each N hexes away the target is
-        public int VisionOnlyRangeStep = 3;
-        public int VisionOnlyPenalty = -1;
+        // The range (in hexes) from which you can identify some elements of a unit
+        public int VisualScanRange = 7;
+
+        // Applied when the attacker has sensor but no visual lock to a target.
+        public int VisionOnlyPenalty = 1;
         public float VisionOnlyCriticalPenalty = 0.0f;
 
-        // The applied when the attacker has sensor but not visual lock to a target. Multiplies the range penalty.
-        public float SensorsOnlyPenalty = -2;
-        // TODO: No sensor lock reduces critical / called shot penalties
+        // Applied when the attacker has sensor but no visual lock to a target.
+        public int SensorsOnlyPenalty = 2;
         public float SensorsOnlyCriticalPenalty = 0.0f;
+
+        public int MultipleECMSourceModifier = 1;
+
+        // The maximum attack bonus for heat vision
+        public int HeatVisionMaxBonus = 5;
 
         // The inflection point of the probability distribution function.
         public int ProbabilitySigma = 4;
@@ -50,17 +51,14 @@ namespace LowVisibility {
         public int ProbabilityMu = -1;
 
         public override string ToString() {
-            return $"Debug:{Debug}, Trace:{Trace}, FirstTurnForceFailedChecks:{FirstTurnForceFailedChecks}, MultipleJammerPenalty:{MultipleECMSourceModifier}," +
-                $"SensorRanges= Mech:{SensorRangeMechType} Vehicle:{SensorRangeVehicleType} Turret:{SensorRangeTurretType} UnknownType:{SensorRangeUnknownType}" +
-                $"VisionRangeBaseDaylight:{VisionRangeBaseDaylight} VisionRangeBaseDimlight:{VisionRangeBaseDimlight} VisionRangeBaseNight:{VisionRangeBaseNight}" +
-                $"VisionRangeMultiRainSnow:{VisionRangeMultiRainSnow} VisionRangeMultiLightFog:{VisionRangeMultiLightFog} VisionRangeMultiHeavyFog:{VisionRangeMultiHeavyFog}" +
-                $"VisionRangeMinimum:{VisionRangeMinimum} SensorRangeMinimum:{SensorRangeMinimum}, VisualIDRange:{VisualIDRange} " +
-                $"VisionOnlyRangeStep:{VisionOnlyRangeStep}, VisionOnlyPenalty:{VisionOnlyPenalty} SensorsOnlyPenalty:{SensorsOnlyPenalty} " +
-                $"VisionOnlyCriticalPenalty:{VisionOnlyCriticalPenalty}, SensorsOnlyCriticalPenalty:{SensorsOnlyCriticalPenalty} " +
+            return $"Debug:{Debug}, Trace:{Trace}, FirstTurnForceFailedChecks:{FirstTurnForceFailedChecks}, MultipleJammerPenalty:{MultipleECMSourceModifier}, " +
+                $"SensorRanges==> Mech:{SensorRangeMechType} Vehicle:{SensorRangeVehicleType} Turret:{SensorRangeTurretType} UnknownType:{SensorRangeUnknownType}, " +
+                $"VisionRangeBaseDaylight:{VisionRangeBaseDaylight} VisionRangeBaseDimlight:{VisionRangeBaseDimlight} VisionRangeBaseNight:{VisionRangeBaseNight}, " +
+                $"VisionRangeMultiRainSnow:{VisionRangeMultiRainSnow} VisionRangeMultiLightFog:{VisionRangeMultiLightFog} VisionRangeMultiHeavyFog:{VisionRangeMultiHeavyFog}, " +
+                $"VisionRangeMinimum:{VisionRangeMinimum} SensorRangeMinimum:{SensorRangeMinimum}, VisualIDRange:{VisualScanRange}, " +
+                $"VisionOnlyPenalty:{VisionOnlyPenalty} VisionOnlyCriticalPenalty:{VisionOnlyCriticalPenalty}, " +
+                $"SensorsOnlyPenalty:{SensorsOnlyPenalty}, SensorsOnlyCriticalPenalty:{SensorsOnlyCriticalPenalty}, " +
                 $"ProbabilitySigma:{ProbabilitySigma}, ProbabilityMu:{ProbabilityMu}";
-
-
-
         }
     }
 }
