@@ -315,6 +315,7 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 ## WIP Features
 - [x] BUG: stealth_move_mod is unbounded, can result in a +81 bonuses
 - [] BUG: Major performance hit on assault base missions; takes 2-3 seconds per move. Investigate why this is.
+- [] BUG: vismodes should only apply to ranged attacks
 - [x] BUG: Narc, Tag not cleaned up on combat end. Causes some NPEs.
 - [] BUG: Stability & heat bars showing on vehicles & turrets for some reason.
 - [x] BUG: SensorRange not respecting SensorRangeMinimum.
