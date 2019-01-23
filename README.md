@@ -291,13 +291,13 @@ BattleTech has a long standing tradition of zoom vision being a standard feature
 This bonus only applies ranged attacks. This bonus does not stack with other vision bonuses. An attacker with multiple vismode components applies the highest bonus to an attack, plus +1 for each addition vismode that provides a bonus.
 
 
-### Thermal Vision
+### Heat Vision
 
 __WIP: PLANNED BUT NOT COMPLETE__
 
-Like zoom vision, detecting an opponent through thermal vision has been a stable of BattleTech games back to MW2. Components with the `lv-vismode-thermal_mX_dY` mimic this effect by applying an attack bonus that increases the as the target heats up. The attacker gains a -X bonus to their attack for each Y points of heat the target currently has. This bonus cannot exceed _ThermalVisionMaxBonus_, defined in `LowVisibility/mod.json`.
+Like zoom vision, detecting an opponent through thermal vision has been a stable of BattleTech games back to MW2. Components with the `lv-vismode-heat_mX_dY` mimic this effect by applying an attack bonus that increases the as the target heats up. The attacker gains a -X bonus to their attack for each Y points of heat the target currently has. This bonus cannot exceed _HeatVisionMaxBonus_, defined in `LowVisibility/mod.json`.
 
-> Example: A unit has a component with tag `lv-vismode-thermal_m1_d20`. For any **ranged** attack where the target has 20 heat or less, the attack gains no bonus. If the target has 20-40 heat the attack has a -1 bonus, for 41-60 heat it has a -2 bonus, and so on.
+> Example: A unit has a component with tag `lv-vismode-heat_m1_d20`. For any **ranged** attack where the target has 20 heat or less, the attack gains no bonus. If the target has 20-40 heat the attack has a -1 bonus, for 41-60 heat it has a -2 bonus, and so on.
 
 This bonus only applies ranged attacks. This bonus does not stack with other vision bonuses. An attacker with multiple vismode components applies the highest bonus to an attack, plus +1 for each addition vismode that provides a bonus.
 
@@ -313,11 +313,13 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 > Example Two: A tag of `lv-stealth-move-mod_m3_s2` applies a +3 penalty to the attacker if the target does not move. If the target moves 1 or 2 hexes, this penalty would be reduced (by -1) to +2. If the target moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
 
 ## WIP Features
-- [] BUG: stealth_move_mod is unbounded, can result in a +81 bonuses
+- [x] BUG: stealth_move_mod is unbounded, can result in a +81 bonuses
 - [] BUG: Major performance hit on assault base missions; takes 2-3 seconds per move. Investigate why this is.
-- [] BUG: Narc, Tag not cleaned up on combat end. Causes some NPEs.
+- [x] BUG: Narc, Tag not cleaned up on combat end. Causes some NPEs.
 - [] BUG: Stability & heat bars showing on vehicles & turrets for some reason.
-- [] BUG: SensorRange not respecting SensorRangeMinimum.
+- [x] BUG: SensorRange not respecting SensorRangeMinimum.
+- [x] BUG: VisibilityRange not respecting VisionRangeminiumum
+- [ ] BUG: Ranges should be rounded up to nearest hex?
 - [] BUG: Enemies not following the sensor blackout on turn one; there are cases where they get to attack anyways.
 - [] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
 - [] BUG: Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
@@ -328,8 +330,8 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 - [] BUG: Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
 - [] FEATURE: Rename `lv-scrambler_mX` to `lv-stealth-boost_mX` to match probes.
 - [] FEATURE: Rename active probes to `lv-sensormod-highest_mX` and `lv-sensormod-sum_mX`
-- [] FEATURE: Add `lv-vision-thermal_m` modifiers; reduces direct fire penalty, but at different ranges
-- [] FEATURE: Show signature, visibilty modifiers for target on the tooltips.
+- [x] FEATURE: Add `lv-vision-thermal_m` modifiers; reduces direct fire penalty, but at different ranges
+- [] FEATURE: Show signature, visibility modifiers for target on the tooltips.
 - [] Armor/structure exact values are being shown, not just as ??
 - [] FEATURE: Make sensor lock not end your turn (SensorLockSequence)
 - [] FEATURE: ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
