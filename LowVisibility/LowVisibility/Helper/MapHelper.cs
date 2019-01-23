@@ -18,8 +18,24 @@ namespace LowVisibility.Helper {
             public bool hasHeavyFog;
             public bool hasSnow;
             public bool hasRain;
-        }
 
+            public string UILabel() {
+                string label;
+
+                // Parse light
+                if (isDay) { label = "Day";  }
+                else if (isDim) { label = "Dim"; }
+                else { label = "Dark";  }
+
+                // Parse weather
+                if (hasHeavyFog) { label += ", Dense Fog"; }
+                else if (hasLightFog) { label += ", Fog"; }
+                else if (hasSnow) { label += ", Snow"; }
+                else if (hasRain) { label += ", Rain"; }
+
+                return label;
+            }
+        }
 
         public static MapConfig ParseCurrentMap() {
             MoodController moodController = UnityEngine.Object.FindObjectOfType<MoodController>();
@@ -100,14 +116,14 @@ namespace LowVisibility.Helper {
             }            
             float visRange = (float)Math.Ceiling(baseVision * 30.0f * visionMulti);
             LowVisibility.Logger.Log($"  Calculating vision range as Math.Ceil(baseVision:{baseVision} * 30.0 * visionMulti:{visionMulti}) = visRange:{visRange}.");
-            if (visRange < LowVisibility.Config.VisionRangeMinimum) {
-                visRange = LowVisibility.Config.VisionRangeMinimum;
+            if (visRange < LowVisibility.Config.VisionRangeMinimum * 30.0f) {
+                visRange = LowVisibility.Config.VisionRangeMinimum * 30.0f;
             }
             mapConfig.visionRange = visRange;
             LowVisibility.Logger.Log($"MapHelper: Vision range for map will be ==> {visRange}m.");
 
-            mapConfig.scanRange = Math.Min(visRange, LowVisibility.Config.VisualIDRange * 30.0f);
-            LowVisibility.Logger.Log($"Vision ranges: calculated map range:{visRange} configured visualID range:{LowVisibility.Config.VisualIDRange} map visualID range:{mapConfig.scanRange}");
+            mapConfig.scanRange = Math.Min(visRange, LowVisibility.Config.VisualScanRange * 30.0f);
+            LowVisibility.Logger.Log($"Vision ranges: calculated map range:{visRange} configured visualID range:{LowVisibility.Config.VisualScanRange} map visualID range:{mapConfig.scanRange}");
 
             return mapConfig;
         }
