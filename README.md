@@ -282,8 +282,6 @@ These penalties described can be adjusted by editing `LowVisibility/mod.json`.
 
 ### Zoom Vision
 
-__WIP: PLANNED BUT NOT COMPLETE__
-
 BattleTech has a long standing tradition of zoom vision being a standard feature on cockpits. To support this, components with the `lv-vismode-zoom_mX_sY` tag apply an attack bonus that decays over distance. Each point of X applies as a -1 bonus to the attack roll. For each Y hexes between the attacker and the target, the bonus is reduced by one, until no bonus is provided.
 
 > Example: A unit has a component with tag `lv-vismode-zoom_m3_s8`. For any **ranged** attack between 0-8 hexes, the attacker applies a -3 attack bonus. For attacks between 9-16 hexes, the attacker applies a -2 bonus. At 17-24 hexes the bonus is -1, and at 25+ hexes there is no bonus.
@@ -292,8 +290,6 @@ This bonus only applies ranged attacks. This bonus does not stack with other vis
 
 
 ### Heat Vision
-
-__WIP: PLANNED BUT NOT COMPLETE__
 
 Like zoom vision, detecting an opponent through thermal vision has been a stable of BattleTech games back to MW2. Components with the `lv-vismode-heat_mX_dY` mimic this effect by applying an attack bonus that increases the as the target heats up. The attacker gains a -X bonus to their attack for each Y points of heat the target currently has. This bonus cannot exceed _HeatVisionMaxBonus_, defined in `LowVisibility/mod.json`.
 
@@ -329,6 +325,7 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 - [] BUG: Have to select a unit after save for GameRepresentations to be rendered.
 - [] BUG: If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
 - [] BUG: Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
+- [] FEATURE: Per Denandan, move functions from tags into Custom {} to allow getting item defs w/o needing to search/parse
 - [] FEATURE: Rename `lv-scrambler_mX` to `lv-stealth-boost_mX` to match probes.
 - [] FEATURE: Rename active probes to `lv-sensormod-highest_mX` and `lv-sensormod-sum_mX`
 - [x] FEATURE: Add `lv-vision-thermal_m` modifiers; reduces direct fire penalty, but at different ranges
