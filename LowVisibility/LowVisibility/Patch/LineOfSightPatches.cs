@@ -5,6 +5,7 @@ using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using UnityEngine;
 using static LowVisibility.Helper.ActorHelper;
@@ -50,8 +51,8 @@ namespace LowVisibility.Patch {
                 float spotterRange = __instance.GetSpotterRange(source);
                 float visibilityModifiedRange = spotterRange * targetVisibility;
 
-                if (visibilityModifiedRange < LowVisibility.Config.VisionRangeMinimum * 30.0f) {
-                    visibilityModifiedRange = LowVisibility.Config.VisionRangeMinimum * 30.0f;
+                if (visibilityModifiedRange < LowVisibility.Config.MinimumVisionRange()) {
+                    visibilityModifiedRange = LowVisibility.Config.MinimumVisionRange();
                 }
 
                 __result = visibilityModifiedRange;
@@ -65,7 +66,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
     public static class LineOfSight_GetSensorState {
         public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source) {
-            if (__instance != null && source != null) {
+            if (__instance != null && source != null) {                
                 __result = GetSensorsRange(source);
             }
         }
@@ -75,7 +76,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(new Type[] { typeof(AbstractActor), typeof(AbstractActor) })]
     public static class LineOfSight_GetAdjustedSensorRange {
         public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source, AbstractActor target, CombatGameState ___Combat) {
-            if (__instance != null && source != null) {
+            if (__instance != null && source != null) {                
                 float sourceSensorRange = GetSensorsRange(source);
                 float targetSignature = CalculateTargetSignature(target);
 
@@ -85,8 +86,8 @@ namespace LowVisibility.Patch {
                 //}
 
                 float signatureModifiedRange = sourceSensorRange * targetSignature;
-                if (signatureModifiedRange < LowVisibility.Config.SensorRangeMinimum * 30.0f) {
-                    signatureModifiedRange = LowVisibility.Config.SensorRangeMinimum * 30.0f;
+                if (signatureModifiedRange < LowVisibility.Config.MinimumSensorRange()) {
+                    signatureModifiedRange = LowVisibility.Config.MinimumSensorRange();
                 }
 
                 //LowVisibility.Logger.Log($"For sourceSensorRange:{sourceSensorRange} and targetSignature:{targetSignature} adjustedRange is:{signatureModifiedRange}");
@@ -124,7 +125,7 @@ namespace LowVisibility.Patch {
             if (State.TurnDirectorStarted == false || (target as Building) != null) { return true;  }
 
             //LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - entered. ");
-            //LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - stacktrace: {Environment.StackTrace}");
+            LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
 
             AbstractActor sourceActor = source as AbstractActor;
             AbstractActor targetActor = target as AbstractActor;
@@ -406,6 +407,7 @@ namespace LowVisibility.Patch {
             __result = __instance.VisibilityToTargetUnit(targetUnit) >= VisibilityLevel.Blip0Minimum;
             LowVisibility.Logger.LogIfTrace($"Actor{CombatantHelper.Label(__instance)} has LOSToTargetUnit? {__result} " +
                 $"to target:{CombatantHelper.Label(targetUnit as AbstractActor)}");
+            LowVisibility.Logger.LogIfTrace($"Called from:{new StackTrace(true)}");
         }
     }
 }

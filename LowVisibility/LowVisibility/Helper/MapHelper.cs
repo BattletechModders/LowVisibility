@@ -116,8 +116,8 @@ namespace LowVisibility.Helper {
             }            
             float visRange = (float)Math.Ceiling(baseVision * 30.0f * visionMulti);
             LowVisibility.Logger.Log($"  Calculating vision range as Math.Ceil(baseVision:{baseVision} * 30.0 * visionMulti:{visionMulti}) = visRange:{visRange}.");
-            if (visRange < LowVisibility.Config.VisionRangeMinimum * 30.0f) {
-                visRange = LowVisibility.Config.VisionRangeMinimum * 30.0f;
+            if (visRange < LowVisibility.Config.MinimumVisionRange()) {
+                visRange = LowVisibility.Config.MinimumVisionRange();
             }
             mapConfig.visionRange = visRange;
             LowVisibility.Logger.Log($"MapHelper: Vision range for map will be ==> {visRange}m.");

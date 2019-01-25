@@ -71,7 +71,7 @@
     <Compile Include="Helper\CombatantHelper.cs" />
     <Compile Include="Helper\ECMHelper.cs" />
     <Compile Include="Helper\HostilityHelper.cs" />
-    <Compile Include="Object\ActorEWState.cs" />
+    <Compile Include="Object\EWState.cs" />
     <Compile Include="Helper\MapHelper.cs" />
     <Compile Include="Helper\ActorHelper.cs" />
     <Compile Include="Helper\SkillHelper.cs" />
@@ -85,6 +85,7 @@
     <Compile Include="Patch\CombatHUDTargetingComputerPatches.cs" />
     <Compile Include="Patch\LineOfSightPatches.cs" />
     <Compile Include="Patch\CombatPatches.cs" />
+    <Compile Include="Patch\LoggerPatches.cs" />
     <Compile Include="Patch\SerializationPatches.cs" />
     <Compile Include="Patch\TeamPatch.cs" />
     <Compile Include="Patch\ToHitPatches.cs" />

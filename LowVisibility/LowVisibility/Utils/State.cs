@@ -22,8 +22,7 @@ namespace LowVisibility {
         public static MapConfig MapConfig;
 
         // -- Mutable state
-        public static Dictionary<string, DynamicEWState> DynamicEWState = new Dictionary<string, DynamicEWState>();
-        public static Dictionary<string, StaticEWState> StaticEWState = new Dictionary<string, StaticEWState>();
+        public static Dictionary<string, EWState> EWState = new Dictionary<string, EWState>();
         public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
         
         // TODO: Do I need this anymore?
@@ -42,8 +41,7 @@ namespace LowVisibility {
 
         // --- Methods Below ---
         public static void ClearStateOnCombatGameDestroyed() {
-            State.DynamicEWState.Clear();
-            State.StaticEWState.Clear();
+            State.EWState.Clear();
             State.SourceActorLockStates.Clear();
 
             State.LastPlayerActivatedActorGUID = null;
@@ -92,31 +90,18 @@ namespace LowVisibility {
             return lockState;
         }
 
-        // --- Methods manipulating DynamicEWState
-        public static DynamicEWState GetDynamicState(AbstractActor actor) {
-            if (!DynamicEWState.ContainsKey(actor.GUID)) {
-                LowVisibility.Logger.Log($"WARNING: DynamicEWState for actor:{actor.GUID} was not found. Creating!");
-                BuildDynamicState(actor);
-            }
-            return DynamicEWState[actor.GUID];
-        }
-
-        public static void BuildDynamicState(AbstractActor actor) {            
-            DynamicEWState[actor.GUID] = new DynamicEWState(GetCheckResult(), GetCheckResult());
-        }
-
-        // --- Methods manipulating StaticEWState
-        public static StaticEWState GetStaticState(AbstractActor actor) {
-            if (!StaticEWState.ContainsKey(actor.GUID)) {
+        // --- Methods manipulating EWState
+        public static EWState GetEWState(AbstractActor actor) {
+            if (!EWState.ContainsKey(actor.GUID)) {
                 LowVisibility.Logger.Log($"WARNING: StaticEWState for actor:{actor.GUID} was not found. Creating!");
-                BuildStaticState(actor);
+                BuildEWState(actor);
             }
-            return StaticEWState[actor.GUID];
+            return EWState[actor.GUID];
         }
 
-        public static void BuildStaticState(AbstractActor actor) {
-            StaticEWState config = new StaticEWState(actor);
-            StaticEWState[actor.GUID] = config;
+        public static void BuildEWState(AbstractActor actor) {
+            EWState config = new EWState(actor);
+            EWState[actor.GUID] = config;
         }
 
         // --- Methods manipulating CheckResults
@@ -232,8 +217,7 @@ namespace LowVisibility {
 
         // --- FILE SAVE/READ BELOW ---
         public class SerializationState {
-            public Dictionary<string, DynamicEWState> dynamicState;
-            public Dictionary<string, StaticEWState> staticState;
+            public Dictionary<string, EWState> staticState;
             public Dictionary<string, HashSet<LockState>> SourceActorLockStates;
 
             public string LastPlayerActivatedActorGUID;
@@ -250,8 +234,7 @@ namespace LowVisibility {
             NarcedActors.Clear();
             TaggedActors.Clear();
             SourceActorLockStates.Clear();
-            DynamicEWState.Clear();
-            StaticEWState.Clear();
+            EWState.Clear();
 
             string normalizedFileID = saveFileID.Substring(5);
             FileInfo stateFilePath = CalculateFilePath(normalizedFileID);
@@ -266,9 +249,7 @@ namespace LowVisibility {
                         savedState = JsonConvert.DeserializeObject<SerializationState>(json);
                     }
 
-                    State.DynamicEWState = savedState.dynamicState;
-                    LowVisibility.Logger.Log($"  -- DynamicEWState.count: {savedState.dynamicState.Count}");
-                    State.StaticEWState = savedState.staticState;
+                    State.EWState = savedState.staticState;
                     LowVisibility.Logger.Log($"  -- StaticEWState.count: {savedState.staticState.Count}");
                     State.SourceActorLockStates = savedState.SourceActorLockStates;
                     LowVisibility.Logger.Log($"  -- SourceActorLockStates.count: {savedState.SourceActorLockStates.Count}");
@@ -305,8 +286,7 @@ namespace LowVisibility {
 
             try {
                 SerializationState state = new SerializationState {
-                    dynamicState = State.DynamicEWState,
-                    staticState = State.StaticEWState,
+                    staticState = State.EWState,
                     SourceActorLockStates = State.SourceActorLockStates,
 
                     LastPlayerActivatedActorGUID = State.LastPlayerActivatedActorGUID,

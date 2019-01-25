@@ -2,10 +2,7 @@
 using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(Team), "AddUnit")]
@@ -25,9 +22,8 @@ namespace LowVisibility.Patch {
                 unit.AddToTeam(__instance);
 
                 // Before recalculating visibility, add the dynamic and static states for this actor
-                StaticEWState actorEWConfig = new StaticEWState(unit);
-                State.StaticEWState[unit.GUID] = actorEWConfig;
-                State.BuildDynamicState(unit);
+                EWState actorEWConfig = new EWState(unit);
+                State.EWState[unit.GUID] = actorEWConfig;
 
                 // Build their sourceLocks
                 VisibilityHelper.UpdateDetectionForActor(unit);                

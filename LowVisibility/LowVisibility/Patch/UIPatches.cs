@@ -73,8 +73,7 @@ namespace LowVisibility.Patch {
                 Traverse showBuffStringMethod = Traverse.Create(__instance).Method("ShowBuff", stringMethodParams);
 
                 AbstractActor actor = __instance.DisplayedCombatant as AbstractActor;
-                StaticEWState staticState = State.GetStaticState(actor);
-                DynamicEWState dynamicState = State.GetDynamicState(actor);
+                EWState staticState = State.GetEWState(actor);
 
                 bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 if (isPlayer) {
@@ -120,8 +119,7 @@ namespace LowVisibility.Patch {
         }
 
         private static string BuildToolTip(AbstractActor actor) {
-            StaticEWState staticState = State.GetStaticState(actor);
-            DynamicEWState dynamicState = State.GetDynamicState(actor);
+            EWState ewState = State.GetEWState(actor);
 
             List<string> details = new List<string>();
             float visualLockRange = ActorHelper.GetVisualLockRange(actor);
@@ -131,21 +129,21 @@ namespace LowVisibility.Patch {
 
             List<string> sensorDetails = new List<string>();
             sensorDetails.Add(" Range Roll:");
-            float rangeMulti = 1.0f + ((dynamicState.rangeCheck + staticState.CalculateProbeModifier()) / 10.0f);
-            if (dynamicState.rangeCheck >= 0) {
-                sensorDetails.Add($"<color=#00FF00>{dynamicState.rangeCheck:+0}</color>");                                        
+            float rangeMulti = 1.0f + ((ewState.rangeCheck + ewState.SensorCheckModifier()) / 10.0f);
+            if (ewState.rangeCheck >= 0) {
+                sensorDetails.Add($"<color=#00FF00>{ewState.rangeCheck:+0}</color>");                                        
             } else {
-                sensorDetails.Add($"<color=#FF0000>{dynamicState.rangeCheck:0}</color>");
+                sensorDetails.Add($"<color=#FF0000>{ewState.rangeCheck:0}</color>");
             }
 
-            sensorDetails.Add($" + Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color>");
+            sensorDetails.Add($" + Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>");
 
-            if (staticState.probeMod > 0) {
-                sensorDetails.Add($" + Probe:<color=#00FF00>{staticState.probeMod:0}</color>");
+            if (ewState.probeMod > 0) {
+                sensorDetails.Add($" + Probe:<color=#00FF00>{ewState.probeMod:0}</color>");
             }
 
-            if (staticState.probeBoostMod > 0) {
-                sensorDetails.Add($" + ProbeBoost:<color=#00FF00>{staticState.probeBoostMod:0}</color>");
+            if (ewState.probeBoostMod > 0) {
+                sensorDetails.Add($" + ProbeBoost:<color=#00FF00>{ewState.probeBoostMod:0}</color>");
             }
 
             if (rangeMulti >= 1.0) {
@@ -157,25 +155,25 @@ namespace LowVisibility.Patch {
             sensorDetails.Add("]\n");
 
             // Sensor Info below
-            int checkResult = dynamicState.detailCheck;
+            int checkResult = ewState.detailCheck;
 
             sensorDetails.Add($" Info Roll:");            
-            if (dynamicState.detailCheck >= 0) {
-                sensorDetails.Add($"<color=#00FF00>{dynamicState.detailCheck:0}</color>");
+            if (ewState.detailCheck >= 0) {
+                sensorDetails.Add($"<color=#00FF00>{ewState.detailCheck:0}</color>");
             } else {
-                sensorDetails.Add($"<color=#FF0000>{dynamicState.detailCheck:0}</color>");
+                sensorDetails.Add($"<color=#FF0000>{ewState.detailCheck:0}</color>");
             }
-            checkResult += staticState.tacticsBonus;
-            sensorDetails.Add($" + Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color>");                        
+            checkResult += ewState.tacticsBonus;
+            sensorDetails.Add($" + Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>");                        
 
-            if (staticState.probeMod > 0) {
-                checkResult += staticState.probeMod;
-                sensorDetails.Add($" + Probe: <color=#00FF00>{staticState.probeMod:0}</color>");
+            if (ewState.probeMod > 0) {
+                checkResult += ewState.probeMod;
+                sensorDetails.Add($" + Probe: <color=#00FF00>{ewState.probeMod:0}</color>");
             }
 
-            if (staticState.probeBoostMod > 0) {
-                checkResult += staticState.probeBoostMod;
-                sensorDetails.Add($" + ProbeBoost: <color=#00FF00>{staticState.probeBoostMod:0}</color>");
+            if (ewState.probeBoostMod > 0) {
+                checkResult += ewState.probeBoostMod;
+                sensorDetails.Add($" + ProbeBoost: <color=#00FF00>{ewState.probeBoostMod:0}</color>");
             }
 
             if (State.ECMJamming(actor) != 0) {
@@ -204,11 +202,11 @@ namespace LowVisibility.Patch {
             details.AddRange(sensorDetails);
 
             // Sensor check:(+/-0) SensorScanLevel:
-            if (staticState.ecmMod != 0) {
-                details.Add($"ECM => Range:{staticState.ecmRange}m Enemy Modifier:<color=#FF0000>{staticState.ecmMod:-0}</color>");
+            if (ewState.ecmMod != 0) {
+                details.Add($"ECM => Range:{ewState.ecmRange}m Enemy Modifier:<color=#FF0000>{ewState.ecmMod:-0}</color>");
             }
-            if (staticState.stealthMod != 0) {
-                details.Add($"STEALTH => Enemy Modifier:<color=#FF0000>{staticState.stealthMod:-0}</color>");
+            if (ewState.stealthMod != 0) {
+                details.Add($"STEALTH => Enemy Modifier:<color=#FF0000>{ewState.stealthMod:-0}</color>");
             }
 
             string tooltipText = String.Join("", details.ToArray());

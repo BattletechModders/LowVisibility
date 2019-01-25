@@ -5,7 +5,7 @@ using LowVisibility.Object;
 using System;
 using UnityEngine;
 using static LowVisibility.Helper.VisibilityHelper;
-using static LowVisibility.Object.StaticEWState;
+using static LowVisibility.Object.EWState;
 
 namespace LowVisibility.Patch {
 
@@ -21,8 +21,8 @@ namespace LowVisibility.Patch {
             if (__instance != null && attacker != null && targetActor != null) {
                 LockState lockState = GetUnifiedLockStateForTarget(attacker, targetActor);
                 float distance = Vector3.Distance(attackPosition, targetPosition);
-                StaticEWState attackerEWConfig = State.GetStaticState(attacker);
-                StaticEWState targetEWConfig = State.GetStaticState(targetActor);
+                EWState attackerEWConfig = State.GetEWState(attacker);
+                EWState targetEWConfig = State.GetEWState(targetActor);
 
                 if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
                     //LowVisibility.Logger.LogIfDebug($"Attacker:{CombatantHelper.Label(attacker)} has no sensor lock to target:{CombatantHelper.Label(target as AbstractActor)} " +
@@ -36,8 +36,9 @@ namespace LowVisibility.Patch {
                     __result = __result + (float)LowVisibility.Config.SensorsOnlyPenalty;
                 }
 
-                VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance);
+                VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, weapon);
                 if (vismodeMod.modifier != 0) {
+                    LowVisibility.Logger.LogIfDebug($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => result:{__result} + {vismodeMod.modifier}");
                     __result = __result + (float)vismodeMod.modifier;
                 }
 
@@ -73,7 +74,7 @@ namespace LowVisibility.Patch {
             if (__instance != null && attacker != null && target != null && weapon != null && targetActor != null) {
                 LockState lockState = GetUnifiedLockStateForTarget(attacker, targetActor);
                 float distance = Vector3.Distance(attackPosition, targetPosition);
-                StaticEWState attackerEWConfig = State.GetStaticState(attacker);
+                EWState attackerEWConfig = State.GetEWState(attacker);
 
                 if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
                     __result = string.Format("{0}NO SENSOR LOCK {1:+#;-#}; ", __result, LowVisibility.Config.VisionOnlyPenalty);
@@ -83,12 +84,13 @@ namespace LowVisibility.Patch {
                     __result = string.Format("{0}NO VISUAL LOCK {1:+#;-#}; ", __result, LowVisibility.Config.SensorsOnlyPenalty);
                 }
 
-                VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance);
+                VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, weapon);
                 if (vismodeMod.modifier != 0) {
+                    LowVisibility.Logger.LogIfDebug($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => {vismodeMod.ToString()}");
                     __result = string.Format("{0}{1} {2:+#;-#}; ", __result, vismodeMod.label, vismodeMod.modifier);
                 }
 
-                StaticEWState targetEWConfig = State.GetStaticState(targetActor);
+                EWState targetEWConfig = State.GetEWState(targetActor);
                 if (targetEWConfig.HasStealthRangeMod()) {
                     int weaponStealthMod = targetEWConfig.CalculateStealthRangeMod(weapon, distance);
                     if (weaponStealthMod != 0) {

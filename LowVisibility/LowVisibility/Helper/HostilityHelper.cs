@@ -23,24 +23,28 @@ namespace LowVisibility.Helper {
         public static List<AbstractActor> PlayerActors(CombatGameState Combat) {
             return Combat.AllActors
                 .Where(aa => aa.TeamId == Combat.LocalPlayerTeamGuid)
+                .Where(aa => aa.GetType() != typeof(Building))
                 .ToList();
         }
 
         public static List<AbstractActor> AlliedToLocalPlayerActors(CombatGameState Combat) {
             return Combat.AllActors
                 .Where(aa => Combat.HostilityMatrix.IsLocalPlayerFriendly(aa.TeamId) && aa.TeamId != Combat.LocalPlayerTeamGuid)
+                .Where(aa => aa.GetType() != typeof(Building))
                 .ToList();
         }
 
         public static List<AbstractActor> EnemyToLocalPlayerActors(CombatGameState Combat) {
             return Combat.AllActors
                 .Where(aa => Combat.HostilityMatrix.IsLocalPlayerEnemy(aa.TeamId))
+                .Where(aa => aa.GetType() != typeof(Building))
                 .ToList();
         }
 
         public static List<AbstractActor> NeutralToLocalPlayerActors(CombatGameState Combat) {
             return Combat.AllActors
                 .Where(aa => Combat.HostilityMatrix.IsLocalPlayerNeutral(aa.TeamId))
+                .Where(aa => aa.GetType() != typeof(Building))
                 .ToList();
         }
     }

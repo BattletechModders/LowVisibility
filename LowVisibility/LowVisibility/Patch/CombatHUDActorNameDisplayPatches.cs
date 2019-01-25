@@ -59,7 +59,7 @@ namespace LowVisibility.Patch {
 
         public static void Postfix(Mech __instance, ref Text __result, VisibilityLevel visLevel) {
             //KnowYourFoe.Logger.Log("Mech:GetActorInfoFromVisLevel:post - entered.");
-            if (__instance == null || State.DynamicEWState.Count == 0) { return; }
+            if (__instance == null || State.EWState.Count == 0) { return; }
 
             /*
                 Mech.UnitName = MechDef.Chassis.Description.Name -> Atlas / Trebuchet
@@ -89,7 +89,7 @@ namespace LowVisibility.Patch {
     public static class Turret_GetActorInfoFromVisLevel {
         public static void Postfix(Turret __instance, ref Text __result, VisibilityLevel visLevel) {
             //KnowYourFoe.Logger.Log("Turret:GetActorInfoFromVisLevel:post - entered.");
-            if (__instance == null || State.DynamicEWState.Count == 0) { return; }
+            if (__instance == null || State.EWState.Count == 0) { return; }
 
             /*
                 Turret.UnitName = return (this.TurretDef == null) ? "UNDEFINED" : this.TurretDef.Chassis.Description.Name ->
@@ -121,7 +121,7 @@ namespace LowVisibility.Patch {
     public static class Vehicle_GetActorInfoFromVisLevel {
         public static void Postfix(Vehicle __instance, ref Text __result, VisibilityLevel visLevel) {
             //KnowYourFoe.Logger.Log("Vehicle:GetActorInfoFromVisLevel:post - entered.");
-            if (__instance == null || State.DynamicEWState.Count == 0) { return; };
+            if (__instance == null || State.EWState.Count == 0) { return; };
 
             /*
                 Vehicle.UnitName = VehicleDef.Chassis.Description.Name -> 
@@ -204,7 +204,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDActorNameDisplay_RefreshInfo {
 
         public static void Postfix(CombatHUDActorNameDisplay __instance, VisibilityLevel visLevel, AbstractActor ___displayedActor) {
-            if (___displayedActor != null && State.LastPlayerActivatedActorGUID != null && 
+            if (___displayedActor != null && State.LastPlayerActivatedActorGUID != null && State.TurnDirectorStarted &&
                 (HostilityHelper.IsLocalPlayerEnemy(___displayedActor) || HostilityHelper.IsLocalPlayerNeutral(___displayedActor))) {
                 LockState lockState = State.GetLockStateForLastActivatedAgainstTarget(___displayedActor);
                 if (lockState != null && lockState.sensorLockLevel < DetectionLevel.DentalRecords) {

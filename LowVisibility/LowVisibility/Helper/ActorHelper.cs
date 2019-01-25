@@ -5,29 +5,22 @@ namespace LowVisibility.Helper {
     public static class ActorHelper {
         
         // Determine an actor's sensor range, plus our special additions
+        // TODO: Calculate this ONCE and modify on damage
         public static float GetSensorsRange(AbstractActor source) {
-            // Determine type
-            float rangeForType = 0.0f;
-            if (source.GetType() == typeof(Mech)) { rangeForType = LowVisibility.Config.SensorRangeMechType;  }
-            else if (source.GetType() == typeof(Vehicle)) { rangeForType = LowVisibility.Config.SensorRangeVehicleType; } 
-            else if (source.GetType() == typeof(Turret)) { rangeForType = LowVisibility.Config.SensorRangeTurretType; }
-            else { rangeForType = LowVisibility.Config.SensorRangeUnknownType; }
 
             // Add multipliers and absolute bonuses
             float rangeMulti = GetAllSensorRangeMultipliers(source);
             float rangeMod = GetAllSensorRangeAbsolutes(source);
 
-            StaticEWState staticState = State.GetStaticState(source);
-            DynamicEWState dynamicState = State.GetDynamicState(source);
-            float checkMulti = 1.0f + ((dynamicState.rangeCheck + staticState.CalculateProbeModifier())/ 10.0f);
+            EWState ewState = State.GetEWState(source);
 
-            float sensorsRange = ((rangeForType * 30) * rangeMulti + rangeMod) * checkMulti;
-            if (sensorsRange < LowVisibility.Config.SensorRangeMinimum * 30.0f) {
-                sensorsRange = LowVisibility.Config.SensorRangeMinimum * 30.0f;
+            float sensorsRange = (ewState.sensorRange * rangeMulti + rangeMod) * ewState.SensorCheckMultiplier();
+            if (sensorsRange < LowVisibility.Config.MinimumSensorRange()) {
+                sensorsRange = LowVisibility.Config.MinimumSensorRange();
             }
 
-            LowVisibility.Logger.LogIfTrace($"{CombatantHelper.Label(source)} has sensorsRange:{sensorsRange} = " +
-                $"((rangeForType:{rangeForType} * 30.0) * rangeMulti:{rangeMulti} + rangeMod:{rangeMod}) * checkMulti:{checkMulti}");
+            //LowVisibility.Logger.LogIfTrace($"{CombatantHelper.Label(source)} has sensorsRange:{sensorsRange} = " +
+            //    $"((rangeForType:{staticState.sensorRange}m) * rangeMulti:{rangeMulti} + rangeMod:{rangeMod}) * checkMulti:{checkMulti}");
             return sensorsRange;
         }
 
@@ -75,7 +68,7 @@ namespace LowVisibility.Helper {
             if (source.IsPilotable) {
                 Pilot pilot = source.GetPilot();
                 if (pilot != null) {
-                    StaticEWState staticState = State.GetStaticState(source);                    
+                    EWState staticState = State.GetEWState(source);                    
                     spottingTacticsMultipler = (float)staticState.tacticsBonus * source.Combat.Constants.Visibility.SpotterTacticsMultiplier;
                     //LowVisibility.Logger.LogIfDebug($"  actor:{CombatantHelper.Label(source)} with tactics:{pilot.Tactics}/{normdTactics} x " +
                     //    $"{source.Combat.Constants.Visibility.SpotterTacticsMultiplier} = spottingTacticsMulti:{spottingTacticsMultipler}");

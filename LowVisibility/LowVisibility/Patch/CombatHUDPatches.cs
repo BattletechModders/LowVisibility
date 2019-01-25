@@ -7,7 +7,7 @@ using System;
 using System.Reflection;
 using UnityEngine;
 using static LowVisibility.Helper.VisibilityHelper;
-using static LowVisibility.Object.StaticEWState;
+using static LowVisibility.Object.EWState;
 
 namespace LowVisibility.Patch {
 
@@ -185,11 +185,11 @@ namespace LowVisibility.Patch {
             AbstractActor targetActor = target as AbstractActor;
             Traverse AddToolTipDetailMethod = Traverse.Create(__instance).Method("AddToolTipDetail", new Type[] { typeof(string), typeof(int) });
 
-            if (targetActor != null) {
+            if (targetActor != null && __instance.DisplayedWeapon != null) {
                 //LowVisibility.Logger.LogIfDebug($"___CombatHUDTargetingComputer - SetHitChance for source:{CombatantHelper.Label(targetActor)} target:{CombatantHelper.Label(targetActor)}");
                 LockState lockState = GetUnifiedLockStateForTarget(actor, targetActor);
                 float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
-                StaticEWState attackerEWConfig = State.GetStaticState(actor);
+                EWState attackerEWConfig = State.GetEWState(actor);
 
                 if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", LowVisibility.Config.VisionOnlyPenalty});
@@ -199,12 +199,12 @@ namespace LowVisibility.Patch {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", LowVisibility.Config.SensorsOnlyPenalty });
                 }
                 
-                VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance);
+                VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, __instance.DisplayedWeapon);
                 if (vismodeMod.modifier != 0) {
                     AddToolTipDetailMethod.GetValue(new object[] { vismodeMod.label, vismodeMod.modifier });
                 }
 
-                StaticEWState targetEWConfig = State.GetStaticState(target as AbstractActor);
+                EWState targetEWConfig = State.GetEWState(target as AbstractActor);
                 if (targetEWConfig.HasStealthRangeMod()) {
                     Weapon weapon = __instance.DisplayedWeapon;
                     int weaponStealthMod = targetEWConfig.CalculateStealthRangeMod(weapon, distance);
