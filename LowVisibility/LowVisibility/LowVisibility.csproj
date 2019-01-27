@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -66,6 +66,30 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>E:\steam\SteamApps\common\BATTLETECH\BattleTech_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\..\..\..\Volumes\SourceCode\Steam\steamapps\common\BATTLETECH\BattleTech.app\Contents\Resources\Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\..\..\..\..\..\Volumes\SourceCode\Steam\steamapps\common\BATTLETECH\BattleTech.app\Contents\Resources\Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="BattleTech.Common">
+      <HintPath>..\..\..\..\..\..\..\Volumes\SourceCode\Steam\steamapps\common\BATTLETECH\BattleTech.app\Contents\Resources\Data\Managed\BattleTech.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="CustomComponents">
+      <HintPath>..\..\..\..\..\..\..\Volumes\SourceCode\Steam\steamapps\common\BATTLETECH\BattleTech.app\Contents\Resources\Mods\CustomComponents\CustomComponents.dll</HintPath>
+    </Reference>
+    <Reference Include="MechEngineer">
+      <HintPath>..\..\..\..\..\..\..\Volumes\SourceCode\Steam\steamapps\common\BATTLETECH\BattleTech.app\Contents\Resources\Mods\MechEngineer\MechEngineer.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\..\..\..\Volumes\SourceCode\Steam\steamapps\common\BATTLETECH\BattleTech.app\Contents\Resources\Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\..\..\..\Volumes\SourceCode\Steam\steamapps\common\BATTLETECH\BattleTech.app\Contents\Resources\Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\..\..\..\Volumes\SourceCode\BT_DLLs\0Harmony.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helper\CombatantHelper.cs" />
@@ -110,6 +134,7 @@
     <Compile Include="Utils\State.cs" />
     <Compile Include="Utils\Logger.cs" />
     <Compile Include="Utils\ModConfig.cs" />
+    <Compile Include="Helper\MathHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

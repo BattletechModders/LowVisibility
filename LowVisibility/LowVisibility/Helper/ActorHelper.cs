@@ -15,6 +15,7 @@ namespace LowVisibility.Helper {
             EWState ewState = State.GetEWState(source);
 
             float sensorsRange = (ewState.sensorRange * rangeMulti + rangeMod) * ewState.SensorCheckMultiplier();
+
             if (sensorsRange < LowVisibility.Config.MinimumSensorRange()) {
                 sensorsRange = LowVisibility.Config.MinimumSensorRange();
             }
