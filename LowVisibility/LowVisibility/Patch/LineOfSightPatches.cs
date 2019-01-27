@@ -407,7 +407,7 @@ namespace LowVisibility.Patch {
             __result = __instance.VisibilityToTargetUnit(targetUnit) >= VisibilityLevel.Blip0Minimum;
             LowVisibility.Logger.LogIfTrace($"Actor{CombatantHelper.Label(__instance)} has LOSToTargetUnit? {__result} " +
                 $"to target:{CombatantHelper.Label(targetUnit as AbstractActor)}");
-            LowVisibility.Logger.LogIfTrace($"Called from:{new StackTrace(true)}");
+            //LowVisibility.Logger.LogIfTrace($"Called from:{new StackTrace(true)}");
         }
     }
 }

@@ -220,7 +220,20 @@ namespace LowVisibility.Helper {
             //foreach (AbstractActor source in neutralActors) {
             //    source.VisibilityCache.UpdateCacheReciprocal(combatants);
             //}
+        }
 
+        // PRESUMES LOCK IS UP TO DATE
+        public static void UpdateVisibilityforPlayer(AbstractActor playerActor) {
+            LowVisibility.Logger.LogIfDebug($"  ==== Updating Visibility for Player Actor ====");
+            // Update enemy
+            List<AbstractActor> alliedActors = HostilityHelper.AlliedToLocalPlayerActors(playerActor.Combat);
+            List<AbstractActor> enemyActors = HostilityHelper.EnemyToLocalPlayerActors(playerActor.Combat);
+            List<AbstractActor> neutralActors = HostilityHelper.NeutralToLocalPlayerActors(playerActor.Combat);
+            List<AbstractActor> targets = enemyActors.Union(neutralActors).Union(alliedActors).ToList();
+
+            foreach (AbstractActor actor in targets) {
+                playerActor.VisibilityCache.CalcVisValueToTarget(actor);
+            }
         }
 
         public static void UpdateDetectionForActor(AbstractActor actor) {
