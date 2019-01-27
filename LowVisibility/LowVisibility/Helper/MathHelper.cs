@@ -8,12 +8,12 @@ namespace LowVisibility.Helper {
         public static int CountHexes(float range, bool roundUp=true) {
             int hexes = 0;
             int count = 0;
-            while (count <= range) {
+            while (count < range) {
                 count += 30;
                 hexes++;
             }
 
-            if (hexes != 0 && !Equals(hexes * 30.0, range) && !roundUp) { 
+            if (hexes != 0 && !Equals(hexes * 30, (int)range) && !roundUp) { 
                 hexes = hexes - 1; 
             }
             //Console.WriteLine($"For range:{range} roundUp:{roundUp} = hexes:{hexes}");

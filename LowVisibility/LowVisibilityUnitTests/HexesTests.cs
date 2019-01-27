@@ -63,17 +63,6 @@ namespace LVUnitTests {
             return hexes;
         }
 
-        private int RangeToHexByIter(float range) {
-            int hexes = 0;
-            int count = 0;
-            while (count < range) {
-                count += 30;
-                hexes++;
-            }
-            return hexes;
-        }
-
-
         private List<float> RangesInMeters() {
             List<float> ranges = new List<float>();
             Random rand = new Random();

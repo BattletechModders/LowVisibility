@@ -48,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GaussianGeneratorTests.cs" />
+    <Compile Include="HexesTests.cs" />
+    <Compile Include="ModifierTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
