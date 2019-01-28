@@ -13,105 +13,46 @@ using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patch {
 
-    // Modify the visual spotting range based upon environmental conditions only
+    // Used to show spotting range in Fog of War
     [HarmonyPatch(typeof(LineOfSight), "GetSpotterRange")]
     [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
     public static class LineOfSight_GetSpotterRange {
         public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source, CombatGameState ___Combat) {
-
             if (__instance != null && source != null) {
-                //float baseSpotterDistance = ___Combat.Constants.Visibility.BaseSpotterDistance;
-                float baseSpotterDistance = State.GetMapVisionRange();
-                if (source.IsShutDown) {
-                    __result = baseSpotterDistance * ___Combat.Constants.Visibility.ShutdownSpottingDistanceMultiplier;
-                }
-                if (source.IsProne) {
-                    __result = baseSpotterDistance * ___Combat.Constants.Visibility.ProneSpottingDistanceMultiplier;
-                }
-                float allSpotterMultipliers = __instance.GetAllSpotterMultipliers(source);
-                float allSpotterAbsolutes = __instance.GetAllSpotterAbsolutes(source);
-                __result = baseSpotterDistance * allSpotterMultipliers + allSpotterAbsolutes;
+                __result = VisualLockHelper.GetSpotterRange(source);
             }
         }
     }
 
+    // Called to determine if something is visible
     [HarmonyPatch(typeof(LineOfSight), "GetAdjustedSpotterRange")]
     [HarmonyPatch(new Type[] { typeof(AbstractActor), typeof(ICombatant) })]
     public static class LineOfSight_GetAdjustedSpotterRange {
         public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source, ICombatant target) {
-
             if (__instance != null && source != null) {
-                
-                float targetVisibility = 1f;
-                AbstractActor abstractActor = target as AbstractActor;
-                if (abstractActor != null) {
-                    targetVisibility = __instance.GetTargetVisibility(abstractActor);
-                }
-
-                float spotterRange = __instance.GetSpotterRange(source);
-                float visibilityModifiedRange = spotterRange * targetVisibility;
-
-                if (visibilityModifiedRange < LowVisibility.Config.MinimumVisionRange()) {
-                    visibilityModifiedRange = LowVisibility.Config.MinimumVisionRange();
-                }
-
-                __result = visibilityModifiedRange;
+                __result = VisualLockHelper.GetAdjustedSpotterRange(source, target);
             }
-
         }
     }
 
-    // Modify the visual spotting range based upon environmental conditions only
+    // Used to calculate possible targets
     [HarmonyPatch(typeof(LineOfSight), "GetSensorRange")]
     [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
     public static class LineOfSight_GetSensorState {
         public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source) {
             if (__instance != null && source != null) {                
-                __result = GetSensorsRange(source);
+                __result = SensorLockHelper.GetSensorsRange(source);
             }
         }
     }
 
+    // Called by AI and other states to see what you can actually detected
     [HarmonyPatch(typeof(LineOfSight), "GetAdjustedSensorRange")]
     [HarmonyPatch(new Type[] { typeof(AbstractActor), typeof(AbstractActor) })]
     public static class LineOfSight_GetAdjustedSensorRange {
         public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor source, AbstractActor target, CombatGameState ___Combat) {
-            if (__instance != null && source != null) {                
-                float sourceSensorRange = GetSensorsRange(source);
-                float targetSignature = CalculateTargetSignature(target);
-
-                //if (target != null && source.VisibilityToTargetUnit(target) > VisibilityLevel.None) {
-                //    // If is sensor lock, add the Hysterisis modifier
-                //    signatureModifiedRange += ___Combat.Constants.Visibility.SensorHysteresisAdditive;
-                //}
-
-                float signatureModifiedRange = sourceSensorRange * targetSignature;
-                if (signatureModifiedRange < LowVisibility.Config.MinimumSensorRange()) {
-                    signatureModifiedRange = LowVisibility.Config.MinimumSensorRange();
-                }
-
-                //LowVisibility.Logger.Log($"For sourceSensorRange:{sourceSensorRange} and targetSignature:{targetSignature} adjustedRange is:{signatureModifiedRange}");
-                __result = signatureModifiedRange;
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(LineOfSight), "GetTargetVisibility")]
-    [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
-    public static class LineOfSight_GetTargetVisibility {
-        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor target) {
-            if (__instance != null && target != null) {
-                __result = CalculateTargetVisibility(target);
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(LineOfSight), "GetTargetSignature")]
-    [HarmonyPatch(new Type[] { typeof(AbstractActor) })]
-    public static class LineOfSight_GetTargetSignature {
-        public static void Postfix(LineOfSight __instance, ref float __result, AbstractActor target) {
-            if (__instance != null && target != null) {
-                __result = CalculateTargetSignature(target);
+            if (__instance != null && source != null) {
+                __result = SensorLockHelper.GetAdjustedSensorRange(source, target);
             }
         }
     }
@@ -122,72 +63,36 @@ namespace LowVisibility.Patch {
         public static bool Prefix(LineOfSight __instance, ref VisibilityLevel __result, 
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation) {
             // Skip if we aren't ready to process 
-            if (State.TurnDirectorStarted == false || (target as Building) != null) { return true;  }
+            if (State.TurnDirectorStarted == false || (target as AbstractActor) == null) { return true;  }
 
             //LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - entered. ");
-            LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
+            LowVisibility.Logger.Log($"LOS:GVTTWPAR: source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
 
             AbstractActor sourceActor = source as AbstractActor;
             AbstractActor targetActor = target as AbstractActor;
-
-            // If you can spot beyond sensor range, increase sensor range to spotting range
-            float adjustedSensorRange = __instance.GetAdjustedSensorRange(source, targetActor);
-            float adjustedSpotterRange = __instance.GetAdjustedSpotterRange(source, targetActor);
-            if (adjustedSensorRange < adjustedSpotterRange) {
-                adjustedSensorRange = adjustedSpotterRange;
-            }
-
-            // If you are beyond sensorRange or spotter range, visibility is none
-            float distance = Vector3.Distance(sourcePosition, targetPosition);
-            if (distance > adjustedSensorRange) {
-
-                // Check for Narc 
-                if (targetActor != null && State.NARCEffect(targetActor) != 0) {
-                    int delta = State.NARCEffect(targetActor) - State.ECMProtection(targetActor);
-                    LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active " +
-                        $"narc effect {State.NARCEffect(targetActor)} vs. ECM Protection:{State.ECMProtection(targetActor)}, delta is:{delta}");
-
-                    if (delta >= 1) {
-                        LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active NARC effect, marking them visible!");
-                        __result = VisibilityLevel.Blip4Maximum;
-                        return false;
-                    }
-                }
-
-                __result = VisibilityLevel.None;
-                return false;
-            }
-
-            Vector3 forward = targetPosition - sourcePosition;
-            forward.y = 0f;
-            Quaternion rotation = Quaternion.LookRotation(forward);
-
-            // If you are within spotter range, check for visual lock.
-            VisibilityLevel visibilityLevel = VisibilityLevel.None;
-            if (distance < adjustedSpotterRange) {
-                Vector3[] lossourcePositions = source.GetLOSSourcePositions(sourcePosition, rotation);
-                Vector3[] lostargetPositions = target.GetLOSTargetPositions(targetPosition, targetRotation);
-                for (int i = 0; i < lossourcePositions.Length; i++) {
-                    for (int j = 0; j < lostargetPositions.Length; j++) {
-                        // If you can visually spot the target, you immediately have detection on then
-                        if (__instance.HasLineOfSight(lossourcePositions[i], lostargetPositions[j], adjustedSpotterRange, target.GUID)) {
-                            visibilityLevel = VisibilityLevel.LOSFull;
-                            break;
-                        }
-                    }
-                    if (visibilityLevel != VisibilityLevel.None) {
-                        break;
-                    }
-                }
-            } 
-
-            // If vis is still 0, check tactics to determine what type of blip to display, 0/4/7 -> Blip0, Blip1, Blip4
-            //if (visibilityLevel == VisibilityLevel.None && source.IsPilotable) {
-            //    int tactics = source.GetPilot().Tactics;
-            //    visibilityLevel = __instance.GetVisibilityLevelForTactics(tactics);
-            //}
             
-            if (targetActor != null) {
+            // TODO: Handle buildings here
+            VisualLockType visualLock = VisualLockHelper.CalculateVisualLock(sourceActor, sourcePosition, 
+                targetActor, targetPosition, targetRotation, __instance);
+            VisibilityLevel visualVisibility = visualLock.Visibility();
+
+            SensorLockType sensorLock = SensorLockHelper.CalculateSensorLock(sourceActor, sourcePosition,
+                targetActor, targetPosition);
+            VisibilityLevel sensorsVisibility = sensorLock.Visibility();
+            LowVisibility.Logger.Log($"  visualLock:{visualLock} visualVis:{visualVisibility} sensorLock:{sensorLock} sensorVis:{sensorsVisibility}");
+
+            State.UpdateActorLocks(source, target, visualLock, sensorLock);
+            
+            if (visualVisibility == VisibilityLevel.LOSFull) {
+                __result = visualVisibility;                
+            } else {
+                __result = sensorsVisibility;
+            }
+
+            LowVisibility.Logger.Log($"  result:{__result} for source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
+            return false;
+                        
+            //if (targetActor != null) {
                 // If you are sensor locked, you are automatically vis 9
                 //if (targetActor.IsSensorLocked) {
                 //    visibilityLevel = VisibilityLevel.LOSFull;
@@ -208,23 +113,23 @@ namespace LowVisibility.Patch {
                 //    visibilityLevel = (VisibilityLevel)shadowingVisLevel;
                 //}
 
-                // If EW effects have rendered the target invisible, break the lock
-                visibilityLevel = GetUnifiedVisibilityLevel(source, targetActor);
-                //LowVisibility.Logger.Log($"VTTWPAR Source:{CombatantHelper.Label(source)} has visibilityLevel:{visibilityLevel} to target:{CombatantHelper.Label(target)}");  
+            //    // If EW effects have rendered the target invisible, break the lock
+            //    visibilityLevel = GetUnifiedVisibilityLevel(source, targetActor);
+            //    //LowVisibility.Logger.Log($"VTTWPAR Source:{CombatantHelper.Label(source)} has visibilityLevel:{visibilityLevel} to target:{CombatantHelper.Label(target)}");  
 
-                // Check for Narc 
-                if (State.NARCEffect(targetActor) != 0 && visibilityLevel < VisibilityLevel.Blip4Maximum) {
-                    int delta = State.NARCEffect(targetActor) - State.ECMProtection(targetActor);
-                    if (delta >= 1) {
-                        LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active NARC effect, marking them visible!");
-                        __result = VisibilityLevel.Blip4Maximum;
-                        return false;
-                    }
-                }
-            }
-            __result = visibilityLevel;
+            //    // Check for Narc 
+            //    if (State.NARCEffect(targetActor) != 0 && visibilityLevel < VisibilityLevel.Blip4Maximum) {
+            //        int delta = State.NARCEffect(targetActor) - State.ECMProtection(targetActor);
+            //        if (delta >= 1) {
+            //            LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active NARC effect, marking them visible!");
+            //            __result = VisibilityLevel.Blip4Maximum;
+            //            return false;
+            //        }
+            //    }
+            //}
+            //__result = visibilityLevel;
 
-            return false;
+            //return false;
         }
     }
 

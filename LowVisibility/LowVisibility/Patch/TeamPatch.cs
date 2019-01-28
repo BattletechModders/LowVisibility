@@ -26,15 +26,15 @@ namespace LowVisibility.Patch {
                 State.EWState[unit.GUID] = actorEWConfig;
 
                 // Build their sourceLocks
-                VisibilityHelper.UpdateDetectionForActor(unit);                
+                //VisibilityHelper.UpdateDetectionForActor(unit);                
 
-                HostilityMatrix hostilityMatrix = (HostilityMatrix)Traverse.Create(__instance).Property("HostilityMatrix").GetValue();                
-                if (hostilityMatrix.IsLocalPlayerFriendly(__instance.GUID)) {
-                    unit.OnPlayerVisibilityChanged(VisibilityLevel.LOSFull);
-                }
-                if (__instance.Combat.TurnDirector.CurrentRound > 0) {
-                    unit.UpdateVisibilityCache(__instance.Combat.GetAllCombatants());
-                }
+                //HostilityMatrix hostilityMatrix = (HostilityMatrix)Traverse.Create(__instance).Property("HostilityMatrix").GetValue();                
+                //if (hostilityMatrix.IsLocalPlayerFriendly(__instance.GUID)) {
+                //    unit.OnPlayerVisibilityChanged(VisibilityLevel.LOSFull);
+                //}
+                //if (__instance.Combat.TurnDirector.CurrentRound > 0) {
+                //    unit.UpdateVisibilityCache(__instance.Combat.GetAllCombatants());
+                //}
             }
         }
     }

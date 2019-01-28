@@ -19,18 +19,18 @@ namespace LowVisibility.Patch {
 
             AbstractActor targetActor = target as AbstractActor;
             if (__instance != null && attacker != null && targetActor != null) {
-                LockState lockState = GetUnifiedLockStateForTarget(attacker, targetActor);
+                Locks locks = State.LocksForTarget(attacker, targetActor);
                 float distance = Vector3.Distance(attackPosition, targetPosition);
                 EWState attackerEWConfig = State.GetEWState(attacker);
                 EWState targetEWConfig = State.GetEWState(targetActor);
 
-                if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
+                if (locks.sensorLock == SensorLockType.NoInfo) {
                     //LowVisibility.Logger.LogIfDebug($"Attacker:{CombatantHelper.Label(attacker)} has no sensor lock to target:{CombatantHelper.Label(target as AbstractActor)} " +
                     //    $" applying modifier:{LowVisibility.Config.NoSensorLockAttackPenalty}");
                     __result = __result + (float)LowVisibility.Config.VisionOnlyPenalty;
                 }
 
-                if (lockState.visionLockLevel == VisionLockType.None) {
+                if (locks.visualLock == VisualLockType.None) {
                     //LowVisibility.Logger.LogIfDebug($"Attacker:{CombatantHelper.Label(attacker)} has no visual lock to target:{CombatantHelper.Label(target as AbstractActor)} " +
                     //    $" applying modifier:{LowVisibility.Config.NoSensorLockAttackPenalty}");
                     __result = __result + (float)LowVisibility.Config.SensorsOnlyPenalty;
@@ -72,15 +72,15 @@ namespace LowVisibility.Patch {
 
             AbstractActor targetActor = target as AbstractActor;
             if (__instance != null && attacker != null && target != null && weapon != null && targetActor != null) {
-                LockState lockState = GetUnifiedLockStateForTarget(attacker, targetActor);
+                Locks lockState = State.LocksForTarget(attacker, targetActor);
                 float distance = Vector3.Distance(attackPosition, targetPosition);
                 EWState attackerEWConfig = State.GetEWState(attacker);
 
-                if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
+                if (lockState.sensorLock == SensorLockType.NoInfo) {
                     __result = string.Format("{0}NO SENSOR LOCK {1:+#;-#}; ", __result, LowVisibility.Config.VisionOnlyPenalty);
                 }
 
-                if (lockState.visionLockLevel == VisionLockType.None) {
+                if (lockState.visualLock == VisualLockType.None) {
                     __result = string.Format("{0}NO VISUAL LOCK {1:+#;-#}; ", __result, LowVisibility.Config.SensorsOnlyPenalty);
                 }
 

@@ -31,19 +31,19 @@ namespace LowVisibility.Patch {
                 if (target != null) {
                     bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                     if (!isPlayer) {                        
-                        LockState lockState = State.GetLockStateForLastActivatedAgainstTarget(target);
+                        Locks lockState = State.LastActivatedLocksForTarget(target);
 
-                        if (lockState.sensorLockLevel < DetectionLevel.Vector) {
+                        if (lockState.sensorLock < SensorLockType.Vector) {
                             //// Hide the evasive indicator, hide the buffs and debuffs
                             //Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
                             //hideEvasionIndicatorMethod.GetValue();
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        } else if (lockState.sensorLockLevel < DetectionLevel.StructureAnalysis) {
+                        } else if (lockState.sensorLock < SensorLockType.StructureAnalysis) {
                             // Hide the buffs and debuffs
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        } else if (lockState.sensorLockLevel >= DetectionLevel.StructureAnalysis) {
+                        } else if (lockState.sensorLock >= SensorLockType.StructureAnalysis) {
                             // Do nothing; normal state
                         }
                     }
@@ -122,9 +122,9 @@ namespace LowVisibility.Patch {
             EWState ewState = State.GetEWState(actor);
 
             List<string> details = new List<string>();
-            float visualLockRange = ActorHelper.GetVisualLockRange(actor);
-            float sensorsRange = ActorHelper.GetSensorsRange(actor);
-            float visualScanRange = ActorHelper.GetVisualScanRange(actor);
+            float visualLockRange = VisualLockHelper.GetVisualLockRange(actor);
+            float visualScanRange = VisualLockHelper.GetVisualScanRange(actor);
+            float sensorsRange = SensorLockHelper.GetSensorsRange(actor);            
             details.Add($"Visual Lock:{visualLockRange:0}m Scan:{visualScanRange}m [{State.MapConfig.UILabel()}]\n");
 
             List<string> sensorDetails = new List<string>();
@@ -190,13 +190,13 @@ namespace LowVisibility.Patch {
             sensorDetails.Add("\n");
 
             // Sensor range
-            DetectionLevel checkLevel = DetectionLevel.NoInfo;
-            if (checkLevel > DetectionLevel.DentalRecords) {
-                checkLevel = DetectionLevel.DentalRecords;
-            } else if (checkLevel < DetectionLevel.NoInfo) {
-                checkLevel = DetectionLevel.NoInfo;
+            SensorLockType checkLevel = SensorLockType.NoInfo;
+            if (checkLevel > SensorLockType.DentalRecords) {
+                checkLevel = SensorLockType.DentalRecords;
+            } else if (checkLevel < SensorLockType.NoInfo) {
+                checkLevel = SensorLockType.NoInfo;
             } else {
-                checkLevel = (DetectionLevel)checkResult;
+                checkLevel = (SensorLockType)checkResult;
             }
             details.Add($"Sensors Lock:{sensorsRange:0}m Info:[{checkLevel.Label()}]\n");
             details.AddRange(sensorDetails);

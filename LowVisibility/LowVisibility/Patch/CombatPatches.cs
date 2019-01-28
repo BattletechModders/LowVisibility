@@ -21,12 +21,12 @@ namespace LowVisibility.Patch {
             LowVisibility.Logger.LogIfTrace($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantHelper.Label(__instance)}");
             bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
             if (isPlayer) {
-                State.LastPlayerActivatedActorGUID = __instance.GUID;
+                State.LastPlayerActor = __instance.GUID;
                 //
             } else {
                 // TODO: Update enemies and allies
                 ECMHelper.UpdateECMState(__instance);
-                VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
+                //VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
             }
         }
     }
@@ -37,8 +37,8 @@ namespace LowVisibility.Patch {
             LowVisibility.Logger.LogIfDebug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {CombatantHelper.Label(actor)}.");
             if (__instance != null && actor != null && __result == true) {
                 ECMHelper.UpdateECMState(actor);
-                VisibilityHelper.UpdateDetectionForAllActors(actor.Combat);
-                VisibilityHelper.UpdateVisibilityforPlayer(actor);
+                //VisibilityHelper.UpdateDetectionForAllActors(actor.Combat);
+                //VisibilityHelper.UpdateVisibilityforPlayer(actor);
 
                 //VisibilityHelper.UpdateVisibilityForAllTeams(actor.Combat);
 

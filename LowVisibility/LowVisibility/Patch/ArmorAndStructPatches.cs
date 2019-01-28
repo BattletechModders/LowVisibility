@@ -12,14 +12,14 @@ namespace LowVisibility.Patches {
     public static class Helper {
         public static void HideArmorAndStructure(AbstractActor target, TextMeshProUGUI armorHover, TextMeshProUGUI structHover) {
 
-            LockState lockState = State.GetLockStateForLastActivatedAgainstTarget(target);
+            Locks lockState = State.LastActivatedLocksForTarget(target);
             string armorText = null;
             string structText = null;
-            if (lockState.sensorLockLevel >= DetectionLevel.StructureAnalysis) {
+            if (lockState.sensorLock >= SensorLockType.StructureAnalysis) {
                 // See all values
                 armorText = armorHover.text;
                 structText = structHover.text;
-            } else if (lockState.visionLockLevel == VisionLockType.VisualID) {
+            } else if (lockState.visualLock == VisualLockType.VisualScan) {
                 // See max armor, max struct                
                 string rawArmor = armorHover.text;
                 string maxArmor = rawArmor.Split('/')[1];

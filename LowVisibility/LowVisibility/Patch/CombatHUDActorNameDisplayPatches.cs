@@ -16,18 +16,18 @@ namespace LowVisibility.Patch {
             variantName -> Mech.VariantName = MechDef.Chassis.VariantName -> AS7-D / TBT-5N
             fullname -> Mech.NickName = MechDef.Description.Name -> Atlas II AS7-D-HT or Atlas AS7-D / Trebuchet
         */
-        public static Text GetDetectionLabel(VisibilityLevel visLevel, LockState lockState, VisibilityLevel blipLevel,
+        public static Text GetDetectionLabel(VisibilityLevel visLevel, Locks lockState, VisibilityLevel blipLevel,
             string fullName, string variantName, string chassisName, string type, float tonnage) {
 
             Text response = new Text("?");
 
             if (visLevel == VisibilityLevel.LOSFull) {
                 // HBS: Full details
-                if (lockState.sensorLockLevel >= DetectionLevel.StructureAnalysis) {
+                if (lockState.sensorLock >= SensorLockType.StructureAnalysis) {
                     response = new Text($"{fullName}");
-                } else if (lockState.sensorLockLevel >= DetectionLevel.WeaponAnalysis) {
+                } else if (lockState.sensorLock >= SensorLockType.WeaponAnalysis) {
                     response = new Text($"{chassisName} {variantName}");
-                } else if (lockState.sensorLockLevel >= DetectionLevel.Silhouette) {
+                } else if (lockState.sensorLock >= SensorLockType.Silhouette) {
                     response = new Text($"{chassisName} {tonnage}");
                 } else {
                     response = new Text($"{chassisName}");
@@ -67,14 +67,17 @@ namespace LowVisibility.Patch {
                 Mech.NickName = MechDef.Description.Name -> Atlas II AS7-D-HT or Atlas AS7-D / Trebuchet
             */
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
-                LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(__instance.Combat), __instance);
+                // TODO: This should be a unified view across the players
+                Locks lockState = State.LastActivatedLocksForTarget(__instance);
 
                 string chassisName = __instance.UnitName;
                 string variantName = __instance.VariantName;
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.MechDef.Chassis.Tonnage;
 
-                VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
+                //VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
+                // TODO: FIXME
+                VisibilityLevel blipLevel = VisibilityLevel.Blip1Type;
                 Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "MECH", tonnage);
                 LowVisibility.Logger.LogIfDebug($"Mech:GetActorInfoFromVisLevel:post - response:({response}) for " +
                     $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName}) " +
@@ -99,14 +102,17 @@ namespace LowVisibility.Patch {
 
             */
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
-                LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(__instance.Combat), __instance);
+                // TODO: This should be a unified view across the players
+                Locks lockState = State.LastActivatedLocksForTarget(__instance);
 
                 string chassisName = __instance.UnitName;
                 string variantName = __instance.VariantName;
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.TurretDef.Chassis.Tonnage;
 
-                VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
+                //VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
+                // TODO: FIXME
+                VisibilityLevel blipLevel = VisibilityLevel.Blip1Type;
                 Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "TURRET", tonnage);
                 LowVisibility.Logger.Log($"Turret:GetActorInfoFromVisLevel:post - response:({response}) for " +
                     $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName}) " +
@@ -133,14 +139,17 @@ namespace LowVisibility.Patch {
                         / / vehicledef_DEMOLISHER-II / vehicledef_GALLEON_GAL102
             */
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
-                LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(__instance.Combat), __instance);
+                // TODO: This should be a unified view across the players
+                Locks lockState = State.LastActivatedLocksForTarget(__instance);
 
                 string chassisName = __instance.UnitName;
                 string variantName = __instance.VariantName;
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.VehicleDef.Chassis.Tonnage;
 
-                VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
+                //VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
+                // TODO: FIXME
+                VisibilityLevel blipLevel = VisibilityLevel.Blip1Type;
                 Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "VEHICLE", tonnage);
                 LowVisibility.Logger.Log($"Vehicle:GetActorInfoFromVisLevel:post - response:({response}) for " +
                     $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName}) " +
@@ -163,8 +172,8 @@ namespace LowVisibility.Patch {
                 Mech target = ___Readout.DisplayedMech;
                 bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                 if (!isPlayer) {
-                    LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
-                    if (lockState.sensorLockLevel < DetectionLevel.DeepScan) {
+                    Locks lockState = State.LastActivatedLocksForTarget(target);
+                    if (lockState.sensorLock < SensorLockType.DeepScan) {
                         ___ToolTip.BuffStrings.Clear();
                     } else {
                         //KnowYourFoe.Logger.LogIfDebug($"CombatHUDMechTrayArmorHover:OnPointerEnter:post - components should be shown for actor:{target.DisplayName}_{target.GetPilot().Name}");
@@ -186,8 +195,8 @@ namespace LowVisibility.Patch {
                 Vehicle target = ___Readout.DisplayedVehicle;
                 bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                 if (!isPlayer) {
-                    LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), target);
-                    if (lockState.sensorLockLevel < DetectionLevel.DeepScan) {
+                    Locks lockState = State.LastActivatedLocksForTarget(target);
+                    if (lockState.sensorLock < SensorLockType.DeepScan) {
                         //KnowYourFoe.Logger.LogIfDebug($"CombatHUDMechTrayArmorHover:OnPointerEnter:post - components should be hidden for actor:{target.DisplayName}_{target.GetPilot().Name}");
                         ___ToolTip.BuffStrings.Clear();
                     } else {
@@ -204,10 +213,10 @@ namespace LowVisibility.Patch {
     public static class CombatHUDActorNameDisplay_RefreshInfo {
 
         public static void Postfix(CombatHUDActorNameDisplay __instance, VisibilityLevel visLevel, AbstractActor ___displayedActor) {
-            if (___displayedActor != null && State.LastPlayerActivatedActorGUID != null && State.TurnDirectorStarted &&
+            if (___displayedActor != null && State.LastPlayerActor != null && State.TurnDirectorStarted &&
                 (HostilityHelper.IsLocalPlayerEnemy(___displayedActor) || HostilityHelper.IsLocalPlayerNeutral(___displayedActor))) {
-                LockState lockState = State.GetLockStateForLastActivatedAgainstTarget(___displayedActor);
-                if (lockState != null && lockState.sensorLockLevel < DetectionLevel.DentalRecords) {
+                Locks lockState = State.LastActivatedLocksForTarget(___displayedActor);
+                if (lockState != null && lockState.sensorLock < SensorLockType.DentalRecords) {
                     __instance.PilotNameText.SetText("Unidentified Pilot");
                 }
             }

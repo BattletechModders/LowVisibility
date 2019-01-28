@@ -1,14 +1,76 @@
 ﻿
-namespace LowVisibility.Object {
+using BattleTech;
 
-    // TODO: Update visionLockType to use same detectionLevel scheme as below
-    public enum VisionLockType {
-        None,
-        Silhouette,
-        VisualID
+namespace LowVisibility.Object {
+ 
+    public class Locks {
+        public string sourceGUID;
+        public string targetGUID;
+        public VisualLockType visualLock;
+        public SensorLockType sensorLock;
+
+        public Locks() { }
+
+        public Locks(AbstractActor source, ICombatant target) {
+            this.sourceGUID = source.GUID;
+            this.targetGUID = target.GUID;
+            this.visualLock = VisualLockType.None;
+            this.sensorLock = SensorLockType.NoInfo;
+        }
+
+        public Locks(AbstractActor source, ICombatant target, VisualLockType visualLock, SensorLockType sensorLock) {
+            this.sourceGUID = source.GUID;
+            this.targetGUID = target.GUID;
+            this.visualLock = visualLock;
+            this.sensorLock = sensorLock;
+        }
+
+        public Locks(Locks source) {
+            this.sourceGUID = source.sourceGUID;
+            this.targetGUID = source.targetGUID;
+            this.visualLock = source.visualLock;
+            this.sensorLock = source.sensorLock;
+        }
+
+        public override string ToString() {
+            return $"visionLockLevel:{visualLock}, sensorLockLevel:{sensorLock}";
+        }
     }
 
-    public enum DetectionLevel {
+    // TODO: Update visionLockType to use same detectionLevel scheme as below
+    public enum VisualLockType {
+        None,
+        Silhouette,
+        VisualScan
+    }
+
+    static class VisualLockTypeExtensions {
+        public static string Label(this VisualLockType visualLock) {
+            switch (visualLock) {
+                case VisualLockType.Silhouette:
+                    return "Silhouette";
+                case VisualLockType.VisualScan:
+                    return "Visual Scan";
+                case VisualLockType.None:
+                default:
+                    return "No Lock";                
+            }
+        }
+
+        public static VisibilityLevel Visibility(this VisualLockType level) {
+            switch (level) {
+                case VisualLockType.Silhouette:
+                case VisualLockType.VisualScan:
+                    return VisibilityLevel.LOSFull;
+                case VisualLockType.None:
+                default:
+                    return VisibilityLevel.None;
+            }
+        }
+
+    }
+
+    public enum SensorLockType {
         NoInfo,
         Location,
         Type,
@@ -22,57 +84,57 @@ namespace LowVisibility.Object {
         DentalRecords
     }
 
-    public class LockState {
-        public string sourceGUID;
-        public string targetGUID;
-        public VisionLockType visionLockLevel;
-        public DetectionLevel sensorLockLevel;
-
-        public LockState() { }
-
-        public LockState(LockState source) {
-            this.sourceGUID = source.sourceGUID;
-            this.targetGUID = source.targetGUID;
-            this.visionLockLevel = source.visionLockLevel;
-            this.sensorLockLevel = source.sensorLockLevel;
-        }
-
-        public override string ToString() {
-            return $"visionLockLevel:{visionLockLevel}, sensorLockLevel:{sensorLockLevel}";
-        }
-    }
-
-    static class DetectionLevelExtensions {
-        public static string Label(this DetectionLevel level) {
+    static class SensorLockTypeExtensions {
+        public static string Label(this SensorLockType level) {
             switch (level) {
-                case DetectionLevel.NoInfo:
+                case SensorLockType.NoInfo:
                     return "No Info";
-                case DetectionLevel.Location:
+                case SensorLockType.Location:
                     return "Location";
-                case DetectionLevel.Type:
+                case SensorLockType.Type:
                     return "Type";
-                case DetectionLevel.Silhouette:
+                case SensorLockType.Silhouette:
                     return "Silhouettte";
-                case DetectionLevel.Vector:
+                case SensorLockType.Vector:
                     return "Vector";
-                case DetectionLevel.SurfaceScan:
+                case SensorLockType.SurfaceScan:
                     return "SurfaceScan";
-                case DetectionLevel.SurfaceAnalysis:
+                case SensorLockType.SurfaceAnalysis:
                     return "SurfaceAnalysis";
-                case DetectionLevel.WeaponAnalysis:
+                case SensorLockType.WeaponAnalysis:
                     return "WeaponsAnalysis";
-                case DetectionLevel.StructureAnalysis:
+                case SensorLockType.StructureAnalysis:
                     return "StructureAnalysis";
-                case DetectionLevel.DeepScan:
+                case SensorLockType.DeepScan:
                     return "DeepScan";
-                case DetectionLevel.DentalRecords:
+                case SensorLockType.DentalRecords:
                     return "DentalRecords";
                 default:
                     return "Unknown";
-
             }
-        }      
-                
+        }
+
+        public static VisibilityLevel Visibility(this SensorLockType level) {
+            switch (level) {
+                case SensorLockType.Location:
+                    return VisibilityLevel.Blip0Minimum;
+                case SensorLockType.Type:
+                case SensorLockType.Silhouette:
+                case SensorLockType.Vector:
+                    return VisibilityLevel.Blip1Type;
+                case SensorLockType.SurfaceScan:
+                case SensorLockType.SurfaceAnalysis:
+                case SensorLockType.WeaponAnalysis:
+                case SensorLockType.StructureAnalysis:
+                case SensorLockType.DeepScan:
+                case SensorLockType.DentalRecords:
+                    return VisibilityLevel.Blip4Maximum;
+                case SensorLockType.NoInfo:
+                default:
+                    return VisibilityLevel.None;
+            }
+        }
+
     }
    
 }

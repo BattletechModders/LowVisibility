@@ -11,8 +11,8 @@ namespace LowVisibility.Patch {
 
             LowVisibility.Logger.LogIfDebug($"SpawnMech:post - entered for {CombatantHelper.Label(__result)}.");
             ECMHelper.UpdateECMState(__result);
-            VisibilityHelper.UpdateDetectionForAllActors(__result.Combat);
-            VisibilityHelper.UpdateVisibilityForAllTeams(__result.Combat);
+            //VisibilityHelper.UpdateDetectionForAllActors(__result.Combat);
+            //VisibilityHelper.UpdateVisibilityForAllTeams(__result.Combat);
         }
     }
 
@@ -24,8 +24,8 @@ namespace LowVisibility.Patch {
 
             LowVisibility.Logger.LogIfDebug($"SpawnMech:post - entered for {CombatantHelper.Label(__result)}.");
             ECMHelper.UpdateECMState(__result);
-            VisibilityHelper.UpdateDetectionForAllActors(__result.Combat);
-            VisibilityHelper.UpdateVisibilityForAllTeams(__result.Combat);
+            //VisibilityHelper.UpdateDetectionForAllActors(__result.Combat);
+            //VisibilityHelper.UpdateVisibilityForAllTeams(__result.Combat);
         }
     }
 
@@ -37,8 +37,8 @@ namespace LowVisibility.Patch {
 
             LowVisibility.Logger.LogIfDebug($"SpawnMech:post - entered for {CombatantHelper.Label(__result)}.");
             ECMHelper.UpdateECMState(__result);
-            VisibilityHelper.UpdateDetectionForAllActors(__result.Combat);
-            VisibilityHelper.UpdateVisibilityForAllTeams(__result.Combat);
+            //VisibilityHelper.UpdateDetectionForAllActors(__result.Combat);
+            //VisibilityHelper.UpdateVisibilityForAllTeams(__result.Combat);
         }
     }
 }

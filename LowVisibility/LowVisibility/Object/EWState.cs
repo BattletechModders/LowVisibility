@@ -13,7 +13,10 @@ namespace LowVisibility.Object {
 
         public int rangeCheck = 0;
         public int detailCheck = 0;
-        public float sensorRange = 0.0f;
+        public string parentGUID = null;
+
+        [JsonIgnore]
+        public float sensorsBaseRange = 0.0f;
 
         [JsonIgnore]
         public int ecmMod = 0;
@@ -59,25 +62,37 @@ namespace LowVisibility.Object {
         // Necessary for serialization
         public EWState() {}
 
+        // Normal Constructor
         public EWState(AbstractActor actor) {
-            if (actor.GetType() == typeof(Mech)) {
-                sensorRange = LowVisibility.Config.SensorRangeMechType * 30.0f;
-            } else if (actor.GetType() == typeof(Vehicle)) {
-                sensorRange = LowVisibility.Config.SensorRangeVehicleType * 30.0f;
-            } else if (actor.GetType() == typeof(Turret)) {
-                sensorRange = LowVisibility.Config.SensorRangeTurretType * 30.0f;
-            } else {
-                sensorRange = LowVisibility.Config.SensorRangeUnknownType * 30.0f;
-            }
+            parentGUID = actor.GUID;
 
+            SetSensorBaseRange(actor);
             EWStateHelper.UpdateStaticState(this, actor);
-
             UpdateChecks();
         }
 
         public void UpdateChecks() {
             rangeCheck = State.GetCheckResult();
             detailCheck = State.GetCheckResult();
+        }
+
+        private void SetSensorBaseRange(AbstractActor actor) {
+            if (actor.GetType() == typeof(Mech)) {
+                sensorsBaseRange = LowVisibility.Config.SensorRangeMechType * 30.0f;
+            } else if (actor.GetType() == typeof(Vehicle)) {
+                sensorsBaseRange = LowVisibility.Config.SensorRangeVehicleType * 30.0f;
+            } else if (actor.GetType() == typeof(Turret)) {
+                sensorsBaseRange = LowVisibility.Config.SensorRangeTurretType * 30.0f;
+            } else {
+                sensorsBaseRange = LowVisibility.Config.SensorRangeUnknownType * 30.0f;
+            }
+        }
+
+        // TODO: Lash this into serialization
+        public void RefreshAfterSave(CombatGameState Combat) {
+            AbstractActor actor = Combat.FindActorByGUID(parentGUID);
+            SetSensorBaseRange(actor);
+            EWStateHelper.UpdateStaticState(this, actor);
         }
 
         public bool HasStealthRangeMod() {

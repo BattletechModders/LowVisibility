@@ -48,8 +48,8 @@ namespace LowVisibility.Patch {
                     }
                 }
 
-                VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
-                VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
+                //VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
+                //VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
             }
         }
     }
@@ -90,8 +90,8 @@ namespace LowVisibility.Patch {
 
             }
 
-            VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
-            VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
+            //VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
+            //VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
         }
     }
 

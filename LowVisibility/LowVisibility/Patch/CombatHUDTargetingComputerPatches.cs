@@ -131,12 +131,12 @@ namespace LowVisibility.Patch {
                 bool isPlayer = target.Combat.HostilityMatrix.IsLocalPlayerEnemy(target.Combat.LocalPlayerTeam.GUID);
 
                 if (!isPlayer && targetActor != null) {
-                    LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(target.Combat), targetActor);
+                    Locks lockState = State.LastActivatedLocksForTarget(target);
                     LowVisibility.Logger.LogIfTrace($" ~~~ OpFor Actor:{CombatantHelper.Label(target)} has lockState:{lockState}");
-                    if (lockState.sensorLockLevel >= DetectionLevel.WeaponAnalysis) {
+                    if (lockState.sensorLock >= SensorLockType.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
                         SetArmorDisplayActive(__instance, true);                            
-                    } else if (lockState.visionLockLevel == VisionLockType.VisualID || lockState.sensorLockLevel == DetectionLevel.SurfaceAnalysis) {
+                    } else if (lockState.visualLock == VisualLockType.VisualScan || lockState.sensorLock == SensorLockType.SurfaceAnalysis) {
                         // Update the weapons to show only ???
                         for (int i = 0; i < ___weaponNames.Count; i++) {
                             // Update ranged weapons

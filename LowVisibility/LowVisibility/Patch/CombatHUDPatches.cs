@@ -65,7 +65,8 @@ namespace LowVisibility.Patch {
             return AccessTools.Method(typeof(CombatHUDActorInfo), "UpdateItemVisibility", new Type[] { });
         }
 
-        public static void Postfix(CombatHUDActorInfo __instance, AbstractActor ___displayedActor, BattleTech.Building ___displayedBuilding, ICombatant ___displayedCombatant) {
+        public static void Postfix(CombatHUDActorInfo __instance, AbstractActor ___displayedActor, 
+            BattleTech.Building ___displayedBuilding, ICombatant ___displayedCombatant) {
 
             bool isEnemyOrNeutral = false;
             VisibilityLevel visibilityLevel = VisibilityLevel.None;            
@@ -87,12 +88,12 @@ namespace LowVisibility.Patch {
             Traverse setGOActiveMethod = Traverse.Create(__instance).Method("SetGOActive", new Type[] { typeof(MonoBehaviour), typeof(bool) });
             // The actual method should handle allied and friendly units fine, so we can just change it for enemies
             if (isEnemyOrNeutral && visibilityLevel > VisibilityLevel.Blip0Minimum && ___displayedActor != null) {
-                LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(___displayedActor.Combat), ___displayedActor);
+                Locks lockState = State.LastActivatedLocksForTarget(___displayedActor);
 
                 // Values that are always displayed
                 setGOActiveMethod.GetValue(__instance.NameDisplay, true);
 
-                if (lockState.sensorLockLevel >= DetectionLevel.StructureAnalysis) {
+                if (lockState.sensorLock >= SensorLockType.StructureAnalysis) {
                     // Show unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, true);
 
@@ -115,7 +116,7 @@ namespace LowVisibility.Patch {
                         setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                         setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                     }
-                } else if (lockState.sensorLockLevel >= DetectionLevel.SurfaceScan) {
+                } else if (lockState.sensorLock >= SensorLockType.SurfaceScan) {
                     // Show unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
@@ -133,7 +134,7 @@ namespace LowVisibility.Patch {
 
                     setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                     setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
-                } else if (lockState.visionLockLevel == VisionLockType.VisualID) {
+                } else if (lockState.visualLock == VisualLockType.VisualScan) {
                     // Hide unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
@@ -187,15 +188,15 @@ namespace LowVisibility.Patch {
 
             if (targetActor != null && __instance.DisplayedWeapon != null) {
                 //LowVisibility.Logger.LogIfDebug($"___CombatHUDTargetingComputer - SetHitChance for source:{CombatantHelper.Label(targetActor)} target:{CombatantHelper.Label(targetActor)}");
-                LockState lockState = GetUnifiedLockStateForTarget(actor, targetActor);
+                Locks lockState = State.LocksForTarget(actor, targetActor);
                 float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
                 EWState attackerEWConfig = State.GetEWState(actor);
 
-                if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
+                if (lockState.sensorLock == SensorLockType.NoInfo) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", LowVisibility.Config.VisionOnlyPenalty});
                 }
 
-                if (lockState.visionLockLevel == VisionLockType.None) {
+                if (lockState.visualLock == VisualLockType.None) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", LowVisibility.Config.SensorsOnlyPenalty });
                 }
                 
