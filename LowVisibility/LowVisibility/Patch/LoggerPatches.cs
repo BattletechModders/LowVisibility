@@ -23,11 +23,11 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(HBS.Logging.Logger __instance, LogLevel level, object message) {
-            string mess = message as string;
-            if (mess != null && mess.Contains("Dectected")) {
-                StackTrace st = new StackTrace(true);
-                LowVisibility.Logger.Log($"INTERCEPTED LOG:{mess} - ST:{st}");
-            }
+            //string mess = message as string;
+            //if (mess != null && mess.Contains("Dectected")) {
+            //    StackTrace st = new StackTrace(true);
+            //    LowVisibility.Logger.Log($"INTERCEPTED LOG:{mess} - ST:{st}");
+            //}
         }
 
     }

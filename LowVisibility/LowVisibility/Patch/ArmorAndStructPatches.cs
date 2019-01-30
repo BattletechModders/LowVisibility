@@ -15,11 +15,11 @@ namespace LowVisibility.Patches {
             Locks lockState = State.LastActivatedLocksForTarget(target);
             string armorText = null;
             string structText = null;
-            if (lockState.sensorLock >= SensorLockType.StructureAnalysis) {
+            if (lockState.sensorLock >= SensorScanType.StructureAnalysis) {
                 // See all values
                 armorText = armorHover.text;
                 structText = structHover.text;
-            } else if (lockState.visualLock == VisualLockType.VisualScan) {
+            } else if (lockState.visualLock == VisualScanType.VisualID) {
                 // See max armor, max struct                
                 string rawArmor = armorHover.text;
                 string maxArmor = rawArmor.Split('/')[1];

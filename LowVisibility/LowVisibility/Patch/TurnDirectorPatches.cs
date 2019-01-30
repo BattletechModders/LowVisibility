@@ -48,8 +48,6 @@ namespace LowVisibility.Patch {
                     }
                 }
 
-                //VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
-                //VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
             }
         }
     }
@@ -63,20 +61,13 @@ namespace LowVisibility.Patch {
         }
 
         public static void Prefix(TurnDirector __instance) {
-            LowVisibility.Logger.LogIfTrace("=== TurnDirector:BeginNewRound:post - entered.");
+            LowVisibility.Logger.Log("=== TurnDirector:BeginNewRound:post - entered.");
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
 
                 if (__instance.CurrentRound == 0) {
-                    if (LowVisibility.Config.FirstTurnForceFailedChecks) {
-                        LowVisibility.Logger.Log("=== TurnDirector:Forcing sensor checks to negative values for first round.");
-                        EWState state = State.GetEWState(actor);
-                        state.detailCheck = -15;
-                        state.rangeCheck = -15;
-                    } else {
-                        State.BuildEWState(actor);
-                    }
+                    State.BuildEWState(actor);                    
                 } else {
                     EWState ewState = State.GetEWState(actor);
                     ewState.UpdateChecks();
@@ -90,8 +81,6 @@ namespace LowVisibility.Patch {
 
             }
 
-            //VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
-            //VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
         }
     }
 

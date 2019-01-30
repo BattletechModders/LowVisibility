@@ -5,6 +5,7 @@ using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
+using System.Collections.Generic;
 using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patch {
@@ -16,39 +17,37 @@ namespace LowVisibility.Patch {
             variantName -> Mech.VariantName = MechDef.Chassis.VariantName -> AS7-D / TBT-5N
             fullname -> Mech.NickName = MechDef.Description.Name -> Atlas II AS7-D-HT or Atlas AS7-D / Trebuchet
         */
-        public static Text GetDetectionLabel(VisibilityLevel visLevel, Locks lockState, VisibilityLevel blipLevel,
+        public static Text GetDetectionLabel(ICombatant target, VisibilityLevel visLevel, 
             string fullName, string variantName, string chassisName, string type, float tonnage) {
 
-            Text response = new Text("?");
+            Text label = new Text("?");
 
             if (visLevel == VisibilityLevel.LOSFull) {
-                // HBS: Full details
-                if (lockState.sensorLock >= SensorLockType.StructureAnalysis) {
-                    response = new Text($"{fullName}");
-                } else if (lockState.sensorLock >= SensorLockType.WeaponAnalysis) {
-                    response = new Text($"{chassisName} {variantName}");
-                } else if (lockState.sensorLock >= SensorLockType.Silhouette) {
-                    response = new Text($"{chassisName} {tonnage}");
+                List<Locks> allLocks = State.TeamLocksForTarget(target);
+                AggregateLocks locks = AggregateLocks.Aggregate(allLocks);
+                if (locks.sensorLock >= SensorScanType.DeepScan) {
+                    label = new Text($"{fullName}");
+                } else if (locks.sensorLock >= SensorScanType.SurfaceAnalysis|| locks.visualLock >= VisualScanType.VisualID) {
+                    label = new Text($"{chassisName} {variantName} ({tonnage}t)");
                 } else {
-                    response = new Text($"{chassisName}");
+                    // Silhouette or better
+                    label = new Text($"{chassisName} ?");
                 }
-            } else if (visLevel >= VisibilityLevel.Blip4Maximum) {
-                // HBS: Type only
-                // US: DetectionLevel.Silhouette
-                response = new Text($"{chassisName} - {tonnage}t");
-            } else if (visLevel >= VisibilityLevel.Blip1Type) {
-                // US: DetectionLevel.Type
-                response = new Text($"{type} - {tonnage}t");
-            } else if (visLevel >= VisibilityLevel.Blip0Minimum) {
-                // US: DetectionLevel.Location
-                response = new Text($"???");
+            } else if (visLevel == VisibilityLevel.Blip4Maximum) {
+                label = new Text($"{fullName}");
+            } else if (visLevel == VisibilityLevel.Blip1Type) {
+                label = new Text($"{chassisName} {variantName} ({tonnage}t)");
+            } else if (visLevel == VisibilityLevel.Blip0Minimum) {
+                label = new Text($"{chassisName}");
+            } else if (visLevel == VisibilityLevel.BlobSmall) {
+                label = new Text($"{type}");
             } else {
-                // HBS: ? only
-                // US: Nothing
-                response = new Text($"?");                
+                label = new Text($"?");
             }
 
-            return response;
+            LowVisibility.Logger.LogIfDebug($"GetDetectionLabel - label:({label}) for visLevel:{visLevel} " +
+                $"chassisName:({chassisName}) variantName:({variantName}) fullName:({fullName}) type:({type}) tonnage:{tonnage}t");
+            return label;
         }
     }
 
@@ -58,7 +57,6 @@ namespace LowVisibility.Patch {
     public static class Mech_GetActorInfoFromVisLevel {
 
         public static void Postfix(Mech __instance, ref Text __result, VisibilityLevel visLevel) {
-            //KnowYourFoe.Logger.Log("Mech:GetActorInfoFromVisLevel:post - entered.");
             if (__instance == null || State.EWState.Count == 0) { return; }
 
             /*
@@ -67,21 +65,12 @@ namespace LowVisibility.Patch {
                 Mech.NickName = MechDef.Description.Name -> Atlas II AS7-D-HT or Atlas AS7-D / Trebuchet
             */
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
-                // TODO: This should be a unified view across the players
-                Locks lockState = State.LastActivatedLocksForTarget(__instance);
-
                 string chassisName = __instance.UnitName;
                 string variantName = __instance.VariantName;
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.MechDef.Chassis.Tonnage;
 
-                //VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
-                // TODO: FIXME
-                VisibilityLevel blipLevel = VisibilityLevel.Blip1Type;
-                Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "MECH", tonnage);
-                LowVisibility.Logger.LogIfDebug($"Mech:GetActorInfoFromVisLevel:post - response:({response}) for " +
-                    $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName}) " +
-                    $"for visLevel:{visLevel} and lockState:{lockState}");
+                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel,fullName, variantName, chassisName, "MECH", tonnage);
                 __result = response;
             }
         }
@@ -91,32 +80,20 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(new Type[] { typeof(VisibilityLevel) })]
     public static class Turret_GetActorInfoFromVisLevel {
         public static void Postfix(Turret __instance, ref Text __result, VisibilityLevel visLevel) {
-            //KnowYourFoe.Logger.Log("Turret:GetActorInfoFromVisLevel:post - entered.");
             if (__instance == null || State.EWState.Count == 0) { return; }
 
             /*
                 Turret.UnitName = return (this.TurretDef == null) ? "UNDEFINED" : this.TurretDef.Chassis.Description.Name ->
-
                 Turret.VariantName = string.Empty -> ""
                 Turret.NickName = (this.TurretDef == null) ? "UNDEFINED" : this.TurretDef.Description.Name ->
-
             */
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
-                // TODO: This should be a unified view across the players
-                Locks lockState = State.LastActivatedLocksForTarget(__instance);
-
                 string chassisName = __instance.UnitName;
                 string variantName = __instance.VariantName;
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.TurretDef.Chassis.Tonnage;
 
-                //VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
-                // TODO: FIXME
-                VisibilityLevel blipLevel = VisibilityLevel.Blip1Type;
-                Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "TURRET", tonnage);
-                LowVisibility.Logger.Log($"Turret:GetActorInfoFromVisLevel:post - response:({response}) for " +
-                    $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName}) " +
-                    $"for visLevel:{visLevel} and lockState:{lockState}");
+                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel, fullName, variantName, chassisName, "TURRET", tonnage);
                 __result = response;
             }
         }
@@ -126,7 +103,6 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(new Type[] { typeof(VisibilityLevel) })]
     public static class Vehicle_GetActorInfoFromVisLevel {
         public static void Postfix(Vehicle __instance, ref Text __result, VisibilityLevel visLevel) {
-            //KnowYourFoe.Logger.Log("Vehicle:GetActorInfoFromVisLevel:post - entered.");
             if (__instance == null || State.EWState.Count == 0) { return; };
 
             /*
@@ -139,21 +115,12 @@ namespace LowVisibility.Patch {
                         / / vehicledef_DEMOLISHER-II / vehicledef_GALLEON_GAL102
             */
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
-                // TODO: This should be a unified view across the players
-                Locks lockState = State.LastActivatedLocksForTarget(__instance);
-
                 string chassisName = __instance.UnitName;
                 string variantName = __instance.VariantName;
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.VehicleDef.Chassis.Tonnage;
 
-                //VisibilityLevel blipLevel = ActorHelper.VisibilityLevelByTactics(__instance.GetPilot().Tactics);
-                // TODO: FIXME
-                VisibilityLevel blipLevel = VisibilityLevel.Blip1Type;
-                Text response = CombatNameHelper.GetDetectionLabel(visLevel, lockState, blipLevel, fullName, variantName, chassisName, "VEHICLE", tonnage);
-                LowVisibility.Logger.Log($"Vehicle:GetActorInfoFromVisLevel:post - response:({response}) for " +
-                    $"fullName:({__instance.Nickname}), variantName:({__instance.VariantName}), unitName:({__instance.UnitName}) " +
-                    $"for visLevel:{visLevel} and lockState:{lockState}");
+                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel, fullName, variantName, chassisName, "VEHICLE", tonnage);
                 __result = response;
             }
         }
@@ -173,7 +140,7 @@ namespace LowVisibility.Patch {
                 bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                 if (!isPlayer) {
                     Locks lockState = State.LastActivatedLocksForTarget(target);
-                    if (lockState.sensorLock < SensorLockType.DeepScan) {
+                    if (lockState.sensorLock < SensorScanType.DeepScan) {
                         ___ToolTip.BuffStrings.Clear();
                     } else {
                         //KnowYourFoe.Logger.LogIfDebug($"CombatHUDMechTrayArmorHover:OnPointerEnter:post - components should be shown for actor:{target.DisplayName}_{target.GetPilot().Name}");
@@ -196,7 +163,7 @@ namespace LowVisibility.Patch {
                 bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
                 if (!isPlayer) {
                     Locks lockState = State.LastActivatedLocksForTarget(target);
-                    if (lockState.sensorLock < SensorLockType.DeepScan) {
+                    if (lockState.sensorLock < SensorScanType.DeepScan) {
                         //KnowYourFoe.Logger.LogIfDebug($"CombatHUDMechTrayArmorHover:OnPointerEnter:post - components should be hidden for actor:{target.DisplayName}_{target.GetPilot().Name}");
                         ___ToolTip.BuffStrings.Clear();
                     } else {
@@ -216,8 +183,10 @@ namespace LowVisibility.Patch {
             if (___displayedActor != null && State.LastPlayerActor != null && State.TurnDirectorStarted &&
                 (HostilityHelper.IsLocalPlayerEnemy(___displayedActor) || HostilityHelper.IsLocalPlayerNeutral(___displayedActor))) {
                 Locks lockState = State.LastActivatedLocksForTarget(___displayedActor);
-                if (lockState != null && lockState.sensorLock < SensorLockType.DentalRecords) {
+                if (lockState?.sensorLock < SensorScanType.DentalRecords) {
                     __instance.PilotNameText.SetText("Unidentified Pilot");
+                } else if (lockState?.sensorLock >= SensorScanType.DentalRecords) {
+                    __instance.PilotNameText.SetText(___displayedActor.GetPilot().Name);
                 }
             }
         }

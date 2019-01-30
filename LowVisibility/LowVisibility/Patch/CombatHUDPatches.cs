@@ -93,7 +93,7 @@ namespace LowVisibility.Patch {
                 // Values that are always displayed
                 setGOActiveMethod.GetValue(__instance.NameDisplay, true);
 
-                if (lockState.sensorLock >= SensorLockType.StructureAnalysis) {
+                if (lockState.sensorLock >= SensorScanType.StructureAnalysis) {
                     // Show unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, true);
 
@@ -116,7 +116,7 @@ namespace LowVisibility.Patch {
                         setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                         setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                     }
-                } else if (lockState.sensorLock >= SensorLockType.SurfaceScan) {
+                } else if (lockState.sensorLock >= SensorScanType.SurfaceScan) {
                     // Show unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
@@ -134,7 +134,7 @@ namespace LowVisibility.Patch {
 
                     setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                     setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
-                } else if (lockState.visualLock == VisualLockType.VisualScan) {
+                } else if (lockState.visualLock == VisualScanType.VisualID) {
                     // Hide unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
@@ -192,11 +192,11 @@ namespace LowVisibility.Patch {
                 float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
                 EWState attackerEWConfig = State.GetEWState(actor);
 
-                if (lockState.sensorLock == SensorLockType.NoInfo) {
+                if (lockState.sensorLock == SensorScanType.NoInfo) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", LowVisibility.Config.VisionOnlyPenalty});
                 }
 
-                if (lockState.visualLock == VisualLockType.None) {
+                if (lockState.visualLock == VisualScanType.None) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", LowVisibility.Config.SensorsOnlyPenalty });
                 }
                 

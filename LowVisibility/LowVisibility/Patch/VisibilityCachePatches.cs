@@ -10,7 +10,6 @@ namespace LowVisibility.Patch {
     public static class VisibilityCache_CanDetectPositionNonCached {
 
         public static void Postfix(VisibilityCache __instance, bool __result, Vector3 worldPos, AbstractActor target) {
-            LowVisibility.Logger.Log($"VC_CDPNC: entered");
             AbstractActor owningActor = (AbstractActor) Traverse.Create(__instance).Property("OwningActor").GetValue();
             LowVisibility.Logger.Log($"VC_CDPNC: source{CombatantHelper.Label(owningActor)} checking detection " +
                 $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
@@ -21,7 +20,6 @@ namespace LowVisibility.Patch {
     public static class VisibilityCache_CanSeeTargetAtPositionNonCached {
 
         public static void Postfix(VisibilityCache __instance, bool __result, Vector3 worldPos, AbstractActor target) {
-            LowVisibility.Logger.Log($"VC_CSTAPNC: entered");
             AbstractActor owningActor = (AbstractActor)Traverse.Create(__instance).Property("OwningActor").GetValue();
             LowVisibility.Logger.Log($"VC_CSTAPNC: source{CombatantHelper.Label(owningActor)} checking vision" +
                 $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
@@ -32,23 +30,23 @@ namespace LowVisibility.Patch {
     public static class VisibilityCache_UpdateCacheReciprocal {
 
         public static void Postfix(VisibilityCache __instance, List<ICombatant> allCombatants) {
-            LowVisibility.Logger.Log($"VC_UCR: entered");
             AbstractActor owningActor = (AbstractActor)Traverse.Create(__instance).Property("OwningActor").GetValue();
 
-            LowVisibility.Logger.Log($"VC_UCR: source{CombatantHelper.Label(owningActor)} updating vision to combatants");
-            foreach (ICombatant combatant in allCombatants) {
-                LowVisibility.Logger.Log($"  -- target:{CombatantHelper.Label(combatant)}");
-            }
+            //LowVisibility.Logger.Log($"VC_UCR: source{CombatantHelper.Label(owningActor)} updating vision to combatants");
+            //foreach (ICombatant combatant in allCombatants) {
+            //    LowVisibility.Logger.Log($"  -- target:{CombatantHelper.Label(combatant)}");
+            //}
         }
     }
 
     [HarmonyPatch(typeof(VisibilityCache), "CalcVisValueToTarget")]
     public static class VisibilityCache_CalcVisValueToTarget {
 
-        public static void Postfix(VisibilityCache __instance, ICombatant target) {
-            LowVisibility.Logger.Log($"VC_CVVTT: entered");
+        public static void Postfix(VisibilityCache __instance, VisibilityLevelAndAttribution __result, ICombatant target) {
             AbstractActor owningActor = (AbstractActor)Traverse.Create(__instance).Property("OwningActor").GetValue();
-            LowVisibility.Logger.Log($"VC_CVVTT: source{CombatantHelper.Label(owningActor)} updating vision to target:{CombatantHelper.Label(target)}");
+            LowVisibility.Logger.Log($"VC_CVVTT: source{CombatantHelper.Label(owningActor)} updating vision to " +
+                $"target:{CombatantHelper.Label(target)} with " +
+                $"result:{__result.VisibilityLevel}/{__result.LineOfFireLevel}/{__result.LineOfFireCollision}");
         }
     }
 
@@ -65,7 +63,7 @@ namespace LowVisibility.Patch {
     public static class SharedVisibilityCache_CanSeeTargetAtPositionNonCached {
 
         public static void Postfix(SharedVisibilityCache __instance, bool __result, Vector3 worldPos, AbstractActor target) {            
-            LowVisibility.Logger.Log($"SVC_CSTAPNC: shared cache checking vision" +
+            LowVisibility.Logger.Log($"SVC_CSTAPNC: shared cache checking vision " +
                 $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
         }
     }

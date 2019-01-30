@@ -16,17 +16,13 @@ namespace LowVisibility.Patch {
                 return;
             }
 
+            ECMHelper.UpdateECMState(__instance);
+
             //VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
 
             LowVisibility.Logger.LogIfTrace($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantHelper.Label(__instance)}");
-            bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
-            if (isPlayer) {
-                State.LastPlayerActor = __instance.GUID;
-                //
-            } else {
-                // TODO: Update enemies and allies
-                ECMHelper.UpdateECMState(__instance);
-                //VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
+            if (__instance.team == __instance.Combat.LocalPlayerTeam) {
+                State.LastPlayerActor = __instance.GUID;             
             }
         }
     }
@@ -35,8 +31,12 @@ namespace LowVisibility.Patch {
     public static class CombatSelectionHandler_TrySelectActor {
         public static void Postfix(CombatSelectionHandler __instance, bool __result, AbstractActor actor, bool manualSelection) {
             LowVisibility.Logger.LogIfDebug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {CombatantHelper.Label(actor)}.");
-            if (__instance != null && actor != null && __result == true) {
+            if (__instance != null && actor != null && __result == true && actor.IsAvailableThisPhase) {
                 ECMHelper.UpdateECMState(actor);
+                if (actor.team == actor.Combat.LocalPlayerTeam) {
+                    State.LastPlayerActor = actor.GUID;
+                }
+
                 //VisibilityHelper.UpdateDetectionForAllActors(actor.Combat);
                 //VisibilityHelper.UpdateVisibilityforPlayer(actor);
 

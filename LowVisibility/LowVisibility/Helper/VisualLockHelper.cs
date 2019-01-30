@@ -126,7 +126,7 @@ namespace LowVisibility.Helper {
         // Determines if a source has visual lock to a target from a given position. Because units have differnet positions, check all of them.
         //  Typically from head-to-head for mechs, but buildings have multiple positions.
         // TODO: Refactor to eliminate need for LoS instance - put Getter funcs into a helper
-        public static VisualLockType CalculateVisualLock(AbstractActor source, Vector3 sourcePos,
+        public static VisualScanType CalculateVisualLock(AbstractActor source, Vector3 sourcePos,
                 ICombatant target, Vector3 targetPos, Quaternion targetRot, LineOfSight los) {
             
             float spottingRangeVsTarget = VisualLockHelper.GetAdjustedSpotterRange(source, target);
@@ -138,7 +138,7 @@ namespace LowVisibility.Helper {
             forward.y = 0f;
             Quaternion rotation = Quaternion.LookRotation(forward);
 
-            VisualLockType visualLock = VisualLockType.None;
+            VisualScanType visualLock = VisualScanType.None;
             if (distance <= spottingRangeVsTarget) {
                 Vector3[] lossourcePositions = source.GetLOSSourcePositions(sourcePos, rotation);
                 Vector3[] lostargetPositions = target.GetLOSTargetPositions(targetPos, targetRot);
@@ -146,12 +146,12 @@ namespace LowVisibility.Helper {
                     for (int j = 0; j < lostargetPositions.Length; j++) {
                         // If you can visually spot the target, you immediately have detection on then
                         if (los.HasLineOfSight(lossourcePositions[i], lostargetPositions[j], spottingRangeVsTarget, target.GUID)) {
-                            visualLock = distance <= visualScanRange ? VisualLockType.VisualScan : VisualLockType.Silhouette;
+                            visualLock = distance <= visualScanRange ? VisualScanType.VisualID : VisualScanType.Silhouette;
                             break;
                         }
                     }
 
-                    if (visualLock != VisualLockType.None) {
+                    if (visualLock != VisualScanType.None) {
                         break;
                     }
                 }

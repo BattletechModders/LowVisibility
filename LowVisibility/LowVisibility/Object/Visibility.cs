@@ -1,24 +1,25 @@
 ﻿
 using BattleTech;
+using System.Collections.Generic;
 
 namespace LowVisibility.Object {
  
     public class Locks {
         public string sourceGUID;
         public string targetGUID;
-        public VisualLockType visualLock;
-        public SensorLockType sensorLock;
+        public VisualScanType visualLock;
+        public SensorScanType sensorLock;
 
         public Locks() { }
 
         public Locks(AbstractActor source, ICombatant target) {
             this.sourceGUID = source.GUID;
             this.targetGUID = target.GUID;
-            this.visualLock = VisualLockType.None;
-            this.sensorLock = SensorLockType.NoInfo;
+            this.visualLock = VisualScanType.None;
+            this.sensorLock = SensorScanType.NoInfo;
         }
 
-        public Locks(AbstractActor source, ICombatant target, VisualLockType visualLock, SensorLockType sensorLock) {
+        public Locks(AbstractActor source, ICombatant target, VisualScanType visualLock, SensorScanType sensorLock) {
             this.sourceGUID = source.GUID;
             this.targetGUID = target.GUID;
             this.visualLock = visualLock;
@@ -37,32 +38,55 @@ namespace LowVisibility.Object {
         }
     }
 
+    public class AggregateLocks {
+        public string targetGUID;
+        public VisualScanType visualLock;
+        public SensorScanType sensorLock;
+
+        public AggregateLocks() { }
+
+        public static AggregateLocks Aggregate(List<Locks> allLocks) {
+            AggregateLocks aggregatedLocks = new AggregateLocks();
+            foreach (Locks locks in allLocks) {
+                if (locks.visualLock > aggregatedLocks.visualLock) {
+                    aggregatedLocks.visualLock = locks.visualLock;
+                    aggregatedLocks.targetGUID = locks.targetGUID;
+                }
+                if (locks.sensorLock > aggregatedLocks.sensorLock) {
+                    aggregatedLocks.sensorLock = locks.sensorLock;
+                    aggregatedLocks.targetGUID = locks.targetGUID;
+                }
+            }
+            return aggregatedLocks;
+        }
+    }
+
     // TODO: Update visionLockType to use same detectionLevel scheme as below
-    public enum VisualLockType {
+    public enum VisualScanType {
         None,
         Silhouette,
-        VisualScan
+        VisualID
     }
 
     static class VisualLockTypeExtensions {
-        public static string Label(this VisualLockType visualLock) {
+        public static string Label(this VisualScanType visualLock) {
             switch (visualLock) {
-                case VisualLockType.Silhouette:
+                case VisualScanType.Silhouette:
                     return "Silhouette";
-                case VisualLockType.VisualScan:
-                    return "Visual Scan";
-                case VisualLockType.None:
+                case VisualScanType.VisualID:
+                    return "Visual ID";
+                case VisualScanType.None:
                 default:
                     return "No Lock";                
             }
         }
 
-        public static VisibilityLevel Visibility(this VisualLockType level) {
+        public static VisibilityLevel Visibility(this VisualScanType level) {
             switch (level) {
-                case VisualLockType.Silhouette:
-                case VisualLockType.VisualScan:
+                case VisualScanType.Silhouette:
+                case VisualScanType.VisualID:
                     return VisibilityLevel.LOSFull;
-                case VisualLockType.None:
+                case VisualScanType.None:
                 default:
                     return VisibilityLevel.None;
             }
@@ -70,7 +94,7 @@ namespace LowVisibility.Object {
 
     }
 
-    public enum SensorLockType {
+    public enum SensorScanType {
         NoInfo,
         Location,
         Type,
@@ -85,51 +109,52 @@ namespace LowVisibility.Object {
     }
 
     static class SensorLockTypeExtensions {
-        public static string Label(this SensorLockType level) {
+        public static string Label(this SensorScanType level) {
             switch (level) {
-                case SensorLockType.NoInfo:
+                case SensorScanType.NoInfo:
                     return "No Info";
-                case SensorLockType.Location:
+                case SensorScanType.Location:
                     return "Location";
-                case SensorLockType.Type:
+                case SensorScanType.Type:
                     return "Type";
-                case SensorLockType.Silhouette:
+                case SensorScanType.Silhouette:
                     return "Silhouettte";
-                case SensorLockType.Vector:
+                case SensorScanType.Vector:
                     return "Vector";
-                case SensorLockType.SurfaceScan:
+                case SensorScanType.SurfaceScan:
                     return "SurfaceScan";
-                case SensorLockType.SurfaceAnalysis:
+                case SensorScanType.SurfaceAnalysis:
                     return "SurfaceAnalysis";
-                case SensorLockType.WeaponAnalysis:
+                case SensorScanType.WeaponAnalysis:
                     return "WeaponsAnalysis";
-                case SensorLockType.StructureAnalysis:
+                case SensorScanType.StructureAnalysis:
                     return "StructureAnalysis";
-                case SensorLockType.DeepScan:
+                case SensorScanType.DeepScan:
                     return "DeepScan";
-                case SensorLockType.DentalRecords:
+                case SensorScanType.DentalRecords:
                     return "DentalRecords";
                 default:
                     return "Unknown";
             }
         }
 
-        public static VisibilityLevel Visibility(this SensorLockType level) {
+        public static VisibilityLevel Visibility(this SensorScanType level) {
             switch (level) {
-                case SensorLockType.Location:
+                case SensorScanType.Location:
+                case SensorScanType.Type:
+                    return VisibilityLevel.BlobSmall;
+                case SensorScanType.Silhouette:                    
+                case SensorScanType.Vector:
                     return VisibilityLevel.Blip0Minimum;
-                case SensorLockType.Type:
-                case SensorLockType.Silhouette:
-                case SensorLockType.Vector:
+                case SensorScanType.SurfaceScan:
+                case SensorScanType.SurfaceAnalysis:
+                case SensorScanType.WeaponAnalysis:
+                case SensorScanType.StructureAnalysis:
                     return VisibilityLevel.Blip1Type;
-                case SensorLockType.SurfaceScan:
-                case SensorLockType.SurfaceAnalysis:
-                case SensorLockType.WeaponAnalysis:
-                case SensorLockType.StructureAnalysis:
-                case SensorLockType.DeepScan:
-                case SensorLockType.DentalRecords:
+                case SensorScanType.DeepScan:
+                case SensorScanType.DentalRecords:
                     return VisibilityLevel.Blip4Maximum;
-                case SensorLockType.NoInfo:
+                case SensorScanType.NoInfo:
                 default:
                     return VisibilityLevel.None;
             }

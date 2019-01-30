@@ -33,17 +33,17 @@ namespace LowVisibility.Patch {
                     if (!isPlayer) {                        
                         Locks lockState = State.LastActivatedLocksForTarget(target);
 
-                        if (lockState.sensorLock < SensorLockType.Vector) {
+                        if (lockState.sensorLock < SensorScanType.Vector) {
                             //// Hide the evasive indicator, hide the buffs and debuffs
                             //Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
                             //hideEvasionIndicatorMethod.GetValue();
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        } else if (lockState.sensorLock < SensorLockType.StructureAnalysis) {
+                        } else if (lockState.sensorLock < SensorScanType.StructureAnalysis) {
                             // Hide the buffs and debuffs
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        } else if (lockState.sensorLock >= SensorLockType.StructureAnalysis) {
+                        } else if (lockState.sensorLock >= SensorScanType.StructureAnalysis) {
                             // Do nothing; normal state
                         }
                     }
@@ -152,7 +152,7 @@ namespace LowVisibility.Patch {
                 sensorDetails.Add($" = <color=#FF0000>x{rangeMulti:0.00}</color>");
             }
 
-            sensorDetails.Add("]\n");
+            sensorDetails.Add("\n");
 
             // Sensor Info below
             int checkResult = ewState.detailCheck;
@@ -190,13 +190,13 @@ namespace LowVisibility.Patch {
             sensorDetails.Add("\n");
 
             // Sensor range
-            SensorLockType checkLevel = SensorLockType.NoInfo;
-            if (checkLevel > SensorLockType.DentalRecords) {
-                checkLevel = SensorLockType.DentalRecords;
-            } else if (checkLevel < SensorLockType.NoInfo) {
-                checkLevel = SensorLockType.NoInfo;
+            SensorScanType checkLevel = SensorScanType.NoInfo;
+            if (checkLevel > SensorScanType.DentalRecords) {
+                checkLevel = SensorScanType.DentalRecords;
+            } else if (checkLevel < SensorScanType.NoInfo) {
+                checkLevel = SensorScanType.NoInfo;
             } else {
-                checkLevel = (SensorLockType)checkResult;
+                checkLevel = (SensorScanType)checkResult;
             }
             details.Add($"Sensors Lock:{sensorsRange:0}m Info:[{checkLevel.Label()}]\n");
             details.AddRange(sensorDetails);

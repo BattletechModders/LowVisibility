@@ -38,28 +38,28 @@ namespace LowVisibility.Helper {
             Locks newLockState = new Locks {
                 sourceGUID = source.GUID,
                 targetGUID = target.GUID,
-                visualLock = VisualLockType.None,
-                sensorLock = SensorLockType.NoInfo,
+                visualLock = VisualScanType.None,
+                sensorLock = SensorScanType.NoInfo,
             };
 
             LowVisibility.Logger.LogIfTrace($"Calculating Lock {CombatantHelper.Label(source)} ==> {CombatantHelper.Label(target)}");
 
             if (source.IsDead || source.IsFlaggedForDeath || source.IsTeleportedOffScreen || target.IsTeleportedOffScreen) {
                 // If we're dead, we can't have vision or sensors. If we're off the map, we can't either. If the target is off the map, we can't see it.
-                newLockState.visualLock = VisualLockType.None;
-                newLockState.sensorLock = SensorLockType.NoInfo;
+                newLockState.visualLock = VisualScanType.None;
+                newLockState.sensorLock = SensorScanType.NoInfo;
                 LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} is dead or dying. Forcing no visibility.");
                 return newLockState;
             } else if (target.IsDead || target.IsFlaggedForDeath) {
                 // If the target is dead, we can't have sensor but we have vision 
-                newLockState.visualLock = VisualLockType.Silhouette;
-                newLockState.sensorLock = SensorLockType.NoInfo;
+                newLockState.visualLock = VisualScanType.Silhouette;
+                newLockState.sensorLock = SensorScanType.NoInfo;
                 LowVisibility.Logger.LogIfTrace($"  -- target:{CombatantHelper.Label(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
                 return newLockState;
             } else if (source.GUID == target.GUID || source.Combat.HostilityMatrix.IsFriendly(source.TeamId, target.TeamId)) {
                 // If they are us, or allied, automatically give full vision
-                newLockState.visualLock = VisualLockType.VisualScan;
-                newLockState.sensorLock = SensorLockType.DentalRecords;
+                newLockState.visualLock = VisualScanType.VisualID;
+                newLockState.sensorLock = SensorScanType.DentalRecords;
                 LowVisibility.Logger.LogIfDebug($"  -- source:{CombatantHelper.Label(source)} is friendly to target:{CombatantHelper.Label(target)}. Forcing full visibility.");
                 return newLockState;
             } 
@@ -69,7 +69,7 @@ namespace LowVisibility.Helper {
 
             // If we have LOS to the target, we at least have their silhouette
             if (visLevelAndAttrib.VisibilityLevel == VisibilityLevel.LOSFull) {
-                newLockState.visualLock = VisualLockType.Silhouette;
+                newLockState.visualLock = VisualScanType.Silhouette;
             }
 
             float distance = Vector3.Distance(source.CurrentPosition, target.CurrentPosition);
@@ -82,7 +82,7 @@ namespace LowVisibility.Helper {
                 targetModifiedScanRange = LowVisibility.Config.MinimumVisionRange();
             }
 
-            if (distance <= targetModifiedScanRange) { newLockState.visualLock = VisualLockType.VisualScan; }
+            if (distance <= targetModifiedScanRange) { newLockState.visualLock = VisualScanType.VisualID; }
 
             // TODO: Check for failed visual lock and adjust appropriately. Requires visionLockLevel to change to DetectionLevel
             LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} has visualLockRange:{targetModifiedScanRange} and is distance:{distance} " +
@@ -439,14 +439,14 @@ namespace LowVisibility.Helper {
         //    return visibilityLevel;
         //}
 
-        private static VisibilityLevel VisibilityFromSensorLock(SensorLockType sensorLockLevel) {
+        private static VisibilityLevel VisibilityFromSensorLock(SensorScanType sensorLockLevel) {
             VisibilityLevel visibilityLevel = VisibilityLevel.None;
 
-            if (sensorLockLevel >= SensorLockType.Silhouette) {
+            if (sensorLockLevel >= SensorScanType.Silhouette) {
                 visibilityLevel = VisibilityLevel.Blip4Maximum;
-            } else if (sensorLockLevel >= SensorLockType.Type) {
+            } else if (sensorLockLevel >= SensorScanType.Type) {
                 visibilityLevel = VisibilityLevel.Blip1Type;
-            } else if (sensorLockLevel >= SensorLockType.Location) {
+            } else if (sensorLockLevel >= SensorScanType.Location) {
                 visibilityLevel = VisibilityLevel.Blip0Minimum;
             } 
 

@@ -9,10 +9,8 @@ namespace LowVisibility.Patch {
         // Perform visibility updates at this point, after the unit has spawned and has been added to a team.
         public static void Postfix(UnitSpawnPointGameLogic __instance, Mech __result) {
 
-            LowVisibility.Logger.LogIfDebug($"SpawnMech:post - entered for {CombatantHelper.Label(__result)}.");
+            LowVisibility.Logger.LogIfDebug($"=== SpawnMech entered for {CombatantHelper.Label(__result)}.");
             ECMHelper.UpdateECMState(__result);
-            //VisibilityHelper.UpdateDetectionForAllActors(__result.Combat);
-            //VisibilityHelper.UpdateVisibilityForAllTeams(__result.Combat);
         }
     }
 
@@ -22,10 +20,8 @@ namespace LowVisibility.Patch {
         // Perform visibility updates at this point, after the unit has spawned and has been added to a team.
         public static void Postfix(UnitSpawnPointGameLogic __instance, Vehicle __result) {
 
-            LowVisibility.Logger.LogIfDebug($"SpawnMech:post - entered for {CombatantHelper.Label(__result)}.");
+            LowVisibility.Logger.LogIfDebug($"=== SpawnVehicle entered for {CombatantHelper.Label(__result)}.");
             ECMHelper.UpdateECMState(__result);
-            //VisibilityHelper.UpdateDetectionForAllActors(__result.Combat);
-            //VisibilityHelper.UpdateVisibilityForAllTeams(__result.Combat);
         }
     }
 
@@ -35,10 +31,8 @@ namespace LowVisibility.Patch {
         // Perform visibility updates at this point, after the unit has spawned and has been added to a team.
         public static void Postfix(UnitSpawnPointGameLogic __instance, Turret __result) {
 
-            LowVisibility.Logger.LogIfDebug($"SpawnMech:post - entered for {CombatantHelper.Label(__result)}.");
+            LowVisibility.Logger.LogIfDebug($"=== SpawnTurret entered for {CombatantHelper.Label(__result)}.");
             ECMHelper.UpdateECMState(__result);
-            //VisibilityHelper.UpdateDetectionForAllActors(__result.Combat);
-            //VisibilityHelper.UpdateVisibilityForAllTeams(__result.Combat);
         }
     }
 }

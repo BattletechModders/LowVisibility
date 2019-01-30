@@ -88,7 +88,7 @@ namespace LowVisibility {
                 locks[target.GUID] : new Locks(State.GetLastPlayerActivatedActor(target.Combat), target);
         }
 
-        public static void UpdateActorLocks(AbstractActor source, ICombatant target, VisualLockType visualLock, SensorLockType sensorLock) {
+        public static void UpdateActorLocks(AbstractActor source, ICombatant target, VisualScanType visualLock, SensorScanType sensorLock) {
             if (source != null && target != null) {
                 Locks newLocks = new Locks(source, target, visualLock, sensorLock);
                 if (PlayerActorLocks.ContainsKey(source.GUID)) {
@@ -112,10 +112,22 @@ namespace LowVisibility {
             return locks ?? new Locks(attacker, target);
         }
 
+        public static List<Locks> TeamLocksForTarget(ICombatant target) {
+            List<Locks> allTargetLocks = new List<Locks>();
+            if (State.PlayerActorLocks != null && State.PlayerActorLocks.Count > 0) {
+                allTargetLocks = State.PlayerActorLocks
+                    .Select(pal => pal.Value)
+                    .Where(pald => pald != null && pald.ContainsKey(target.GUID))
+                    .Select(pald => pald[target.GUID])
+                    .ToList();                    
+            }
+            return allTargetLocks;
+        }
+
         // --- Methods manipulating EWState
         public static EWState GetEWState(AbstractActor actor) {
             if (!EWState.ContainsKey(actor.GUID)) {
-                LowVisibility.Logger.Log($"WARNING: StaticEWState for actor:{actor.GUID} was not found. Creating!");
+                LowVisibility.Logger.Log($"WARNING: StaticEWState for actor:{CombatantHelper.Label(actor)} was not found. Creating!");
                 BuildEWState(actor);
             }
             return EWState[actor.GUID];

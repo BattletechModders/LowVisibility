@@ -63,23 +63,24 @@ namespace LowVisibility.Patch {
         public static bool Prefix(LineOfSight __instance, ref VisibilityLevel __result, 
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation) {
             // Skip if we aren't ready to process 
+            // TODO: Remove to handle buildings here
             if (State.TurnDirectorStarted == false || (target as AbstractActor) == null) { return true;  }
 
             //LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - entered. ");
-            LowVisibility.Logger.Log($"LOS:GVTTWPAR: source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
+            //LowVisibility.Logger.Log($"LOS:GVTTWPAR: source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");            
 
             AbstractActor sourceActor = source as AbstractActor;
             AbstractActor targetActor = target as AbstractActor;
             
             // TODO: Handle buildings here
-            VisualLockType visualLock = VisualLockHelper.CalculateVisualLock(sourceActor, sourcePosition, 
+            VisualScanType visualLock = VisualLockHelper.CalculateVisualLock(sourceActor, sourcePosition, 
                 targetActor, targetPosition, targetRotation, __instance);
             VisibilityLevel visualVisibility = visualLock.Visibility();
 
-            SensorLockType sensorLock = SensorLockHelper.CalculateSensorLock(sourceActor, sourcePosition,
+            SensorScanType sensorLock = SensorLockHelper.CalculateSensorLock(sourceActor, sourcePosition,
                 targetActor, targetPosition);
             VisibilityLevel sensorsVisibility = sensorLock.Visibility();
-            LowVisibility.Logger.Log($"  visualLock:{visualLock} visualVis:{visualVisibility} sensorLock:{sensorLock} sensorVis:{sensorsVisibility}");
+            //LowVisibility.Logger.Log($"  visualLock:{visualLock} visualVis:{visualVisibility} sensorLock:{sensorLock} sensorVis:{sensorsVisibility}");
 
             State.UpdateActorLocks(source, target, visualLock, sensorLock);
             
@@ -89,7 +90,7 @@ namespace LowVisibility.Patch {
                 __result = sensorsVisibility;
             }
 
-            LowVisibility.Logger.Log($"  result:{__result} for source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
+            LowVisibility.Logger.Log($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
             return false;
                         
             //if (targetActor != null) {
