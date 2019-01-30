@@ -309,21 +309,20 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 > Example Two: A tag of `lv-stealth-move-mod_m3_s2` applies a +3 penalty to the attacker if the target does not move. If the target moves 1 or 2 hexes, this penalty would be reduced (by -1) to +2. If the target moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
 
 ## WIP Features
-- [] BUG: 
-- [] BUG: Ranges should be normalized to a hex instead of partial hex (Math.Ceil to hex definition)
+- [x] BUG: Ranges should be normalized to a hex instead of partial hex (Math.Ceil to hex definition)
 - [] FEATURE: Change first turn protection to evasion
 - [] FEATURE: Change vismode-zoom to be an increasing modifier that caps at a specific value
 - [] BUG: Major performance hit on assault base missions; takes 2-3 seconds per move. Investigate why this is.
 - [x] BUG: vismodes should only apply to ranged attacks
 - [] BUG: Stability & heat bars showing on vehicles & turrets for some reason.
-- [] BUG: Ranges should be rounded up to nearest hex?
-- [] BUG: Enemies not following the sensor blackout on turn one; there are cases where they get to attack anyways.
+- [x] BUG: Ranges should be rounded up to nearest hex?
+- [x] BUG: Enemies not following the sensor blackout on turn one; there are cases where they get to attack anyways.
 - [] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
 - [] BUG: Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
 - [] BUG: Weapons summary shown when beyond sensors range with a high check.
 - [] BUG: Units remain in vision even when units move away. Investigate why this occurs.
-- [] BUG: Have to select a unit after save for GameRepresentations to be rendered.
-- [] BUG: If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix? Looks to be related to AIM.
+- [x] BUG: Have to select a unit after save for GameRepresentations to be rendered.
+- [x] BUG: If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix? Looks to be related to AIM.
 - [] BUG: Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
 - [] FEATURE: Per Denandan, move functions from tags into Custom {} to allow getting item defs w/o needing to search/parse
 - [] FEATURE: Rename `lv-scrambler_mX` to `lv-stealth-boost_mX` to match probes.

@@ -29,8 +29,7 @@ namespace LowVisibility.Patch {
                 AbstractActor target = __instance.DisplayedCombatant as AbstractActor;
                 // We can receive a building here, so 
                 if (target != null) {
-                    bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
-                    if (!isPlayer) {                        
+                    if (target.Combat.HostilityMatrix.IsLocalPlayerEnemy(target.team)) {                        
                         Locks lockState = State.LastActivatedLocksForTarget(target);
 
                         if (lockState.sensorLock < SensorScanType.Vector) {

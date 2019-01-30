@@ -193,14 +193,14 @@ namespace LowVisibility.Helper {
                         $"reducing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
-                // A Stealth reduces sensor info
+                // Stealth reduces sensor info
                 if (targetStaticState.stealthMod != 0) {
                     modifiedSourceCheck -= targetStaticState.stealthMod;
                     LowVisibility.Logger.LogIfTrace($"  -- target:{CombatantHelper.Label(target)} has stealthMod:{targetStaticState.stealthMod}, " +
                         $"reducing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
-                // A scrambler reduces sensor info
+                // Scramblers reduces sensor info
                 if (targetStaticState.scramblerMod != 0) {
                     modifiedSourceCheck -= targetStaticState.scramblerMod;
                     LowVisibility.Logger.LogIfTrace($"  -- target:{CombatantHelper.Label(target)} has scramblerMod:{targetStaticState.scramblerMod}, " +

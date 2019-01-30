@@ -1,7 +1,6 @@
 ﻿using BattleTech;
 using BattleTech.UI;
 using Harmony;
-using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using System.Reflection;
@@ -149,8 +148,13 @@ namespace LowVisibility.Patch {
                     setGOActiveMethod.GetValue(__instance.ArmorBar, true);
                     setGOActiveMethod.GetValue(__instance.StructureBar, true);
 
-                    setGOActiveMethod.GetValue(__instance.StabilityDisplay, true);
-                    setGOActiveMethod.GetValue(__instance.HeatDisplay, true);
+                    if (___displayedActor as Mech != null) {
+                        setGOActiveMethod.GetValue(__instance.StabilityDisplay, true);
+                        setGOActiveMethod.GetValue(__instance.HeatDisplay, true);
+                    } else {
+                        setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
+                        setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
+                    }
                 } else {
                     // Hide unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);

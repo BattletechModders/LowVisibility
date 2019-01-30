@@ -109,6 +109,7 @@
     <Compile Include="Patch\CombatHUDActorNameDisplayPatches.cs" />
     <Compile Include="Patch\CombatHUDPatches.cs" />
     <Compile Include="Patch\CombatHUDTargetingComputerPatches.cs" />
+    <Compile Include="Patch\ComponentPatches.cs" />
     <Compile Include="Patch\LineOfSightPatches.cs" />
     <Compile Include="Patch\CombatPatches.cs" />
     <Compile Include="Patch\LoggerPatches.cs" />

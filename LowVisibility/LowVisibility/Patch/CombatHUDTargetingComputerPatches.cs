@@ -118,24 +118,26 @@ namespace LowVisibility.Patch {
         
         public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames, CombatHUDStatusPanel ___StatusPanel) {
             //KnowYourFoe.Logger.Log("CombatHUDTargetingComputer:RefreshActorInfo:post - entered.");
-            if (__instance.ActivelyShownCombatant == null || 
-                __instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID)) {
-                // Let the native method handle it
+            if (__instance.ActivelyShownCombatant == null ) {
+                LowVisibility.Logger.Log($"CHTC:RAI ~~~ target is null, skipping.");
                 return;
-            }
-
-            if (__instance.ActivelyShownCombatant != null) {
-
+            } else if (
+                __instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID)) {
+                LowVisibility.Logger.Log($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
+                __instance.WeaponList.SetActive(true);
+                return;
+            } else {
                 ICombatant target = __instance.ActivelyShownCombatant;
                 AbstractActor targetActor = target as AbstractActor;
                 bool isPlayer = target.Combat.HostilityMatrix.IsLocalPlayerEnemy(target.Combat.LocalPlayerTeam.GUID);
 
                 if (!isPlayer && targetActor != null) {
                     Locks lockState = State.LastActivatedLocksForTarget(target);
-                    LowVisibility.Logger.Log($"CHTC:RAI ~~~ OpFor Actor:{CombatantHelper.Label(target)} has lockState:{lockState}");
+                    AbstractActor lastActivated = State.GetLastPlayerActivatedActor(target.Combat);
+                    LowVisibility.Logger.Log($"CHTC:RAI ~~~ LastActivated:{CombatantHelper.Label(lastActivated)} vs. OpFor Actor:{CombatantHelper.Label(target)} has lockState:{lockState}");
                     if (lockState.sensorLock >= SensorScanType.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
-                        SetArmorDisplayActive(__instance, true);                            
+                        SetArmorDisplayActive(__instance, true);
                     } else if (lockState.visualLock == VisualScanType.VisualID || lockState.sensorLock == SensorScanType.SurfaceAnalysis) {
                         // Update the weapons to show only ???
                         for (int i = 0; i < ___weaponNames.Count; i++) {
@@ -168,6 +170,7 @@ namespace LowVisibility.Patch {
                     //LowVisibility.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{CombatantHelper.Label(target)} is player, showing panel.");
                 }
             }
+
         }
     }
 
