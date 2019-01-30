@@ -60,8 +60,8 @@ namespace LowVisibility.Patch {
             return AccessTools.Method(typeof(TurnDirector), "BeginNewRound", new Type[] { typeof(int) });
         }
 
-        public static void Prefix(TurnDirector __instance) {
-            LowVisibility.Logger.Log("=== TurnDirector:BeginNewRound:post - entered.");
+        public static void Prefix(TurnDirector __instance, int round) {
+            LowVisibility.Logger.Log($"=== TurnDirector - Beginning round:{round}");
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {

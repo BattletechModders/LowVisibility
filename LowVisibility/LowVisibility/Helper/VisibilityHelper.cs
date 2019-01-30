@@ -13,134 +13,134 @@ namespace LowVisibility.Helper {
 
 
 
-        public static HashSet<Locks> CalculateTargetLocks(AbstractActor source, List<AbstractActor> targets) {
+        //public static HashSet<Locks> CalculateTargetLocks(AbstractActor source, List<AbstractActor> targets) {
 
-            if (source == null || source.VisibilityCache == null || targets == null) { return null; }
+        //    if (source == null || source.VisibilityCache == null || targets == null) { return null; }
 
-            HashSet<Locks> locksToTargets = new HashSet<Locks>();
+        //    HashSet<Locks> locksToTargets = new HashSet<Locks>();
 
-            foreach (AbstractActor target in targets) {
-                if (target.GUID == source.GUID) { continue;  }
+        //    foreach (AbstractActor target in targets) {
+        //        if (target.GUID == source.GUID) { continue;  }
 
-                Locks lockState = CalculateLock(source, target);
-                LowVisibility.Logger.LogIfTrace($"  {CombatantHelper.Label(source)} --> {CombatantHelper.Label(target)} is lockState:{lockState}");
-                locksToTargets.Add(lockState);
-            }
+        //        Locks lockState = CalculateLock(source, target);
+        //        LowVisibility.Logger.LogIfTrace($"  {CombatantHelper.Label(source)} --> {CombatantHelper.Label(target)} is lockState:{lockState}");
+        //        locksToTargets.Add(lockState);
+        //    }
 
-            return locksToTargets;
-        }
+        //    return locksToTargets;
+        //}
 
       
 
-        // Calculate the lock level between a source and target actor
-        public static Locks CalculateLock(AbstractActor source, AbstractActor target) {
+        //// Calculate the lock level between a source and target actor
+        //public static Locks CalculateLock(AbstractActor source, AbstractActor target) {
 
-            Locks newLockState = new Locks {
-                sourceGUID = source.GUID,
-                targetGUID = target.GUID,
-                visualLock = VisualScanType.None,
-                sensorLock = SensorScanType.NoInfo,
-            };
+        //    Locks newLockState = new Locks {
+        //        sourceGUID = source.GUID,
+        //        targetGUID = target.GUID,
+        //        visualLock = VisualScanType.None,
+        //        sensorLock = SensorScanType.NoInfo,
+        //    };
 
-            LowVisibility.Logger.LogIfTrace($"Calculating Lock {CombatantHelper.Label(source)} ==> {CombatantHelper.Label(target)}");
+        //    LowVisibility.Logger.LogIfTrace($"Calculating Lock {CombatantHelper.Label(source)} ==> {CombatantHelper.Label(target)}");
 
-            if (source.IsDead || source.IsFlaggedForDeath || source.IsTeleportedOffScreen || target.IsTeleportedOffScreen) {
-                // If we're dead, we can't have vision or sensors. If we're off the map, we can't either. If the target is off the map, we can't see it.
-                newLockState.visualLock = VisualScanType.None;
-                newLockState.sensorLock = SensorScanType.NoInfo;
-                LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} is dead or dying. Forcing no visibility.");
-                return newLockState;
-            } else if (target.IsDead || target.IsFlaggedForDeath) {
-                // If the target is dead, we can't have sensor but we have vision 
-                newLockState.visualLock = VisualScanType.Silhouette;
-                newLockState.sensorLock = SensorScanType.NoInfo;
-                LowVisibility.Logger.LogIfTrace($"  -- target:{CombatantHelper.Label(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
-                return newLockState;
-            } else if (source.GUID == target.GUID || source.Combat.HostilityMatrix.IsFriendly(source.TeamId, target.TeamId)) {
-                // If they are us, or allied, automatically give full vision
-                newLockState.visualLock = VisualScanType.VisualID;
-                newLockState.sensorLock = SensorScanType.DentalRecords;
-                LowVisibility.Logger.LogIfDebug($"  -- source:{CombatantHelper.Label(source)} is friendly to target:{CombatantHelper.Label(target)}. Forcing full visibility.");
-                return newLockState;
-            } 
+        //    if (source.IsDead || source.IsFlaggedForDeath || source.IsTeleportedOffScreen || target.IsTeleportedOffScreen) {
+        //        // If we're dead, we can't have vision or sensors. If we're off the map, we can't either. If the target is off the map, we can't see it.
+        //        newLockState.visualLock = VisualScanType.None;
+        //        newLockState.sensorLock = SensorScanType.NoInfo;
+        //        LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} is dead or dying. Forcing no visibility.");
+        //        return newLockState;
+        //    } else if (target.IsDead || target.IsFlaggedForDeath) {
+        //        // If the target is dead, we can't have sensor but we have vision 
+        //        newLockState.visualLock = VisualScanType.Silhouette;
+        //        newLockState.sensorLock = SensorScanType.NoInfo;
+        //        LowVisibility.Logger.LogIfTrace($"  -- target:{CombatantHelper.Label(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
+        //        return newLockState;
+        //    } else if (source.GUID == target.GUID || source.Combat.HostilityMatrix.IsFriendly(source.TeamId, target.TeamId)) {
+        //        // If they are us, or allied, automatically give full vision
+        //        newLockState.visualLock = VisualScanType.VisualID;
+        //        newLockState.sensorLock = SensorScanType.DentalRecords;
+        //        LowVisibility.Logger.LogIfDebug($"  -- source:{CombatantHelper.Label(source)} is friendly to target:{CombatantHelper.Label(target)}. Forcing full visibility.");
+        //        return newLockState;
+        //    } 
 
-            // --- Determine visual lock 
-            VisibilityLevelAndAttribution visLevelAndAttrib = source.VisibilityCache.VisibilityToTarget(target);
+        //    // --- Determine visual lock 
+        //    VisibilityLevelAndAttribution visLevelAndAttrib = source.VisibilityCache.VisibilityToTarget(target);
 
-            // If we have LOS to the target, we at least have their silhouette
-            if (visLevelAndAttrib.VisibilityLevel == VisibilityLevel.LOSFull) {
-                newLockState.visualLock = VisualScanType.Silhouette;
-            }
+        //    // If we have LOS to the target, we at least have their silhouette
+        //    if (visLevelAndAttrib.VisibilityLevel == VisibilityLevel.LOSFull) {
+        //        newLockState.visualLock = VisualScanType.Silhouette;
+        //    }
 
-            float distance = Vector3.Distance(source.CurrentPosition, target.CurrentPosition);
-            //float targetVisibility = CalculateTargetVisibility(target);
-            float targetVisibility = 1f;
+        //    float distance = Vector3.Distance(source.CurrentPosition, target.CurrentPosition);
+        //    //float targetVisibility = CalculateTargetVisibility(target);
+        //    float targetVisibility = 1f;
 
-            float visualScanRange = VisualLockHelper.GetVisualScanRange(source);
-            float targetModifiedScanRange = visualScanRange * targetVisibility;
-            if (targetModifiedScanRange < LowVisibility.Config.MinimumVisionRange()) {
-                targetModifiedScanRange = LowVisibility.Config.MinimumVisionRange();
-            }
+        //    float visualScanRange = VisualLockHelper.GetVisualScanRange(source);
+        //    float targetModifiedScanRange = visualScanRange * targetVisibility;
+        //    if (targetModifiedScanRange < LowVisibility.Config.MinimumVisionRange()) {
+        //        targetModifiedScanRange = LowVisibility.Config.MinimumVisionRange();
+        //    }
 
-            if (distance <= targetModifiedScanRange) { newLockState.visualLock = VisualScanType.VisualID; }
+        //    if (distance <= targetModifiedScanRange) { newLockState.visualLock = VisualScanType.VisualID; }
 
-            // TODO: Check for failed visual lock and adjust appropriately. Requires visionLockLevel to change to DetectionLevel
-            LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} has visualLockRange:{targetModifiedScanRange} and is distance:{distance} " +
-                $"from target:{CombatantHelper.Label(target)} with visibility:{targetVisibility} - visionLockType:{newLockState.visualLock}");
+        //    // TODO: Check for failed visual lock and adjust appropriately. Requires visionLockLevel to change to DetectionLevel
+        //    LowVisibility.Logger.LogIfTrace($"  -- source:{CombatantHelper.Label(source)} has visualLockRange:{targetModifiedScanRange} and is distance:{distance} " +
+        //        $"from target:{CombatantHelper.Label(target)} with visibility:{targetVisibility} - visionLockType:{newLockState.visualLock}");
             
-            return newLockState;
+        //    return newLockState;
 
-        }
+        //}
 
-        public static void UpdateVisibilityForAllTeams(CombatGameState Combat) {
-            LowVisibility.Logger.LogIfDebug($"  ==== Updating Visibility for All Teams ====");
+        //public static void UpdateVisibilityForAllTeams(CombatGameState Combat) {
+        //    LowVisibility.Logger.LogIfDebug($"  ==== Updating Visibility for All Teams ====");
 
-            List<AbstractActor> playerActors = HostilityHelper.PlayerActors(Combat);
-            List<AbstractActor> alliedActors = HostilityHelper.AlliedToLocalPlayerActors(Combat);
-            List<AbstractActor> enemyActors = HostilityHelper.EnemyToLocalPlayerActors(Combat);
-            List<AbstractActor> neutralActors = HostilityHelper.NeutralToLocalPlayerActors(Combat);
+        //    List<AbstractActor> playerActors = HostilityHelper.PlayerActors(Combat);
+        //    List<AbstractActor> alliedActors = HostilityHelper.AlliedToLocalPlayerActors(Combat);
+        //    List<AbstractActor> enemyActors = HostilityHelper.EnemyToLocalPlayerActors(Combat);
+        //    List<AbstractActor> neutralActors = HostilityHelper.NeutralToLocalPlayerActors(Combat);
             
-            LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Players to Neutral and Enemies ====");
-            List<AbstractActor> targets = enemyActors.Union(neutralActors).ToList();
-            List<ICombatant> combatants = new List<ICombatant>(targets.ToArray());
-            foreach (AbstractActor source in playerActors) {                
-                source.VisibilityCache.UpdateCacheReciprocal(combatants);
-            }
+        //    LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Players to Neutral and Enemies ====");
+        //    List<AbstractActor> targets = enemyActors.Union(neutralActors).ToList();
+        //    List<ICombatant> combatants = new List<ICombatant>(targets.ToArray());
+        //    foreach (AbstractActor source in playerActors) {                
+        //        source.VisibilityCache.UpdateCacheReciprocal(combatants);
+        //    }
 
-            LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Allies to Neutrals and Enemies ====");
-            foreach (AbstractActor source in alliedActors) {
-                source.VisibilityCache.UpdateCacheReciprocal(combatants);
-            }
+        //    LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Allies to Neutrals and Enemies ====");
+        //    foreach (AbstractActor source in alliedActors) {
+        //        source.VisibilityCache.UpdateCacheReciprocal(combatants);
+        //    }
 
-            LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Enemies to Neutrals. ====");
-            targets = neutralActors;
-            combatants = new List<ICombatant>(targets.ToArray());
-            foreach (AbstractActor source in enemyActors) {
-                LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility source:{CombatantHelper.Label(source)}. ====");
-                source.VisibilityCache.UpdateCacheReciprocal(combatants);
-            }
+        //    LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Enemies to Neutrals. ====");
+        //    targets = neutralActors;
+        //    combatants = new List<ICombatant>(targets.ToArray());
+        //    foreach (AbstractActor source in enemyActors) {
+        //        LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility source:{CombatantHelper.Label(source)}. ====");
+        //        source.VisibilityCache.UpdateCacheReciprocal(combatants);
+        //    }
 
-            //LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Neutrals to Enemies. ====");
-            //targets = playerActors.Union(alliedActors).Union(enemyActors).ToList();
-            //combatants = new List<ICombatant>(targets.ToArray());
-            //foreach (AbstractActor source in neutralActors) {
-            //    source.VisibilityCache.UpdateCacheReciprocal(combatants);
-            //}
-        }
+        //    //LowVisibility.Logger.LogIfTrace($"  ==== Updating Visibility for Neutrals to Enemies. ====");
+        //    //targets = playerActors.Union(alliedActors).Union(enemyActors).ToList();
+        //    //combatants = new List<ICombatant>(targets.ToArray());
+        //    //foreach (AbstractActor source in neutralActors) {
+        //    //    source.VisibilityCache.UpdateCacheReciprocal(combatants);
+        //    //}
+        //}
 
-        // PRESUMES LOCK IS UP TO DATE
-        public static void UpdateVisibilityforPlayer(AbstractActor playerActor) {
-            LowVisibility.Logger.LogIfDebug($"  ==== Updating Visibility for Player Actor ====");
-            // Update enemy
-            List<AbstractActor> alliedActors = HostilityHelper.AlliedToLocalPlayerActors(playerActor.Combat);
-            List<AbstractActor> enemyActors = HostilityHelper.EnemyToLocalPlayerActors(playerActor.Combat);
-            List<AbstractActor> neutralActors = HostilityHelper.NeutralToLocalPlayerActors(playerActor.Combat);
-            List<AbstractActor> targets = enemyActors.Union(neutralActors).Union(alliedActors).ToList();
+        //// PRESUMES LOCK IS UP TO DATE
+        //public static void UpdateVisibilityforPlayer(AbstractActor playerActor) {
+        //    LowVisibility.Logger.LogIfDebug($"  ==== Updating Visibility for Player Actor ====");
+        //    // Update enemy
+        //    List<AbstractActor> alliedActors = HostilityHelper.AlliedToLocalPlayerActors(playerActor.Combat);
+        //    List<AbstractActor> enemyActors = HostilityHelper.EnemyToLocalPlayerActors(playerActor.Combat);
+        //    List<AbstractActor> neutralActors = HostilityHelper.NeutralToLocalPlayerActors(playerActor.Combat);
+        //    List<AbstractActor> targets = enemyActors.Union(neutralActors).Union(alliedActors).ToList();
 
-            foreach (AbstractActor actor in targets) {
-                playerActor.VisibilityCache.CalcVisValueToTarget(actor);
-            }
-        }
+        //    foreach (AbstractActor actor in targets) {
+        //        playerActor.VisibilityCache.CalcVisValueToTarget(actor);
+        //    }
+        //}
 
         //public static void UpdateDetectionForActor(AbstractActor actor) {
 
@@ -439,19 +439,19 @@ namespace LowVisibility.Helper {
         //    return visibilityLevel;
         //}
 
-        private static VisibilityLevel VisibilityFromSensorLock(SensorScanType sensorLockLevel) {
-            VisibilityLevel visibilityLevel = VisibilityLevel.None;
+        //private static VisibilityLevel VisibilityFromSensorLock(SensorScanType sensorLockLevel) {
+        //    VisibilityLevel visibilityLevel = VisibilityLevel.None;
 
-            if (sensorLockLevel >= SensorScanType.Silhouette) {
-                visibilityLevel = VisibilityLevel.Blip4Maximum;
-            } else if (sensorLockLevel >= SensorScanType.Type) {
-                visibilityLevel = VisibilityLevel.Blip1Type;
-            } else if (sensorLockLevel >= SensorScanType.Location) {
-                visibilityLevel = VisibilityLevel.Blip0Minimum;
-            } 
+        //    if (sensorLockLevel >= SensorScanType.Silhouette) {
+        //        visibilityLevel = VisibilityLevel.Blip4Maximum;
+        //    } else if (sensorLockLevel >= SensorScanType.Type) {
+        //        visibilityLevel = VisibilityLevel.Blip1Type;
+        //    } else if (sensorLockLevel >= SensorScanType.Location) {
+        //        visibilityLevel = VisibilityLevel.Blip0Minimum;
+        //    } 
 
-            return visibilityLevel;
-        }
+        //    return visibilityLevel;
+        //}
 
 
     }

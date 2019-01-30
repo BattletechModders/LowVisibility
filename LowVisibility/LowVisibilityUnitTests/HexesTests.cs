@@ -10,6 +10,24 @@ namespace LVUnitTests {
     public class DivisionVsIterationTest {
 
         [Test]
+        public void HexCounter() {
+            Assert.AreEqual(0, MathHelper.CountHexes(0f, true));
+            Assert.AreEqual(0, MathHelper.CountHexes(0f, false));
+
+            Assert.AreEqual(1, MathHelper.CountHexes(1f, true));
+            Assert.AreEqual(0, MathHelper.CountHexes(1f, false));
+
+            Assert.AreEqual(1, MathHelper.CountHexes(29f, true));
+            Assert.AreEqual(0, MathHelper.CountHexes(29f, false));
+
+            Assert.AreEqual(1, MathHelper.CountHexes(30f, true));
+            Assert.AreEqual(1, MathHelper.CountHexes(30f, false));
+
+            Assert.AreEqual(2, MathHelper.CountHexes(31f, true));
+            Assert.AreEqual(1, MathHelper.CountHexes(31f, false));
+        }
+
+        [Test]
         public void DivVsIter() {
             List<float> ranges = RangesInMeters();
             List<int> divHexes = new List<int>();

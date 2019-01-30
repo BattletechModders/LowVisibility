@@ -90,7 +90,7 @@ namespace LowVisibility.Patch {
                 __result = sensorsVisibility;
             }
 
-            LowVisibility.Logger.Log($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
+            LowVisibility.Logger.LogIfDebug($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
             return false;
                         
             //if (targetActor != null) {
@@ -114,21 +114,6 @@ namespace LowVisibility.Patch {
                 //    visibilityLevel = (VisibilityLevel)shadowingVisLevel;
                 //}
 
-            //    // If EW effects have rendered the target invisible, break the lock
-            //    visibilityLevel = GetUnifiedVisibilityLevel(source, targetActor);
-            //    //LowVisibility.Logger.Log($"VTTWPAR Source:{CombatantHelper.Label(source)} has visibilityLevel:{visibilityLevel} to target:{CombatantHelper.Label(target)}");  
-
-            //    // Check for Narc 
-            //    if (State.NARCEffect(targetActor) != 0 && visibilityLevel < VisibilityLevel.Blip4Maximum) {
-            //        int delta = State.NARCEffect(targetActor) - State.ECMProtection(targetActor);
-            //        if (delta >= 1) {
-            //            LowVisibility.Logger.LogIfDebug($"GVTTWPAR - target:{CombatantHelper.Label(targetActor)} has an active NARC effect, marking them visible!");
-            //            __result = VisibilityLevel.Blip4Maximum;
-            //            return false;
-            //        }
-            //    }
-            //}
-            //__result = visibilityLevel;
 
             //return false;
         }

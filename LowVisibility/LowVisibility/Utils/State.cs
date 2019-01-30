@@ -196,36 +196,36 @@ namespace LowVisibility {
         }
 
         // --- ECM PROTECTION STATE TRACKING
-        public static int ECMProtection(AbstractActor actor) {
+        public static int ECMProtection(ICombatant actor) {
             return ECMProtectedActors.ContainsKey(actor.GUID) ? ECMProtectedActors[actor.GUID] : 0;
         }
 
-        public static void AddECMProtection(AbstractActor actor, int modifier) {            
+        public static void AddECMProtection(ICombatant actor, int modifier) {            
             if (!ECMProtectedActors.ContainsKey(actor.GUID)) {
                 ECMProtectedActors.Add(actor.GUID, modifier);
             } else if (modifier > ECMProtectedActors[actor.GUID]) {
                 ECMProtectedActors[actor.GUID] = modifier;
             }
         }
-        public static void RemoveECMProtection(AbstractActor actor) {
+        public static void RemoveECMProtection(ICombatant actor) {
             if (ECMProtectedActors.ContainsKey(actor.GUID)) {
                 ECMProtectedActors.Remove(actor.GUID);
             }
         }
 
         // --- ECM NARC EFFECT
-        public static int NARCEffect(AbstractActor actor) {
+        public static int NARCEffect(ICombatant actor) {
             return NarcedActors.ContainsKey(actor.GUID) ? NarcedActors[actor.GUID] : 0;
         }
 
-        public static void AddNARCEffect(AbstractActor actor, int modifier) {
+        public static void AddNARCEffect(ICombatant actor, int modifier) {
             if (!NarcedActors.ContainsKey(actor.GUID)) {
                 NarcedActors.Add(actor.GUID, modifier);
             } else if (modifier > NarcedActors[actor.GUID]) {
                 NarcedActors[actor.GUID] = modifier;
             }
         }
-        public static void RemoveNARCEffect(AbstractActor actor) {
+        public static void RemoveNARCEffect(ICombatant actor) {
             if (NarcedActors != null && actor != null && NarcedActors.ContainsKey(actor.GUID)) {
                 NarcedActors.Remove(actor.GUID);
             }

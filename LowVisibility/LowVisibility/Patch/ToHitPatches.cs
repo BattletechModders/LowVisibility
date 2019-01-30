@@ -2,7 +2,6 @@
 using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
-using System;
 using UnityEngine;
 using static LowVisibility.Helper.VisibilityHelper;
 using static LowVisibility.Object.EWState;
@@ -38,7 +37,7 @@ namespace LowVisibility.Patch {
 
                 VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, weapon);
                 if (vismodeMod.modifier != 0) {
-                    LowVisibility.Logger.LogIfDebug($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => result:{__result} + {vismodeMod.modifier}");
+                    LowVisibility.Logger.LogIfTrace($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => result:{__result} + {vismodeMod.modifier}");
                     __result = __result + (float)vismodeMod.modifier;
                 }
 
@@ -86,7 +85,7 @@ namespace LowVisibility.Patch {
 
                 VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, weapon);
                 if (vismodeMod.modifier != 0) {
-                    LowVisibility.Logger.LogIfDebug($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => {vismodeMod.ToString()}");
+                    LowVisibility.Logger.LogIfTrace($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => {vismodeMod.ToString()}");
                     __result = string.Format("{0}{1} {2:+#;-#}; ", __result, vismodeMod.label, vismodeMod.modifier);
                 }
 

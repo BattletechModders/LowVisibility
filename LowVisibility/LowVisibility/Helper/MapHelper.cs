@@ -114,16 +114,18 @@ namespace LowVisibility.Helper {
                         break;
                 }
             }            
-            float visRange = (float)Math.Ceiling(baseVision * 30.0f * visionMulti);
+            float visRange = (float)Math.Ceiling(baseVision * 30f * visionMulti);
             LowVisibility.Logger.Log($"  Calculating vision range as Math.Ceil(baseVision:{baseVision} * 30.0 * visionMulti:{visionMulti}) = visRange:{visRange}.");
             if (visRange < LowVisibility.Config.MinimumVisionRange()) {
                 visRange = LowVisibility.Config.MinimumVisionRange();
             }
-            mapConfig.visionRange = visRange;
-            LowVisibility.Logger.Log($"MapHelper: Vision range for map will be ==> {visRange}m.");
+            
+            float normalizedVisionRange = MathHelper.CountHexes(visRange, false) * 30f;
+            LowVisibility.Logger.Log($"MapHelper: Vision range for map will be ==> {normalizedVisionRange}m (normalized from {visRange}m)");
+            mapConfig.visionRange = normalizedVisionRange;
+            mapConfig.scanRange = Math.Min(normalizedVisionRange, LowVisibility.Config.VisualScanRange * 30.0f);
 
-            mapConfig.scanRange = Math.Min(visRange, LowVisibility.Config.VisualScanRange * 30.0f);
-            LowVisibility.Logger.Log($"Vision ranges: calculated map range:{visRange} configured visualID range:{LowVisibility.Config.VisualScanRange} map visualID range:{mapConfig.scanRange}");
+            LowVisibility.Logger.Log($"Map vision range = visual:{normalizedVisionRange} / visualScan:{mapConfig.scanRange}");
 
             return mapConfig;
         }

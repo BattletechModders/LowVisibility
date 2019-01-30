@@ -11,8 +11,8 @@ namespace LowVisibility.Patch {
 
         public static void Postfix(VisibilityCache __instance, bool __result, Vector3 worldPos, AbstractActor target) {
             AbstractActor owningActor = (AbstractActor) Traverse.Create(__instance).Property("OwningActor").GetValue();
-            LowVisibility.Logger.Log($"VC_CDPNC: source{CombatantHelper.Label(owningActor)} checking detection " +
-                $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
+            //LowVisibility.Logger.LogIfDebug($"VC_CDPNC: source{CombatantHelper.Label(owningActor)} checking detection " +
+            //    $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
         }
     }
 
@@ -21,8 +21,8 @@ namespace LowVisibility.Patch {
 
         public static void Postfix(VisibilityCache __instance, bool __result, Vector3 worldPos, AbstractActor target) {
             AbstractActor owningActor = (AbstractActor)Traverse.Create(__instance).Property("OwningActor").GetValue();
-            LowVisibility.Logger.Log($"VC_CSTAPNC: source{CombatantHelper.Label(owningActor)} checking vision" +
-                $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
+            //LowVisibility.Logger.LogIfDebug($"VC_CSTAPNC: source{CombatantHelper.Label(owningActor)} checking vision" +
+            //    $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
         }
     }
 
@@ -44,9 +44,9 @@ namespace LowVisibility.Patch {
 
         public static void Postfix(VisibilityCache __instance, VisibilityLevelAndAttribution __result, ICombatant target) {
             AbstractActor owningActor = (AbstractActor)Traverse.Create(__instance).Property("OwningActor").GetValue();
-            LowVisibility.Logger.Log($"VC_CVVTT: source{CombatantHelper.Label(owningActor)} updating vision to " +
-                $"target:{CombatantHelper.Label(target)} with " +
-                $"result:{__result.VisibilityLevel}/{__result.LineOfFireLevel}/{__result.LineOfFireCollision}");
+            //LowVisibility.Logger.LogIfDebug($"VC_CVVTT: source{CombatantHelper.Label(owningActor)} updating vision to " +
+            //    $"target:{CombatantHelper.Label(target)} with " +
+            //    $"result:{__result.VisibilityLevel}/{__result.LineOfFireLevel}/{__result.LineOfFireCollision}");
         }
     }
 
@@ -54,8 +54,8 @@ namespace LowVisibility.Patch {
     public static class SharedVisibilityCache_CanDetectPositionNonCached {
 
         public static void Postfix(SharedVisibilityCache __instance, bool __result, Vector3 worldPos, AbstractActor target) {            
-            LowVisibility.Logger.Log($"SVC_CDPNC: shared cache checking detection " +
-                $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
+            //LowVisibility.Logger.LogIfDebug($"SVC_CDPNC: shared cache checking detection " +
+            //    $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
         }
     }
 
@@ -63,8 +63,8 @@ namespace LowVisibility.Patch {
     public static class SharedVisibilityCache_CanSeeTargetAtPositionNonCached {
 
         public static void Postfix(SharedVisibilityCache __instance, bool __result, Vector3 worldPos, AbstractActor target) {            
-            LowVisibility.Logger.Log($"SVC_CSTAPNC: shared cache checking vision " +
-                $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
+            //LowVisibility.Logger.LogIfDebug($"SVC_CSTAPNC: shared cache checking vision " +
+            //    $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
         }
     }
 
@@ -72,8 +72,8 @@ namespace LowVisibility.Patch {
     public static class AbstractActor_CanDetectPositionNonCached {
 
         public static void Postfix(AbstractActor __instance, bool __result, Vector3 worldPos, AbstractActor target) {
-            LowVisibility.Logger.Log($"AA_CDPNC: source{CombatantHelper.Label(__instance)} checking detection " +
-                $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
+            //LowVisibility.Logger.LogIfDebug($"AA_CDPNC: source{CombatantHelper.Label(__instance)} checking detection " +
+            //    $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
         }
     }
 
@@ -82,8 +82,8 @@ namespace LowVisibility.Patch {
     public static class AbstractActor_CanSeeTargetAtPositionNonCached {
 
         public static void Postfix(AbstractActor __instance, bool __result, Vector3 worldPos, AbstractActor target) {
-            LowVisibility.Logger.Log($"AA_CSTAPNC: source{__instance} checking vision" +
-                $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
+            //LowVisibility.Logger.LogIfDebug($"AA_CSTAPNC: source{__instance} checking vision" +
+            //    $"from pos:{worldPos} vs. target:{CombatantHelper.Label(target)}");
         }
     }
 

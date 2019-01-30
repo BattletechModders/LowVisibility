@@ -310,6 +310,7 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 
 ## WIP Features
 - [x] BUG: Ranges should be normalized to a hex instead of partial hex (Math.Ceil to hex definition)
+- [ ] Document - FiredWeaponsSignatureEffect from CombatGameConstants.json (causes blipping effect)
 - [] FEATURE: Change first turn protection to evasion
 - [] FEATURE: Change vismode-zoom to be an increasing modifier that caps at a specific value
 - [] BUG: Major performance hit on assault base missions; takes 2-3 seconds per move. Investigate why this is.

@@ -20,28 +20,27 @@ namespace LowVisibility.Helper {
 
         private static float GetVisualRange(float visionRange, AbstractActor source) {
 
-            float spotterRange = visionRange;
+            float visualRange = visionRange;
             if (source.IsShutDown) {
-                spotterRange = visionRange * source.Combat.Constants.Visibility.ShutdownSpottingDistanceMultiplier;
+                visualRange = visionRange * source.Combat.Constants.Visibility.ShutdownSpottingDistanceMultiplier;
             } else if (source.IsProne) {
-                spotterRange = visionRange * source.Combat.Constants.Visibility.ProneSpottingDistanceMultiplier;
+                visualRange = visionRange * source.Combat.Constants.Visibility.ProneSpottingDistanceMultiplier;
             } else {
                 float multipliers = VisualLockHelper.GetAllSpotterMultipliers(source);
                 float absolutes = VisualLockHelper.GetAllSpotterAbsolutes(source);
-                spotterRange = visionRange * multipliers + absolutes;
-                LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} has spotting " +
-                    $"multi:x{multipliers} absolutes:{absolutes} " +
-                    $"visionRange:{visionRange}");
+                visualRange = visionRange * multipliers + absolutes;
+                //LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} has spotting " +
+                //    $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
             }
 
-            if (spotterRange < LowVisibility.Config.MinimumVisionRange()) {
-                spotterRange = LowVisibility.Config.MinimumVisionRange();
+            if (visualRange < LowVisibility.Config.MinimumVisionRange()) {
+                visualRange = LowVisibility.Config.MinimumVisionRange();
             }
 
             // Round up to the nearest full hex
-            float normalizedRange = MathHelper.CountHexes(spotterRange, true) * 30f;
+            float normalizedRange = MathHelper.CountHexes(visualRange, false) * 30f;
 
-            LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} visual range is:{normalizedRange}m normalized from:{spotterRange}m");
+            //LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} visual range is:{normalizedRange}m normalized from:{visualRange}m");
             return normalizedRange;
         }
 

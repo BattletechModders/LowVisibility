@@ -119,11 +119,11 @@ namespace LowVisibility.Patch {
         public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames, CombatHUDStatusPanel ___StatusPanel) {
             //KnowYourFoe.Logger.Log("CombatHUDTargetingComputer:RefreshActorInfo:post - entered.");
             if (__instance.ActivelyShownCombatant == null ) {
-                LowVisibility.Logger.Log($"CHTC:RAI ~~~ target is null, skipping.");
+                LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ target is null, skipping.");
                 return;
             } else if (
                 __instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID)) {
-                LowVisibility.Logger.Log($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
+                LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
                 __instance.WeaponList.SetActive(true);
                 return;
             } else {
@@ -134,7 +134,7 @@ namespace LowVisibility.Patch {
                 if (!isPlayer && targetActor != null) {
                     Locks lockState = State.LastActivatedLocksForTarget(target);
                     AbstractActor lastActivated = State.GetLastPlayerActivatedActor(target.Combat);
-                    LowVisibility.Logger.Log($"CHTC:RAI ~~~ LastActivated:{CombatantHelper.Label(lastActivated)} vs. OpFor Actor:{CombatantHelper.Label(target)} has lockState:{lockState}");
+                    LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ LastActivated:{CombatantHelper.Label(lastActivated)} vs. OpFor Actor:{CombatantHelper.Label(target)} has lockState:{lockState}");
                     if (lockState.sensorLock >= SensorScanType.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
                         SetArmorDisplayActive(__instance, true);

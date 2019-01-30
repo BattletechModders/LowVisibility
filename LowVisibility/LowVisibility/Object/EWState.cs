@@ -34,11 +34,11 @@ namespace LowVisibility.Object {
         public int scramblerMod = 0;
 
         [JsonIgnore]
-        public int atkmodDecayMod = 0;
+        public int vismodeZoomMod = 0;
         [JsonIgnore]
-        public int atkmodDecayCap = 0;
+        public int vismodeZoomCap = 0;
         [JsonIgnore]
-        public int atkmodDecayStep = 0;
+        public int vismodeZoomStep = 0;
 
         [JsonIgnore]
         public int vismodeHeatMod = 0;
@@ -128,7 +128,7 @@ namespace LowVisibility.Object {
         public int CalculateStealthMoveMod(AbstractActor owner) {
             int moveMod = 0;
             if (owner != null && this.stealthMoveMod[0] != 0) {
-                moveMod = GetModifierForRangeDecay(owner.DistMovedThisRound, this.stealthMoveMod[0], this.stealthMoveMod[1]);
+                moveMod = MathHelper.DecayingModifier(this.stealthMoveMod[0], 0, this.stealthMoveMod[1], owner.DistMovedThisRound);                
                 //LowVisibility.Logger.LogIfDebug($"  StealthMoveMod - actor:{CombatantHelper.Label(owner)} has moveMod:{moveMod}");
             }
             return moveMod;
@@ -139,10 +139,10 @@ namespace LowVisibility.Object {
             if (weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return new VisionModeModifer(); }
             //LowVisibility.Logger.LogIfDebug($" Source has zoomMod:{vismodeZoomMod} heatMod:{vismodeHeatMod}");
 
-            int atkDecayMod = 0;
-            if (atkmodDecayMod != 0) {
-                atkDecayMod = MathHelper.DecayingModifier(this.atkmodDecayMod, this.atkmodDecayCap, this.atkmodDecayStep, distance);
-                LowVisibility.Logger.LogIfDebug($" AtkDecayMod calculated as:{atkDecayMod} for distance:{distance}");
+            int zoomMod = 0;
+            if (vismodeZoomMod != 0) {
+                zoomMod = MathHelper.DecayingModifier(this.vismodeZoomMod, this.vismodeZoomCap, this.vismodeZoomStep, distance);
+                LowVisibility.Logger.LogIfTrace($" Zoom mod calculated as:{zoomMod} for distance:{distance}");
             }
 
             Mech targetMech = target as Mech;
@@ -150,23 +150,27 @@ namespace LowVisibility.Object {
             //LowVisibility.Logger.LogIfDebug($" Target:{CombatantHelper.Label(target)} has currentHeat:{targetHeat}");
             int heatMod = 0;
             if (vismodeHeatMod != 0 && targetHeat > 0) {
-                int heatModRaw = (int)Math.Floor(targetHeat / vismodeHeatDivisor);
+                int heatModRaw = (int)Math.Floor(targetHeat / this.vismodeHeatDivisor) * this.vismodeHeatMod;
                 //LowVisibility.Logger.LogIfDebug($" Heat steps are:{heatModRaw}");
                 heatMod = heatModRaw <= LowVisibility.Config.HeatVisionMaxBonus ? heatModRaw : LowVisibility.Config.HeatVisionMaxBonus;
-                //LowVisibility.Logger.LogIfDebug($" Heat mod calculated as:{heatMod}");
+                // Bonuses are negatives, penalties are positives
+                heatMod = -1 * heatMod;
+                LowVisibility.Logger.LogIfTrace($" Heat mod calculated as:{heatMod}");
             }
 
-            // Attack bonuses are negatives, penalties are positives 
-            VisionModeModifer vmod = atkDecayMod == 0 && heatMod == 0 ? new VisionModeModifer() :
-                new VisionModeModifer {
-                    modifier = atkDecayMod > heatMod ? -1 * atkDecayMod : -1 * heatMod,
-                    label = atkDecayMod > heatMod ? "FCS" : "HEAT FCS"
-            };
-
-            // If both modifiers are in play, increase the bonus by -1
-            if (atkDecayMod > 0 && heatMod > 0) {
+            VisionModeModifer vmod = new VisionModeModifer();
+            if (zoomMod != 0 && heatMod != 0) {
+                vmod.modifier = zoomMod < heatMod ? zoomMod : heatMod;               
                 //LowVisibility.Logger.LogIfDebug($" Source has both heat and vision mod, increasing {vmod.modifier} to {vmod.modifier - 1}");
                 vmod.modifier = vmod.modifier - 1;
+
+                vmod.label = zoomMod < heatMod ? "Zoom Vision" : "Heat Vision";
+            } else if (zoomMod != 0 && heatMod == 0) {
+                vmod.modifier = zoomMod;
+                vmod.label = "Zoom Vision";
+            } else if (zoomMod == 0 && heatMod != 0) {
+                vmod.modifier = heatMod;
+                vmod.label = "Heat Vision";
             }
 
             return vmod;
@@ -180,16 +184,6 @@ namespace LowVisibility.Object {
             return 1.0f + ((rangeCheck + SensorCheckModifier()) / 20.0f);
         }
 
-        private int GetModifierForRangeDecay(float distance, int initial, int step) {
-            int decayingMod = initial;
-            int distInHexes = (int)Math.Floor(distance / 30.0f);            
-            while (distInHexes > 0 && decayingMod > 0) {
-                decayingMod--;
-                distInHexes -= step;
-            }
-            return decayingMod;
-        }
-
         public override string ToString() {
             return $"rangeCheck:{rangeCheck} detailCheck:{detailCheck} ecmMod:{ecmMod} sensorCheckMod:{SensorCheckModifier()}";
         }
@@ -199,7 +193,7 @@ namespace LowVisibility.Object {
                 $"probeMod:{probeMod} probeBoostMod:{probeBoostMod} stealthMod:{stealthMod} scramblerMod:{scramblerMod} " +
                 $"stealthRangeMod:{stealthRangeMod[0]}/{stealthRangeMod[1]}/{stealthRangeMod[2]}/{stealthRangeMod[3]} " +
                 $"stealthMoveMod:{stealthMoveMod[0]}/{stealthMoveMod[1]} " +
-                $"atkmodDecayMod:{atkmodDecayMod} atkmodDecayCap:{atkmodDecayCap} atkmodDecayStep:{atkmodDecayStep} " +
+                $"vismodeZoomMod:{vismodeZoomMod} vismodeZoomCap:{vismodeZoomCap} vismodeZoomStep:{vismodeZoomStep} " +
                 $"vismodeHeatMod:{vismodeHeatMod} vismodeHeatDiv:{vismodeHeatDivisor} " +
                 $"sharesSensors:{sharesSensors}";
         }
@@ -223,7 +217,7 @@ namespace LowVisibility.Object {
             public const string TagPrefixStealthRangeMod = "lv-stealth-range-mod_s";
             public const string TagPrefixStealthMoveMod = "lv-stealth-move-mod_m";
 
-            public const string TagPrefixAttackMod = "lv-atkmod-decay_m";
+            public const string TagPrefixVismodeZoom = "lv-vismode-zoom_m";
             public const string TagPrefixVismodeHeat = "lv-vismode-heat_m";
 
             public static void UpdateStaticState(EWState state, AbstractActor actor) {
@@ -268,9 +262,9 @@ namespace LowVisibility.Object {
                         } else if (tagLower.Equals(TagSharesSensors)) {
                             LowVisibility.Logger.LogIfDebug($"Actor:{actorLabel} shares sensors due to component:{kv.Key} with tag:{tag}");
                             state.sharesSensors = true;
-                        } else if (tagLower.StartsWith(TagPrefixAttackMod)) {
-                            LowVisibility.Logger.LogIfDebug($"Actor:{actorLabel} has ATK DECAY component:{kv.Key} with tag:{tag}");
-                            ParseAtkmodDecay(ref state, tag);
+                        } else if (tagLower.StartsWith(TagPrefixVismodeZoom)) {
+                            LowVisibility.Logger.LogIfDebug($"Actor:{actorLabel} has ZOOM VISION component:{kv.Key} with tag:{tag}");
+                            ParseVismodeZoom(ref state, tag);
                         } else if (tagLower.StartsWith(TagPrefixVismodeHeat)) {
                             LowVisibility.Logger.LogIfDebug($"Actor:{actorLabel} has HEAT VISION component:{kv.Key} with tag:{tag}");
                             ParseVismodeHeat(ref state, tag);
@@ -382,15 +376,15 @@ namespace LowVisibility.Object {
                 }
             }
 
-            private static void ParseAtkmodDecay(ref EWState state, string tag) {
+            private static void ParseVismodeZoom(ref EWState state, string tag) {
                 string[] split = tag.Split('_');
                 if (split.Length == 4) {
                     int modifier = int.Parse(split[1].Substring(1));
                     int cap = int.Parse(split[2].Substring(1));
                     int step = int.Parse(split[3].Substring(1));
-                    state.atkmodDecayMod = modifier;
-                    state.atkmodDecayCap = cap;
-                    state.atkmodDecayStep = step;
+                    state.vismodeZoomMod = modifier;
+                    state.vismodeZoomCap = cap;
+                    state.vismodeZoomStep = step;
                 } else {
                     LowVisibility.Logger.Log($"MALFORMED TAG - ({tag})");
                 }
