@@ -127,47 +127,59 @@ namespace LowVisibility.Patch {
                 __instance.WeaponList.SetActive(true);
                 return;
             } else {
-                ICombatant target = __instance.ActivelyShownCombatant;
-                AbstractActor targetActor = target as AbstractActor;
-                bool isPlayer = target.Combat.HostilityMatrix.IsLocalPlayerEnemy(target.Combat.LocalPlayerTeam.GUID);
-
-                if (!isPlayer && targetActor != null) {
-                    Locks lockState = State.LastActivatedLocksForTarget(target);
+                LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} is enemy");
+                
+                if ((__instance.ActivelyShownCombatant as AbstractActor) != null) {
+                    AbstractActor target = __instance.ActivelyShownCombatant as AbstractActor;
                     AbstractActor lastActivated = State.GetLastPlayerActivatedActor(target.Combat);
-                    LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ LastActivated:{CombatantHelper.Label(lastActivated)} vs. OpFor Actor:{CombatantHelper.Label(target)} has lockState:{lockState}");
+                    Locks lockState = State.LastActivatedLocksForTarget(target);
+                    LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ LastActivated:{CombatantHelper.Label(lastActivated)} vs. enemy:{CombatantHelper.Label(target)} has lockState:{lockState}");
+
                     if (lockState.sensorLock >= SensorScanType.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
                         SetArmorDisplayActive(__instance, true);
                     } else if (lockState.visualLock == VisualScanType.VisualID || lockState.sensorLock == SensorScanType.SurfaceAnalysis) {
-                        // Update the weapons to show only ???
-                        for (int i = 0; i < ___weaponNames.Count; i++) {
-                            // Update ranged weapons
-                            if (i < targetActor.Weapons.Count) {
-                                Weapon targetWeapon = targetActor.Weapons[i];
-                                ___weaponNames[i].SetText("???");
-                            } else if (!___weaponNames[i].text.Equals("XXXXXXXXXXXXXX")) {
-                                ___weaponNames[i].SetText("???");
-                            }
-                        }
-                        __instance.WeaponList.SetActive(true);
+
                         SetArmorDisplayActive(__instance, true);
 
-                        // Update the summary display to read ????
+                        // Update the weapons to show only 
+                        for (int i = 0; i < ___weaponNames.Count; i++) {
+                            // Update ranged weapons
+                            if (i < target.Weapons.Count) {
+                                Weapon targetWeapon = target.Weapons[i];
+                                ___weaponNames[i].SetText("Unidentified");
+                            } else if (!___weaponNames[i].text.Equals("XXXXXXXXXXXXXX")) {
+                                ___weaponNames[i].SetText("Unidentified");
+                            }
+                        }                       
+
+                        // Update the summary display
+                        __instance.WeaponList.SetActive(true);
                         Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
                         GameObject weaponsLabel = weaponListT.gameObject;
                         TextMeshProUGUI labelText = weaponsLabel.GetComponent<TextMeshProUGUI>();
-                        labelText.SetText("???");
+                        labelText.SetText("Unidentified");
                     } else {
-                        //KnowYourFoe.Logger.Log($"Detection state:{detectState} for actor:{target.DisplayName}_{target.GetPilot().Name} allows weapons to be seen.");
-                        __instance.WeaponList.SetActive(false);
+
                         SetArmorDisplayActive(__instance, false);
 
+                        __instance.WeaponList.SetActive(false);
                         Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
                         GameObject weaponsLabel = weaponListT.gameObject;
                         weaponsLabel.SetActive(false);
                     }
+                } else if ((__instance.ActivelyShownCombatant as Building) != null) {
+                    Building target = __instance.ActivelyShownCombatant as Building;
+                    LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} is enemy building");
+
+                    SetArmorDisplayActive(__instance, true);
+
+                    __instance.WeaponList.SetActive(false);
+                    Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
+                    GameObject weaponsLabel = weaponListT.gameObject;
+                    weaponsLabel.SetActive(false);
                 } else {
-                    //LowVisibility.Logger.Log($"CombatHUDTargetingComputer:RefreshActorInfo:post - actor:{CombatantHelper.Label(target)} is player, showing panel.");
+                    // WTF
                 }
             }
 

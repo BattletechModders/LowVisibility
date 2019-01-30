@@ -150,7 +150,7 @@ namespace LowVisibility.Helper {
                         sensorLock = SensorScanType.Location;
                     }
                 }
-                LowVisibility.Logger.LogIfDebug($"SensorLockHelper - source:{CombatantHelper.Label(source)} has sensorLock:({sensorLock}) vs " +
+                LowVisibility.Logger.LogIfTrace($"SensorLockHelper - source:{CombatantHelper.Label(source)} has sensorLock:({sensorLock}) vs " +
                     $"target:{CombatantHelper.Label(target)}");
                 return sensorLock;
             } else {
