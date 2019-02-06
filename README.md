@@ -309,25 +309,28 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 > Example Two: A tag of `lv-stealth-move-mod_m3_s2` applies a +3 penalty to the attacker if the target does not move. If the target moves 1 or 2 hexes, this penalty would be reduced (by -1) to +2. If the target moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
 
 ## WIP Features
-- [x] [] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
+- [x] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
+- [ ] BUG: Report of vehicle blips showing mech paperdoll instead of vehicle. Photo proof, so see if it can be reproduced.
+- [ ] 
 - [ ] BUG: Offensive push shows damaged areas even with a crap information roll. LA suggestion: restrict offensive push to a minimum info roll.
-- [] BUG: Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
-- [] FEATURE: Per Denandan, move functions from tags into Custom {} to allow getting item defs w/o needing to search/parse
-- [] FEATURE: Rename `lv-scrambler_mX` to `lv-stealth-boost_mX` to match probes.
-- [] FEATURE: Rename active probes to `lv-sensormod-highest_mX` and `lv-sensormod-sum_mX`
-- [] FEATURE: Show signature, visibility modifiers for target on the tooltips. Show same for player mechs.
-- [] Armor/structure exact values are being shown, not just as ??
-- [] FEATURE: Make sensor lock not end your turn (SensorLockSequence)
-- [] FEATURE: ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
-- [] FEATURE: On shutdown, no stealth / ecm / etc applies
-- [] FEATURE: Component damage should eliminate ECM, AP, Stealth bonuses
-- [] FEATURE: ```lv_shared_spotter``` tag on pilots to share LOS
-- [] FEATURE: Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
-- [] FEATURE: Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
-- [] FEATURE: Implement stealth multi-target prohibition
-- [] FEATURE: Reimplement sensor shadows?
-- [] FEATURE: Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
-- [] FEATURE: injuries reduce sensor check
+- [ ] BUG: Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
+- [ ] BUG: Armor/structure exact values are being shown, not just as ??
+- [ ] FEATURE: Prevent called shot against blips
+- [ ] FEATURE: Per Denandan, move functions from tags into Custom {} to allow getting item defs w/o needing to search/parse
+- [ ] FEATURE: Rename `lv-scrambler_mX` to `lv-stealth-boost_mX` to match probes.
+- [ ] FEATURE: Rename active probes to `lv-sensormod-highest_mX` and `lv-sensormod-sum_mX`
+- [ ] FEATURE: Show signature, visibility modifiers for target on the tooltips. Show same for player mechs.
+- [ ] FEATURE: Make sensor lock not end your turn (SensorLockSequence)
+- [ ] FEATURE: ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
+- [ ] FEATURE: On shutdown, no stealth / ecm / etc applies
+- [ ] FEATURE: Component damage should eliminate ECM, AP, Stealth bonuses
+- [ ] FEATURE: ```lv_shared_spotter``` tag on pilots to share LOS
+- [ ] FEATURE: Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
+- [ ] FEATURE: Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
+- [ ] FEATURE: Implement stealth multi-target prohibition
+- [ ] FEATURE: Reimplement sensor shadows?
+- [ ] FEATURE: Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
+- [ ] FEATURE: injuries reduce sensor check
 
 ### Possible Additions
 
