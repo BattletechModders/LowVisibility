@@ -30,12 +30,12 @@ namespace LowVisibility.Patch {
                     foreach (AbstractActor actor in __instance.Combat.AllActors) {
                         if (actor != null) {
                             // Parse their EW config
-                            StaticEWState actorEWConfig = new StaticEWState(actor);
-                            State.StaticEWState[actor.GUID] = actorEWConfig;
+                            EWState actorEWConfig = new EWState(actor);
+                            State.EWState[actor.GUID] = actorEWConfig;
 
                             // Make a pre-encounter detectCheck for them
-                            State.BuildDynamicState(actor);
-                            LowVisibility.Logger.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} has detectCheck:{State.GetDynamicState(actor).ToString()} at load/start");
+                            State.BuildEWState(actor);
+                            LowVisibility.Logger.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} has rangeCheck:{State.GetEWState(actor).rangeCheck} at load/start");
 
                             bool isPlayer = actor.TeamId == __instance.Combat.LocalPlayerTeamGuid;
                             if (isPlayer && randomPlayerActor == null) {
@@ -48,8 +48,6 @@ namespace LowVisibility.Patch {
                     }
                 }
 
-                VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
-                VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
             }
         }
     }
@@ -62,33 +60,27 @@ namespace LowVisibility.Patch {
             return AccessTools.Method(typeof(TurnDirector), "BeginNewRound", new Type[] { typeof(int) });
         }
 
-        public static void Prefix(TurnDirector __instance) {
-            LowVisibility.Logger.LogIfTrace("=== TurnDirector:BeginNewRound:post - entered.");
+        public static void Prefix(TurnDirector __instance, int round) {
+            LowVisibility.Logger.Log($"=== TurnDirector - Beginning round:{round}");
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
 
-
-                if (LowVisibility.Config.FirstTurnForceFailedChecks && __instance.CurrentRound == 0) {
-                    LowVisibility.Logger.Log("=== TurnDirector:Forcing sensor checks to negative values for first round.");
-                    State.DynamicEWState[actor.GUID] = new DynamicEWState {
-                        detailCheck = -15,
-                        rangeCheck = -15
-                    };
+                if (__instance.CurrentRound == 0) {
+                    State.BuildEWState(actor);                    
                 } else {
-                    State.BuildDynamicState(actor);
+                    EWState ewState = State.GetEWState(actor);
+                    ewState.UpdateChecks();
+
+                    if (State.ECMJamming(actor) > 0) {
+                        // Send a floatie indicating the jamming
+                        MessageCenter mc = __instance.Combat.MessageCenter;
+                        mc.PublishMessage(new FloatieMessage(__instance.GUID, __instance.GUID, "SENSOR CHECK FAILED!", FloatieMessage.MessageNature.Debuff));
+                    }
                 }
 
-                DynamicEWState dynamicState = State.GetDynamicState(actor);
-                if (dynamicState.detailCheck < 0 || dynamicState.rangeCheck < 0) {
-                    // Send a floatie indicating the jamming
-                    MessageCenter mc = __instance.Combat.MessageCenter;
-                    mc.PublishMessage(new FloatieMessage(__instance.GUID, __instance.GUID, "SENSOR CHECK FAILED!", FloatieMessage.MessageNature.Debuff));
-                }
             }
 
-            VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
-            VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
         }
     }
 

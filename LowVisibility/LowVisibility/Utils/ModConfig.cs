@@ -25,9 +25,11 @@ namespace LowVisibility {
 
         // The minium range for vision, no matter the circumstances
         public int VisionRangeMinimum = 3;
+        public float MinimumVisionRange() { return VisionRangeMinimum * 30.0f; }
 
         // The minium range for sensors, no matter the circumstances
         public int SensorRangeMinimum = 8;
+        public float MinimumSensorRange() { return SensorRangeMinimum * 30.0f; }
 
         // The range (in hexes) from which you can identify some elements of a unit
         public int VisualScanRange = 7;

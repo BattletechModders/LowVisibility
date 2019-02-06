@@ -1,13 +1,12 @@
 ﻿using BattleTech;
 using BattleTech.UI;
 using Harmony;
-using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using System.Reflection;
 using UnityEngine;
 using static LowVisibility.Helper.VisibilityHelper;
-using static LowVisibility.Object.StaticEWState;
+using static LowVisibility.Object.EWState;
 
 namespace LowVisibility.Patch {
 
@@ -65,7 +64,8 @@ namespace LowVisibility.Patch {
             return AccessTools.Method(typeof(CombatHUDActorInfo), "UpdateItemVisibility", new Type[] { });
         }
 
-        public static void Postfix(CombatHUDActorInfo __instance, AbstractActor ___displayedActor, BattleTech.Building ___displayedBuilding, ICombatant ___displayedCombatant) {
+        public static void Postfix(CombatHUDActorInfo __instance, AbstractActor ___displayedActor, 
+            BattleTech.Building ___displayedBuilding, ICombatant ___displayedCombatant) {
 
             bool isEnemyOrNeutral = false;
             VisibilityLevel visibilityLevel = VisibilityLevel.None;            
@@ -87,12 +87,12 @@ namespace LowVisibility.Patch {
             Traverse setGOActiveMethod = Traverse.Create(__instance).Method("SetGOActive", new Type[] { typeof(MonoBehaviour), typeof(bool) });
             // The actual method should handle allied and friendly units fine, so we can just change it for enemies
             if (isEnemyOrNeutral && visibilityLevel > VisibilityLevel.Blip0Minimum && ___displayedActor != null) {
-                LockState lockState = GetUnifiedLockStateForTarget(State.GetLastPlayerActivatedActor(___displayedActor.Combat), ___displayedActor);
+                Locks lockState = State.LastActivatedLocksForTarget(___displayedActor);
 
                 // Values that are always displayed
                 setGOActiveMethod.GetValue(__instance.NameDisplay, true);
 
-                if (lockState.sensorLockLevel >= DetectionLevel.StructureAnalysis) {
+                if (lockState.sensorLock >= SensorScanType.StructureAnalysis) {
                     // Show unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, true);
 
@@ -115,7 +115,7 @@ namespace LowVisibility.Patch {
                         setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                         setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                     }
-                } else if (lockState.sensorLockLevel >= DetectionLevel.SurfaceScan) {
+                } else if (lockState.sensorLock >= SensorScanType.SurfaceScan) {
                     // Show unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
@@ -133,7 +133,7 @@ namespace LowVisibility.Patch {
 
                     setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                     setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
-                } else if (lockState.visionLockLevel == VisionLockType.VisualID) {
+                } else if (lockState.visualLock == VisualScanType.VisualID) {
                     // Hide unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
@@ -148,8 +148,13 @@ namespace LowVisibility.Patch {
                     setGOActiveMethod.GetValue(__instance.ArmorBar, true);
                     setGOActiveMethod.GetValue(__instance.StructureBar, true);
 
-                    setGOActiveMethod.GetValue(__instance.StabilityDisplay, true);
-                    setGOActiveMethod.GetValue(__instance.HeatDisplay, true);
+                    if (___displayedActor as Mech != null) {
+                        setGOActiveMethod.GetValue(__instance.StabilityDisplay, true);
+                        setGOActiveMethod.GetValue(__instance.HeatDisplay, true);
+                    } else {
+                        setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
+                        setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
+                    }
                 } else {
                     // Hide unit summary
                     setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
@@ -185,26 +190,26 @@ namespace LowVisibility.Patch {
             AbstractActor targetActor = target as AbstractActor;
             Traverse AddToolTipDetailMethod = Traverse.Create(__instance).Method("AddToolTipDetail", new Type[] { typeof(string), typeof(int) });
 
-            if (targetActor != null) {
+            if (targetActor != null && __instance.DisplayedWeapon != null) {
                 //LowVisibility.Logger.LogIfDebug($"___CombatHUDTargetingComputer - SetHitChance for source:{CombatantHelper.Label(targetActor)} target:{CombatantHelper.Label(targetActor)}");
-                LockState lockState = GetUnifiedLockStateForTarget(actor, targetActor);
+                Locks lockState = State.LocksForTarget(actor, targetActor);
                 float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
-                StaticEWState attackerEWConfig = State.GetStaticState(actor);
+                EWState attackerEWConfig = State.GetEWState(actor);
 
-                if (lockState.sensorLockLevel == DetectionLevel.NoInfo) {
+                if (lockState.sensorLock == SensorScanType.NoInfo) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", LowVisibility.Config.VisionOnlyPenalty});
                 }
 
-                if (lockState.visionLockLevel == VisionLockType.None) {
+                if (lockState.visualLock == VisualScanType.None) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", LowVisibility.Config.SensorsOnlyPenalty });
                 }
                 
-                VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance);
+                VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, __instance.DisplayedWeapon);
                 if (vismodeMod.modifier != 0) {
                     AddToolTipDetailMethod.GetValue(new object[] { vismodeMod.label, vismodeMod.modifier });
                 }
 
-                StaticEWState targetEWConfig = State.GetStaticState(target as AbstractActor);
+                EWState targetEWConfig = State.GetEWState(target as AbstractActor);
                 if (targetEWConfig.HasStealthRangeMod()) {
                     Weapon weapon = __instance.DisplayedWeapon;
                     int weaponStealthMod = targetEWConfig.CalculateStealthRangeMod(weapon, distance);

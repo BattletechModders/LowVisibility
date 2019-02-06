@@ -29,21 +29,20 @@ namespace LowVisibility.Patch {
                 AbstractActor target = __instance.DisplayedCombatant as AbstractActor;
                 // We can receive a building here, so 
                 if (target != null) {
-                    bool isPlayer = target.team == target.Combat.LocalPlayerTeam;
-                    if (!isPlayer) {                        
-                        LockState lockState = State.GetLockStateForLastActivatedAgainstTarget(target);
+                    if (target.Combat.HostilityMatrix.IsLocalPlayerEnemy(target.team)) {                        
+                        Locks lockState = State.LastActivatedLocksForTarget(target);
 
-                        if (lockState.sensorLockLevel < DetectionLevel.Vector) {
+                        if (lockState.sensorLock < SensorScanType.Vector) {
                             //// Hide the evasive indicator, hide the buffs and debuffs
                             //Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
                             //hideEvasionIndicatorMethod.GetValue();
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        } else if (lockState.sensorLockLevel < DetectionLevel.StructureAnalysis) {
+                        } else if (lockState.sensorLock < SensorScanType.StructureAnalysis) {
                             // Hide the buffs and debuffs
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        } else if (lockState.sensorLockLevel >= DetectionLevel.StructureAnalysis) {
+                        } else if (lockState.sensorLock >= SensorScanType.StructureAnalysis) {
                             // Do nothing; normal state
                         }
                     }
@@ -73,8 +72,7 @@ namespace LowVisibility.Patch {
                 Traverse showBuffStringMethod = Traverse.Create(__instance).Method("ShowBuff", stringMethodParams);
 
                 AbstractActor actor = __instance.DisplayedCombatant as AbstractActor;
-                StaticEWState staticState = State.GetStaticState(actor);
-                DynamicEWState dynamicState = State.GetDynamicState(actor);
+                EWState staticState = State.GetEWState(actor);
 
                 bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 if (isPlayer) {
@@ -120,32 +118,31 @@ namespace LowVisibility.Patch {
         }
 
         private static string BuildToolTip(AbstractActor actor) {
-            StaticEWState staticState = State.GetStaticState(actor);
-            DynamicEWState dynamicState = State.GetDynamicState(actor);
+            EWState ewState = State.GetEWState(actor);
 
             List<string> details = new List<string>();
-            float visualLockRange = ActorHelper.GetVisualLockRange(actor);
-            float sensorsRange = ActorHelper.GetSensorsRange(actor);
-            float visualScanRange = ActorHelper.GetVisualScanRange(actor);
+            float visualLockRange = VisualLockHelper.GetVisualLockRange(actor);
+            float visualScanRange = VisualLockHelper.GetVisualScanRange(actor);
+            float sensorsRange = SensorLockHelper.GetSensorsRange(actor);            
             details.Add($"Visual Lock:{visualLockRange:0}m Scan:{visualScanRange}m [{State.MapConfig.UILabel()}]\n");
 
             List<string> sensorDetails = new List<string>();
             sensorDetails.Add(" Range Roll:");
-            float rangeMulti = 1.0f + ((dynamicState.rangeCheck + staticState.CalculateProbeModifier()) / 10.0f);
-            if (dynamicState.rangeCheck >= 0) {
-                sensorDetails.Add($"<color=#00FF00>{dynamicState.rangeCheck:+0}</color>");                                        
+            float rangeMulti = 1.0f + ((ewState.rangeCheck + ewState.SensorCheckModifier()) / 10.0f);
+            if (ewState.rangeCheck >= 0) {
+                sensorDetails.Add($"<color=#00FF00>{ewState.rangeCheck:+0}</color>");                                        
             } else {
-                sensorDetails.Add($"<color=#FF0000>{dynamicState.rangeCheck:0}</color>");
+                sensorDetails.Add($"<color=#FF0000>{ewState.rangeCheck:0}</color>");
             }
 
-            sensorDetails.Add($" + Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color>");
+            sensorDetails.Add($" + Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>");
 
-            if (staticState.probeMod > 0) {
-                sensorDetails.Add($" + Probe:<color=#00FF00>{staticState.probeMod:0}</color>");
+            if (ewState.probeMod > 0) {
+                sensorDetails.Add($" + Probe:<color=#00FF00>{ewState.probeMod:0}</color>");
             }
 
-            if (staticState.probeBoostMod > 0) {
-                sensorDetails.Add($" + ProbeBoost:<color=#00FF00>{staticState.probeBoostMod:0}</color>");
+            if (ewState.probeBoostMod > 0) {
+                sensorDetails.Add($" + ProbeBoost:<color=#00FF00>{ewState.probeBoostMod:0}</color>");
             }
 
             if (rangeMulti >= 1.0) {
@@ -154,28 +151,28 @@ namespace LowVisibility.Patch {
                 sensorDetails.Add($" = <color=#FF0000>x{rangeMulti:0.00}</color>");
             }
 
-            sensorDetails.Add("]\n");
+            sensorDetails.Add("\n");
 
             // Sensor Info below
-            int checkResult = dynamicState.detailCheck;
+            int checkResult = ewState.detailCheck;
 
             sensorDetails.Add($" Info Roll:");            
-            if (dynamicState.detailCheck >= 0) {
-                sensorDetails.Add($"<color=#00FF00>{dynamicState.detailCheck:0}</color>");
+            if (ewState.detailCheck >= 0) {
+                sensorDetails.Add($"<color=#00FF00>{ewState.detailCheck:0}</color>");
             } else {
-                sensorDetails.Add($"<color=#FF0000>{dynamicState.detailCheck:0}</color>");
+                sensorDetails.Add($"<color=#FF0000>{ewState.detailCheck:0}</color>");
             }
-            checkResult += staticState.tacticsBonus;
-            sensorDetails.Add($" + Tactics: <color=#00FF00>{staticState.tacticsBonus:0}</color>");                        
+            checkResult += ewState.tacticsBonus;
+            sensorDetails.Add($" + Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>");                        
 
-            if (staticState.probeMod > 0) {
-                checkResult += staticState.probeMod;
-                sensorDetails.Add($" + Probe: <color=#00FF00>{staticState.probeMod:0}</color>");
+            if (ewState.probeMod > 0) {
+                checkResult += ewState.probeMod;
+                sensorDetails.Add($" + Probe: <color=#00FF00>{ewState.probeMod:0}</color>");
             }
 
-            if (staticState.probeBoostMod > 0) {
-                checkResult += staticState.probeBoostMod;
-                sensorDetails.Add($" + ProbeBoost: <color=#00FF00>{staticState.probeBoostMod:0}</color>");
+            if (ewState.probeBoostMod > 0) {
+                checkResult += ewState.probeBoostMod;
+                sensorDetails.Add($" + ProbeBoost: <color=#00FF00>{ewState.probeBoostMod:0}</color>");
             }
 
             if (State.ECMJamming(actor) != 0) {
@@ -192,23 +189,23 @@ namespace LowVisibility.Patch {
             sensorDetails.Add("\n");
 
             // Sensor range
-            DetectionLevel checkLevel = DetectionLevel.NoInfo;
-            if (checkLevel > DetectionLevel.DentalRecords) {
-                checkLevel = DetectionLevel.DentalRecords;
-            } else if (checkLevel < DetectionLevel.NoInfo) {
-                checkLevel = DetectionLevel.NoInfo;
+            SensorScanType checkLevel = SensorScanType.NoInfo;
+            if (checkLevel > SensorScanType.DentalRecords) {
+                checkLevel = SensorScanType.DentalRecords;
+            } else if (checkLevel < SensorScanType.NoInfo) {
+                checkLevel = SensorScanType.NoInfo;
             } else {
-                checkLevel = (DetectionLevel)checkResult;
+                checkLevel = (SensorScanType)checkResult;
             }
             details.Add($"Sensors Lock:{sensorsRange:0}m Info:[{checkLevel.Label()}]\n");
             details.AddRange(sensorDetails);
 
             // Sensor check:(+/-0) SensorScanLevel:
-            if (staticState.ecmMod != 0) {
-                details.Add($"ECM => Range:{staticState.ecmRange}m Enemy Modifier:<color=#FF0000>{staticState.ecmMod:-0}</color>");
+            if (ewState.ecmMod != 0) {
+                details.Add($"ECM => Range:{ewState.ecmRange}m Enemy Modifier:<color=#FF0000>{ewState.ecmMod:-0}</color>");
             }
-            if (staticState.stealthMod != 0) {
-                details.Add($"STEALTH => Enemy Modifier:<color=#FF0000>{staticState.stealthMod:-0}</color>");
+            if (ewState.stealthMod != 0) {
+                details.Add($"STEALTH => Enemy Modifier:<color=#FF0000>{ewState.stealthMod:-0}</color>");
             }
 
             string tooltipText = String.Join("", details.ToArray());

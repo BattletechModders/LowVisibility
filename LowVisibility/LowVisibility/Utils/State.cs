@@ -22,12 +22,12 @@ namespace LowVisibility {
         public static MapConfig MapConfig;
 
         // -- Mutable state
-        public static Dictionary<string, DynamicEWState> DynamicEWState = new Dictionary<string, DynamicEWState>();
-        public static Dictionary<string, StaticEWState> StaticEWState = new Dictionary<string, StaticEWState>();
-        public static Dictionary<string, HashSet<LockState>> SourceActorLockStates = new Dictionary<string, HashSet<LockState>>();
+        public static Dictionary<string, EWState> EWState = new Dictionary<string, EWState>();
+        public static Dictionary<string, Dictionary<string, Locks>> PlayerActorLocks 
+            = new Dictionary<string, Dictionary<string, Locks>>();
         
         // TODO: Do I need this anymore?
-        public static string LastPlayerActivatedActorGUID;
+        public static string LastPlayerActor;
 
         // -- State related to ECM/effects
         public static Dictionary<string, int> ECMJammedActors = new Dictionary<string, int>();
@@ -42,11 +42,10 @@ namespace LowVisibility {
 
         // --- Methods Below ---
         public static void ClearStateOnCombatGameDestroyed() {
-            State.DynamicEWState.Clear();
-            State.StaticEWState.Clear();
-            State.SourceActorLockStates.Clear();
+            State.EWState.Clear();
+            State.PlayerActorLocks.Clear();
 
-            State.LastPlayerActivatedActorGUID = null;
+            State.LastPlayerActor = null;
 
             State.ECMJammedActors.Clear();
             State.ECMProtectedActors.Clear();
@@ -55,7 +54,6 @@ namespace LowVisibility {
 
             State.TurnDirectorStarted = false;
         }
-
 
         public static float GetMapVisionRange() {
             if (MapConfig == null) {
@@ -76,47 +74,68 @@ namespace LowVisibility {
         }
 
         // --- Methods for SourceActorLockStates
-        public static HashSet<LockState> GetLocksForLastActivatedPlayerActor(CombatGameState Combat) {
-            AbstractActor lastActivatedPlayerActor = GetLastPlayerActivatedActor(Combat);
-            if (SourceActorLockStates.ContainsKey(lastActivatedPlayerActor.GUID)) {
-                return SourceActorLockStates[lastActivatedPlayerActor.GUID];
-            } else {
-                // TODO: FIXME
-                return null;
+        public static Dictionary<string, Locks> LastActivatedLocks(CombatGameState Combat) {
+            AbstractActor lastActivated = GetLastPlayerActivatedActor(Combat);
+            if (!PlayerActorLocks.ContainsKey(lastActivated.GUID)) {
+                PlayerActorLocks[lastActivated.GUID] = new Dictionary<string, Locks>();                
+            }
+            return PlayerActorLocks[lastActivated.GUID];
+        }
+
+        public static Locks LastActivatedLocksForTarget(ICombatant target) {
+            Dictionary<string, Locks> locks = State.LastActivatedLocks(target.Combat);
+            return locks.ContainsKey(target.GUID) ? 
+                locks[target.GUID] : new Locks(State.GetLastPlayerActivatedActor(target.Combat), target);
+        }
+
+        public static void UpdateActorLocks(AbstractActor source, ICombatant target, VisualScanType visualLock, SensorScanType sensorLock) {
+            if (source != null && target != null) {
+                Locks newLocks = new Locks(source, target, visualLock, sensorLock);
+                if (PlayerActorLocks.ContainsKey(source.GUID)) {
+                    PlayerActorLocks[source.GUID][target.GUID] = newLocks;
+                } else {
+                    PlayerActorLocks[source.GUID] = new Dictionary<string, Locks> {
+                        [target.GUID] = newLocks
+                    };
+                }
             }
         }
 
-        public static LockState GetLockStateForLastActivatedAgainstTarget(AbstractActor target) {
-            HashSet<LockState> lockStates = State.GetLocksForLastActivatedPlayerActor(target.Combat);
-            LockState lockState = lockStates.First(ls => ls.targetGUID == target.GUID);
-            return lockState;
-        }
-
-        // --- Methods manipulating DynamicEWState
-        public static DynamicEWState GetDynamicState(AbstractActor actor) {
-            if (!DynamicEWState.ContainsKey(actor.GUID)) {
-                LowVisibility.Logger.Log($"WARNING: DynamicEWState for actor:{actor.GUID} was not found. Creating!");
-                BuildDynamicState(actor);
+        public static Locks LocksForTarget(AbstractActor attacker, ICombatant target) {
+            Locks locks = null;
+            if (State.PlayerActorLocks.ContainsKey(attacker.GUID)) {
+                Dictionary<string, Locks> actorLocks = State.PlayerActorLocks[attacker.GUID];
+                if (actorLocks.ContainsKey(target.GUID)) {
+                    locks = actorLocks[target.GUID];
+                }
             }
-            return DynamicEWState[actor.GUID];
+            return locks ?? new Locks(attacker, target);
         }
 
-        public static void BuildDynamicState(AbstractActor actor) {            
-            DynamicEWState[actor.GUID] = new DynamicEWState(GetCheckResult(), GetCheckResult());
-        }
-
-        // --- Methods manipulating StaticEWState
-        public static StaticEWState GetStaticState(AbstractActor actor) {
-            if (!StaticEWState.ContainsKey(actor.GUID)) {
-                LowVisibility.Logger.Log($"WARNING: StaticEWState for actor:{actor.GUID} was not found. Creating!");
-                BuildStaticState(actor);
+        public static List<Locks> TeamLocksForTarget(ICombatant target) {
+            List<Locks> allTargetLocks = new List<Locks>();
+            if (State.PlayerActorLocks != null && State.PlayerActorLocks.Count > 0) {
+                allTargetLocks = State.PlayerActorLocks
+                    .Select(pal => pal.Value)
+                    .Where(pald => pald != null && pald.ContainsKey(target.GUID))
+                    .Select(pald => pald[target.GUID])
+                    .ToList();                    
             }
-            return StaticEWState[actor.GUID];
+            return allTargetLocks;
         }
 
-        public static void BuildStaticState(AbstractActor actor) {
-            StaticEWState config = new StaticEWState(actor);
-            StaticEWState[actor.GUID] = config;
+        // --- Methods manipulating EWState
+        public static EWState GetEWState(AbstractActor actor) {
+            if (!EWState.ContainsKey(actor.GUID)) {
+                LowVisibility.Logger.Log($"WARNING: StaticEWState for actor:{CombatantHelper.Label(actor)} was not found. Creating!");
+                BuildEWState(actor);
+            }
+            return EWState[actor.GUID];
+        }
+
+        public static void BuildEWState(AbstractActor actor) {
+            EWState config = new EWState(actor);
+            EWState[actor.GUID] = config;
         }
 
         // --- Methods manipulating CheckResults
@@ -151,11 +170,11 @@ namespace LowVisibility {
         // The last actor that the player activated. Used to determine visibility in targetingHUD between activations
 
         public static AbstractActor GetLastPlayerActivatedActor(CombatGameState Combat) {
-            if (LastPlayerActivatedActorGUID == null) {
+            if (LastPlayerActor == null) {
                 List<AbstractActor> playerActors = HostilityHelper.PlayerActors(Combat);
-                LastPlayerActivatedActorGUID = playerActors[0].GUID;
+                LastPlayerActor = playerActors[0].GUID;
             }
-            return Combat.FindActorByGUID(LastPlayerActivatedActorGUID);
+            return Combat.FindActorByGUID(LastPlayerActor);
         }
 
         // --- ECM JAMMING STATE TRACKING ---
@@ -177,36 +196,36 @@ namespace LowVisibility {
         }
 
         // --- ECM PROTECTION STATE TRACKING
-        public static int ECMProtection(AbstractActor actor) {
+        public static int ECMProtection(ICombatant actor) {
             return ECMProtectedActors.ContainsKey(actor.GUID) ? ECMProtectedActors[actor.GUID] : 0;
         }
 
-        public static void AddECMProtection(AbstractActor actor, int modifier) {            
+        public static void AddECMProtection(ICombatant actor, int modifier) {            
             if (!ECMProtectedActors.ContainsKey(actor.GUID)) {
                 ECMProtectedActors.Add(actor.GUID, modifier);
             } else if (modifier > ECMProtectedActors[actor.GUID]) {
                 ECMProtectedActors[actor.GUID] = modifier;
             }
         }
-        public static void RemoveECMProtection(AbstractActor actor) {
+        public static void RemoveECMProtection(ICombatant actor) {
             if (ECMProtectedActors.ContainsKey(actor.GUID)) {
                 ECMProtectedActors.Remove(actor.GUID);
             }
         }
 
         // --- ECM NARC EFFECT
-        public static int NARCEffect(AbstractActor actor) {
+        public static int NARCEffect(ICombatant actor) {
             return NarcedActors.ContainsKey(actor.GUID) ? NarcedActors[actor.GUID] : 0;
         }
 
-        public static void AddNARCEffect(AbstractActor actor, int modifier) {
+        public static void AddNARCEffect(ICombatant actor, int modifier) {
             if (!NarcedActors.ContainsKey(actor.GUID)) {
                 NarcedActors.Add(actor.GUID, modifier);
             } else if (modifier > NarcedActors[actor.GUID]) {
                 NarcedActors[actor.GUID] = modifier;
             }
         }
-        public static void RemoveNARCEffect(AbstractActor actor) {
+        public static void RemoveNARCEffect(ICombatant actor) {
             if (NarcedActors != null && actor != null && NarcedActors.ContainsKey(actor.GUID)) {
                 NarcedActors.Remove(actor.GUID);
             }
@@ -232,9 +251,8 @@ namespace LowVisibility {
 
         // --- FILE SAVE/READ BELOW ---
         public class SerializationState {
-            public Dictionary<string, DynamicEWState> dynamicState;
-            public Dictionary<string, StaticEWState> staticState;
-            public Dictionary<string, HashSet<LockState>> SourceActorLockStates;
+            public Dictionary<string, EWState> staticState;
+            public Dictionary<string, Dictionary<string, Locks>> PlayerActorLocks;
 
             public string LastPlayerActivatedActorGUID;
 
@@ -249,9 +267,8 @@ namespace LowVisibility {
             ECMProtectedActors.Clear();
             NarcedActors.Clear();
             TaggedActors.Clear();
-            SourceActorLockStates.Clear();
-            DynamicEWState.Clear();
-            StaticEWState.Clear();
+            PlayerActorLocks.Clear();
+            EWState.Clear();
 
             string normalizedFileID = saveFileID.Substring(5);
             FileInfo stateFilePath = CalculateFilePath(normalizedFileID);
@@ -266,15 +283,15 @@ namespace LowVisibility {
                         savedState = JsonConvert.DeserializeObject<SerializationState>(json);
                     }
 
-                    State.DynamicEWState = savedState.dynamicState;
-                    LowVisibility.Logger.Log($"  -- DynamicEWState.count: {savedState.dynamicState.Count}");
-                    State.StaticEWState = savedState.staticState;
+                    // TODO: NEED TO REFRESH STATIC STATE ON ACTORS
+                    State.EWState = savedState.staticState;
                     LowVisibility.Logger.Log($"  -- StaticEWState.count: {savedState.staticState.Count}");
-                    State.SourceActorLockStates = savedState.SourceActorLockStates;
-                    LowVisibility.Logger.Log($"  -- SourceActorLockStates.count: {savedState.SourceActorLockStates.Count}");
 
-                    State.LastPlayerActivatedActorGUID = savedState.LastPlayerActivatedActorGUID;
-                    LowVisibility.Logger.Log($"  -- LastPlayerActivatedActorGUID: {LastPlayerActivatedActorGUID}");
+                    State.PlayerActorLocks = savedState.PlayerActorLocks;
+                    LowVisibility.Logger.Log($"  -- SourceActorLockStates.count: {savedState.PlayerActorLocks.Count}");
+
+                    State.LastPlayerActor = savedState.LastPlayerActivatedActorGUID;
+                    LowVisibility.Logger.Log($"  -- LastPlayerActivatedActorGUID: {LastPlayerActor}");
 
                     State.ECMJammedActors = savedState.ecmJammedActors;
                     LowVisibility.Logger.Log($"  -- ecmJammedActors.count: {savedState.ecmJammedActors.Count}");
@@ -305,11 +322,10 @@ namespace LowVisibility {
 
             try {
                 SerializationState state = new SerializationState {
-                    dynamicState = State.DynamicEWState,
-                    staticState = State.StaticEWState,
-                    SourceActorLockStates = State.SourceActorLockStates,
+                    staticState = State.EWState,
+                    PlayerActorLocks = State.PlayerActorLocks,
 
-                    LastPlayerActivatedActorGUID = State.LastPlayerActivatedActorGUID,
+                    LastPlayerActivatedActorGUID = State.LastPlayerActor,
 
                     ecmJammedActors = State.ECMJammedActors,
                     ecmProtectedActors = State.ECMProtectedActors,

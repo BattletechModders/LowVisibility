@@ -2,10 +2,7 @@
 using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(Team), "AddUnit")]
@@ -25,20 +22,19 @@ namespace LowVisibility.Patch {
                 unit.AddToTeam(__instance);
 
                 // Before recalculating visibility, add the dynamic and static states for this actor
-                StaticEWState actorEWConfig = new StaticEWState(unit);
-                State.StaticEWState[unit.GUID] = actorEWConfig;
-                State.BuildDynamicState(unit);
+                EWState actorEWConfig = new EWState(unit);
+                State.EWState[unit.GUID] = actorEWConfig;
 
                 // Build their sourceLocks
-                VisibilityHelper.UpdateDetectionForActor(unit);                
+                //VisibilityHelper.UpdateDetectionForActor(unit);                
 
-                HostilityMatrix hostilityMatrix = (HostilityMatrix)Traverse.Create(__instance).Property("HostilityMatrix").GetValue();                
-                if (hostilityMatrix.IsLocalPlayerFriendly(__instance.GUID)) {
-                    unit.OnPlayerVisibilityChanged(VisibilityLevel.LOSFull);
-                }
-                if (__instance.Combat.TurnDirector.CurrentRound > 0) {
-                    unit.UpdateVisibilityCache(__instance.Combat.GetAllCombatants());
-                }
+                //HostilityMatrix hostilityMatrix = (HostilityMatrix)Traverse.Create(__instance).Property("HostilityMatrix").GetValue();                
+                //if (hostilityMatrix.IsLocalPlayerFriendly(__instance.GUID)) {
+                //    unit.OnPlayerVisibilityChanged(VisibilityLevel.LOSFull);
+                //}
+                //if (__instance.Combat.TurnDirector.CurrentRound > 0) {
+                //    unit.UpdateVisibilityCache(__instance.Combat.GetAllCombatants());
+                //}
             }
         }
     }

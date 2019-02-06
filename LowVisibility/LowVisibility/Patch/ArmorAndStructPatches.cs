@@ -12,14 +12,14 @@ namespace LowVisibility.Patches {
     public static class Helper {
         public static void HideArmorAndStructure(AbstractActor target, TextMeshProUGUI armorHover, TextMeshProUGUI structHover) {
 
-            LockState lockState = State.GetLockStateForLastActivatedAgainstTarget(target);
+            Locks lockState = State.LastActivatedLocksForTarget(target);
             string armorText = null;
             string structText = null;
-            if (lockState.sensorLockLevel >= DetectionLevel.StructureAnalysis) {
+            if (lockState.sensorLock >= SensorScanType.StructureAnalysis) {
                 // See all values
                 armorText = armorHover.text;
                 structText = structHover.text;
-            } else if (lockState.visionLockLevel == VisionLockType.VisualID) {
+            } else if (lockState.visualLock == VisualScanType.VisualID) {
                 // See max armor, max struct                
                 string rawArmor = armorHover.text;
                 string maxArmor = rawArmor.Split('/')[1];
@@ -50,14 +50,9 @@ namespace LowVisibility.Patches {
         }
 
         public static void Postfix(HUDMechArmorReadout __instance) {
-            //KnowYourFoe.Logger.Log("HUDMechArmorReadout:RefreshHoverInfo:post - entered.");
 
             if (__instance != null && __instance.DisplayedMech != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null) {
-                //KnowYourFoe.Logger.Log($"DisplayedMech:{__instance.DisplayedMech} team:{__instance.DisplayedMech.team} combat:{__instance.DisplayedMech.Combat} localPlayerTeam:{__instance.DisplayedMech.Combat.LocalPlayerTeam}");
-                bool isPlayer = __instance?.DisplayedMech?.team == __instance?.DisplayedMech?.Combat?.LocalPlayerTeam;
-                //KnowYourFoe.Logger.Log($"Source isPlayer:{isPlayer} for " +
-                //$"actor:{__instance.DisplayedMech.DisplayName}_{__instance.DisplayedMech.GetPilot().Name}_{__instance.DisplayedMech.GUID}.");
-                if (!isPlayer) {
+                if (!__instance.DisplayedMech.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedMech.TeamId)) {
                     Helper.HideArmorAndStructure(__instance.DisplayedMech, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
                 }
             }
@@ -72,14 +67,9 @@ namespace LowVisibility.Patches {
         }
 
         public static void Postfix(HUDVehicleArmorReadout __instance) {
-            //KnowYourFoe.Logger.Log("HUDVehicleArmorReadout:RefreshHoverInfo:post - entered.");
 
             if (__instance != null && __instance.DisplayedVehicle != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null) {
-                //KnowYourFoe.Logger.Log($"DisplayedMech:{__instance.DisplayedMech} team:{__instance.DisplayedMech.team} combat:{__instance.DisplayedMech.Combat} localPlayerTeam:{__instance.DisplayedMech.Combat.LocalPlayerTeam}");
-                bool isPlayer = __instance?.DisplayedVehicle?.team == __instance?.DisplayedVehicle?.Combat?.LocalPlayerTeam;
-                //KnowYourFoe.Logger.Log($"Source isPlayer:{isPlayer} for " +
-                //$"actor:{__instance.DisplayedMech.DisplayName}_{__instance.DisplayedMech.GetPilot().Name}_{__instance.DisplayedMech.GUID}.");
-                if (!isPlayer) {
+                if (!__instance.DisplayedVehicle.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedVehicle.TeamId)) {
                     Helper.HideArmorAndStructure(__instance.DisplayedVehicle, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
                 }
             }
@@ -97,7 +87,9 @@ namespace LowVisibility.Patches {
 
         public static void Postfix(HUDTurretArmorReadout __instance) {
             if (__instance.DisplayedTurret != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null) {
-                Helper.HideArmorAndStructure(__instance.DisplayedTurret, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
+                if (!__instance.DisplayedTurret.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedTurret.TeamId)) {
+                    Helper.HideArmorAndStructure(__instance.DisplayedTurret, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
+                }
             }
         }
     }
@@ -109,7 +101,7 @@ namespace LowVisibility.Patches {
         }
 
         public static void Postfix(HUDTurretArmorReadout __instance) {
-            if (__instance.DisplayedTurret != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null) {
+            if (!__instance.DisplayedTurret.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedTurret.TeamId)) {
                 Helper.HideArmorAndStructure(__instance.DisplayedTurret, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
             }
         }

@@ -8,6 +8,10 @@ using UnityEngine;
 namespace LowVisibility.Helper {
 
     class ECMHelper {
+
+        public const string TagPrefixNarcEffect = "lv-narc-effect_m";
+        public const string TagPrefixTagEffect = "lv-tag-effect";
+
         public static void UpdateECMState(AbstractActor source) {
 
             List<AbstractActor> playerActors = HostilityHelper.PlayerActors(source.Combat)
@@ -54,13 +58,13 @@ namespace LowVisibility.Helper {
             List<Effect> allEffects = source.Combat.EffectManager.GetAllEffectsTargeting(source);
             List<Effect> narcEffects = allEffects != null
                 ? allEffects.Where(e => e?.EffectData?.tagData?.tagList != null)
-                    .Where(e => e.EffectData.tagData.tagList.Any(s => s.Contains(StaticEWState.TagPrefixNarcEffect)))
+                    .Where(e => e.EffectData.tagData.tagList.Any(s => s.Contains(TagPrefixNarcEffect)))
                     .ToList()
                 : new List<Effect>();
             LowVisibility.Logger.LogIfTrace($"  -- target:{CombatantHelper.Label(source)} has:{(narcEffects != null ? narcEffects.Count : 0)} NARC effects");
             int narcEffect = 0;
             foreach (Effect effect in narcEffects) {
-                string effectTag = effect?.EffectData?.tagData?.tagList?.FirstOrDefault(t => t.StartsWith(StaticEWState.TagPrefixNarcEffect));
+                string effectTag = effect?.EffectData?.tagData?.tagList?.FirstOrDefault(t => t.StartsWith(TagPrefixNarcEffect));
                 if (effectTag != null) {
                     string[] split = effectTag.Split('_');
                     if (split.Length == 2) {
@@ -93,13 +97,13 @@ namespace LowVisibility.Helper {
             // Check for TAG effects
             List<Effect> tagEffects = allEffects != null
                 ? allEffects.Where(e => e?.EffectData?.tagData?.tagList != null)
-                    .Where(e => e.EffectData.tagData.tagList.Contains(StaticEWState.TagPrefixTagEffect))
+                    .Where(e => e.EffectData.tagData.tagList.Contains(TagPrefixTagEffect))
                     .ToList()
                     : new List<Effect>();
             LowVisibility.Logger.LogIfTrace($"  -- target:{CombatantHelper.Label(source)} has:{(tagEffects != null ? tagEffects.Count : 0)} TAG effects");
             int tagEffect = 0;
             foreach (Effect effect in tagEffects) {
-                string effectTag = effect?.EffectData?.tagData?.tagList?.FirstOrDefault(t => t.StartsWith(StaticEWState.TagPrefixTagEffect));
+                string effectTag = effect?.EffectData?.tagData?.tagList?.FirstOrDefault(t => t.StartsWith(TagPrefixTagEffect));
                 tagEffect = effect.Duration.numMovementsRemaining;
             }
 
@@ -119,7 +123,7 @@ namespace LowVisibility.Helper {
                 float actorsDistance = Vector3.Distance(target.CurrentPosition, actor.CurrentPosition);
 
                 // if the actor has ECM, add to the ecmStrength
-                StaticEWState actorStaticState = State.GetStaticState(actor);
+                EWState actorStaticState = State.GetEWState(actor);
                 if (actorStaticState.ecmMod != 0 && actorsDistance <= actorStaticState.ecmRange) {
                     LowVisibility.Logger.LogIfDebug($"Target:{CombatantHelper.Label(target)} and ECM source:{CombatantHelper.Label(actor)} are {actorsDistance}m apart, " +
                         $"within of ECM bubble range of:{actorStaticState.ecmRange}");

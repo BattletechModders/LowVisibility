@@ -309,27 +309,13 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 > Example Two: A tag of `lv-stealth-move-mod_m3_s2` applies a +3 penalty to the attacker if the target does not move. If the target moves 1 or 2 hexes, this penalty would be reduced (by -1) to +2. If the target moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
 
 ## WIP Features
-- [x] BUG: stealth_move_mod is unbounded, can result in a +81 bonuses
-- [] BUG: Major performance hit on assault base missions; takes 2-3 seconds per move. Investigate why this is.
-- [] BUG: vismodes should only apply to ranged attacks
-- [x] BUG: Narc, Tag not cleaned up on combat end. Causes some NPEs.
-- [] BUG: Stability & heat bars showing on vehicles & turrets for some reason.
-- [x] BUG: SensorRange not respecting SensorRangeMinimum.
-- [x] BUG: VisibilityRange not respecting VisionRangeminiumum
-- [ ] BUG: Ranges should be rounded up to nearest hex?
-- [] BUG: Enemies not following the sensor blackout on turn one; there are cases where they get to attack anyways.
-- [] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
+- [x] [] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
+- [ ] BUG: Offensive push shows damaged areas even with a crap information roll. LA suggestion: restrict offensive push to a minimum info roll.
 - [] BUG: Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
-- [] BUG: Weapons summary shown when beyond sensors range with a high check.
-- [] BUG: Units remain in vision even when units move away. Investigate why this occurs.
-- [] BUG: Have to select a unit after save for GameRepresentations to be rendered.
-- [] BUG: If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix?
-- [] BUG: Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
 - [] FEATURE: Per Denandan, move functions from tags into Custom {} to allow getting item defs w/o needing to search/parse
 - [] FEATURE: Rename `lv-scrambler_mX` to `lv-stealth-boost_mX` to match probes.
 - [] FEATURE: Rename active probes to `lv-sensormod-highest_mX` and `lv-sensormod-sum_mX`
-- [x] FEATURE: Add `lv-vision-thermal_m` modifiers; reduces direct fire penalty, but at different ranges
-- [] FEATURE: Show signature, visibility modifiers for target on the tooltips.
+- [] FEATURE: Show signature, visibility modifiers for target on the tooltips. Show same for player mechs.
 - [] Armor/structure exact values are being shown, not just as ??
 - [] FEATURE: Make sensor lock not end your turn (SensorLockSequence)
 - [] FEATURE: ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
@@ -355,7 +341,20 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 - [] Add a 'lv-sensor-heat_rX_hY' for heat vision; increases detection of units with high heat ratings. For every Y heat, add +1 to the sensor check for this unit.
 
 ### To Document
+- [x] FEATURE: Add `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
+- [x] BUG: SensorRange not respecting SensorRangeMinimum.
+- [x] BUG: stealth_move_mod is unbounded, can result in a +81 bonuses
+- [x] BUG: Narc, Tag not cleaned up on combat end. Causes some NPEs.
+- [x] BUG: VisibilityRange not respecting VisionRangeminiumum
 - [x] BUG - When you overheat a mech, it disappears from vision
 - [x] VisionLock and VisualID ranges should be modified by equipment.
 - [x] Fix issues with VisualID - make it apply if close enough
 - [x] Hide pilot details when not DentalRecords
+- [x] BUG: vismodes should only apply to ranged attacks
+- [x] BUG: Stability & heat bars showing on vehicles & turrets for some reason.
+- [x] BUG: Ranges should be normalized to a hex instead of partial hex (Math.Ceil to hex definition)
+- [x] BUG: Enemies not following the sensor blackout on turn one; there are cases where they get to attack anyways.
+- [x] Document - FiredWeaponsSignatureEffect from CombatGameConstants.json (causes blipping effect)
+- [x] BUG: Have to select a unit after save for GameRepresentations to be rendered.
+- [x] BUG: If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix? Looks to be related to AIM.
+- [ ] BUG: Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
