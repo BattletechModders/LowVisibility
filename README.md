@@ -311,7 +311,7 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 ## WIP Features
 - [x] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
 - [ ] BUG: Report of vehicle blips showing mech paperdoll instead of vehicle. Photo proof, so see if it can be reproduced.
-- [ ] 
+- [ ] BUG: AIM calculations aren't accurate. Likely caused by LV going after AIM in the patch order? 
 - [ ] BUG: Offensive push shows damaged areas even with a crap information roll. LA suggestion: restrict offensive push to a minimum info roll.
 - [ ] BUG: Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
 - [ ] BUG: Armor/structure exact values are being shown, not just as ??
