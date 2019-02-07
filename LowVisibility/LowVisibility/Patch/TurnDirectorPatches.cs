@@ -89,6 +89,7 @@ namespace LowVisibility.Patch {
         public static void Postfix(TurnDirector __instance) {
             // Remove all combat state
             State.ClearStateOnCombatGameDestroyed();
+            CombatHUD_SubscribeToMessages.OnCombatGameDestroyed(__instance.Combat);
         }
     }
 

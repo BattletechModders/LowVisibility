@@ -37,11 +37,6 @@ namespace LowVisibility.Patch {
                     State.LastPlayerActor = actor.GUID;
                 }
 
-                //VisibilityHelper.UpdateDetectionForAllActors(actor.Combat);
-                //VisibilityHelper.UpdateVisibilityforPlayer(actor);
-
-                //VisibilityHelper.UpdateVisibilityForAllTeams(actor.Combat);
-
                 // Do this to force a refresh during a combat save
                 if (TurnDirector_OnEncounterBegin.IsFromSave) {
                     DEBUG_ToggleForcedVisibility(false, actor.Combat);
@@ -74,8 +69,6 @@ namespace LowVisibility.Patch {
 
                 // Why am I doing this here, isntead of OnMovePhaseComplete? Is it to help the AI, which needs this frequently evaluated for it's routines?
                 //ECMHelper.UpdateECMState(__instance);
-                //VisibilityHelper.UpdateDetectionForAllActors(__instance.Combat);
-                //VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
             }
         }
 

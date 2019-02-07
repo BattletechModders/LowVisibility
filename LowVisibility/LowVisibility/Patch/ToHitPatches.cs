@@ -10,6 +10,8 @@ namespace LowVisibility.Patch {
 
     [HarmonyPatch(typeof(ToHit), "GetAllModifiers")]
     public static class ToHit_GetAllModifiers {
+
+        [HarmonyBefore(new string[] { "Sheepy.BattleTechMod.AttackImprovementMod" })]
         private static void Postfix(ToHit __instance, ref float __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
 
@@ -63,6 +65,8 @@ namespace LowVisibility.Patch {
     //public string GetAllModifiersDescription(AbstractActor attacker, Weapon weapon, ICombatant target, Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot)
     [HarmonyPatch(typeof(ToHit), "GetAllModifiersDescription")]
     public static class ToHit_GetAllModifiersDescription {
+
+        [HarmonyBefore(new string[] { "Sheepy.BattleTechMod.AttackImprovementMod" })]
         private static void Postfix(ToHit __instance, ref string __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
 

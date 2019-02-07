@@ -10,7 +10,7 @@ using static LowVisibility.Object.EWState;
 
 namespace LowVisibility.Patch {
 
-    // Show the targeting computer for blips as well as LOSFull
+    // Show the targeting computer for blips as well as LOSFull 
     [HarmonyPatch(typeof(CombatHUD), "SubscribeToMessages")]
     [HarmonyPatch(new Type[] { typeof(bool) })]
     public static class CombatHUD_SubscribeToMessages {
@@ -19,13 +19,13 @@ namespace LowVisibility.Patch {
         private static CombatHUDTargetingComputer TargetingComputer = null;
         private static Traverse ShowTargetMethod = null;
 
-        // TODO: Should cleanup the subscribe here - may be causing teardown bugs
         public static void Postfix(CombatHUD __instance, bool shouldAdd) {
             //LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:post - entered.");
             if (shouldAdd) {
                 Combat = __instance.Combat;
                 TargetingComputer = __instance.TargetingComputer;
                 ShowTargetMethod = Traverse.Create(__instance).Method("ShowTarget", new Type[] { typeof(ICombatant) });
+
                 __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
                     new ReceiveMessageCenterMessage(OnActorTargeted), shouldAdd);
                 // Disable the previous registration 
@@ -35,10 +35,19 @@ namespace LowVisibility.Patch {
                 Combat = null;
                 TargetingComputer = null;
                 ShowTargetMethod = null;
+
                 __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
                     new ReceiveMessageCenterMessage(OnActorTargeted), shouldAdd);
             }
 
+        }
+
+        // Cleanup our previous registration
+        public static void OnCombatGameDestroyed(CombatGameState Combat) {
+            if (Combat != null) {
+                Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
+                    new ReceiveMessageCenterMessage(OnActorTargeted), false);
+            }
         }
 
         public static void OnActorTargeted(MessageCenterMessage message) {
@@ -46,9 +55,14 @@ namespace LowVisibility.Patch {
             ActorTargetedMessage actorTargetedMessage = message as ActorTargetedMessage;
             ICombatant combatant = Combat.FindActorByGUID(actorTargetedMessage.affectedObjectGuid);
             if (combatant == null) { combatant = Combat.FindCombatantByGUID(actorTargetedMessage.affectedObjectGuid); }
+
             if (Combat.LocalPlayerTeam.VisibilityToTarget(combatant) >= VisibilityLevel.Blip0Minimum) {
                 LowVisibility.Logger.LogIfTrace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
-                ShowTargetMethod.GetValue(combatant);
+                if (ShowTargetMethod != null) {
+                    ShowTargetMethod.GetValue(combatant);
+                } else {
+                    LowVisibility.Logger.Log("WARNING: CHUD:STM caled with a null traverse!");
+                }
             } else {
                 LowVisibility.Logger.LogIfTrace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
             }
