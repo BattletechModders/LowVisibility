@@ -317,6 +317,7 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 - [ ] BUG: Armor/structure exact values are being shown, not just as ??
 - [ ] FEATURE: Prevent called shot against blips
 - [ ] FEATURE: Per Denandan, move functions from tags into Custom {} to allow getting item defs w/o needing to search/parse
+- [ ] FEATURE: Per LA, nerf multi-targeting but add  an item tag that helps/hurts. One tag that adds a penalty to each target. A second 'multitracker' that grants bonus to this (reduce penalty or bonus). Third, no multitargeting stealth w/o a multitracker. Maybe make the latter that you need a positive attack modifier from FCS/etc to multi-shoot against stealth? Have to think more.
 - [ ] FEATURE: Rename `lv-scrambler_mX` to `lv-stealth-boost_mX` to match probes.
 - [ ] FEATURE: Rename active probes to `lv-sensormod-highest_mX` and `lv-sensormod-sum_mX`
 - [ ] FEATURE: Show signature, visibility modifiers for target on the tooltips. Show same for player mechs.
