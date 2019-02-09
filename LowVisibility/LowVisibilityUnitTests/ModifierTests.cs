@@ -95,6 +95,29 @@ namespace LVUnitTests {
 
         }
 
+        [Test]
+        public void LAMod() {
+            // Mods written by LA
+
+            // No range, no modifier
+            int mod = MathHelper.DecayingModifier(0, -1, 10, 0f);
+            Assert.AreEqual(0, mod);
+
+            // Not full step, no modifier
+            mod = MathHelper.DecayingModifier(0, -1, 10, 200f);
+            Assert.AreEqual(0, mod);
+
+            // One full step, modifier
+            mod = MathHelper.DecayingModifier(0, -1, 10, 300f);
+            Assert.AreEqual(-1, mod);
+
+            // Two steps, same modifier
+            mod = MathHelper.DecayingModifier(0, -1, 10, 600f);
+            Assert.AreEqual(-1, mod);
+            
+
+        }
+
 
 
     }

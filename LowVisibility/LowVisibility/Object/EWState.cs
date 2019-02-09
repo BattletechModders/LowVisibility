@@ -137,12 +137,12 @@ namespace LowVisibility.Object {
         public VisionModeModifer CalculateVisionModeModifier(ICombatant target, float distance, Weapon weapon) {
 
             if (weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return new VisionModeModifer(); }
-            //LowVisibility.Logger.LogIfDebug($" Source has zoomMod:{vismodeZoomMod} heatMod:{vismodeHeatMod}");
+            LowVisibility.Logger.LogIfDebug($" Source has zoomMod:{vismodeZoomMod} heatMod:{vismodeHeatMod}");
 
             int zoomMod = 0;
-            if (vismodeZoomMod != 0) {
+            if (vismodeZoomMod != 0 || vismodeZoomCap != 0) {
                 zoomMod = MathHelper.DecayingModifier(this.vismodeZoomMod, this.vismodeZoomCap, this.vismodeZoomStep, distance);
-                LowVisibility.Logger.LogIfTrace($" Zoom mod calculated as:{zoomMod} for distance:{distance}");
+                LowVisibility.Logger.LogIfDebug($" Zoom mod calculated as:{zoomMod} for distance:{distance}");
             }
 
             Mech targetMech = target as Mech;
