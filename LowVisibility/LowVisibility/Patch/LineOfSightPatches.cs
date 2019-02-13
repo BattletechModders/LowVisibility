@@ -61,35 +61,34 @@ namespace LowVisibility.Patch {
     public static class LineOfSight_GetVisibilityToTargetWithPositionsAndRotations {
         public static bool Prefix(LineOfSight __instance, ref VisibilityLevel __result, 
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation) {
-            // Skip if we aren't ready to process 
-            // TODO: Remove to handle buildings here
-            if (State.TurnDirectorStarted == false || (target as AbstractActor) == null) { return true;  }
 
-            //LowVisibility.Logger.Log($"LineOfSight:GetVisibilityToTargetWithPositionsAndRotations:pre - entered. ");
-            //LowVisibility.Logger.Log($"LOS:GVTTWPAR: source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");            
+            LowVisibility.Logger.LogIfTrace($"LOS:GVTTWPAR: source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
+
+            // Skip if we aren't ready to process 
+            //if (State.TurnDirectorStarted == false || (target as AbstractActor) == null) { return true;  }
 
             AbstractActor sourceActor = source as AbstractActor;
-            AbstractActor targetActor = target as AbstractActor;
-            
+
             // TODO: Handle buildings here
-            VisualScanType visualLock = VisualLockHelper.CalculateVisualLock(sourceActor, sourcePosition, 
-                targetActor, targetPosition, targetRotation, __instance);
+            VisualScanType visualLock = VisualLockHelper.CalculateVisualLock(sourceActor, sourcePosition, target, targetPosition, targetRotation, __instance);
             VisibilityLevel visualVisibility = visualLock.Visibility();
-
-            SensorScanType sensorLock = SensorLockHelper.CalculateSensorLock(sourceActor, sourcePosition,
-                targetActor, targetPosition);
-            VisibilityLevel sensorsVisibility = sensorLock.Visibility();
-            //LowVisibility.Logger.Log($"  visualLock:{visualLock} visualVis:{visualVisibility} sensorLock:{sensorLock} sensorVis:{sensorsVisibility}");
-
-            State.UpdateActorLocks(source, target, visualLock, sensorLock);
             
+            VisibilityLevel sensorsVisibility = VisibilityLevel.None;
+            if (State.TurnDirectorStarted) {
+                SensorScanType sensorLock = SensorLockHelper.CalculateSensorLock(sourceActor, sourcePosition, target, targetPosition);
+                sensorsVisibility = sensorLock.Visibility();
+
+                //LowVisibility.Logger.Log($"  visualLock:{visualLock} visualVis:{visualVisibility} sensorLock:{sensorLock} sensorVis:{sensorsVisibility}");
+                State.UpdateActorLocks(source, target, visualLock, sensorLock);
+            }
+
             if (visualVisibility == VisibilityLevel.LOSFull) {
                 __result = visualVisibility;                
             } else {
                 __result = sensorsVisibility;
             }
 
-            LowVisibility.Logger.LogIfDebug($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
+            LowVisibility.Logger.LogIfTrace($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantHelper.Label(source)} ==> target:{CombatantHelper.Label(target)}");
             return false;
                         
             //if (targetActor != null) {
@@ -122,7 +121,7 @@ namespace LowVisibility.Patch {
     public static class LineOfSight_GetLineOfFireUncached {
         public static void Postfix(LineOfSight __instance, ref LineOfFireLevel __result, CombatGameState ___Combat,
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation, out Vector3 collisionWorldPos) {
-            //LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - entered. ");
+            LowVisibility.Logger.LogIfTrace($"LOS:GLOFU entered. ");
 
             Vector3 forward = targetPosition - sourcePosition;
             forward.y = 0f;
@@ -253,7 +252,7 @@ namespace LowVisibility.Patch {
                 __result = LineOfFireLevel.LOFBlocked;
             }
 
-            //LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - LOS result is:{__result}");
+            LowVisibility.Logger.LogIfTrace($"LOS:GLOFU LOS result is:{__result}");
         }
     }
 

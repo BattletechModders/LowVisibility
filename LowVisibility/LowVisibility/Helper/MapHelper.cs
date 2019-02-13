@@ -38,10 +38,21 @@ namespace LowVisibility.Helper {
         }
 
         public static MapConfig ParseCurrentMap() {
+            LowVisibility.Logger.Log("MH:PCM Parsing current map.");
+
+            // This is a VERY slow call, that can add 30-40ms just to execute. Cache it!
             MoodController moodController = UnityEngine.Object.FindObjectOfType<MoodController>();
+
             MoodSettings moodSettings = moodController?.CurrentMood;
             TagSet moodTags = moodSettings?.moodTags;
-            if (moodTags == null || moodTags.IsEmpty) { return null; }
+            if (moodTags == null || moodTags.IsEmpty) {
+                return new MapConfig {
+                    visionRange = LowVisibility.Config.VisionRangeBaseDaylight,
+                    scanRange = LowVisibility.Config.VisualScanRange
+                };
+            }
+
+
             LowVisibility.Logger.LogIfDebug($"  - Parsing current map for mod config");
 
             MapConfig mapConfig = new MapConfig();

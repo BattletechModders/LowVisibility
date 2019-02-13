@@ -19,7 +19,6 @@ namespace LowVisibility.Helper {
         }
 
         private static float GetVisualRange(float visionRange, AbstractActor source) {
-
             float visualRange = visionRange;
             if (source.IsShutDown) {
                 visualRange = visionRange * source.Combat.Constants.Visibility.ShutdownSpottingDistanceMultiplier;
@@ -28,9 +27,10 @@ namespace LowVisibility.Helper {
             } else {
                 float multipliers = VisualLockHelper.GetAllSpotterMultipliers(source);
                 float absolutes = VisualLockHelper.GetAllSpotterAbsolutes(source);
+                
                 visualRange = visionRange * multipliers + absolutes;
-                //LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} has spotting " +
-                //    $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
+                LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} has spotting " +
+                    $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
             }
 
             if (visualRange < LowVisibility.Config.MinimumVisionRange()) {
@@ -39,7 +39,7 @@ namespace LowVisibility.Helper {
 
             // Round up to the nearest full hex
             float normalizedRange = MathHelper.CountHexes(visualRange, false) * 30f;
-
+            
             //LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} visual range is:{normalizedRange}m normalized from:{visualRange}m");
             return normalizedRange;
         }
@@ -52,6 +52,7 @@ namespace LowVisibility.Helper {
             if (abstractActor != null) {
                 targetVisibility = VisualLockHelper.GetTargetVisibility(abstractActor);
             }
+
             float spotterRange = VisualLockHelper.GetSpotterRange(source);
 
             float modifiedRange = spotterRange * targetVisibility;
@@ -62,7 +63,7 @@ namespace LowVisibility.Helper {
             // Round up to the nearest full hex
             float normalizedRange = MathHelper.CountHexes(spotterRange, true) * 30f;
 
-            LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} adjusted spotterRange:{normalizedRange}m normalized from:{spotterRange}m");
+            //LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} adjusted spotterRange:{normalizedRange}m normalized from:{spotterRange}m");
             return normalizedRange;
         }
 
@@ -127,10 +128,15 @@ namespace LowVisibility.Helper {
         // TODO: Refactor to eliminate need for LoS instance - put Getter funcs into a helper
         public static VisualScanType CalculateVisualLock(AbstractActor source, Vector3 sourcePos,
                 ICombatant target, Vector3 targetPos, Quaternion targetRot, LineOfSight los) {
-            
+
             float spottingRangeVsTarget = VisualLockHelper.GetAdjustedSpotterRange(source, target);
             float visualScanRange = VisualLockHelper.GetVisualScanRange(source);
             float distance = Vector3.Distance(sourcePos, targetPos);
+
+            // Check range first
+            if (distance > spottingRangeVsTarget) {
+                return VisualScanType.None;
+            }
 
             // I think this is what prevents you from seeing things from behind you - the rotation is set to 0?
             Vector3 forward = targetPos - sourcePos;
