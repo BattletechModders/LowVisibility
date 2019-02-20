@@ -316,6 +316,7 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 - [ ] BUG: Offensive push shows damaged areas even with a crap information roll. LA suggestion: restrict offensive push to a minimum info roll.
 - [ ] BUG: Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
 - [ ] BUG: Armor/structure exact values are being shown, not just as ??
+- [ ] FEATURE: Show 'Cannon' / 'Missile' / 'Support' instead of 'Unidentified'
 - [ ] FEATURE: Prevent called shot against blips
 - [ ] FEATURE: Per Denandan, move functions from tags into Custom {} to allow getting item defs w/o needing to search/parse
 - [ ] FEATURE: Per LA, nerf multi-targeting but add  an item tag that helps/hurts. One tag that adds a penalty to each target. A second 'multitracker' that grants bonus to this (reduce penalty or bonus). Third, no multitargeting stealth w/o a multitracker. Maybe make the latter that you need a positive attack modifier from FCS/etc to multi-shoot against stealth? Have to think more.
