@@ -310,6 +310,7 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 
 ## WIP Features
 - [x] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
+- [ ] BUG: ticket-0304 in Discord - SensorDistanceAbsolute multipliers may not be adding to the total sensor distance value.
 - [ ] BUG: Sensor sharing not taking effect like it should. 
 - [ ] BUG: Report of vehicle blips showing mech paperdoll instead of vehicle. Photo proof, so see if it can be reproduced.
 - [ ] BUG: AIM calculations aren't accurate. Likely caused by LV going after AIM in the patch order? 
