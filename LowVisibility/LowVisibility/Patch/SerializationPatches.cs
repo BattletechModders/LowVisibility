@@ -12,7 +12,7 @@ namespace LowVisibility.Patch {
     public static class GameInstance_Load {
 
         public static void Postfix(GameInstance __instance, GameInstanceSave save) {
-            LowVisibility.Logger.LogIfDebug($"Loading  saveGame with fileId:{save.FileID}");
+            Mod.Log.LogIfDebug($"Loading  saveGame with fileId:{save.FileID}");
             State.LoadStateData(save.FileID);
         }
     }
@@ -26,7 +26,7 @@ namespace LowVisibility.Patch {
 
         public static void Postfix(GameInstance __instance, StructureSaveComplete message, bool quit) {
             if (message.Slot.HasCombatData) {
-                LowVisibility.Logger.LogIfDebug($"Creating combat saveGame with fileId:{message.Slot.FileID}");
+                Mod.Log.LogIfDebug($"Creating combat saveGame with fileId:{message.Slot.FileID}");
                 State.SaveStateData(message.Slot.FileID);
             }
         }

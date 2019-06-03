@@ -29,12 +29,12 @@ namespace LowVisibility.Helper {
                 float absolutes = VisualLockHelper.GetAllSpotterAbsolutes(source);
                 
                 visualRange = visionRange * multipliers + absolutes;
-                LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} has spotting " +
+                Mod.Log.LogIfTrace($" -- source:{CombatantHelper.Label(source)} has spotting " +
                     $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
             }
 
-            if (visualRange < LowVisibility.Config.MinimumVisionRange()) {
-                visualRange = LowVisibility.Config.MinimumVisionRange();
+            if (visualRange < Mod.Config.MinimumVisionRange()) {
+                visualRange = Mod.Config.MinimumVisionRange();
             }
 
             // Round up to the nearest full hex
@@ -56,8 +56,8 @@ namespace LowVisibility.Helper {
             float spotterRange = VisualLockHelper.GetSpotterRange(source);
 
             float modifiedRange = spotterRange * targetVisibility;
-            if (modifiedRange < LowVisibility.Config.MinimumVisionRange()) {
-                modifiedRange = LowVisibility.Config.MinimumVisionRange();
+            if (modifiedRange < Mod.Config.MinimumVisionRange()) {
+                modifiedRange = Mod.Config.MinimumVisionRange();
             }
 
             // Round up to the nearest full hex

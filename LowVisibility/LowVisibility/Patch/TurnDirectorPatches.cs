@@ -15,7 +15,7 @@ namespace LowVisibility.Patch {
         public static bool IsFromSave = false;
 
         public static void Prefix(TurnDirector __instance) {
-            LowVisibility.Logger.Log("=== TurnDirector:OnEncounterBegin:pre - entered.");
+            Mod.Log.Log("=== TurnDirector:OnEncounterBegin:pre - entered.");
 
             // Initialize the probabilities
             State.InitializeCheckResults();
@@ -35,7 +35,7 @@ namespace LowVisibility.Patch {
 
                             // Make a pre-encounter detectCheck for them
                             State.BuildEWState(actor);
-                            LowVisibility.Logger.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} has rangeCheck:{State.GetEWState(actor).rangeCheck} at load/start");
+                            Mod.Log.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} has rangeCheck:{State.GetEWState(actor).rangeCheck} at load/start");
 
                             bool isPlayer = actor.TeamId == __instance.Combat.LocalPlayerTeamGuid;
                             if (isPlayer && randomPlayerActor == null) {
@@ -43,7 +43,7 @@ namespace LowVisibility.Patch {
                             }
 
                         } else {
-                            LowVisibility.Logger.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} was NULL!");
+                            Mod.Log.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} was NULL!");
                         }
                     }
                 }
@@ -61,7 +61,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Prefix(TurnDirector __instance, int round) {
-            LowVisibility.Logger.Log($"=== TurnDirector - Beginning round:{round}");
+            Mod.Log.Log($"=== TurnDirector - Beginning round:{round}");
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
@@ -102,7 +102,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(EncounterLayerParent __instance, CombatGameState combat) {
-            LowVisibility.Logger.Log("EncounterLayerParent:InitFromSavePassTwo:post - entered.");
+            Mod.Log.Log("EncounterLayerParent:InitFromSavePassTwo:post - entered.");
 
             TurnDirector_OnEncounterBegin.IsFromSave = true;
         }

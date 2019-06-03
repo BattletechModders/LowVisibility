@@ -20,8 +20,8 @@ namespace LowVisibility {
 
         }
 
-        public void LogIfDebug(string message) { if (LowVisibility.Config.Debug) { Log(message); } }
-        public void LogIfTrace(string message) { if (LowVisibility.Config.Trace) { Log(message); } }
+        public void LogIfDebug(string message) { if (Mod.Config.Debug) { Log(message); } }
+        public void LogIfTrace(string message) { if (Mod.Config.Trace) { Log(message); } }
 
         public void Log(string message) {
             string now = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture);

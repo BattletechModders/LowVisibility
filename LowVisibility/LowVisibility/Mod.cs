@@ -4,11 +4,12 @@ using System;
 using System.Reflection;
 
 namespace LowVisibility {
-    public class LowVisibility {
+
+    public class Mod {
 
         public const string HarmonyPackage = "us.frostraptor.LowVisibility";
 
-        public static Logger Logger;
+        public static Logger Log;
         public static string ModDir;
         public static ModConfig Config;
 
@@ -21,16 +22,16 @@ namespace LowVisibility {
 
             Exception settingsE;
             try {
-                LowVisibility.Config = JsonConvert.DeserializeObject<ModConfig>(settingsJSON);
+                Mod.Config = JsonConvert.DeserializeObject<ModConfig>(settingsJSON);
             } catch (Exception e) {
                 settingsE = e;
-                LowVisibility.Config = new ModConfig();
+                Mod.Config = new ModConfig();
             }
 
-            Logger = new Logger(modDirectory, "low_visibility");
-            Logger.LogIfDebug($"ModDir is:{modDirectory}");
-            Logger.LogIfDebug($"mod.json settings are:({settingsJSON})");
-            Logger.LogIfDebug($"mergedConfig is:{LowVisibility.Config}");
+            Log = new Logger(modDirectory, "low_visibility");
+            Log.LogIfDebug($"ModDir is:{modDirectory}");
+            Log.LogIfDebug($"mod.json settings are:({settingsJSON})");
+            Log.LogIfDebug($"mergedConfig is:{Mod.Config}");
 
             var harmony = HarmonyInstance.Create(HarmonyPackage);
             harmony.PatchAll(Assembly.GetExecutingAssembly());

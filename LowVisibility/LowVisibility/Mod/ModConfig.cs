@@ -1,5 +1,10 @@
 ﻿
 namespace LowVisibility {
+
+    public class ModStats {
+        public const string 
+    }
+
     public class ModConfig {
         // If true, extra logging will be used
         public bool Debug = false;

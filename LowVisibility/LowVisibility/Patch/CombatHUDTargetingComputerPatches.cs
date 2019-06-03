@@ -119,21 +119,21 @@ namespace LowVisibility.Patch {
         public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames, CombatHUDStatusPanel ___StatusPanel) {
             //KnowYourFoe.Logger.Log("CombatHUDTargetingComputer:RefreshActorInfo:post - entered.");
             if (__instance.ActivelyShownCombatant == null ) {
-                LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ target is null, skipping.");
+                Mod.Log.LogIfDebug($"CHTC:RAI ~~~ target is null, skipping.");
                 return;
             } else if (
                 __instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID)) {
-                LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
+                Mod.Log.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
                 __instance.WeaponList.SetActive(true);
                 return;
             } else {
-                LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} is enemy");
+                Mod.Log.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} is enemy");
                 
                 if ((__instance.ActivelyShownCombatant as AbstractActor) != null) {
                     AbstractActor target = __instance.ActivelyShownCombatant as AbstractActor;
                     AbstractActor lastActivated = State.GetLastPlayerActivatedActor(target.Combat);
                     Locks lockState = State.LastActivatedLocksForTarget(target);
-                    LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ LastActivated:{CombatantHelper.Label(lastActivated)} vs. enemy:{CombatantHelper.Label(target)} has lockState:{lockState}");
+                    Mod.Log.LogIfDebug($"CHTC:RAI ~~~ LastActivated:{CombatantHelper.Label(lastActivated)} vs. enemy:{CombatantHelper.Label(target)} has lockState:{lockState}");
 
                     if (lockState.sensorLock >= SensorScanType.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
@@ -170,7 +170,7 @@ namespace LowVisibility.Patch {
                     }
                 } else if ((__instance.ActivelyShownCombatant as Building) != null) {
                     Building target = __instance.ActivelyShownCombatant as Building;
-                    LowVisibility.Logger.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} is enemy building");
+                    Mod.Log.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} is enemy building");
 
                     SetArmorDisplayActive(__instance, true);
 

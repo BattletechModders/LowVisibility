@@ -15,7 +15,7 @@ namespace LowVisibility.Patch {
         public static GameObject RadarRangeHolderClone;
 
         public static void Postfix(VisRangeIndicator __instance, CombatGameState Combat, CombatHUD HUD, int ___visRangeInt, int ___sensorRangeInt, GameObject ___radarRangeHolder) {
-            LowVisibility.Logger.Log($"VisRangeIndicator::Init ");
+            Mod.Log.Log($"VisRangeIndicator::Init ");
             RadarRangeHolderClone = UnityEngine.Object.Instantiate(___radarRangeHolder, __instance.gameObject.transform);
 
             //GameObject radarRangeObject = (GameObject)Traverse.Create(__instance).Property("radarRangeScaledObject").GetValue(); 

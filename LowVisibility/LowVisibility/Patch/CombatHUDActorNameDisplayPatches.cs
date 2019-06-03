@@ -43,7 +43,7 @@ namespace LowVisibility.Patch {
                 label = new Text($"?");
             }
 
-            LowVisibility.Logger.LogIfDebug($"GetDetectionLabel - label:({label}) for visLevel:{visLevel} " +
+            Mod.Log.LogIfDebug($"GetDetectionLabel - label:({label}) for visLevel:{visLevel} " +
                 $"chassisName:({chassisName}) variantName:({variantName}) fullName:({fullName}) type:({type}) tonnage:{tonnage}t");
             return label;
         }

@@ -84,19 +84,18 @@
     <Reference Include="0Harmony">
       <HintPath>..\..\..\..\..\..\..\Volumes\SourceCode\BT_DLLs\0Harmony.dll</HintPath>
     </Reference>
+    <Reference Include="IRBTModUtils">
+      <HintPath>..\..\..\IRBTModUtils\IRBTModUtils\IRBTModUtils\bin\Debug\IRBTModUtils.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helper\CombatantHelper.cs" />
     <Compile Include="Helper\ECMHelper.cs" />
-    <Compile Include="Helper\HostilityHelper.cs" />
     <Compile Include="Helper\SensorLockHelper.cs" />
     <Compile Include="Helper\VisualLockHelper.cs" />
     <Compile Include="Object\EWState.cs" />
     <Compile Include="Helper\MapHelper.cs" />
-    <Compile Include="Helper\ActorHelper.cs" />
-    <Compile Include="Helper\SkillHelper.cs" />
     <Compile Include="Helper\VisibilityHelper.cs" />
-    <Compile Include="LowVisibility.cs" />
+    <Compile Include="Mod.cs" />
     <Compile Include="Object\Visibility.cs" />
     <Compile Include="Patch\AIUtilPatches.cs" />
     <Compile Include="Patch\ArmorAndStructPatches.cs" />
@@ -129,10 +128,8 @@
     <Compile Include="Redzen\Xoshiro256StarStarRandom.cs" />
     <Compile Include="Redzen\Xoshiro256StarStarRandomBuilder.cs" />
     <Compile Include="Redzen\ZigguratGaussian.cs" />
-    <Compile Include="Utils\State.cs" />
-    <Compile Include="Utils\Logger.cs" />
-    <Compile Include="Utils\ModConfig.cs" />
-    <Compile Include="Helper\MathHelper.cs" />
+    <Compile Include="Mod\State.cs" />
+    <Compile Include="Mod\ModConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

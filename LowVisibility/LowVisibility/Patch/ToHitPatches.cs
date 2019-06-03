@@ -15,7 +15,7 @@ namespace LowVisibility.Patch {
         private static void Postfix(ToHit __instance, ref float __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
 
-            LowVisibility.Logger.LogIfTrace($"Getting modifiers for attacker:{CombatantHelper.Label(attacker)} " +
+            Mod.Log.LogIfTrace($"Getting modifiers for attacker:{CombatantHelper.Label(attacker)} " +
                 $"using weapon:{weapon.Name} vs target:{CombatantHelper.Label(target)}");
 
             AbstractActor targetActor = target as AbstractActor;
@@ -28,18 +28,18 @@ namespace LowVisibility.Patch {
                 if (locks.sensorLock == SensorScanType.NoInfo) {
                     //LowVisibility.Logger.LogIfDebug($"Attacker:{CombatantHelper.Label(attacker)} has no sensor lock to target:{CombatantHelper.Label(target as AbstractActor)} " +
                     //    $" applying modifier:{LowVisibility.Config.NoSensorLockAttackPenalty}");
-                    __result = __result + (float)LowVisibility.Config.VisionOnlyPenalty;
+                    __result = __result + (float)Mod.Config.VisionOnlyPenalty;
                 }
 
                 if (locks.visualLock == VisualScanType.None) {
                     //LowVisibility.Logger.LogIfDebug($"Attacker:{CombatantHelper.Label(attacker)} has no visual lock to target:{CombatantHelper.Label(target as AbstractActor)} " +
                     //    $" applying modifier:{LowVisibility.Config.NoSensorLockAttackPenalty}");
-                    __result = __result + (float)LowVisibility.Config.SensorsOnlyPenalty;
+                    __result = __result + (float)Mod.Config.SensorsOnlyPenalty;
                 }
 
                 VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, weapon);
                 if (vismodeMod.modifier != 0) {
-                    LowVisibility.Logger.LogIfTrace($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => result:{__result} + {vismodeMod.modifier}");
+                    Mod.Log.LogIfTrace($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => result:{__result} + {vismodeMod.modifier}");
                     __result = __result + (float)vismodeMod.modifier;
                 }
 
@@ -70,7 +70,7 @@ namespace LowVisibility.Patch {
         private static void Postfix(ToHit __instance, ref string __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
 
-            LowVisibility.Logger.LogIfTrace($"Getting modifier descriptions for attacker:{CombatantHelper.Label(attacker)} " +
+            Mod.Log.LogIfTrace($"Getting modifier descriptions for attacker:{CombatantHelper.Label(attacker)} " +
                 $"using weapon:{weapon.Name} vs target:{CombatantHelper.Label(target)}");
 
             AbstractActor targetActor = target as AbstractActor;
@@ -80,16 +80,16 @@ namespace LowVisibility.Patch {
                 EWState attackerEWConfig = State.GetEWState(attacker);
 
                 if (lockState.sensorLock == SensorScanType.NoInfo) {
-                    __result = string.Format("{0}NO SENSOR LOCK {1:+#;-#}; ", __result, LowVisibility.Config.VisionOnlyPenalty);
+                    __result = string.Format("{0}NO SENSOR LOCK {1:+#;-#}; ", __result, Mod.Config.VisionOnlyPenalty);
                 }
 
                 if (lockState.visualLock == VisualScanType.None) {
-                    __result = string.Format("{0}NO VISUAL LOCK {1:+#;-#}; ", __result, LowVisibility.Config.SensorsOnlyPenalty);
+                    __result = string.Format("{0}NO VISUAL LOCK {1:+#;-#}; ", __result, Mod.Config.SensorsOnlyPenalty);
                 }
 
                 VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, weapon);
                 if (vismodeMod.modifier != 0) {
-                    LowVisibility.Logger.LogIfTrace($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => {vismodeMod.ToString()}");
+                    Mod.Log.LogIfTrace($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => {vismodeMod.ToString()}");
                     __result = string.Format("{0}{1} {2:+#;-#}; ", __result, vismodeMod.label, vismodeMod.modifier);
                 }
 

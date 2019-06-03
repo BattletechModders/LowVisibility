@@ -57,14 +57,14 @@ namespace LowVisibility.Patch {
             if (combatant == null) { combatant = Combat.FindCombatantByGUID(actorTargetedMessage.affectedObjectGuid); }
 
             if (Combat.LocalPlayerTeam.VisibilityToTarget(combatant) >= VisibilityLevel.Blip0Minimum) {
-                LowVisibility.Logger.LogIfTrace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
+                Mod.Log.LogIfTrace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
                 if (ShowTargetMethod != null) {
                     ShowTargetMethod.GetValue(combatant);
                 } else {
-                    LowVisibility.Logger.Log("WARNING: CHUD:STM caled with a null traverse!");
+                    Mod.Log.Log("WARNING: CHUD:STM caled with a null traverse!");
                 }
             } else {
-                LowVisibility.Logger.LogIfTrace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
+                Mod.Log.LogIfTrace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
             }
         }
     }
@@ -211,11 +211,11 @@ namespace LowVisibility.Patch {
                 EWState attackerEWConfig = State.GetEWState(actor);
 
                 if (lockState.sensorLock == SensorScanType.NoInfo) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", LowVisibility.Config.VisionOnlyPenalty});
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", Mod.Config.VisionOnlyPenalty});
                 }
 
                 if (lockState.visualLock == VisualScanType.None) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", LowVisibility.Config.SensorsOnlyPenalty });
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", Mod.Config.SensorsOnlyPenalty });
                 }
                 
                 VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, __instance.DisplayedWeapon);
