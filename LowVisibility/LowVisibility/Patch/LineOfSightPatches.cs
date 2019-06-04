@@ -288,14 +288,4 @@ namespace LowVisibility.Patch {
         }
     }
 
-    [HarmonyPatch(typeof(AbstractActor), "HasLOSToTargetUnit")]
-    public static class AbstractActor_HasLOSToTargetUnit {
-        public static void Postfix(AbstractActor __instance, ref bool __result, ICombatant targetUnit) {
-            //LowVisibility.Logger.Debug("AbstractActor:HasLOSToTargetUnit:post - entered.");
-            __result = __instance.VisibilityToTargetUnit(targetUnit) >= VisibilityLevel.Blip0Minimum;
-            Mod.Log.Trace($"Actor{CombatantUtils.Label(__instance)} has LOSToTargetUnit? {__result} " +
-                $"to target:{CombatantUtils.Label(targetUnit as AbstractActor)}");
-            //LowVisibility.Logger.Trace($"Called from:{new StackTrace(true)}");
-        }
-    }
 }

@@ -2,21 +2,24 @@
 namespace LowVisibility {
 
     public class ModStats {
-        public const string TagPrefixJammer = "lv-jammer_m";
 
-        public const string TagPrefixProbe = "lv-probe_m";
-        public const string TagPrefixProbeBoost = "lv-probe-boost_m";
+        public const string Jammer = "LV_Jammer"; // Int_32
+        public const string Probe = "LV_Probe";  // Int_32
+        public const string ProbeBoost = "LV_Probe_Boost";  // Int_32
 
-        public const string TagSharesSensors = "lv-shares-sensors";
+        public const string SharesSensors = "LV_Shares_Sensors";
 
-        public const string TagPrefixStealth = "lv-stealth_m";
-        public const string TagPrefixScrambler = "lv-scrambler_m";
+        public const string Stealth = "LV_Stealth";  // Int_32
+        public const string Scrambler = "LV_Scrambler";  // Int_32
 
-        public const string TagPrefixStealthRangeMod = "lv-stealth-range-mod_s";
-        public const string TagPrefixStealthMoveMod = "lv-stealth-move-mod_m";
+        // TODO: Multiparts are multiple stats, isntead of one?
+        public const string StealthRangeMod = "LV_Stealth_Range";  // String
+        public const string StealthMoveMod = "LV_Stealth_Move";  // String
 
-        public const string TagPrefixVismodeZoom = "lv-vismode-zoom_m";
-        public const string TagPrefixVismodeHeat = "lv-vismode-heat_m";
+        public const string VismodeZoom = "LV_Vismode_Zoom";
+        public const string VismodeHeat = "LV_Vismode_Heat";
+
+        // TODO: Should normalized skills be added here?
     }
 
     public class ModConfig {

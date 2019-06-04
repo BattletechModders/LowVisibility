@@ -7,26 +7,6 @@ using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
 
-    [HarmonyPatch(typeof(AbstractActor), "OnActivationBegin")]
-    public static class AbstractActor_OnActivationBegin {        
-
-        public static void Prefix(AbstractActor __instance, int stackItemID) {
-            if (stackItemID == -1 || __instance == null || __instance.HasBegunActivation ) {
-                // For some bloody reason DoneWithActor() invokes OnActivationBegin, EVEN THOUGH IT DOES NOTHING. GAH!
-                return;
-            }
-
-            ECMHelper.UpdateECMState(__instance);
-
-            //VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
-
-            Mod.Log.Trace($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantUtils.Label(__instance)}");
-            if (__instance.team == __instance.Combat.LocalPlayerTeam) {
-                State.LastPlayerActor = __instance.GUID;             
-            }
-        }
-    }
-    
    [HarmonyPatch(typeof(CombatSelectionHandler), "TrySelectActor")]
     public static class CombatSelectionHandler_TrySelectActor {
         public static void Postfix(CombatSelectionHandler __instance, bool __result, AbstractActor actor, bool manualSelection) {
@@ -58,20 +38,6 @@ namespace LowVisibility.Patch {
                 }
             } 
         }
-    }
-
-    [HarmonyPatch(typeof(AbstractActor), "UpdateLOSPositions")]
-    public static class AbstractActor_UpdateLOSPositions {
-        public static void Prefix(AbstractActor __instance) {
-            // Check for teamID; if it's not present, unit hasn't spawned yet. Defer to UnitSpawnPointGameLogic::SpawnUnit for these updates
-            if (State.TurnDirectorStarted && __instance.TeamId != null) {
-                Mod.Log.Debug($"AbstractActor_UpdateLOSPositions:pre - entered for {CombatantUtils.Label(__instance)}.");
-
-                // Why am I doing this here, isntead of OnMovePhaseComplete? Is it to help the AI, which needs this frequently evaluated for it's routines?
-                //ECMHelper.UpdateECMState(__instance);
-            }
-        }
-
     }
 
     // Update the visibility checks

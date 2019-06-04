@@ -2,7 +2,6 @@
 using BattleTech.Rendering;
 using BattleTech.UI;
 using Harmony;
-using LowVisibility.Helper;
 using System;
 using System.Reflection;
 using UnityEngine;

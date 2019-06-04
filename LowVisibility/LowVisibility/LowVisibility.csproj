@@ -98,6 +98,7 @@
     <Compile Include="Object\Visibility.cs" />
     <Compile Include="Patch\AIUtilPatches.cs" />
     <Compile Include="Patch\ArmorAndStructPatches.cs" />
+    <Compile Include="Patch\AbstractActorPatches.cs" />
     <Compile Include="Patch\CombatHUDActorNameDisplayPatches.cs" />
     <Compile Include="Patch\CombatHUDPatches.cs" />
     <Compile Include="Patch\CombatHUDTargetingComputerPatches.cs" />

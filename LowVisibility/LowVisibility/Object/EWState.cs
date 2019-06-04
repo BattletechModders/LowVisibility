@@ -1,6 +1,5 @@
 ﻿using BattleTech;
 using HBS.Collections;
-using LowVisibility.Helper;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -225,37 +224,38 @@ namespace LowVisibility.Object {
 
                         string tagLower = tag.ToLower();
 
-                        if (tagLower.StartsWith(ModStats.TagPrefixJammer)) {
-                            Mod.Log.Debug($"Actor:{actorLabel} has JAMMER component:{kv.Key} with tag:{tag}");
-                            ParseJammer(ref state, tag);
-                        } else if (tagLower.StartsWith(ModStats.TagPrefixProbe)) {
-                            Mod.Log.Debug($"Actor:{actorLabel} has PROBE component:{kv.Key} with tag:{tag}");
-                            ParseProbe(ref state, tag);
-                        } else if (tagLower.StartsWith(ModStats.TagPrefixProbeBoost)) {
-                            Mod.Log.Debug($"Actor:{actorLabel} has PROBE BOOST component:{kv.Key} with tag:{tag}");
-                            ParseProbeBoost(ref state, tag);
-                        } else if (tagLower.StartsWith(ModStats.TagPrefixStealth)) {
-                            Mod.Log.Debug($"Actor:{actorLabel} has STEALTH component:{kv.Key} with tag:{tag}");
-                            ParseStealth(ref state, tag);
-                        } else if (tagLower.StartsWith(ModStats.TagPrefixScrambler)) {
-                            Mod.Log.Debug($"Actor:{actorLabel} has SCRAMBLER component:{kv.Key} with tag:{tag}");
-                            ParseScrambler(ref state, tag);
-                        } else if (tagLower.StartsWith(ModStats.TagPrefixStealthRangeMod)) {
-                            Mod.Log.Debug($"Actor:{actorLabel} has STEALTH_RANGE_MOD component:{kv.Key} with tag:{tag}");
-                            ParseStealthRangeMod(ref state, tag);
-                        } else if (tagLower.StartsWith(ModStats.TagPrefixStealthMoveMod)) {
-                            Mod.Log.Debug($"Actor:{actorLabel} has STEALTH_MOVE_MOD component:{kv.Key} with tag:{tag}");
-                            ParseStealthMoveMod(ref state, tag);
-                        } else if (tagLower.Equals(ModStats.TagSharesSensors)) {
-                            Mod.Log.Debug($"Actor:{actorLabel} shares sensors due to component:{kv.Key} with tag:{tag}");
-                            state.sharesSensors = true;
-                        } else if (tagLower.StartsWith(ModStats.TagPrefixVismodeZoom)) {
-                            Mod.Log.Debug($"Actor:{actorLabel} has ZOOM VISION component:{kv.Key} with tag:{tag}");
-                            ParseVismodeZoom(ref state, tag);
-                        } else if (tagLower.StartsWith(ModStats.TagPrefixVismodeHeat)) {
-                            Mod.Log.Debug($"Actor:{actorLabel} has HEAT VISION component:{kv.Key} with tag:{tag}");
-                            ParseVismodeHeat(ref state, tag);
-                        }
+                        // TODO: Move to a debug block that prints out on unit spawn
+                        //if (tagLower.StartsWith(ModStats.TagPrefixJammer)) {
+                        //    Mod.Log.Debug($"Actor:{actorLabel} has JAMMER component:{kv.Key} with tag:{tag}");
+                        //    ParseJammer(ref state, tag);
+                        //} else if (tagLower.StartsWith(ModStats.TagPrefixProbe)) {
+                        //    Mod.Log.Debug($"Actor:{actorLabel} has PROBE component:{kv.Key} with tag:{tag}");
+                        //    ParseProbe(ref state, tag);
+                        //} else if (tagLower.StartsWith(ModStats.TagPrefixProbeBoost)) {
+                        //    Mod.Log.Debug($"Actor:{actorLabel} has PROBE BOOST component:{kv.Key} with tag:{tag}");
+                        //    ParseProbeBoost(ref state, tag);
+                        //} else if (tagLower.StartsWith(ModStats.TagPrefixStealth)) {
+                        //    Mod.Log.Debug($"Actor:{actorLabel} has STEALTH component:{kv.Key} with tag:{tag}");
+                        //    ParseStealth(ref state, tag);
+                        //} else if (tagLower.StartsWith(ModStats.TagPrefixScrambler)) {
+                        //    Mod.Log.Debug($"Actor:{actorLabel} has SCRAMBLER component:{kv.Key} with tag:{tag}");
+                        //    ParseScrambler(ref state, tag);
+                        //} else if (tagLower.StartsWith(ModStats.TagPrefixStealthRangeMod)) {
+                        //    Mod.Log.Debug($"Actor:{actorLabel} has STEALTH_RANGE_MOD component:{kv.Key} with tag:{tag}");
+                        //    ParseStealthRangeMod(ref state, tag);
+                        //} else if (tagLower.StartsWith(ModStats.TagPrefixStealthMoveMod)) {
+                        //    Mod.Log.Debug($"Actor:{actorLabel} has STEALTH_MOVE_MOD component:{kv.Key} with tag:{tag}");
+                        //    ParseStealthMoveMod(ref state, tag);
+                        //} else if (tagLower.Equals(ModStats.TagSharesSensors)) {
+                        //    Mod.Log.Debug($"Actor:{actorLabel} shares sensors due to component:{kv.Key} with tag:{tag}");
+                        //    state.sharesSensors = true;
+                        //} else if (tagLower.StartsWith(ModStats.TagPrefixVismodeZoom)) {
+                        //    Mod.Log.Debug($"Actor:{actorLabel} has ZOOM VISION component:{kv.Key} with tag:{tag}");
+                        //    ParseVismodeZoom(ref state, tag);
+                        //} else if (tagLower.StartsWith(ModStats.TagPrefixVismodeHeat)) {
+                        //    Mod.Log.Debug($"Actor:{actorLabel} has HEAT VISION component:{kv.Key} with tag:{tag}");
+                        //    ParseVismodeHeat(ref state, tag);
+                        //}
                     }
                 }
 
