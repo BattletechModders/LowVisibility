@@ -1,9 +1,8 @@
 ﻿using BattleTech;
 using Harmony;
-using LowVisibility.Helper;
 using LowVisibility.Object;
 using UnityEngine;
-using static LowVisibility.Helper.VisibilityHelper;
+using us.frostraptor.modUtils;
 using static LowVisibility.Object.EWState;
 
 namespace LowVisibility.Patch {
@@ -15,8 +14,8 @@ namespace LowVisibility.Patch {
         private static void Postfix(ToHit __instance, ref float __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
 
-            Mod.Log.LogIfTrace($"Getting modifiers for attacker:{CombatantHelper.Label(attacker)} " +
-                $"using weapon:{weapon.Name} vs target:{CombatantHelper.Label(target)}");
+            Mod.Log.Trace($"Getting modifiers for attacker:{CombatantUtils.Label(attacker)} " +
+                $"using weapon:{weapon.Name} vs target:{CombatantUtils.Label(target)}");
 
             AbstractActor targetActor = target as AbstractActor;
             if (__instance != null && attacker != null && targetActor != null) {
@@ -26,25 +25,25 @@ namespace LowVisibility.Patch {
                 EWState targetEWConfig = State.GetEWState(targetActor);
 
                 if (locks.sensorLock == SensorScanType.NoInfo) {
-                    //LowVisibility.Logger.LogIfDebug($"Attacker:{CombatantHelper.Label(attacker)} has no sensor lock to target:{CombatantHelper.Label(target as AbstractActor)} " +
+                    //LowVisibility.Logger.Debug($"Attacker:{CombatantUtils.Label(attacker)} has no sensor lock to target:{CombatantUtils.Label(target as AbstractActor)} " +
                     //    $" applying modifier:{LowVisibility.Config.NoSensorLockAttackPenalty}");
                     __result = __result + (float)Mod.Config.VisionOnlyPenalty;
                 }
 
                 if (locks.visualLock == VisualScanType.None) {
-                    //LowVisibility.Logger.LogIfDebug($"Attacker:{CombatantHelper.Label(attacker)} has no visual lock to target:{CombatantHelper.Label(target as AbstractActor)} " +
+                    //LowVisibility.Logger.Debug($"Attacker:{CombatantUtils.Label(attacker)} has no visual lock to target:{CombatantUtils.Label(target as AbstractActor)} " +
                     //    $" applying modifier:{LowVisibility.Config.NoSensorLockAttackPenalty}");
                     __result = __result + (float)Mod.Config.SensorsOnlyPenalty;
                 }
 
                 VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, weapon);
                 if (vismodeMod.modifier != 0) {
-                    Mod.Log.LogIfTrace($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => result:{__result} + {vismodeMod.modifier}");
+                    Mod.Log.Trace($" VisionMode modifier vs target:{CombatantUtils.Label(target)} => result:{__result} + {vismodeMod.modifier}");
                     __result = __result + (float)vismodeMod.modifier;
                 }
 
                 if (targetEWConfig.HasStealthRangeMod()) {
-                    //LowVisibility.Logger.LogIfDebug($"target:{CombatantHelper.Label(target as AbstractActor)} has StealthRangeMod with values: " +
+                    //LowVisibility.Logger.Debug($"target:{CombatantUtils.Label(target as AbstractActor)} has StealthRangeMod with values: " +
                     //    $"short:{targetEWConfig.stealthRangeMod[0]} medium:{targetEWConfig.stealthRangeMod[1]} long:{targetEWConfig.stealthRangeMod[2]} ");
                     int weaponStealthMod = targetEWConfig.CalculateStealthRangeMod(weapon, distance);
                     if (weaponStealthMod != 0) {
@@ -70,8 +69,8 @@ namespace LowVisibility.Patch {
         private static void Postfix(ToHit __instance, ref string __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
 
-            Mod.Log.LogIfTrace($"Getting modifier descriptions for attacker:{CombatantHelper.Label(attacker)} " +
-                $"using weapon:{weapon.Name} vs target:{CombatantHelper.Label(target)}");
+            Mod.Log.Trace($"Getting modifier descriptions for attacker:{CombatantUtils.Label(attacker)} " +
+                $"using weapon:{weapon.Name} vs target:{CombatantUtils.Label(target)}");
 
             AbstractActor targetActor = target as AbstractActor;
             if (__instance != null && attacker != null && target != null && weapon != null && targetActor != null) {
@@ -89,7 +88,7 @@ namespace LowVisibility.Patch {
 
                 VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, weapon);
                 if (vismodeMod.modifier != 0) {
-                    Mod.Log.LogIfTrace($" VisionMode modifier vs target:{CombatantHelper.Label(target)} => {vismodeMod.ToString()}");
+                    Mod.Log.Trace($" VisionMode modifier vs target:{CombatantUtils.Label(target)} => {vismodeMod.ToString()}");
                     __result = string.Format("{0}{1} {2:+#;-#}; ", __result, vismodeMod.label, vismodeMod.modifier);
                 }
 

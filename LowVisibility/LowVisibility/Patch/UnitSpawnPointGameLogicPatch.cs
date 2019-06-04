@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using Harmony;
 using LowVisibility.Helper;
+using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(UnitSpawnPointGameLogic), "SpawnMech")]
@@ -9,7 +10,7 @@ namespace LowVisibility.Patch {
         // Perform visibility updates at this point, after the unit has spawned and has been added to a team.
         public static void Postfix(UnitSpawnPointGameLogic __instance, Mech __result) {
 
-            Mod.Log.LogIfDebug($"=== SpawnMech entered for {CombatantHelper.Label(__result)}.");
+            Mod.Log.Debug($"=== SpawnMech entered for {CombatantUtils.Label(__result)}.");
             ECMHelper.UpdateECMState(__result);
         }
     }
@@ -20,7 +21,7 @@ namespace LowVisibility.Patch {
         // Perform visibility updates at this point, after the unit has spawned and has been added to a team.
         public static void Postfix(UnitSpawnPointGameLogic __instance, Vehicle __result) {
 
-            Mod.Log.LogIfDebug($"=== SpawnVehicle entered for {CombatantHelper.Label(__result)}.");
+            Mod.Log.Debug($"=== SpawnVehicle entered for {CombatantUtils.Label(__result)}.");
             ECMHelper.UpdateECMState(__result);
         }
     }
@@ -31,7 +32,7 @@ namespace LowVisibility.Patch {
         // Perform visibility updates at this point, after the unit has spawned and has been added to a team.
         public static void Postfix(UnitSpawnPointGameLogic __instance, Turret __result) {
 
-            Mod.Log.LogIfDebug($"=== SpawnTurret entered for {CombatantHelper.Label(__result)}.");
+            Mod.Log.Debug($"=== SpawnTurret entered for {CombatantUtils.Label(__result)}.");
             ECMHelper.UpdateECMState(__result);
         }
     }

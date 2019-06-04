@@ -4,7 +4,7 @@ using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using System.Reflection;
-using static LowVisibility.Helper.ActorHelper;
+using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
 
@@ -35,7 +35,7 @@ namespace LowVisibility.Patch {
 
                             // Make a pre-encounter detectCheck for them
                             State.BuildEWState(actor);
-                            Mod.Log.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} has rangeCheck:{State.GetEWState(actor).rangeCheck} at load/start");
+                            Mod.Log.Debug($"  Actor:{CombatantUtils.Label(actor)} has rangeCheck:{State.GetEWState(actor).rangeCheck} at load/start");
 
                             bool isPlayer = actor.TeamId == __instance.Combat.LocalPlayerTeamGuid;
                             if (isPlayer && randomPlayerActor == null) {
@@ -43,7 +43,7 @@ namespace LowVisibility.Patch {
                             }
 
                         } else {
-                            Mod.Log.LogIfDebug($"  Actor:{CombatantHelper.Label(actor)} was NULL!");
+                            Mod.Log.Debug($"  Actor:{CombatantUtils.Label(actor)} was NULL!");
                         }
                     }
                 }

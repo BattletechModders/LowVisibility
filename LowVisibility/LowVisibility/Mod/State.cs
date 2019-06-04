@@ -2,14 +2,14 @@
 using BattleTech;
 using LowVisibility.Helper;
 using LowVisibility.Object;
-using LowVisibility.Redzen;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using us.frostraptor.modUtils;
+using us.frostraptor.modUtils.Redzen;
 using static LowVisibility.Helper.MapHelper;
-using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility {
     static class State {
@@ -127,7 +127,7 @@ namespace LowVisibility {
         // --- Methods manipulating EWState
         public static EWState GetEWState(AbstractActor actor) {
             if (!EWState.ContainsKey(actor.GUID)) {
-                Mod.Log.Log($"WARNING: StaticEWState for actor:{CombatantHelper.Label(actor)} was not found. Creating!");
+                Mod.Log.Log($"WARNING: StaticEWState for actor:{CombatantUtils.Label(actor)} was not found. Creating!");
                 BuildEWState(actor);
             }
             return EWState[actor.GUID];

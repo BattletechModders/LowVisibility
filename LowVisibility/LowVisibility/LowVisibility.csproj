@@ -94,7 +94,6 @@
     <Compile Include="Helper\VisualLockHelper.cs" />
     <Compile Include="Object\EWState.cs" />
     <Compile Include="Helper\MapHelper.cs" />
-    <Compile Include="Helper\VisibilityHelper.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="Object\Visibility.cs" />
     <Compile Include="Patch\AIUtilPatches.cs" />

@@ -1,6 +1,7 @@
 ﻿using BattleTech.Rendering.Mood;
 using HBS.Collections;
 using System;
+using us.frostraptor.modUtils.math;
 
 namespace LowVisibility.Helper {
     public static class MapHelper {
@@ -53,12 +54,12 @@ namespace LowVisibility.Helper {
             }
 
 
-            Mod.Log.LogIfDebug($"  - Parsing current map for mod config");
+            Mod.Log.Debug($"  - Parsing current map for mod config");
 
             MapConfig mapConfig = new MapConfig();
             
             String allTags = String.Join(", ", moodTags.ToArray());
-            Mod.Log.LogIfDebug($"  - All mood tags are: {allTags}");
+            Mod.Log.Debug($"  - All mood tags are: {allTags}");
 
             float baseVision = Mod.Config.VisionRangeBaseDaylight;
             float visionMulti = 1.0f;
@@ -68,7 +69,7 @@ namespace LowVisibility.Helper {
                     case "mood_timeNoon":
                     case "mood_timeAfternoon":
                     case "mood_timeDay":
-                        Mod.Log.LogIfDebug($"  - {tag}");
+                        Mod.Log.Debug($"  - {tag}");
                         mapConfig.isDay = true;
                         mapConfig.isDim = false;
                         mapConfig.isDark = false;
@@ -76,7 +77,7 @@ namespace LowVisibility.Helper {
                     case "mood_timeSunrise":
                     case "mood_timeSunset":
                     case "mood_timeTwilight":
-                        Mod.Log.LogIfDebug($"  - {tag}");
+                        Mod.Log.Debug($"  - {tag}");
                         if (baseVision > Mod.Config.VisionRangeBaseDimlight) {
                             baseVision = Mod.Config.VisionRangeBaseDimlight;
                             mapConfig.isDay = false;
@@ -85,7 +86,7 @@ namespace LowVisibility.Helper {
                         }
                         break;
                     case "mood_timeNight":
-                        Mod.Log.LogIfDebug($"  - {tag}");
+                        Mod.Log.Debug($"  - {tag}");
                         if (baseVision > Mod.Config.VisionRangeBaseNight) {
                             baseVision = Mod.Config.VisionRangeBaseNight;
                             mapConfig.isDay = false;
@@ -94,28 +95,28 @@ namespace LowVisibility.Helper {
                         }
                         break;
                     case "mood_weatherRain":
-                        Mod.Log.LogIfDebug($"  - {tag}");
+                        Mod.Log.Debug($"  - {tag}");
                         if (visionMulti > Mod.Config.VisionRangeMultiRainSnow) {
                             visionMulti = Mod.Config.VisionRangeMultiRainSnow;
                             mapConfig.hasRain = true;
                         }
                         break;
                     case "mood_weatherSnow":
-                        Mod.Log.LogIfDebug($"  - {tag}");
+                        Mod.Log.Debug($"  - {tag}");
                         if (visionMulti > Mod.Config.VisionRangeMultiRainSnow) {
                             visionMulti = Mod.Config.VisionRangeMultiRainSnow;
                             mapConfig.hasSnow = true;
                         }
                         break;
                     case "mood_fogLight":
-                        Mod.Log.LogIfDebug($"  - {tag}");
+                        Mod.Log.Debug($"  - {tag}");
                         if (visionMulti > Mod.Config.VisionRangeMultiLightFog) {
                             visionMulti = Mod.Config.VisionRangeMultiLightFog;
                             mapConfig.hasLightFog = true;
                         }
                         break;
                     case "mood_fogHeavy":
-                        Mod.Log.LogIfDebug($"  - {tag}");
+                        Mod.Log.Debug($"  - {tag}");
                         if (visionMulti > Mod.Config.VisionRangeMultiHeavyFog) {
                             visionMulti = Mod.Config.VisionRangeMultiHeavyFog;
                             mapConfig.hasHeavyFog = true;
@@ -131,7 +132,7 @@ namespace LowVisibility.Helper {
                 visRange = Mod.Config.MinimumVisionRange();
             }
             
-            float normalizedVisionRange = MathHelper.CountHexes(visRange, false) * 30f;
+            float normalizedVisionRange = HexUtils.CountHexes(visRange, false) * 30f;
             Mod.Log.Log($"MapHelper: Vision range for map will be ==> {normalizedVisionRange}m (normalized from {visRange}m)");
             mapConfig.visionRange = normalizedVisionRange;
             mapConfig.scanRange = Math.Min(normalizedVisionRange, Mod.Config.VisualScanRange * 30.0f);

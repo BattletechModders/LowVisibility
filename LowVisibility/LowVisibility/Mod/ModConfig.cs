@@ -2,7 +2,21 @@
 namespace LowVisibility {
 
     public class ModStats {
-        public const string 
+        public const string TagPrefixJammer = "lv-jammer_m";
+
+        public const string TagPrefixProbe = "lv-probe_m";
+        public const string TagPrefixProbeBoost = "lv-probe-boost_m";
+
+        public const string TagSharesSensors = "lv-shares-sensors";
+
+        public const string TagPrefixStealth = "lv-stealth_m";
+        public const string TagPrefixScrambler = "lv-scrambler_m";
+
+        public const string TagPrefixStealthRangeMod = "lv-stealth-range-mod_s";
+        public const string TagPrefixStealthMoveMod = "lv-stealth-move-mod_m";
+
+        public const string TagPrefixVismodeZoom = "lv-vismode-zoom_m";
+        public const string TagPrefixVismodeHeat = "lv-vismode-heat_m";
     }
 
     public class ModConfig {

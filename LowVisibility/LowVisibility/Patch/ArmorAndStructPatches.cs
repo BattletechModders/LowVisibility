@@ -5,7 +5,6 @@ using LowVisibility.Object;
 using System;
 using System.Reflection;
 using TMPro;
-using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patches {
 

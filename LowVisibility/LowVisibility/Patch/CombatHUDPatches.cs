@@ -5,7 +5,6 @@ using LowVisibility.Object;
 using System;
 using System.Reflection;
 using UnityEngine;
-using static LowVisibility.Helper.VisibilityHelper;
 using static LowVisibility.Object.EWState;
 
 namespace LowVisibility.Patch {
@@ -20,7 +19,7 @@ namespace LowVisibility.Patch {
         private static Traverse ShowTargetMethod = null;
 
         public static void Postfix(CombatHUD __instance, bool shouldAdd) {
-            //LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:post - entered.");
+            //LowVisibility.Logger.Debug("CombatHUD:SubscribeToMessages:post - entered.");
             if (shouldAdd) {
                 Combat = __instance.Combat;
                 TargetingComputer = __instance.TargetingComputer;
@@ -51,20 +50,20 @@ namespace LowVisibility.Patch {
         }
 
         public static void OnActorTargeted(MessageCenterMessage message) {
-            //LowVisibility.Logger.LogIfDebug("CombatHUD:SubscribeToMessages:OnActorTargeted - entered.");
+            //LowVisibility.Logger.Debug("CombatHUD:SubscribeToMessages:OnActorTargeted - entered.");
             ActorTargetedMessage actorTargetedMessage = message as ActorTargetedMessage;
             ICombatant combatant = Combat.FindActorByGUID(actorTargetedMessage.affectedObjectGuid);
             if (combatant == null) { combatant = Combat.FindCombatantByGUID(actorTargetedMessage.affectedObjectGuid); }
 
             if (Combat.LocalPlayerTeam.VisibilityToTarget(combatant) >= VisibilityLevel.Blip0Minimum) {
-                Mod.Log.LogIfTrace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
+                Mod.Log.Trace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
                 if (ShowTargetMethod != null) {
                     ShowTargetMethod.GetValue(combatant);
                 } else {
                     Mod.Log.Log("WARNING: CHUD:STM caled with a null traverse!");
                 }
             } else {
-                Mod.Log.LogIfTrace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
+                Mod.Log.Trace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
             }
         }
     }
@@ -205,7 +204,7 @@ namespace LowVisibility.Patch {
             Traverse AddToolTipDetailMethod = Traverse.Create(__instance).Method("AddToolTipDetail", new Type[] { typeof(string), typeof(int) });
 
             if (targetActor != null && __instance.DisplayedWeapon != null) {
-                //LowVisibility.Logger.LogIfDebug($"___CombatHUDTargetingComputer - SetHitChance for source:{CombatantHelper.Label(targetActor)} target:{CombatantHelper.Label(targetActor)}");
+                //LowVisibility.Logger.Debug($"___CombatHUDTargetingComputer - SetHitChance for source:{CombatantUtils.Label(targetActor)} target:{CombatantUtils.Label(targetActor)}");
                 Locks lockState = State.LocksForTarget(actor, targetActor);
                 float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
                 EWState attackerEWConfig = State.GetEWState(actor);

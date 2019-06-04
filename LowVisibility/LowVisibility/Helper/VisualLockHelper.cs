@@ -1,6 +1,8 @@
 ﻿using BattleTech;
 using LowVisibility.Object;
 using UnityEngine;
+using us.frostraptor.modUtils;
+using us.frostraptor.modUtils.math;
 
 namespace LowVisibility.Helper {
     class VisualLockHelper {
@@ -29,7 +31,7 @@ namespace LowVisibility.Helper {
                 float absolutes = VisualLockHelper.GetAllSpotterAbsolutes(source);
                 
                 visualRange = visionRange * multipliers + absolutes;
-                Mod.Log.LogIfTrace($" -- source:{CombatantHelper.Label(source)} has spotting " +
+                Mod.Log.Trace($" -- source:{CombatantUtils.Label(source)} has spotting " +
                     $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
             }
 
@@ -38,9 +40,9 @@ namespace LowVisibility.Helper {
             }
 
             // Round up to the nearest full hex
-            float normalizedRange = MathHelper.CountHexes(visualRange, false) * 30f;
+            float normalizedRange = HexUtils.CountHexes(visualRange, false) * 30f;
             
-            //LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} visual range is:{normalizedRange}m normalized from:{visualRange}m");
+            //LowVisibility.Logger.Trace($" -- source:{CombatantUtils.Label(source)} visual range is:{normalizedRange}m normalized from:{visualRange}m");
             return normalizedRange;
         }
 
@@ -61,9 +63,9 @@ namespace LowVisibility.Helper {
             }
 
             // Round up to the nearest full hex
-            float normalizedRange = MathHelper.CountHexes(spotterRange, true) * 30f;
+            float normalizedRange = HexUtils.CountHexes(spotterRange, true) * 30f;
 
-            //LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} adjusted spotterRange:{normalizedRange}m normalized from:{spotterRange}m");
+            //LowVisibility.Logger.Trace($" -- source:{CombatantUtils.Label(source)} adjusted spotterRange:{normalizedRange}m normalized from:{spotterRange}m");
             return normalizedRange;
         }
 

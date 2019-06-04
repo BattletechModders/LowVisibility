@@ -1,6 +1,8 @@
 ﻿using BattleTech;
 using LowVisibility.Object;
 using UnityEngine;
+using us.frostraptor.modUtils;
+using us.frostraptor.modUtils.math;
 
 namespace LowVisibility.Helper {
     class SensorLockHelper {
@@ -23,16 +25,16 @@ namespace LowVisibility.Helper {
             }
 
             // Round up to the nearest full hex
-            float normalizedRange = MathHelper.CountHexes(sensorsRange, true) * 30f;
+            float normalizedRange = HexUtils.CountHexes(sensorsRange, true) * 30f;
 
-            //LowVisibility.Logger.LogIfDebug($" -- source:{CombatantHelper.Label(source)} sensorsRange:{normalizedRange}m normalized from:{sensorsRange}m");
+            //LowVisibility.Logger.Debug($" -- source:{CombatantUtils.Label(source)} sensorsRange:{normalizedRange}m normalized from:{sensorsRange}m");
             return normalizedRange;
         }
 
         public static float GetAdjustedSensorRange(AbstractActor source, ICombatant target) {
             float sourceSensorRange = SensorLockHelper.GetSensorsRange(source);
             float targetSignature = SensorLockHelper.GetTargetSignature(target);
-            //LowVisibility.Logger.LogIfDebug($"   source:{CombatantHelper.Label(source)} sensorRange:{sourceSensorRange}m vs targetSignature:x{targetSignature}");
+            //LowVisibility.Logger.Debug($"   source:{CombatantUtils.Label(source)} sensorRange:{sourceSensorRange}m vs targetSignature:x{targetSignature}");
 
             //if (target != null && source.VisibilityToTargetUnit(target) > VisibilityLevel.None) {
             //    // If is sensor lock, add the Hysterisis modifier
@@ -42,9 +44,9 @@ namespace LowVisibility.Helper {
             float modifiedRange = sourceSensorRange * targetSignature;
    
             // Round up to the nearest full hex
-            float normalizedRange = MathHelper.CountHexes(modifiedRange, true) * 30f;
+            float normalizedRange = HexUtils.CountHexes(modifiedRange, true) * 30f;
 
-            //LowVisibility.Logger.LogIfDebug($"   source:{CombatantHelper.Label(source)} adjusted sensorRange:{normalizedRange}m normalized from:{modifiedRange}m");
+            //LowVisibility.Logger.Debug($"   source:{CombatantUtils.Label(source)} adjusted sensorRange:{normalizedRange}m normalized from:{modifiedRange}m");
             return normalizedRange;
         }
 
@@ -96,34 +98,34 @@ namespace LowVisibility.Helper {
 
             if (source.GUID == target.GUID || source.Combat.HostilityMatrix.IsFriendly(source.TeamId, target.team.GUID)) {
                 // If they are us, or allied, automatically give sensor details
-                Mod.Log.LogIfDebug($"  source:{CombatantHelper.Label(source)} is friendly to target:{CombatantHelper.Label(target)}. Forcing full visibility.");
+                Mod.Log.Debug($"  source:{CombatantUtils.Label(source)} is friendly to target:{CombatantUtils.Label(target)}. Forcing full visibility.");
                 return SensorScanType.DentalRecords;
             }
 
             if (source.IsDead || source.IsFlaggedForDeath) {
                 // If we're dead, we can't have vision or sensors. If we're off the map, we can't either. If the target is off the map, we can't see it.                
-                Mod.Log.LogIfDebug($"  source:{CombatantHelper.Label(source)} is dead or dying. Forcing no visibility.");
+                Mod.Log.Debug($"  source:{CombatantUtils.Label(source)} is dead or dying. Forcing no visibility.");
                 return SensorScanType.NoInfo;
             }
 
             if (target.IsDead || target.IsFlaggedForDeath) {
                 // If the target is dead, we can't have sensor but we have vision 
-                Mod.Log.LogIfDebug($"  target:{CombatantHelper.Label(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
+                Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
                 return SensorScanType.NoInfo;
             }
 
             if (source.IsTeleportedOffScreen) {
-                Mod.Log.LogIfDebug($"  source is teleported off screen. Skipping.");
+                Mod.Log.Debug($"  source is teleported off screen. Skipping.");
                 return SensorScanType.NoInfo;
             }
 
             float distance = Vector3.Distance(sourcePos, targetPos);
             float sensorRangeVsTarget = SensorLockHelper.GetAdjustedSensorRange(source, target);
-            Mod.Log.LogIfDebug($"SensorLockHelper - source:{CombatantHelper.Label(source)} sensorRangeVsTarget:{sensorRangeVsTarget} vs distance:{distance}");
+            Mod.Log.Debug($"SensorLockHelper - source:{CombatantUtils.Label(source)} sensorRangeVsTarget:{sensorRangeVsTarget} vs distance:{distance}");
             if (distance > sensorRangeVsTarget) {
                 // Check for Narc effect that will show the target regardless of range
                 SensorScanType narcLock = HasNarcBeaconDetection(target) ? SensorScanType.Location : SensorScanType.NoInfo;
-                Mod.Log.LogIfDebug($"  source:{CombatantHelper.Label(source)} is out of range, lock from Narc is:{narcLock}");
+                Mod.Log.Debug($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
                 return narcLock;
             } else if ((target as Building) != null) {
                 // If the target is a building, show them so long as they are in sensor distance
@@ -131,14 +133,14 @@ namespace LowVisibility.Helper {
                 EWState sourceState = State.GetEWState(source);
                 Building targetBuilding = target as Building;
                 SensorScanType buildingLock = sourceState.detailCheck > 0 ? SensorScanType.SurfaceScan: SensorScanType.NoInfo;
-                Mod.Log.LogIfDebug($"  target:{CombatantHelper.Label(target)} is a building with lockState:{buildingLock}");
+                Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} is a building with lockState:{buildingLock}");
                 return buildingLock;
             } else if ((target as AbstractActor) != null) {
                 AbstractActor targetActor = target as AbstractActor;
 
                 SensorScanType sensorLock = SensorScanType.NoInfo;
                 if (targetActor.IsTeleportedOffScreen) {
-                    Mod.Log.LogIfDebug($"  target is teleported off screen. Skipping.");                
+                    Mod.Log.Debug($"  target is teleported off screen. Skipping.");                
                 } else {
                     // TODO: Re-add shadowing logic
                     // TODO: SensorLock adds a boost from friendlies if they have shares sensors?
@@ -150,8 +152,8 @@ namespace LowVisibility.Helper {
                         sensorLock = SensorScanType.Location;
                     }
                 }
-                Mod.Log.LogIfTrace($"SensorLockHelper - source:{CombatantHelper.Label(source)} has sensorLock:({sensorLock}) vs " +
-                    $"target:{CombatantHelper.Label(target)}");
+                Mod.Log.Trace($"SensorLockHelper - source:{CombatantUtils.Label(source)} has sensorLock:({sensorLock}) vs " +
+                    $"target:{CombatantUtils.Label(target)}");
                 return sensorLock;
             } else {
                 Mod.Log.Log($"SensorLockHelper - fallthrough case we don't know how to handle. Returning NoLock!");
@@ -163,11 +165,11 @@ namespace LowVisibility.Helper {
             bool hasDetection = false;
             if (target != null && State.NARCEffect(target) != 0) {
                 int delta = State.NARCEffect(target) - State.ECMProtection(target);
-                Mod.Log.LogIfDebug($"  target:{CombatantHelper.Label(target)} has an active " +
+                Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} has an active " +
                     $"narc effect {State.NARCEffect(target)} vs. ECM Protection:{State.ECMProtection(target)}, delta is:{delta}");
 
                 if (delta >= 1) {
-                    Mod.Log.LogIfDebug($"  target:{CombatantHelper.Label(target)} has an active NARC effect, " +
+                    Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} has an active NARC effect, " +
                         $"marking them visible!");
                     hasDetection = true;
                 }
@@ -188,7 +190,7 @@ namespace LowVisibility.Helper {
             // --- Source modifier: ECM Jamming
             if (State.ECMJamming(source) != 0) {
                 modifiedSourceCheck -= State.ECMJamming(source);
-                Mod.Log.LogIfTrace($"  source:{CombatantHelper.Label(source)} is jammed with strength:{State.ECMJamming(source)}, " +
+                Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is jammed with strength:{State.ECMJamming(source)}, " +
                     $"reducing sourceCheckResult to:{modifiedSourceCheck}");
             }
 
@@ -199,42 +201,42 @@ namespace LowVisibility.Helper {
                 // ECM protection reduces sensor info
                 if (State.ECMProtection(targetActor) != 0) {
                     modifiedSourceCheck -= State.ECMProtection(targetActor);
-                    Mod.Log.LogIfTrace($"  target:{CombatantHelper.Label(target)} has ECM protection with strength:{State.ECMProtection(targetActor)}, " +
+                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has ECM protection with strength:{State.ECMProtection(targetActor)}, " +
                         $"reducing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
                 // Stealth reduces sensor info
                 if (targetStaticState.stealthMod != 0) {
                     modifiedSourceCheck -= targetStaticState.stealthMod;
-                    Mod.Log.LogIfTrace($"  target:{CombatantHelper.Label(target)} has stealthMod:{targetStaticState.stealthMod}, " +
+                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has stealthMod:{targetStaticState.stealthMod}, " +
                         $"reducing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
                 // Scramblers reduces sensor info
                 if (targetStaticState.scramblerMod != 0) {
                     modifiedSourceCheck -= targetStaticState.scramblerMod;
-                    Mod.Log.LogIfTrace($"  target:{CombatantHelper.Label(target)} has scramblerMod:{targetStaticState.scramblerMod}, " +
+                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has scramblerMod:{targetStaticState.scramblerMod}, " +
                         $"reducing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
                 // A Narc effect increases sensor info
                 if (State.NARCEffect(targetActor) != 0) {
                     modifiedSourceCheck += State.NARCEffect(targetActor);
-                    Mod.Log.LogIfTrace($"  target:{CombatantHelper.Label(target)} has NARC effect:{State.NARCEffect(targetActor)}, " +
+                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has NARC effect:{State.NARCEffect(targetActor)}, " +
                         $"increasing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
                 // A TAG effect increases sensor info
                 if (State.TAGEffect(targetActor) != 0) {
                     modifiedSourceCheck += State.TAGEffect(targetActor);
-                    Mod.Log.LogIfTrace($"  target:{CombatantHelper.Label(target)} has TAG effect:{State.TAGEffect(targetActor)}, " +
+                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has TAG effect:{State.TAGEffect(targetActor)}, " +
                         $"increasing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
             }
 
             sensorInfo = DetectionLevelForCheck(modifiedSourceCheck);
-            //LowVisibility.Logger.LogIfDebug($"Calculated sensorInfo:{sensorInfo} for modifiedCheck:{modifiedSourceCheck} (from baseCheck:{baseSourceCheck})");
+            //LowVisibility.Logger.Debug($"Calculated sensorInfo:{sensorInfo} for modifiedCheck:{modifiedSourceCheck} (from baseCheck:{baseSourceCheck})");
 
             return sensorInfo;
         }

@@ -3,7 +3,7 @@ using BattleTech.UI;
 using Harmony;
 using LowVisibility.Helper;
 using System.Collections.Generic;
-using static LowVisibility.Helper.ActorHelper;
+using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
 
@@ -20,7 +20,7 @@ namespace LowVisibility.Patch {
 
             //VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
 
-            Mod.Log.LogIfTrace($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantHelper.Label(__instance)}");
+            Mod.Log.Trace($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantUtils.Label(__instance)}");
             if (__instance.team == __instance.Combat.LocalPlayerTeam) {
                 State.LastPlayerActor = __instance.GUID;             
             }
@@ -30,7 +30,7 @@ namespace LowVisibility.Patch {
    [HarmonyPatch(typeof(CombatSelectionHandler), "TrySelectActor")]
     public static class CombatSelectionHandler_TrySelectActor {
         public static void Postfix(CombatSelectionHandler __instance, bool __result, AbstractActor actor, bool manualSelection) {
-            Mod.Log.LogIfDebug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {CombatantHelper.Label(actor)}.");
+            Mod.Log.Debug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {CombatantUtils.Label(actor)}.");
             if (__instance != null && actor != null && __result == true && actor.IsAvailableThisPhase) {
                 ECMHelper.UpdateECMState(actor);
                 if (actor.team == actor.Combat.LocalPlayerTeam) {
@@ -65,7 +65,7 @@ namespace LowVisibility.Patch {
         public static void Prefix(AbstractActor __instance) {
             // Check for teamID; if it's not present, unit hasn't spawned yet. Defer to UnitSpawnPointGameLogic::SpawnUnit for these updates
             if (State.TurnDirectorStarted && __instance.TeamId != null) {
-                Mod.Log.LogIfDebug($"AbstractActor_UpdateLOSPositions:pre - entered for {CombatantHelper.Label(__instance)}.");
+                Mod.Log.Debug($"AbstractActor_UpdateLOSPositions:pre - entered for {CombatantUtils.Label(__instance)}.");
 
                 // Why am I doing this here, isntead of OnMovePhaseComplete? Is it to help the AI, which needs this frequently evaluated for it's routines?
                 //ECMHelper.UpdateECMState(__instance);
@@ -78,7 +78,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(Mech), "OnMovePhaseComplete")]
     public static class Mech_OnMovePhaseComplete {
         public static void Postfix(Mech __instance) {
-            Mod.Log.LogIfDebug($"=== Mech:OnMovePhaseComplete:post - entered for {CombatantHelper.Label(__instance)}.");
+            Mod.Log.Debug($"=== Mech:OnMovePhaseComplete:post - entered for {CombatantUtils.Label(__instance)}.");
 
             bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
             if (isPlayer && State.ECMJamming(__instance) != 0) {

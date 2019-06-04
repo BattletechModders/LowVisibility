@@ -10,8 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using static LowVisibility.Helper.ActorHelper;
-using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patch {
 
@@ -24,7 +22,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDStatusPanel __instance, List<CombatHUDStatusIndicator> ___Buffs, List<CombatHUDStatusIndicator> ___Debuffs) {
-            //LowVisibility.Logger.LogIfDebug("CombatHUDStatusPanel:RefreshDisplayedCombatant:post - entered.");
+            //LowVisibility.Logger.Debug("CombatHUDStatusPanel:RefreshDisplayedCombatant:post - entered.");
             if (__instance != null && __instance.DisplayedCombatant != null) {
                 AbstractActor target = __instance.DisplayedCombatant as AbstractActor;
                 // We can receive a building here, so 
@@ -60,7 +58,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDStatusPanel __instance) {
-            //LowVisibility.Logger.LogIfDebug("___ CombatHUDStatusPanel:ShowActorStatuses:post - entered.");
+            //LowVisibility.Logger.Debug("___ CombatHUDStatusPanel:ShowActorStatuses:post - entered.");
 
             if (__instance.DisplayedCombatant != null) {
                 Type[] iconMethodParams = new Type[] { typeof(SVGAsset), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) };

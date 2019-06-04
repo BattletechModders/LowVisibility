@@ -51,7 +51,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(VisRangeIndicator), "Refresh")]
     public static class VisRangeIndicator_Refresh {
         public static void Postfix(VisRangeIndicator __instance, AbstractActor actor) {
-            //LowVisibility.Logger.Log($"VisRangeIndicator::Refresh for actor:{CombatantHelper.Label(actor)}");
+            //LowVisibility.Logger.Log($"VisRangeIndicator::Refresh for actor:{CombatantUtils.Label(actor)}");
         }
     }
 

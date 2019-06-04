@@ -4,7 +4,6 @@ using Localize;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
-using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patch {
 
@@ -43,7 +42,7 @@ namespace LowVisibility.Patch {
                 label = new Text($"?");
             }
 
-            Mod.Log.LogIfDebug($"GetDetectionLabel - label:({label}) for visLevel:{visLevel} " +
+            Mod.Log.Debug($"GetDetectionLabel - label:({label}) for visLevel:{visLevel} " +
                 $"chassisName:({chassisName}) variantName:({variantName}) fullName:({fullName}) type:({type}) tonnage:{tonnage}t");
             return label;
         }

@@ -1,7 +1,6 @@
 ﻿using BattleTech;
 using BattleTech.UI;
 using Harmony;
-using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using TMPro;
 using UnityEngine;
-using static LowVisibility.Helper.VisibilityHelper;
+using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
     // Allow the CombatHUDTargeting computer to be displayed for blips
@@ -22,7 +21,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDTargetingComputer __instance, MessageCenterMessage message, CombatHUD ___HUD) {
-            // LowVisibility.Logger.LogIfDebug("CombatHUDTargetingComputer:OnActorHovered:post - entered.");
+            // LowVisibility.Logger.Debug("CombatHUDTargetingComputer:OnActorHovered:post - entered.");
 
             if (__instance != null) {
 
@@ -70,7 +69,7 @@ namespace LowVisibility.Patch {
 
         // TODO: Dangerous PREFIX false here!
         public static bool Prefix(CombatHUDTargetingComputer __instance, CombatHUD ___HUD) {
-            //LowVisibility.Logger.LogIfDebug("CombatHUDTargetingComputer:Update:pre - entered.");
+            //LowVisibility.Logger.Debug("CombatHUDTargetingComputer:Update:pre - entered.");
 
             CombatGameState Combat = ___HUD?.Combat;
 
@@ -119,21 +118,21 @@ namespace LowVisibility.Patch {
         public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames, CombatHUDStatusPanel ___StatusPanel) {
             //KnowYourFoe.Logger.Log("CombatHUDTargetingComputer:RefreshActorInfo:post - entered.");
             if (__instance.ActivelyShownCombatant == null ) {
-                Mod.Log.LogIfDebug($"CHTC:RAI ~~~ target is null, skipping.");
+                Mod.Log.Debug($"CHTC:RAI ~~~ target is null, skipping.");
                 return;
             } else if (
                 __instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID)) {
-                Mod.Log.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
+                Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
                 __instance.WeaponList.SetActive(true);
                 return;
             } else {
-                Mod.Log.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} is enemy");
+                Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy");
                 
                 if ((__instance.ActivelyShownCombatant as AbstractActor) != null) {
                     AbstractActor target = __instance.ActivelyShownCombatant as AbstractActor;
                     AbstractActor lastActivated = State.GetLastPlayerActivatedActor(target.Combat);
                     Locks lockState = State.LastActivatedLocksForTarget(target);
-                    Mod.Log.LogIfDebug($"CHTC:RAI ~~~ LastActivated:{CombatantHelper.Label(lastActivated)} vs. enemy:{CombatantHelper.Label(target)} has lockState:{lockState}");
+                    Mod.Log.Debug($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(lastActivated)} vs. enemy:{CombatantUtils.Label(target)} has lockState:{lockState}");
 
                     if (lockState.sensorLock >= SensorScanType.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
@@ -170,7 +169,7 @@ namespace LowVisibility.Patch {
                     }
                 } else if ((__instance.ActivelyShownCombatant as Building) != null) {
                     Building target = __instance.ActivelyShownCombatant as Building;
-                    Mod.Log.LogIfDebug($"CHTC:RAI ~~~ target:{CombatantHelper.Label(__instance.ActivelyShownCombatant)} is enemy building");
+                    Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy building");
 
                     SetArmorDisplayActive(__instance, true);
 
