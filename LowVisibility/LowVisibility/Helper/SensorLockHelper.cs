@@ -15,9 +15,9 @@ namespace LowVisibility.Helper {
             float rangeMulti = SensorLockHelper.GetAllSensorRangeMultipliers(source);
             float rangeMod = SensorLockHelper.GetAllSensorRangeAbsolutes(source);
 
-            EWState ewState = State.GetEWState(source);
+            EWState ewState = new EWState(source);
 
-            float sensorsRange = (ewState.sensorsBaseRange * rangeMulti + rangeMod) * ewState.SensorCheckMultiplier();
+            float sensorsRange = (ewState.sensorsBaseRange * rangeMulti + rangeMod) * ewState.SensorsCheckMultiplier();
 
             if (sensorsRange < Mod.Config.MinimumSensorRange() ||
                 source.Combat.TurnDirector.CurrentRound <= 1 && Mod.Config.FirstTurnForceFailedChecks) {
@@ -130,9 +130,9 @@ namespace LowVisibility.Helper {
             } else if ((target as Building) != null) {
                 // If the target is a building, show them so long as they are in sensor distance
                 // TODO: ADD FRIENDLY ECM CHECK HERE?
-                EWState sourceState = State.GetEWState(source);
+                EWState sourceState = new EWState(source);
                 Building targetBuilding = target as Building;
-                SensorScanType buildingLock = sourceState.detailCheck > 0 ? SensorScanType.SurfaceScan: SensorScanType.NoInfo;
+                SensorScanType buildingLock = sourceState.sensorsCheck > 0 ? SensorScanType.SurfaceScan: SensorScanType.NoInfo;
                 Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} is a building with lockState:{buildingLock}");
                 return buildingLock;
             } else if ((target as AbstractActor) != null) {
@@ -156,7 +156,7 @@ namespace LowVisibility.Helper {
                     $"target:{CombatantUtils.Label(target)}");
                 return sensorLock;
             } else {
-                Mod.Log.Log($"SensorLockHelper - fallthrough case we don't know how to handle. Returning NoLock!");
+                Mod.Log.Info($"SensorLockHelper - fallthrough case we don't know how to handle. Returning NoLock!");
                 return SensorScanType.NoInfo;
             }
         }
@@ -183,8 +183,8 @@ namespace LowVisibility.Helper {
             AbstractActor targetActor = target as AbstractActor;
 
             // Determine modified check against target
-            EWState sourceEWState = State.GetEWState(source);
-            int baseSourceCheck = sourceEWState.detailCheck + sourceEWState.SensorCheckModifier();
+            EWState sourceEWState = new EWState(source);
+            int baseSourceCheck = sourceEWState.sensorsCheck + sourceEWState.SensorsCheckModifier();
             int modifiedSourceCheck = baseSourceCheck;
 
             // --- Source modifier: ECM Jamming
@@ -196,7 +196,7 @@ namespace LowVisibility.Helper {
 
             // --- Target Modifiers: Stealth, Narc, Tag
             if (targetActor != null) {
-                EWState targetStaticState = State.GetEWState(targetActor);
+                EWState targetStaticState = new EWState(targetActor);
 
                 // ECM protection reduces sensor info
                 if (State.ECMProtection(targetActor) != 0) {
@@ -209,13 +209,6 @@ namespace LowVisibility.Helper {
                 if (targetStaticState.stealthMod != 0) {
                     modifiedSourceCheck -= targetStaticState.stealthMod;
                     Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has stealthMod:{targetStaticState.stealthMod}, " +
-                        $"reducing sourceCheckResult to:{modifiedSourceCheck}");
-                }
-
-                // Scramblers reduces sensor info
-                if (targetStaticState.scramblerMod != 0) {
-                    modifiedSourceCheck -= targetStaticState.scramblerMod;
-                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has scramblerMod:{targetStaticState.scramblerMod}, " +
                         $"reducing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 

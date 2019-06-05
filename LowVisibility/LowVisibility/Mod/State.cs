@@ -124,23 +124,9 @@ namespace LowVisibility {
             return allTargetLocks;
         }
 
-        // --- Methods manipulating EWState
-        public static EWState GetEWState(AbstractActor actor) {
-            if (!EWState.ContainsKey(actor.GUID)) {
-                Mod.Log.Log($"WARNING: StaticEWState for actor:{CombatantUtils.Label(actor)} was not found. Creating!");
-                BuildEWState(actor);
-            }
-            return EWState[actor.GUID];
-        }
-
-        public static void BuildEWState(AbstractActor actor) {
-            EWState config = new EWState(actor);
-            EWState[actor.GUID] = config;
-        }
-
         // --- Methods manipulating CheckResults
         public static void InitializeCheckResults() {
-            Mod.Log.Log($"Initializing a new random buffer of size:{ResultsToPrecalcuate}");
+            Mod.Log.Info($"Initializing a new random buffer of size:{ResultsToPrecalcuate}");
             Xoshiro256PlusRandomBuilder builder = new Xoshiro256PlusRandomBuilder();
             IRandomSource rng = builder.Create();
             double mean = Mod.Config.ProbabilityMu;
@@ -151,7 +137,7 @@ namespace LowVisibility {
 
         public static int GetCheckResult() {
             if (CheckResultIdx < 0 || CheckResultIdx > ResultsToPrecalcuate) {
-                Mod.Log.Log($"ERROR: CheckResultIdx of {CheckResultIdx} is out of bounds! THIS SHOULD NOT HAPPEN!");
+                Mod.Log.Info($"ERROR: CheckResultIdx of {CheckResultIdx} is out of bounds! THIS SHOULD NOT HAPPEN!");
             }
 
             double result = CheckResults[CheckResultIdx];
@@ -285,36 +271,36 @@ namespace LowVisibility {
 
                     // TODO: NEED TO REFRESH STATIC STATE ON ACTORS
                     State.EWState = savedState.staticState;
-                    Mod.Log.Log($"  -- StaticEWState.count: {savedState.staticState.Count}");
+                    Mod.Log.Info($"  -- StaticEWState.count: {savedState.staticState.Count}");
 
                     State.PlayerActorLocks = savedState.PlayerActorLocks;
-                    Mod.Log.Log($"  -- SourceActorLockStates.count: {savedState.PlayerActorLocks.Count}");
+                    Mod.Log.Info($"  -- SourceActorLockStates.count: {savedState.PlayerActorLocks.Count}");
 
                     State.LastPlayerActor = savedState.LastPlayerActivatedActorGUID;
-                    Mod.Log.Log($"  -- LastPlayerActivatedActorGUID: {LastPlayerActor}");
+                    Mod.Log.Info($"  -- LastPlayerActivatedActorGUID: {LastPlayerActor}");
 
                     State.ECMJammedActors = savedState.ecmJammedActors;
-                    Mod.Log.Log($"  -- ecmJammedActors.count: {savedState.ecmJammedActors.Count}");
+                    Mod.Log.Info($"  -- ecmJammedActors.count: {savedState.ecmJammedActors.Count}");
                     State.ECMProtectedActors = savedState.ecmProtectedActors;
-                    Mod.Log.Log($"  -- ecmProtectedActors.count: {savedState.ecmProtectedActors.Count}");
+                    Mod.Log.Info($"  -- ecmProtectedActors.count: {savedState.ecmProtectedActors.Count}");
                     State.NarcedActors = savedState.narcedActors;
-                    Mod.Log.Log($"  -- narcedActors.count: {savedState.narcedActors.Count}");
+                    Mod.Log.Info($"  -- narcedActors.count: {savedState.narcedActors.Count}");
                     State.TaggedActors = savedState.taggedActors;
-                    Mod.Log.Log($"  -- taggedActors.count: {savedState.taggedActors.Count}");
+                    Mod.Log.Info($"  -- taggedActors.count: {savedState.taggedActors.Count}");
 
-                    Mod.Log.Log($"Loaded save state from file:{stateFilePath.FullName}.");
+                    Mod.Log.Info($"Loaded save state from file:{stateFilePath.FullName}.");
                 } catch (Exception e) {
-                    Mod.Log.Log($"Failed to read saved state due to e: '{e.Message}'");                    
+                    Mod.Log.Info($"Failed to read saved state due to e: '{e.Message}'");                    
                 }
             } else {
-                Mod.Log.Log($"FilePath:{stateFilePath} does not exist, not loading file.");
+                Mod.Log.Info($"FilePath:{stateFilePath} does not exist, not loading file.");
             }
         }
 
         public static void SaveStateData(string saveFileID) {
             string normalizedFileID = saveFileID.Substring(5);
             FileInfo saveStateFilePath = CalculateFilePath(normalizedFileID);
-            Mod.Log.Log($"Saving to filePath:{saveStateFilePath.FullName}.");
+            Mod.Log.Info($"Saving to filePath:{saveStateFilePath.FullName}.");
             if (saveStateFilePath.Exists) {
                 // Make a backup
                 saveStateFilePath.CopyTo($"{saveStateFilePath.FullName}.bak", true);
@@ -336,10 +322,10 @@ namespace LowVisibility {
                 using (StreamWriter w = new StreamWriter(saveStateFilePath.FullName, false)) {
                     string json = JsonConvert.SerializeObject(state);
                     w.Write(json);
-                    Mod.Log.Log($"Persisted state to file:{saveStateFilePath.FullName}.");
+                    Mod.Log.Info($"Persisted state to file:{saveStateFilePath.FullName}.");
                 }
             } catch (Exception e) {
-                Mod.Log.Log($"Failed to persist to disk at path {saveStateFilePath.FullName} due to error: {e.Message}");
+                Mod.Log.Info($"Failed to persist to disk at path {saveStateFilePath.FullName} due to error: {e.Message}");
             }
         }
 
@@ -351,11 +337,11 @@ namespace LowVisibility {
             // We want to write to Battletech\ModSaves\<ModName>
             DirectoryInfo modSavesDir = battletechDir.CreateSubdirectory(ModSavesDir);
             DirectoryInfo modSaveSubdir = modSavesDir.CreateSubdirectory(ModSaveSubdir);
-            Mod.Log.Log($"Mod saves will be written to: ({modSaveSubdir.FullName}).");
+            Mod.Log.Info($"Mod saves will be written to: ({modSaveSubdir.FullName}).");
 
             //Finally combine the paths
             string campaignFilePath = Path.Combine(modSaveSubdir.FullName, $"{saveID}.json");
-            Mod.Log.Log($"campaignFilePath is: ({campaignFilePath}).");
+            Mod.Log.Info($"campaignFilePath is: ({campaignFilePath}).");
             return new FileInfo(campaignFilePath);
         }
 

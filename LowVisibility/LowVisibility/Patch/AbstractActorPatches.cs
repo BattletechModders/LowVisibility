@@ -11,18 +11,16 @@ namespace LowVisibility.Patch {
     public static class AbstractActor_InitEffectStats {
         private static void Postfix(AbstractActor __instance) {
             Mod.Log.Trace("AA:IES entered");
+
+            __instance.StatCollection.Set(ModStats.Check, 0);
+
             __instance.StatCollection.Set(ModStats.Jammer, 0);
             __instance.StatCollection.Set(ModStats.Probe, 0);
-            __instance.StatCollection.Set(ModStats.ProbeBoost, 0);
+            __instance.StatCollection.Set(ModStats.Stealth, 0);
 
             __instance.StatCollection.Set(ModStats.SharesSensors, false);
 
-            __instance.StatCollection.Set(ModStats.Stealth, 0);
-            __instance.StatCollection.Set(ModStats.Scrambler, 0);
-
-            __instance.StatCollection.Set(ModStats.StealthRangeMod, 0);
             __instance.StatCollection.Set(ModStats.StealthMoveMod, 0);
-
             __instance.StatCollection.Set(ModStats.VismodeZoom, 0);
             __instance.StatCollection.Set(ModStats.VismodeHeat, 0);
         }
@@ -36,8 +34,8 @@ namespace LowVisibility.Patch {
                 // For some bloody reason DoneWithActor() invokes OnActivationBegin, EVEN THOUGH IT DOES NOTHING. GAH!
                 return;
             }
-
-            ECMHelper.UpdateECMState(__instance);
+            
+            //ECMHelper.UpdateECMState(__instance);
 
             //VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
 
@@ -62,6 +60,8 @@ namespace LowVisibility.Patch {
     public static class AbstractActor_HasLOSToTargetUnit {
         public static void Postfix(AbstractActor __instance, ref bool __result, ICombatant targetUnit) {
             //LowVisibility.Logger.Debug("AbstractActor:HasLOSToTargetUnit:post - entered.");
+
+            // Forces you to be able to see targets that are only blips
             __result = __instance.VisibilityToTargetUnit(targetUnit) >= VisibilityLevel.Blip0Minimum;
             Mod.Log.Trace($"Actor{CombatantUtils.Label(__instance)} has LOSToTargetUnit? {__result} " +
                 $"to target:{CombatantUtils.Label(targetUnit as AbstractActor)}");

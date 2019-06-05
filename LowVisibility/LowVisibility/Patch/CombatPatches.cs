@@ -46,12 +46,12 @@ namespace LowVisibility.Patch {
         public static void Postfix(Mech __instance) {
             Mod.Log.Debug($"=== Mech:OnMovePhaseComplete:post - entered for {CombatantUtils.Label(__instance)}.");
 
-            bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
-            if (isPlayer && State.ECMJamming(__instance) != 0) {
-                // Send a floatie indicating the jamming
-                MessageCenter mc = __instance.Combat.MessageCenter;
-                mc.PublishMessage(new FloatieMessage(__instance.GUID, __instance.GUID, "JAMMED BY ECM", FloatieMessage.MessageNature.Debuff));
-            }
+            //bool isPlayer = __instance.team == __instance.Combat.LocalPlayerTeam;
+            //if (isPlayer && State.ECMJamming(__instance) != 0) {
+            //    // Send a floatie indicating the jamming
+            //    MessageCenter mc = __instance.Combat.MessageCenter;
+            //    mc.PublishMessage(new FloatieMessage(__instance.GUID, __instance.GUID, "JAMMED BY ECM", FloatieMessage.MessageNature.Debuff));
+            //}
         }
 
     }

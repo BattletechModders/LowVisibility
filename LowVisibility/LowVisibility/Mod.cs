@@ -32,7 +32,7 @@ namespace LowVisibility {
             Log = new IntraModLogger(modDirectory, "low_visibility", Config.Debug, Config.Trace);
             Log.Debug($"ModDir is:{modDirectory}");
             Log.Debug($"mod.json settings are:({settingsJSON})");
-            Log.Debug($"mergedConfig is:{Mod.Config}");
+            Mod.Config.LogConfig();
 
             var harmony = HarmonyInstance.Create(HarmonyPackage);
             harmony.PatchAll(Assembly.GetExecutingAssembly());

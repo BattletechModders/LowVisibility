@@ -83,7 +83,7 @@ namespace LowVisibility.Helper {
                 if (source.IsPilotable) {
                     Pilot pilot = source.GetPilot();
                     if (pilot != null) {
-                        EWState staticState = State.GetEWState(source);
+                        EWState staticState = new EWState(source);
                         pilotSkillMod = (float)staticState.tacticsBonus * source.Combat.Constants.Visibility.SpotterTacticsMultiplier;
                     }
                 }

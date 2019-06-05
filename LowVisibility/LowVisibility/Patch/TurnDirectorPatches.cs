@@ -15,7 +15,7 @@ namespace LowVisibility.Patch {
         public static bool IsFromSave = false;
 
         public static void Prefix(TurnDirector __instance) {
-            Mod.Log.Log("=== TurnDirector:OnEncounterBegin:pre - entered.");
+            Mod.Log.Trace("TD:OEB:pre entered.");
 
             // Initialize the probabilities
             State.InitializeCheckResults();
@@ -34,8 +34,9 @@ namespace LowVisibility.Patch {
                             State.EWState[actor.GUID] = actorEWConfig;
 
                             // Make a pre-encounter detectCheck for them
-                            State.BuildEWState(actor);
-                            Mod.Log.Debug($"  Actor:{CombatantUtils.Label(actor)} has rangeCheck:{State.GetEWState(actor).rangeCheck} at load/start");
+                            ActorHelper.UpdateSensorCheck(actor);
+                            EWState ewState = new EWState(actor);
+                            Mod.Log.Debug($"  Actor:{CombatantUtils.Label(actor)} has rangeCheck:{ewState.sensorsCheck} at load/start");
 
                             bool isPlayer = actor.TeamId == __instance.Combat.LocalPlayerTeamGuid;
                             if (isPlayer && randomPlayerActor == null) {
@@ -61,24 +62,12 @@ namespace LowVisibility.Patch {
         }
 
         public static void Prefix(TurnDirector __instance, int round) {
-            Mod.Log.Log($"=== TurnDirector - Beginning round:{round}");
+            Mod.Log.Trace($"TD:BNR entered");
+            Mod.Log.Debug($"=== TurnDirector - Beginning round:{round}");
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
-
-                if (__instance.CurrentRound == 0) {
-                    State.BuildEWState(actor);                    
-                } else {
-                    EWState ewState = State.GetEWState(actor);
-                    ewState.UpdateChecks();
-
-                    if (State.ECMJamming(actor) > 0) {
-                        // Send a floatie indicating the jamming
-                        MessageCenter mc = __instance.Combat.MessageCenter;
-                        mc.PublishMessage(new FloatieMessage(__instance.GUID, __instance.GUID, "SENSOR CHECK FAILED!", FloatieMessage.MessageNature.Debuff));
-                    }
-                }
-
+                ActorHelper.UpdateSensorCheck(actor);
             }
 
         }
@@ -87,6 +76,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(TurnDirector), "OnCombatGameDestroyed")]
     public static class TurnDirector_OnCombatGameDestroyed {
         public static void Postfix(TurnDirector __instance) {
+            Mod.Log.Trace($"TD:OCGD entered");
             // Remove all combat state
             State.ClearStateOnCombatGameDestroyed();
             CombatHUD_SubscribeToMessages.OnCombatGameDestroyed(__instance.Combat);
@@ -102,7 +92,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(EncounterLayerParent __instance, CombatGameState combat) {
-            Mod.Log.Log("EncounterLayerParent:InitFromSavePassTwo:post - entered.");
+            Mod.Log.Trace($"TD:IFSPT entered");
 
             TurnDirector_OnEncounterBegin.IsFromSave = true;
         }

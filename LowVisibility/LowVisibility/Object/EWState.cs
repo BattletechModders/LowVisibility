@@ -1,6 +1,5 @@
 ﻿using BattleTech;
 using HBS.Collections;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,54 +10,33 @@ namespace LowVisibility.Object {
 
     public class EWState {
 
-        public int rangeCheck = 0;
-        public int detailCheck = 0;
+        private readonly AbstractActor actor;
+
+        public int sensorsCheck = 0;
         public string parentGUID = null;
 
-        [JsonIgnore]
         public float sensorsBaseRange = 0.0f;
 
-        [JsonIgnore]
         public int ecmMod = 0;
-        [JsonIgnore]
-        public float ecmRange = 0;
 
-        [JsonIgnore]
         public int probeMod = 0;
-        [JsonIgnore]
-        public int probeBoostMod = 0;
 
-        [JsonIgnore]
         public int stealthMod = 0;
-        [JsonIgnore]
-        public int scramblerMod = 0;
 
-        [JsonIgnore]
         public int vismodeZoomMod = 0;
-        [JsonIgnore]
         public int vismodeZoomCap = 0;
-        [JsonIgnore]
         public int vismodeZoomStep = 0;
 
-        [JsonIgnore]
         public int vismodeHeatMod = 0;
-        [JsonIgnore]
         public int vismodeHeatDivisor = 0;
 
-        // Modifier for stealth range modification - min-short, short-medium, medium-long, long-max
-        [JsonIgnore]
-        public int[] stealthRangeMod = new int[] { 0, 0, 0, 0 };
-
         // Modifier for stealth movement - base modifier (0), reduced by -1 for each (1) hexes moved
-        [JsonIgnore]
         public int[] stealthMoveMod = new int[] { 0, 0 };
 
         // The amount of tactics bonus to the sensor check
-        [JsonIgnore]
         public int tacticsBonus = 0;
 
         // Whether this actor will share sensor data with others
-        [JsonIgnore]
         public bool sharesSensors = false;
 
         // Necessary for serialization
@@ -66,16 +44,22 @@ namespace LowVisibility.Object {
 
         // Normal Constructor
         public EWState(AbstractActor actor) {
-            parentGUID = actor.GUID;
+            this.actor = actor;
+
+            this.tacticsBonus = actor.GetPilot() != null ? SkillUtils.GetTacticsModifier(actor.GetPilot()) : 0;
+
+            this.sensorsCheck = actor.StatCollection.ContainsStatistic(ModStats.Check) ? 
+                actor.StatCollection.GetStatistic(ModStats.Check).Value<int>() : 0;
+
+            this.ecmMod = actor.StatCollection.ContainsStatistic(ModStats.Jammer) ?
+                actor.StatCollection.GetStatistic(ModStats.Jammer).Value<int>() : 0;
+            this.probeMod = actor.StatCollection.ContainsStatistic(ModStats.Probe) ?
+                actor.StatCollection.GetStatistic(ModStats.Probe).Value<int>() : 0;
+            this.stealthMod = actor.StatCollection.ContainsStatistic(ModStats.Stealth) ?
+                actor.StatCollection.GetStatistic(ModStats.Stealth).Value<int>() : 0;
 
             SetSensorBaseRange(actor);
-            EWStateHelper.UpdateStaticState(this, actor);
-            UpdateChecks();
-        }
-
-        public void UpdateChecks() {
-            rangeCheck = State.GetCheckResult();
-            detailCheck = State.GetCheckResult();
+            //EWStateHelper.UpdateStaticState(this, actor);
         }
 
         private void SetSensorBaseRange(AbstractActor actor) {
@@ -97,32 +81,9 @@ namespace LowVisibility.Object {
             EWStateHelper.UpdateStaticState(this, actor);
         }
 
-        public bool HasStealthRangeMod() {
-            bool hasMod = stealthRangeMod != null && (stealthRangeMod[0] != 0 || stealthRangeMod[1] != 0 || stealthRangeMod[2] != 0 || stealthRangeMod[3] != 0);
-            return hasMod;
-        }
-
         public bool HasStealthMoveMod() {
             bool hasMod = stealthMoveMod != null && stealthMoveMod[0] != 0;
             return hasMod;
-        }
-
-        public int CalculateStealthRangeMod(Weapon weapon, float distance) {
-            int rangeMod = 0;
-            if (this.stealthRangeMod[0] != 0 && distance < weapon.ShortRange) {
-                rangeMod = this.stealthRangeMod[0];
-                //LowVisibility.Logger.Debug($"  StealthRangeMod - modifier {this.stealthRangeMod[0]} due to short range shot.");
-            } else if (this.stealthRangeMod[1] != 0 && distance < weapon.MediumRange && distance >= weapon.ShortRange) {
-                rangeMod = this.stealthRangeMod[1];
-                //LowVisibility.Logger.Debug($"  StealthRangeMod - modifier {this.stealthRangeMod[1]} due to medium range shot.");
-            } else if (this.stealthRangeMod[2] != 0 && distance < weapon.LongRange && distance >= weapon.MediumRange) {
-                rangeMod = this.stealthRangeMod[2];
-                //LowVisibility.Logger.Debug($"  StealthRangeMod - modifier  {this.stealthRangeMod[2]} due to long range shot.");
-            } else if (this.stealthRangeMod[3] != 0 && distance < weapon.MaxRange && distance >= weapon.LongRange) {
-                rangeMod = this.stealthRangeMod[3];
-                //LowVisibility.Logger.Debug($"  StealthRangeMod - modifier  {this.stealthRangeMod[3]} due to max range shot.");
-            }
-            return rangeMod;
         }
 
         public int CalculateStealthMoveMod(AbstractActor owner) {
@@ -176,22 +137,20 @@ namespace LowVisibility.Object {
             return vmod;
         }
 
-        public int SensorCheckModifier() {
-            return tacticsBonus + probeMod + probeBoostMod;
+        public int SensorsCheckModifier() {
+            return tacticsBonus + probeMod;
         }
 
-        public float SensorCheckMultiplier() {
-            return 1.0f + ((rangeCheck + SensorCheckModifier()) / 20.0f);
+        public float SensorsCheckMultiplier() {
+            return 1.0f + ((sensorsCheck + SensorsCheckModifier()) / 20.0f);
         }
 
         public override string ToString() {
-            return $"rangeCheck:{rangeCheck} detailCheck:{detailCheck} ecmMod:{ecmMod} sensorCheckMod:{SensorCheckModifier()}";
+            return $"sensorsCheck:{sensorsCheck} ecmMod:{ecmMod} sensorsCheckMod:{SensorsCheckModifier()}";
         }
 
         public string Details() {
-            return $"tacticsBonus:{tacticsBonus} ecmMod:{ecmMod} ecmRange:{ecmRange} " +
-                $"probeMod:{probeMod} probeBoostMod:{probeBoostMod} stealthMod:{stealthMod} scramblerMod:{scramblerMod} " +
-                $"stealthRangeMod:{stealthRangeMod[0]}/{stealthRangeMod[1]}/{stealthRangeMod[2]}/{stealthRangeMod[3]} " +
+            return $"tacticsBonus:{tacticsBonus} ecmMod:{ecmMod} probeMod:{probeMod} stealthMod:{stealthMod}" +
                 $"stealthMoveMod:{stealthMoveMod[0]}/{stealthMoveMod[1]} " +
                 $"vismodeZoomMod:{vismodeZoomMod} vismodeZoomCap:{vismodeZoomCap} vismodeZoomStep:{vismodeZoomStep} " +
                 $"vismodeHeatMod:{vismodeHeatMod} vismodeHeatDiv:{vismodeHeatDivisor} " +
@@ -203,8 +162,6 @@ namespace LowVisibility.Object {
         }
 
         private static class EWStateHelper {
-
-
 
             public static void UpdateStaticState(EWState state, AbstractActor actor) {
 
@@ -263,7 +220,6 @@ namespace LowVisibility.Object {
                 if (state.stealthMod != 0 && state.ecmMod != 0) {
                     Mod.Log.Debug($"Actor:{actorLabel} has both STEALTH and JAMMER - disabling ECM bubble.");
                     state.ecmMod = 0;
-                    state.ecmRange = 0;
                 }
 
                 // TODO: Should stealth move/range mods depend on an active stealth system?
@@ -272,23 +228,9 @@ namespace LowVisibility.Object {
                 if (actor.GetPilot() != null) {
                     state.tacticsBonus = SkillUtils.GetTacticsModifier(actor.GetPilot());
                 } else {
-                    Mod.Log.Log($"Actor:{CombatantUtils.Label(actor)} HAS NO PILOT!");
+                    Mod.Log.Info($"Actor:{CombatantUtils.Label(actor)} HAS NO PILOT!");
                 }
 
-            }
-
-            private static void ParseJammer(ref EWState state, string tag) {
-                string[] split = tag.Split('_');
-                if (split.Length == 3) {
-                    int modifier = Int32.Parse(split[1].Substring(1));
-                    int range = Int32.Parse(split[2].Substring(1));
-                    if (modifier >= state.ecmMod) {
-                        state.ecmMod = modifier;
-                        state.ecmRange = range * 30.0f;
-                    } else {
-                        Mod.Log.Log($"MALFORMED TAG - ({tag})");
-                    }
-                }
             }
 
             private static void ParseProbe(ref EWState state, string tag) {
@@ -299,7 +241,7 @@ namespace LowVisibility.Object {
                         state.probeMod = modifier;
                     }
                 } else {
-                    Mod.Log.Log($"MALFORMED TAG - ({tag})");
+                    Mod.Log.Info($"MALFORMED TAG - ({tag})");
                 }
             }
 
@@ -311,32 +253,7 @@ namespace LowVisibility.Object {
                         state.stealthMod = modifier;
                     }
                 } else {
-                    Mod.Log.Log($"MALFORMED TAG - ({tag})");
-                }
-            }
-
-            private static void ParseScrambler(ref EWState state, string tag) {
-                string[] split = tag.Split('_');
-                if (split.Length == 2) {
-                    int modifier = Int32.Parse(split[1].Substring(1));
-                    state.scramblerMod += modifier;
-                } else {
-                    Mod.Log.Log($"MALFORMED TAG - ({tag})");
-                }
-            }
-
-            private static void ParseStealthRangeMod(ref EWState state, string tag) {
-                string[] split = tag.Split('_');
-                if (split.Length == 5) {
-                    int shortRange = Int32.Parse(split[1].Substring(1));
-                    int mediumRange = Int32.Parse(split[2].Substring(1));
-                    int longRange = Int32.Parse(split[3].Substring(1));
-                    int extremeRange = Int32.Parse(split[4].Substring(1));
-                    if (state.stealthRangeMod == null || shortRange > state.stealthRangeMod[0]) {
-                        state.stealthRangeMod = new int[] { shortRange, mediumRange, longRange, extremeRange };
-                    }
-                } else {
-                    Mod.Log.Log($"MALFORMED TAG - ({tag})");
+                    Mod.Log.Info($"MALFORMED TAG - ({tag})");
                 }
             }
 
@@ -349,17 +266,7 @@ namespace LowVisibility.Object {
                         state.stealthMoveMod = new int[] { modifier, moveStep };
                     }
                 } else {
-                    Mod.Log.Log($"MALFORMED TAG - ({tag})");
-                }
-            }
-
-            private static void ParseProbeBoost(ref EWState state, string tag) {
-                string[] split = tag.Split('_');
-                if (split.Length == 2) {
-                    int modifier = Int32.Parse(split[1].Substring(1));
-                    state.probeBoostMod += modifier;
-                } else {
-                    Mod.Log.Log($"MALFORMED TAG - ({tag})");
+                    Mod.Log.Info($"MALFORMED TAG - ({tag})");
                 }
             }
 
@@ -373,7 +280,7 @@ namespace LowVisibility.Object {
                     state.vismodeZoomCap = cap;
                     state.vismodeZoomStep = step;
                 } else {
-                    Mod.Log.Log($"MALFORMED TAG - ({tag})");
+                    Mod.Log.Info($"MALFORMED TAG - ({tag})");
                 }
             }
 
@@ -387,7 +294,7 @@ namespace LowVisibility.Object {
                         state.vismodeHeatDivisor = divisor;
                     }
                 } else {
-                    Mod.Log.Log($"MALFORMED TAG -:{tag}");
+                    Mod.Log.Info($"MALFORMED TAG -:{tag}");
                 }
             }
         }

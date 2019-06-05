@@ -70,7 +70,7 @@ namespace LowVisibility.Patch {
                 Traverse showBuffStringMethod = Traverse.Create(__instance).Method("ShowBuff", stringMethodParams);
 
                 AbstractActor actor = __instance.DisplayedCombatant as AbstractActor;
-                EWState staticState = State.GetEWState(actor);
+                EWState staticState = new EWState(actor);
 
                 bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 if (isPlayer) {
@@ -116,7 +116,7 @@ namespace LowVisibility.Patch {
         }
 
         private static string BuildToolTip(AbstractActor actor) {
-            EWState ewState = State.GetEWState(actor);
+            EWState ewState = new EWState(actor);
 
             List<string> details = new List<string>();
             float visualLockRange = VisualLockHelper.GetVisualLockRange(actor);
@@ -126,21 +126,17 @@ namespace LowVisibility.Patch {
 
             List<string> sensorDetails = new List<string>();
             sensorDetails.Add(" Range Roll:");
-            float rangeMulti = 1.0f + ((ewState.rangeCheck + ewState.SensorCheckModifier()) / 10.0f);
-            if (ewState.rangeCheck >= 0) {
-                sensorDetails.Add($"<color=#00FF00>{ewState.rangeCheck:+0}</color>");                                        
+            float rangeMulti = 1.0f + ((ewState.sensorsCheck + ewState.SensorsCheckModifier()) / 10.0f);
+            if (ewState.sensorsCheck >= 0) {
+                sensorDetails.Add($"<color=#00FF00>{ewState.sensorsCheck:+0}</color>");                                        
             } else {
-                sensorDetails.Add($"<color=#FF0000>{ewState.rangeCheck:0}</color>");
+                sensorDetails.Add($"<color=#FF0000>{ewState.sensorsCheck:0}</color>");
             }
 
             sensorDetails.Add($" + Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>");
 
             if (ewState.probeMod > 0) {
                 sensorDetails.Add($" + Probe:<color=#00FF00>{ewState.probeMod:0}</color>");
-            }
-
-            if (ewState.probeBoostMod > 0) {
-                sensorDetails.Add($" + ProbeBoost:<color=#00FF00>{ewState.probeBoostMod:0}</color>");
             }
 
             if (rangeMulti >= 1.0) {
@@ -152,13 +148,13 @@ namespace LowVisibility.Patch {
             sensorDetails.Add("\n");
 
             // Sensor Info below
-            int checkResult = ewState.detailCheck;
+            int checkResult = ewState.sensorsCheck;
 
             sensorDetails.Add($" Info Roll:");            
-            if (ewState.detailCheck >= 0) {
-                sensorDetails.Add($"<color=#00FF00>{ewState.detailCheck:0}</color>");
+            if (ewState.sensorsCheck >= 0) {
+                sensorDetails.Add($"<color=#00FF00>{ewState.sensorsCheck:0}</color>");
             } else {
-                sensorDetails.Add($"<color=#FF0000>{ewState.detailCheck:0}</color>");
+                sensorDetails.Add($"<color=#FF0000>{ewState.sensorsCheck:0}</color>");
             }
             checkResult += ewState.tacticsBonus;
             sensorDetails.Add($" + Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>");                        
@@ -166,11 +162,6 @@ namespace LowVisibility.Patch {
             if (ewState.probeMod > 0) {
                 checkResult += ewState.probeMod;
                 sensorDetails.Add($" + Probe: <color=#00FF00>{ewState.probeMod:0}</color>");
-            }
-
-            if (ewState.probeBoostMod > 0) {
-                checkResult += ewState.probeBoostMod;
-                sensorDetails.Add($" + ProbeBoost: <color=#00FF00>{ewState.probeBoostMod:0}</color>");
             }
 
             if (State.ECMJamming(actor) != 0) {
@@ -200,7 +191,7 @@ namespace LowVisibility.Patch {
 
             // Sensor check:(+/-0) SensorScanLevel:
             if (ewState.ecmMod != 0) {
-                details.Add($"ECM => Range:{ewState.ecmRange}m Enemy Modifier:<color=#FF0000>{ewState.ecmMod:-0}</color>");
+                details.Add($"ECM => Enemy Modifier:<color=#FF0000>{ewState.ecmMod:-0}</color>");
             }
             if (ewState.stealthMod != 0) {
                 details.Add($"STEALTH => Enemy Modifier:<color=#FF0000>{ewState.stealthMod:-0}</color>");

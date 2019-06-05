@@ -12,45 +12,45 @@ namespace LowVisibility.Helper {
 
         public static void UpdateECMState(AbstractActor source) {
 
-            List<AbstractActor> playerActors = HostilityHelper.PlayerActors(source.Combat)
-                .Where(aa => !aa.IsTeleportedOffScreen && !aa.IsDead && !aa.IsFlaggedForDeath).ToList();
-            List<AbstractActor> alliedActors = HostilityHelper.AlliedToLocalPlayerActors(source.Combat)
-                .Where(aa => !aa.IsTeleportedOffScreen && !aa.IsDead && !aa.IsFlaggedForDeath).ToList();
-            List<AbstractActor> enemyActors = HostilityHelper.EnemyToLocalPlayerActors(source.Combat)
-                .Where(aa => !aa.IsTeleportedOffScreen && !aa.IsDead && !aa.IsFlaggedForDeath).ToList();
-            List<AbstractActor> neutralActors = HostilityHelper.NeutralToLocalPlayerActors(source.Combat)
-                .Where(aa => !aa.IsTeleportedOffScreen && !aa.IsDead && !aa.IsFlaggedForDeath).ToList();
+            //List<AbstractActor> playerActors = HostilityHelper.PlayerActors(source.Combat)
+            //    .Where(aa => !aa.IsTeleportedOffScreen && !aa.IsDead && !aa.IsFlaggedForDeath).ToList();
+            //List<AbstractActor> alliedActors = HostilityHelper.AlliedToLocalPlayerActors(source.Combat)
+            //    .Where(aa => !aa.IsTeleportedOffScreen && !aa.IsDead && !aa.IsFlaggedForDeath).ToList();
+            //List<AbstractActor> enemyActors = HostilityHelper.EnemyToLocalPlayerActors(source.Combat)
+            //    .Where(aa => !aa.IsTeleportedOffScreen && !aa.IsDead && !aa.IsFlaggedForDeath).ToList();
+            //List<AbstractActor> neutralActors = HostilityHelper.NeutralToLocalPlayerActors(source.Combat)
+            //    .Where(aa => !aa.IsTeleportedOffScreen && !aa.IsDead && !aa.IsFlaggedForDeath).ToList();
 
-            List<AbstractActor> hostiles = new List<AbstractActor>();
-            List<AbstractActor> friendlies = new List<AbstractActor>();
-            if (HostilityHelper.IsLocalPlayerEnemy(source)) {
-                hostiles = playerActors.Union(alliedActors).ToList();
-                friendlies = enemyActors;                
-            } else if (HostilityHelper.IsLocalPlayerNeutral(source)) {
-                hostiles = enemyActors;
-                friendlies = neutralActors;
-            } else if (HostilityHelper.IsLocalPlayerAlly(source) || HostilityHelper.IsPlayer(source)) {
-                hostiles = enemyActors;
-                friendlies = playerActors.Union(alliedActors).ToList();
-            }
+            //List<AbstractActor> hostiles = new List<AbstractActor>();
+            //List<AbstractActor> friendlies = new List<AbstractActor>();
+            //if (HostilityHelper.IsLocalPlayerEnemy(source)) {
+            //    hostiles = playerActors.Union(alliedActors).ToList();
+            //    friendlies = enemyActors;                
+            //} else if (HostilityHelper.IsLocalPlayerNeutral(source)) {
+            //    hostiles = enemyActors;
+            //    friendlies = neutralActors;
+            //} else if (HostilityHelper.IsLocalPlayerAlly(source) || HostilityHelper.IsPlayer(source)) {
+            //    hostiles = enemyActors;
+            //    friendlies = playerActors.Union(alliedActors).ToList();
+            //}
 
-            // Determine ECM jamming
-            int jamming = CalculateECMStrength(source, hostiles);
-            if (jamming > 0) {
-                Mod.Log.Trace($"  -- target:{CombatantUtils.Label(source)} has ECM jamming:{jamming}");
-                State.AddECMJamming(source, jamming);
-            } else {
-                State.RemoveECMJamming(source);
-            }
+            //// Determine ECM jamming
+            //int jamming = CalculateECMStrength(source, hostiles);
+            //if (jamming > 0) {
+            //    Mod.Log.Trace($"  -- target:{CombatantUtils.Label(source)} has ECM jamming:{jamming}");
+            //    State.AddECMJamming(source, jamming);
+            //} else {
+            //    State.RemoveECMJamming(source);
+            //}
 
-            // Determine ECM protection
-            int protection = CalculateECMStrength(source, friendlies);
-            if (protection > 0) {
-                Mod.Log.Trace($"  -- target:{CombatantUtils.Label(source)} has ECM protection:{protection}");
-                State.AddECMProtection(source, protection);
-            } else {
-                State.RemoveECMProtection(source);
-            }
+            //// Determine ECM protection
+            //int protection = CalculateECMStrength(source, friendlies);
+            //if (protection > 0) {
+            //    Mod.Log.Trace($"  -- target:{CombatantUtils.Label(source)} has ECM protection:{protection}");
+            //    State.AddECMProtection(source, protection);
+            //} else {
+            //    State.RemoveECMProtection(source);
+            //}
 
 
             // TODO: FIX
@@ -74,7 +74,7 @@ namespace LowVisibility.Helper {
             //                Mod.Log.Debug($"  Effect:{effect.EffectData.Description.Id} adding modifier:{modifier}.");
             //            }
             //        } else {
-            //            Mod.Log.Log($"Actor:{CombatantUtils.Label(source)} - MALFORMED EFFECT TAG -:{effect}");
+            //            Mod.Log.Info($"Actor:{CombatantUtils.Label(source)} - MALFORMED EFFECT TAG -:{effect}");
             //        }
             //    }
             //}
@@ -116,32 +116,32 @@ namespace LowVisibility.Helper {
             //}
         }
 
-        private static int CalculateECMStrength(AbstractActor target, List<AbstractActor> sources) {
-            int ecmStrength = 0;
-            int ecmSourceCount = 0;
-            foreach (AbstractActor actor in sources) {
+        //private static int CalculateECMStrength(AbstractActor target, List<AbstractActor> sources) {
+        //    int ecmStrength = 0;
+        //    int ecmSourceCount = 0;
+        //    foreach (AbstractActor actor in sources) {
                 
-                float actorsDistance = Vector3.Distance(target.CurrentPosition, actor.CurrentPosition);
+        //        float actorsDistance = Vector3.Distance(target.CurrentPosition, actor.CurrentPosition);
 
-                // if the actor has ECM, add to the ecmStrength
-                EWState actorStaticState = State.GetEWState(actor);
-                if (actorStaticState.ecmMod != 0 && actorsDistance <= actorStaticState.ecmRange) {
-                    Mod.Log.Debug($"Target:{CombatantUtils.Label(target)} and ECM source:{CombatantUtils.Label(actor)} are {actorsDistance}m apart, " +
-                        $"within of ECM bubble range of:{actorStaticState.ecmRange}");
-                    if (actorStaticState.ecmMod > ecmStrength) { ecmStrength = actorStaticState.ecmMod; }
-                    ecmSourceCount++;
-                }
-            }
+        //        // if the actor has ECM, add to the ecmStrength
+        //        EWState actorStaticState = new EWState(actor);
+        //        if (actorStaticState.ecmMod != 0 && actorsDistance <= actorStaticState.ecmRange) {
+        //            Mod.Log.Debug($"Target:{CombatantUtils.Label(target)} and ECM source:{CombatantUtils.Label(actor)} are {actorsDistance}m apart, " +
+        //                $"within of ECM bubble range of:{actorStaticState.ecmRange}");
+        //            if (actorStaticState.ecmMod > ecmStrength) { ecmStrength = actorStaticState.ecmMod; }
+        //            ecmSourceCount++;
+        //        }
+        //    }
 
-            if (ecmSourceCount > 1) {
-                int multiSourceModifier = (ecmSourceCount - 1) * Mod.Config.MultipleECMSourceModifier;
-                Mod.Log.Debug($"Target:{CombatantUtils.Label(target)} has:{ecmSourceCount} ECM sources within range. " +
-                    $"Additional modifier of:{multiSourceModifier} applied to ecmStrength:{ecmStrength}");
-                ecmStrength += multiSourceModifier;
-            }
+        //    if (ecmSourceCount > 1) {
+        //        int multiSourceModifier = (ecmSourceCount - 1) * Mod.Config.MultipleECMSourceModifier;
+        //        Mod.Log.Debug($"Target:{CombatantUtils.Label(target)} has:{ecmSourceCount} ECM sources within range. " +
+        //            $"Additional modifier of:{multiSourceModifier} applied to ecmStrength:{ecmStrength}");
+        //        ecmStrength += multiSourceModifier;
+        //    }
 
-            return ecmStrength;
-        }
+        //    return ecmStrength;
+        //}
 
     }
 }

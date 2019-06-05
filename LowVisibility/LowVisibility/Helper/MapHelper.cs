@@ -39,7 +39,7 @@ namespace LowVisibility.Helper {
         }
 
         public static MapConfig ParseCurrentMap() {
-            Mod.Log.Log("MH:PCM Parsing current map.");
+            Mod.Log.Info("MH:PCM Parsing current map.");
 
             // This is a VERY slow call, that can add 30-40ms just to execute. Cache it!
             MoodController moodController = UnityEngine.Object.FindObjectOfType<MoodController>();
@@ -127,17 +127,17 @@ namespace LowVisibility.Helper {
                 }
             }            
             float visRange = (float)Math.Ceiling(baseVision * 30f * visionMulti);
-            Mod.Log.Log($"  Calculating vision range as Math.Ceil(baseVision:{baseVision} * 30.0 * visionMulti:{visionMulti}) = visRange:{visRange}.");
+            Mod.Log.Info($"  Calculating vision range as Math.Ceil(baseVision:{baseVision} * 30.0 * visionMulti:{visionMulti}) = visRange:{visRange}.");
             if (visRange < Mod.Config.MinimumVisionRange()) {
                 visRange = Mod.Config.MinimumVisionRange();
             }
             
             float normalizedVisionRange = HexUtils.CountHexes(visRange, false) * 30f;
-            Mod.Log.Log($"MapHelper: Vision range for map will be ==> {normalizedVisionRange}m (normalized from {visRange}m)");
+            Mod.Log.Info($"MapHelper: Vision range for map will be ==> {normalizedVisionRange}m (normalized from {visRange}m)");
             mapConfig.visionRange = normalizedVisionRange;
             mapConfig.scanRange = Math.Min(normalizedVisionRange, Mod.Config.VisualScanRange * 30.0f);
 
-            Mod.Log.Log($"Map vision range = visual:{normalizedVisionRange} / visualScan:{mapConfig.scanRange}");
+            Mod.Log.Info($"Map vision range = visual:{normalizedVisionRange} / visualScan:{mapConfig.scanRange}");
 
             return mapConfig;
         }

@@ -5,7 +5,6 @@ using LowVisibility.Object;
 using System;
 using System.Reflection;
 using UnityEngine;
-using static LowVisibility.Object.EWState;
 
 namespace LowVisibility.Patch {
 
@@ -60,7 +59,7 @@ namespace LowVisibility.Patch {
                 if (ShowTargetMethod != null) {
                     ShowTargetMethod.GetValue(combatant);
                 } else {
-                    Mod.Log.Log("WARNING: CHUD:STM caled with a null traverse!");
+                    Mod.Log.Info("WARNING: CHUD:STM caled with a null traverse!");
                 }
             } else {
                 Mod.Log.Trace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
@@ -207,7 +206,7 @@ namespace LowVisibility.Patch {
                 //LowVisibility.Logger.Debug($"___CombatHUDTargetingComputer - SetHitChance for source:{CombatantUtils.Label(targetActor)} target:{CombatantUtils.Label(targetActor)}");
                 Locks lockState = State.LocksForTarget(actor, targetActor);
                 float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
-                EWState attackerEWConfig = State.GetEWState(actor);
+                EWState attackerEWConfig = new EWState(actor);
 
                 if (lockState.sensorLock == SensorScanType.NoInfo) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", Mod.Config.VisionOnlyPenalty});
@@ -222,15 +221,7 @@ namespace LowVisibility.Patch {
                     AddToolTipDetailMethod.GetValue(new object[] { vismodeMod.label, vismodeMod.modifier });
                 }
 
-                EWState targetEWConfig = State.GetEWState(target as AbstractActor);
-                if (targetEWConfig.HasStealthRangeMod()) {
-                    Weapon weapon = __instance.DisplayedWeapon;
-                    int weaponStealthMod = targetEWConfig.CalculateStealthRangeMod(weapon, distance);
-                    if (weaponStealthMod != 0) {
-                        AddToolTipDetailMethod.GetValue(new object[] { "STEALTH - RANGE", weaponStealthMod });
-                    }
-                }
-
+                EWState targetEWConfig = new EWState(target as AbstractActor);
                 if (targetEWConfig.HasStealthMoveMod()) {
                     int stealthMoveMod = targetEWConfig.CalculateStealthMoveMod(target as AbstractActor);
                     if (stealthMoveMod != 0) {

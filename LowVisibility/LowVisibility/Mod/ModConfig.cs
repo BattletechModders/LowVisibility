@@ -3,19 +3,16 @@ namespace LowVisibility {
 
     public class ModStats {
 
+        public const string Check = "LV_Check"; // Int_32
+
         public const string Jammer = "LV_Jammer"; // Int_32
         public const string Probe = "LV_Probe";  // Int_32
-        public const string ProbeBoost = "LV_Probe_Boost";  // Int_32
+        public const string Stealth = "LV_Stealth";  // Int_32
 
         public const string SharesSensors = "LV_Shares_Sensors";
-
-        public const string Stealth = "LV_Stealth";  // Int_32
-        public const string Scrambler = "LV_Scrambler";  // Int_32
-
-        // TODO: Multiparts are multiple stats, isntead of one?
-        public const string StealthRangeMod = "LV_Stealth_Range";  // String
+        
+        // TODO: Multiparts are multiple stats, instead of one?
         public const string StealthMoveMod = "LV_Stealth_Move";  // String
-
         public const string VismodeZoom = "LV_Vismode_Zoom";
         public const string VismodeHeat = "LV_Vismode_Heat";
 
@@ -74,15 +71,25 @@ namespace LowVisibility {
         // The inflection point of the probability distribution function.
         public int ProbabilityMu = -1;
 
-        public override string ToString() {
-            return $"Debug:{Debug}, Trace:{Trace}, FirstTurnForceFailedChecks:{FirstTurnForceFailedChecks}, MultipleJammerPenalty:{MultipleECMSourceModifier}, " +
-                $"SensorRanges==> Mech:{SensorRangeMechType} Vehicle:{SensorRangeVehicleType} Turret:{SensorRangeTurretType} UnknownType:{SensorRangeUnknownType}, " +
-                $"VisionRangeBaseDaylight:{VisionRangeBaseDaylight} VisionRangeBaseDimlight:{VisionRangeBaseDimlight} VisionRangeBaseNight:{VisionRangeBaseNight}, " +
-                $"VisionRangeMultiRainSnow:{VisionRangeMultiRainSnow} VisionRangeMultiLightFog:{VisionRangeMultiLightFog} VisionRangeMultiHeavyFog:{VisionRangeMultiHeavyFog}, " +
-                $"VisionRangeMinimum:{VisionRangeMinimum} SensorRangeMinimum:{SensorRangeMinimum}, VisualIDRange:{VisualScanRange}, " +
-                $"VisionOnlyPenalty:{VisionOnlyPenalty} VisionOnlyCriticalPenalty:{VisionOnlyCriticalPenalty}, " +
-                $"SensorsOnlyPenalty:{SensorsOnlyPenalty}, SensorsOnlyCriticalPenalty:{SensorsOnlyCriticalPenalty}, " +
-                $"ProbabilitySigma:{ProbabilitySigma}, ProbabilityMu:{ProbabilityMu}";
+        public void LogConfig() {
+            Mod.Log.Info("=== MOD CONFIG BEGIN ===");
+            Mod.Log.Info($"  DEBUG:{this.Debug} Trace:{this.Trace}");
+            Mod.Log.Info($"FirstTurnForceFailedChecks:{FirstTurnForceFailedChecks}, MultipleJammerPenalty:{MultipleECMSourceModifier}");
+
+            Mod.Log.Info($"  == Probability ==");
+            Mod.Log.Info($"ProbabilitySigma:{ProbabilitySigma}, ProbabilityMu:{ProbabilityMu}");
+            
+            Mod.Log.Info($"  == Sensors ==");
+            Mod.Log.Info($"Mech:{SensorRangeMechType} Vehicle:{SensorRangeVehicleType} Turret:{SensorRangeTurretType} UnknownType:{SensorRangeUnknownType}");
+            Mod.Log.Info($"SensorsOnlyPenalty:{SensorsOnlyPenalty}, SensorsOnlyCriticalPenalty:{SensorsOnlyCriticalPenalty}");
+
+            Mod.Log.Info($"  == Vision ==");
+            Mod.Log.Info($"VisionRangeBaseDaylight:{VisionRangeBaseDaylight} VisionRangeBaseDimlight:{VisionRangeBaseDimlight} VisionRangeBaseNight:{VisionRangeBaseNight}");
+            Mod.Log.Info($"VisionRangeMultiRainSnow:{VisionRangeMultiRainSnow} VisionRangeMultiLightFog:{VisionRangeMultiLightFog} VisionRangeMultiHeavyFog:{VisionRangeMultiHeavyFog}");
+            Mod.Log.Info($"VisionRangeMinimum:{VisionRangeMinimum} SensorRangeMinimum:{SensorRangeMinimum}, VisualIDRange:{VisualScanRange}");
+            Mod.Log.Info($"VisionOnlyPenalty:{VisionOnlyPenalty} VisionOnlyCriticalPenalty:{VisionOnlyCriticalPenalty}");
+
+            Mod.Log.Info("=== MOD CONFIG END ===");
         }
     }
 }
