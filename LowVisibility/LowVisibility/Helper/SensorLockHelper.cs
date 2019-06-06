@@ -12,23 +12,28 @@ namespace LowVisibility.Helper {
         public static float GetSensorsRange(AbstractActor source) {
 
             // Add multipliers and absolute bonuses
-            float rangeMulti = SensorLockHelper.GetAllSensorRangeMultipliers(source);
-            float rangeMod = SensorLockHelper.GetAllSensorRangeAbsolutes(source);
 
             EWState ewState = new EWState(source);
 
-            float sensorsRange = (ewState.sensorsBaseRange * rangeMulti + rangeMod) * ewState.SensorsCheckMultiplier();
+            Mod.Log.Debug($"  == Sensors Range for for actor:{CombatantUtils.Label(source)}");
+
+            float rawRangeMulti = SensorLockHelper.GetAllSensorRangeMultipliers(source);
+            float rangeMulti = rawRangeMulti + ewState.SensorCheckRangeMultiplier();
+            Mod.Log.Debug($"    rangeMulti: {rangeMulti} = rawRangeMulti: {rawRangeMulti} + sensorCheckRangeMulti: {ewState.SensorCheckRangeMultiplier()}");
+
+            float rawRangeMod = SensorLockHelper.GetAllSensorRangeAbsolutes(source);
+            float rangeMod = rawRangeMod * (1 + ewState.SensorCheckRangeMultiplier());
+            Mod.Log.Debug($"    rangeMod: {rangeMod} = rawRangeMod: {rawRangeMod} + sensorCheckRangeMulti: {ewState.SensorCheckRangeMultiplier()}");
+
+            float sensorsRange = ewState.sensorsBaseRange * rangeMulti + rangeMod;
+            Mod.Log.Debug($"    sensorsRange: { sensorsRange} = baseRange: {ewState.sensorsBaseRange} * rangeMult: {rangeMulti} + rangeMod: {rangeMod}");
 
             if (sensorsRange < Mod.Config.MinimumSensorRange() ||
                 source.Combat.TurnDirector.CurrentRound <= 1 && Mod.Config.FirstTurnForceFailedChecks) {
                 sensorsRange = Mod.Config.MinimumSensorRange();
             }
 
-            // Round up to the nearest full hex
-            float normalizedRange = HexUtils.CountHexes(sensorsRange, true) * 30f;
-
-            //LowVisibility.Logger.Debug($" -- source:{CombatantUtils.Label(source)} sensorsRange:{normalizedRange}m normalized from:{sensorsRange}m");
-            return normalizedRange;
+            return sensorsRange;
         }
 
         public static float GetAdjustedSensorRange(AbstractActor source, ICombatant target) {
@@ -184,7 +189,7 @@ namespace LowVisibility.Helper {
 
             // Determine modified check against target
             EWState sourceEWState = new EWState(source);
-            int baseSourceCheck = sourceEWState.sensorsCheck + sourceEWState.SensorsCheckModifier();
+            int baseSourceCheck = sourceEWState.sensorsCheck;
             int modifiedSourceCheck = baseSourceCheck;
 
             // --- Source modifier: ECM Jamming

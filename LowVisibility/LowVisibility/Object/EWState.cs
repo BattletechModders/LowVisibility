@@ -13,14 +13,13 @@ namespace LowVisibility.Object {
         private readonly AbstractActor actor;
 
         public int sensorsCheck = 0;
+
         public string parentGUID = null;
 
         public float sensorsBaseRange = 0.0f;
 
         public int ecmMod = 0;
-
         public int probeMod = 0;
-
         public int stealthMod = 0;
 
         public int vismodeZoomMod = 0;
@@ -46,10 +45,11 @@ namespace LowVisibility.Object {
         public EWState(AbstractActor actor) {
             this.actor = actor;
 
-            this.tacticsBonus = actor.GetPilot() != null ? SkillUtils.GetTacticsModifier(actor.GetPilot()) : 0;
+            this.tacticsBonus = actor.StatCollection.ContainsStatistic(ModStats.TacticsMod) ?
+                actor.StatCollection.GetStatistic(ModStats.TacticsMod).Value<int>() : 0;
 
-            this.sensorsCheck = actor.StatCollection.ContainsStatistic(ModStats.Check) ? 
-                actor.StatCollection.GetStatistic(ModStats.Check).Value<int>() : 0;
+            this.sensorsCheck = actor.StatCollection.ContainsStatistic(ModStats.SensorCheck) ? 
+                actor.StatCollection.GetStatistic(ModStats.SensorCheck).Value<int>() : 0;
 
             this.ecmMod = actor.StatCollection.ContainsStatistic(ModStats.Jammer) ?
                 actor.StatCollection.GetStatistic(ModStats.Jammer).Value<int>() : 0;
@@ -137,17 +137,9 @@ namespace LowVisibility.Object {
             return vmod;
         }
 
-        public int SensorsCheckModifier() {
-            return tacticsBonus + probeMod;
-        }
+        public float SensorCheckRangeMultiplier() { return sensorsCheck / 20.0f; }
 
-        public float SensorsCheckMultiplier() {
-            return 1.0f + ((sensorsCheck + SensorsCheckModifier()) / 20.0f);
-        }
-
-        public override string ToString() {
-            return $"sensorsCheck:{sensorsCheck} ecmMod:{ecmMod} sensorsCheckMod:{SensorsCheckModifier()}";
-        }
+        public override string ToString() { return $"sensorsCheck:{sensorsCheck} ecmMod:{ecmMod}"; }
 
         public string Details() {
             return $"tacticsBonus:{tacticsBonus} ecmMod:{ecmMod} probeMod:{probeMod} stealthMod:{stealthMod}" +

@@ -3,7 +3,6 @@ using Harmony;
 using LowVisibility.Object;
 using UnityEngine;
 using us.frostraptor.modUtils;
-using static LowVisibility.Object.EWState;
 
 namespace LowVisibility.Patch {
 

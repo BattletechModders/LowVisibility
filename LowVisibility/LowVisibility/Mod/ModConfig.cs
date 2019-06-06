@@ -3,7 +3,8 @@ namespace LowVisibility {
 
     public class ModStats {
 
-        public const string Check = "LV_Check"; // Int_32
+        public const string SensorCheck = "LV_SensorCheck"; // Int_32
+        public const string TacticsMod = "LV_TacticsMod"; // Int_32
 
         public const string Jammer = "LV_Jammer"; // Int_32
         public const string Probe = "LV_Probe";  // Int_32

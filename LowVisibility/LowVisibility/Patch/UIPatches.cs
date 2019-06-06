@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
 
@@ -117,6 +118,7 @@ namespace LowVisibility.Patch {
 
         private static string BuildToolTip(AbstractActor actor) {
             EWState ewState = new EWState(actor);
+            Mod.Log.Debug($"EW State for actor:{CombatantUtils.Label(actor)} = {ewState}");
 
             List<string> details = new List<string>();
             float visualLockRange = VisualLockHelper.GetVisualLockRange(actor);
@@ -125,20 +127,22 @@ namespace LowVisibility.Patch {
             details.Add($"Visual Lock:{visualLockRange:0}m Scan:{visualScanRange}m [{State.MapConfig.UILabel()}]\n");
 
             List<string> sensorDetails = new List<string>();
-            sensorDetails.Add(" Range Roll:");
-            float rangeMulti = 1.0f + ((ewState.sensorsCheck + ewState.SensorsCheckModifier()) / 10.0f);
+            sensorDetails.Add(" Sensor Check:");
+            
             if (ewState.sensorsCheck >= 0) {
                 sensorDetails.Add($"<color=#00FF00>{ewState.sensorsCheck:+0}</color>");                                        
             } else {
                 sensorDetails.Add($"<color=#FF0000>{ewState.sensorsCheck:0}</color>");
             }
 
-            sensorDetails.Add($" + Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>");
+            sensorDetails.Add($" (Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>)");
 
             if (ewState.probeMod > 0) {
-                sensorDetails.Add($" + Probe:<color=#00FF00>{ewState.probeMod:0}</color>");
+                sensorDetails.Add($" (Probe:<color=#00FF00>{ewState.probeMod:0}</color>)");
             }
 
+            // TODO: Should include equipment bonuses, etc
+            float rangeMulti = (1f + ewState.SensorCheckRangeMultiplier());
             if (rangeMulti >= 1.0) {
                 sensorDetails.Add($" = <color=#00FF00>x{rangeMulti:0.00}</color>");
             } else {

@@ -11,9 +11,29 @@ namespace LowVisibility.Helper {
         }
 
         public static int UpdateSensorCheck(AbstractActor actor) {
+
+            int tacticsModifier = 0;
+            if (actor.StatCollection.ContainsStatistic(ModStats.TacticsMod)) {
+                tacticsModifier = actor.StatCollection.GetStatistic(ModStats.TacticsMod).Value<int>();
+            } else {
+                tacticsModifier = SkillUtils.GetTacticsModifier(actor.GetPilot());
+                actor.StatCollection.Set<int>(ModStats.TacticsMod, tacticsModifier);
+            }
+
+            int probeModifier = 0;
+            if (actor.StatCollection.ContainsStatistic(ModStats.Probe)) {
+                probeModifier = actor.StatCollection.GetStatistic(ModStats.Probe).Value<int>();
+            }
+
             int checkResult = State.GetCheckResult();
-            actor.StatCollection.Set<int>(ModStats.Check, checkResult);
-            Mod.Log.Debug($" Set SensorCheck: {checkResult} for Actor:{CombatantUtils.Label(actor)}");
+
+            int sensorCheck = checkResult + tacticsModifier + probeModifier;
+            Mod.Log.Debug($" SensorCheck: {sensorCheck} = checkResult: {checkResult} + " +
+                $"tacticsMod: {tacticsModifier} + probeMod: {probeModifier} for Actor:{CombatantUtils.Label(actor)}");
+
+            actor.StatCollection.Set<int>(ModStats.SensorCheck, sensorCheck);
+            Mod.Log.Debug($" Set SensorCheck: {sensorCheck}");
+
             return checkResult;
         }
 

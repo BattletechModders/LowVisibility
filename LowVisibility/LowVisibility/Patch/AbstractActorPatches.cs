@@ -1,6 +1,5 @@
 ﻿using BattleTech;
 using Harmony;
-using LowVisibility.Helper;
 using UnityEngine;
 using us.frostraptor.modUtils;
 
@@ -12,19 +11,20 @@ namespace LowVisibility.Patch {
         private static void Postfix(AbstractActor __instance) {
             Mod.Log.Trace("AA:IES entered");
 
-            __instance.StatCollection.Set(ModStats.Check, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.SensorCheck, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.TacticsMod, 0);
 
-            __instance.StatCollection.Set(ModStats.Jammer, 0);
-            __instance.StatCollection.Set(ModStats.Probe, 0);
-            __instance.StatCollection.Set(ModStats.Stealth, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.Jammer, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.Probe, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.Stealth, 0);
 
-            __instance.StatCollection.Set(ModStats.SharesSensors, false);
+            __instance.StatCollection.AddStatistic<bool>(ModStats.SharesSensors, false);
 
-            __instance.StatCollection.Set(ModStats.StealthMoveMod, 0);
-            __instance.StatCollection.Set(ModStats.VismodeZoom, 0);
-            __instance.StatCollection.Set(ModStats.VismodeHeat, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.StealthMoveMod, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.VismodeZoom, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.VismodeHeat, 0);
         }
-    }
+    } 
 
     [HarmonyPatch(typeof(AbstractActor), "OnActivationBegin")]
     public static class AbstractActor_OnActivationBegin {
