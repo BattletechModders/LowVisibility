@@ -18,6 +18,9 @@ namespace LowVisibility.Object {
 
         public float sensorsBaseRange = 0.0f;
 
+        public int ECMShield = 0;
+        public int ECMJammed = 0;
+
         public int ecmMod = 0;
         public int probeMod = 0;
         public int stealthMod = 0;
@@ -45,17 +48,23 @@ namespace LowVisibility.Object {
         public EWState(AbstractActor actor) {
             this.actor = actor;
 
-            this.tacticsBonus = actor.StatCollection.ContainsStatistic(ModStats.TacticsMod) ?
+            tacticsBonus = actor.StatCollection.ContainsStatistic(ModStats.TacticsMod) ?
                 actor.StatCollection.GetStatistic(ModStats.TacticsMod).Value<int>() : 0;
 
-            this.sensorsCheck = actor.StatCollection.ContainsStatistic(ModStats.SensorCheck) ? 
+            sensorsCheck = actor.StatCollection.ContainsStatistic(ModStats.SensorCheck) ? 
                 actor.StatCollection.GetStatistic(ModStats.SensorCheck).Value<int>() : 0;
 
-            this.ecmMod = actor.StatCollection.ContainsStatistic(ModStats.Jammer) ?
+
+            ECMJammed = actor.StatCollection.ContainsStatistic(ModStats.ECMJammed) ?
+                actor.StatCollection.GetStatistic(ModStats.ECMJammed).Value<int>() : 0;
+            ECMShield = actor.StatCollection.ContainsStatistic(ModStats.ECMShield) ?
+                actor.StatCollection.GetStatistic(ModStats.ECMShield).Value<int>() : 0;
+
+            ecmMod = actor.StatCollection.ContainsStatistic(ModStats.Jammer) ?
                 actor.StatCollection.GetStatistic(ModStats.Jammer).Value<int>() : 0;
-            this.probeMod = actor.StatCollection.ContainsStatistic(ModStats.Probe) ?
+            probeMod = actor.StatCollection.ContainsStatistic(ModStats.Probe) ?
                 actor.StatCollection.GetStatistic(ModStats.Probe).Value<int>() : 0;
-            this.stealthMod = actor.StatCollection.ContainsStatistic(ModStats.Stealth) ?
+            stealthMod = actor.StatCollection.ContainsStatistic(ModStats.Stealth) ?
                 actor.StatCollection.GetStatistic(ModStats.Stealth).Value<int>() : 0;
 
             SetSensorBaseRange(actor);
@@ -73,6 +82,10 @@ namespace LowVisibility.Object {
                 sensorsBaseRange = Mod.Config.SensorRangeUnknownType * 30.0f;
             }
         }
+
+        public int GetECMJammedDetailsModifier() { return ECMJammed;  }
+        public float GetECMShieldSignatureModifier() { return ECMShield * 0.05f; }
+        public int GetECMShieldDetailsModifier() { return ECMShield;  }
 
         // TODO: Lash this into serialization
         public void RefreshAfterSave(CombatGameState Combat) {

@@ -15,18 +15,18 @@ namespace LowVisibility.Helper {
 
             EWState ewState = new EWState(source);
 
-            Mod.Log.Debug($"  == Sensors Range for for actor:{CombatantUtils.Label(source)}");
+            Mod.Log.Trace($"  == Sensors Range for for actor:{CombatantUtils.Label(source)}");
 
             float rawRangeMulti = SensorLockHelper.GetAllSensorRangeMultipliers(source);
             float rangeMulti = rawRangeMulti + ewState.SensorCheckRangeMultiplier();
-            Mod.Log.Debug($"    rangeMulti: {rangeMulti} = rawRangeMulti: {rawRangeMulti} + sensorCheckRangeMulti: {ewState.SensorCheckRangeMultiplier()}");
+            Mod.Log.Trace($"    rangeMulti: {rangeMulti} = rawRangeMulti: {rawRangeMulti} + sensorCheckRangeMulti: {ewState.SensorCheckRangeMultiplier()}");
 
             float rawRangeMod = SensorLockHelper.GetAllSensorRangeAbsolutes(source);
             float rangeMod = rawRangeMod * (1 + ewState.SensorCheckRangeMultiplier());
-            Mod.Log.Debug($"    rangeMod: {rangeMod} = rawRangeMod: {rawRangeMod} + sensorCheckRangeMulti: {ewState.SensorCheckRangeMultiplier()}");
+            Mod.Log.Trace($"    rangeMod: {rangeMod} = rawRangeMod: {rawRangeMod} + sensorCheckRangeMulti: {ewState.SensorCheckRangeMultiplier()}");
 
             float sensorsRange = ewState.sensorsBaseRange * rangeMulti + rangeMod;
-            Mod.Log.Debug($"    sensorsRange: { sensorsRange} = baseRange: {ewState.sensorsBaseRange} * rangeMult: {rangeMulti} + rangeMod: {rangeMod}");
+            Mod.Log.Trace($"    sensorsRange: { sensorsRange} = baseRange: {ewState.sensorsBaseRange} * rangeMult: {rangeMulti} + rangeMod: {rangeMod}");
 
             if (sensorsRange < Mod.Config.MinimumSensorRange() ||
                 source.Combat.TurnDirector.CurrentRound <= 1 && Mod.Config.FirstTurnForceFailedChecks) {
@@ -48,11 +48,7 @@ namespace LowVisibility.Helper {
 
             float modifiedRange = sourceSensorRange * targetSignature;
    
-            // Round up to the nearest full hex
-            float normalizedRange = HexUtils.CountHexes(modifiedRange, true) * 30f;
-
-            //LowVisibility.Logger.Debug($"   source:{CombatantUtils.Label(source)} adjusted sensorRange:{normalizedRange}m normalized from:{modifiedRange}m");
-            return normalizedRange;
+            return modifiedRange;
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
@@ -93,10 +89,17 @@ namespace LowVisibility.Helper {
         private static float GetAllTargetSignatureModifiers(AbstractActor target) {
             if (target == null) { return 0f; }
 
-            float shutdownSignatureMod = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownSignatureModifier;
-            float sensorSignatureModifier = target.SensorSignatureModifier;
+            float shutdownMod = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownSignatureModifier;
+            float sensorMod = target.SensorSignatureModifier;
 
-            return shutdownSignatureMod + sensorSignatureModifier;
+            EWState ewState = new EWState(target);
+            float ecmShieldMod = ewState.GetECMShieldSignatureModifier();
+
+            float targetSignature = sensorMod + shutdownMod + ecmShieldMod;
+            Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has signature: {targetSignature} = " +
+                $"sensorSignature: {sensorMod} +  shutdown: {shutdownMod} + ecmShield: {ecmShieldMod}");
+
+            return targetSignature;
         }
 
         public static SensorScanType CalculateSensorLock(AbstractActor source, Vector3 sourcePos, ICombatant target, Vector3 targetPos) {
@@ -188,32 +191,32 @@ namespace LowVisibility.Helper {
             AbstractActor targetActor = target as AbstractActor;
 
             // Determine modified check against target
-            EWState sourceEWState = new EWState(source);
-            int baseSourceCheck = sourceEWState.sensorsCheck;
+            EWState sourceState = new EWState(source);
+            int baseSourceCheck = sourceState.sensorsCheck;
             int modifiedSourceCheck = baseSourceCheck;
 
             // --- Source modifier: ECM Jamming
-            if (State.ECMJamming(source) != 0) {
-                modifiedSourceCheck -= State.ECMJamming(source);
-                Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is jammed with strength:{State.ECMJamming(source)}, " +
+            if (sourceState.ECMJammed > 0) {
+                modifiedSourceCheck -= sourceState.GetECMJammedDetailsModifier();
+                Mod.Log.Debug($"  source: {CombatantUtils.Label(source)} has ECM jamming: {sourceState.GetECMJammedDetailsModifier()}, " +
                     $"reducing sourceCheckResult to:{modifiedSourceCheck}");
             }
 
             // --- Target Modifiers: Stealth, Narc, Tag
             if (targetActor != null) {
-                EWState targetStaticState = new EWState(targetActor);
+                EWState targetState = new EWState(targetActor);
 
                 // ECM protection reduces sensor info
-                if (State.ECMProtection(targetActor) != 0) {
-                    modifiedSourceCheck -= State.ECMProtection(targetActor);
-                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has ECM protection with strength:{State.ECMProtection(targetActor)}, " +
+                if (targetState.ECMShield > 0) {
+                    modifiedSourceCheck -= sourceState.GetECMShieldDetailsModifier();
+                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has ECM shield: {sourceState.GetECMShieldDetailsModifier()}, " +
                         $"reducing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
                 // Stealth reduces sensor info
-                if (targetStaticState.stealthMod != 0) {
-                    modifiedSourceCheck -= targetStaticState.stealthMod;
-                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has stealthMod:{targetStaticState.stealthMod}, " +
+                if (targetState.stealthMod != 0) {
+                    modifiedSourceCheck -= targetState.stealthMod;
+                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has stealthMod:{targetState.stealthMod}, " +
                         $"reducing sourceCheckResult to:{modifiedSourceCheck}");
                 }
 
