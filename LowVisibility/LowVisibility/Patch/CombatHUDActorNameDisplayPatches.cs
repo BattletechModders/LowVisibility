@@ -107,7 +107,7 @@ namespace LowVisibility.Patch {
                     Alacorn Mk.VI-P / vehicledef_ARES_CLAN / Demolisher II / Galleon GAL-102
                 Vehicle.VariantName = string.Empty -> ""
                 Vehicle.NickName = VehicleDef.Description.Name -> 
-                    Pirate Alacorn Gauss Carrier / Ares / Demolisher II
+                    Pirate Alacorn Gauss Carrier / Ares / Demolisher II`
                     VehicleDef.Description.Id ->
                         / / vehicledef_DEMOLISHER-II / vehicledef_GALLEON_GAL102
             */

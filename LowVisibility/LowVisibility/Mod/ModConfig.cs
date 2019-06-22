@@ -6,7 +6,7 @@ namespace LowVisibility {
         public const string SensorCheck = "LV_SensorCheck"; // Int_32
         public const string TacticsMod = "LV_TacticsMod"; // Int_32
 
-        public const string ECMCarrier = "LV_ECM_Carrier"; // bool
+        public const string ECMCarrier = "LV_ECM_Carrier"; // Int_32
         public const string ECMShield = "LV_ECM_Shield"; // Int_32
         public const string ECMJammed = "LV_ECM_Jammed"; // Int_32
 

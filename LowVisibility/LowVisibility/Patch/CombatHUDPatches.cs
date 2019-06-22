@@ -5,6 +5,7 @@ using LowVisibility.Object;
 using System;
 using System.Reflection;
 using UnityEngine;
+using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
 
@@ -206,7 +207,8 @@ namespace LowVisibility.Patch {
                 //LowVisibility.Logger.Debug($"___CombatHUDTargetingComputer - SetHitChance for source:{CombatantUtils.Label(targetActor)} target:{CombatantUtils.Label(targetActor)}");
                 Locks lockState = State.LocksForTarget(actor, targetActor);
                 float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
-                EWState attackerEWConfig = new EWState(actor);
+                EWState attackerState = new EWState(actor);
+                EWState targetState = new EWState(targetActor);
 
                 if (lockState.sensorLock == SensorScanType.NoInfo) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", Mod.Config.VisionOnlyPenalty});
@@ -215,8 +217,13 @@ namespace LowVisibility.Patch {
                 if (lockState.visualLock == VisualScanType.None) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", Mod.Config.SensorsOnlyPenalty });
                 }
-                
-                VisionModeModifer vismodeMod = attackerEWConfig.CalculateVisionModeModifier(target, distance, __instance.DisplayedWeapon);
+
+                if (targetState.GetECMShieldAttackModifier() != 0) {
+                    Mod.Log.Debug($" CHUDWS:SHC Target:{CombatantUtils.Label(target)} has ECM_SHIELD, applying modifier: {targetState.GetECMShieldAttackModifier()}");
+                    AddToolTipDetailMethod.GetValue(new object[] { "ECM SHIELD", targetState.GetECMShieldAttackModifier() });
+                }
+
+                VisionModeModifer vismodeMod = attackerState.CalculateVisionModeModifier(target, distance, __instance.DisplayedWeapon);
                 if (vismodeMod.modifier != 0) {
                     AddToolTipDetailMethod.GetValue(new object[] { vismodeMod.label, vismodeMod.modifier });
                 }

@@ -1,11 +1,9 @@
 ﻿using BattleTech;
-using BattleTech.Assetbundles;
-using BattleTech.Data;
 using Harmony;
 using Localize;
+using LowVisibility.Helper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using us.frostraptor.modUtils;
 
@@ -20,7 +18,7 @@ namespace LowVisibility.Patch {
             __instance.StatCollection.AddStatistic<int>(ModStats.SensorCheck, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.TacticsMod, 0);
 
-            __instance.StatCollection.AddStatistic<bool>(ModStats.ECMCarrier, false);
+            __instance.StatCollection.AddStatistic<int>(ModStats.ECMCarrier, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMShield, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMJammed, 0);
 
@@ -34,7 +32,7 @@ namespace LowVisibility.Patch {
             __instance.StatCollection.AddStatistic<int>(ModStats.VismodeZoom, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.VismodeHeat, 0);
         }
-    } 
+    }
 
     [HarmonyPatch(typeof(AbstractActor), "OnActivationBegin")]
     public static class AbstractActor_OnActivationBegin {
@@ -44,77 +42,99 @@ namespace LowVisibility.Patch {
                 // For some bloody reason DoneWithActor() invokes OnActivationBegin, EVEN THOUGH IT DO ES NOTHING. GAH!
                 return;
             }
-            
-            //ECMHelper.UpdateECMState(__instance);
 
-            //VisibilityHelper.UpdateVisibilityForAllTeams(__instance.Combat);
+            Mod.Log.Debug($"-- OnActivationBegin: Effects targeting actor: {CombatantUtils.Label(__instance)}");
+            List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
+            foreach (Effect effect in list) {
+                Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+            }
+
+            foreach (AbstractActor unit in __instance.team.units) {
+                if (unit.GUID != __instance.GUID) {
+                    Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
+                    List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
+                    foreach (Effect effect in list2) {
+                        Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+                    }
+                }
+            }
+
+            Mod.Log.Debug($" Updating effects to all actors from actor: {CombatantUtils.Label(__instance)}");
+
 
             Mod.Log.Debug($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantUtils.Label(__instance)}");
             if (__instance.team == __instance.Combat.LocalPlayerTeam) {
                 State.LastPlayerActor = __instance.GUID;
             }
+        }
+    }
 
-            List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance)
-                .FindAll((Effect x) => x.EffectData.effectType == EffectType.StatisticEffect && x.EffectData.statisticData.statName == ModStats.ECMCarrier);
-            bool HasECM = list.Count > 0;
-            Mod.Log.Debug($" ACTOR HAS ECM: Actor: {CombatantUtils.Label(__instance)} hasECM: {__instance.HasECMAbilityInstalled}");
-            if (HasECM) {
-                Mod.Log.Debug(" ADDING ECM CARRIER LOOP"); 
-                // Bubble
-                ParticleSystem psECMLoop = __instance.GameRep.PlayVFXAt(__instance.GameRep.thisTransform, Vector3.zero, "vfxPrfPrtl_ECM_loop", true, Vector3.zero, false, -1f);
-                psECMLoop.Stop(true);
+    [HarmonyPatch(typeof(AbstractActor), "OnActivationEnd")]
+    public static class AbstractActor_OnActivationEnd {
 
-                foreach (Transform child in psECMLoop.transform) {
-                    Mod.Log.Debug($"  - Found GO: {child.gameObject.name}");
-                    if (child.gameObject.name == "electric dome circumference slow") {
-                        //Mod.Log.Debug($"  - Found dome circumference");
-                        //child.gameObject.SetActive(true);
-                        //child.gameObject.transform.localScale = new Vector3(1.3f, 1.3f, 1.3f);
-                        child.gameObject.SetActive(false);
-                    } else if (child.gameObject.name == "sphere") {
-                        Mod.Log.Debug($"  - Found sphere");
-                        child.gameObject.transform.localScale = new Vector3(1.3f, 1.3f, 1.3f);
-                        ParticleSystemRenderer spherePSR = child.gameObject.transform.GetComponent<ParticleSystemRenderer>();
+        public static void Prefix(AbstractActor __instance) {
+            
+            Mod.Log.Debug($"-- OnActivationEnd: Effects targeting actor: {CombatantUtils.Label(__instance)}");
+            List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
+            foreach (Effect effect in list) {
+                Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+            }
 
-                        Mod.Log.Debug($"  - Material OLD shader name: {spherePSR.material.shader.name}");
-                        //Shader rainDropShader = Shader.Find("vfxMatPrtl_rainDrop_noFoW_alpha");
-                        //Mod.Log.Debug($"  - Shader found? {rainDropShader != null} ?? {rainDropShader?.name}");
-                        //Material rainDropMat = new Material(rainDropMat);
-
-                        DataManager dm = UnityGameInstance.BattleTechGame.DataManager;
-                        var rainDropMat = dm.Get(BattleTechResourceType.AssetBundle, "vfxMatPrtl_rainDrop_noFoW_alpha");
-                        Mod.Log.Debug($"  - Material found: {rainDropMat != null}");
-
-                        var mat = Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(m => m.name == "vfxMatPrtl_rainDrop_noFoW_alpha");
-                        Mod.Log.Debug($"  - STUPID SEARCH Material found: {mat != null}");
-                        var mat2 = new Material(mat);
-                        mat2.color = new Color(15, 82, 186, 100);
-
-                        spherePSR.material = mat2;
-                        Mod.Log.Debug($"  - Material NEW shader name: {spherePSR.material.shader.name}");
-                    } else {
-                        Mod.Log.Debug($"  - Disabling GO: {child.gameObject.name}");
-                        child.gameObject.SetActive(false);
+            foreach (AbstractActor unit in __instance.team.units) {
+                if (unit.GUID != __instance.GUID) {
+                    Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
+                    List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
+                    foreach (Effect effect in list2) {
+                        Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
                     }
                 }
-                
-                //ParticleSystem.MainModule psECMLoopMM = psECMLoop.main;
-                //psECMLoopMM.scalingMode = ParticleSystemScalingMode.Hierarchy;
-                //psECMLoopMM.startSizeMultiplier = 3.0f;
-                //ParticleSystem.ShapeModule psECMLoopSM = psECMLoop.shape;
-                //psECMLoopSM.meshScale = 3f;
-                //psECMLoop.transform.localScale = new Vector3(3f, 3f, 3f);
-
-                psECMLoop.Play(true);
-
-                // AoE loop
-                ParticleSystem psECMCarrier = __instance.GameRep.PlayVFXAt(__instance.GameRep.thisTransform, Vector3.zero, "vfxPrfPrtl_ECMcarrierAura_loop", true, Vector3.zero, false, -1f);
-                //psECMCarrier.transform.localScale = new Vector3(1f, 1f, 1f);
-
-                WwiseManager.PostEvent<AudioEventList_ui>(AudioEventList_ui.ui_ecm_start, __instance.GameRep.audioObject, null, null);
-
-                Mod.Log.Debug(" DONE ECM CARRIER LOOP");
             }
+
+            Mod.Log.Debug($" Updating effects to all actors from actor: {CombatantUtils.Label(__instance)}");
+        }
+    }
+
+    [HarmonyPatch(typeof(AbstractActor), "OnPositionUpdate")]
+    public static class AbstractActor_OnPositionUpdate  {
+
+        public static void Prefix(AbstractActor __instance, Vector3 position) {
+
+            //List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
+            //foreach (Effect effect in list) {
+            //    Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+            //}
+
+            //foreach (AbstractActor unit in __instance.team.units) {
+            //    if (unit.GUID != __instance.GUID) {
+            //        Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
+            //        List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
+            //        foreach (Effect effect in list2) {
+            //            Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+            //        }
+            //    }
+            //}
+
+            Mod.Log.Debug($"-- OnPositionUpdate: Updating effects to all actors from actor: {CombatantUtils.Label(__instance)} at position: {position}");
+        }
+    }
+
+    [HarmonyPatch(typeof(Mech), "InitGameRep")]
+    public static class Mech_InitGameRep {
+        public static void Postfix(Mech __instance, Transform parentTransform) {
+
+        }
+    }
+
+    [HarmonyPatch(typeof(Vehicle), "InitGameRep")]
+    public static class Vehicle_InitGameRep {
+        public static void Postfix(Vehicle __instance, Transform parentTransform) {
+
+        }
+    }
+
+    [HarmonyPatch(typeof(Turret), "InitGameRep")]
+    public static class Turret_InitGameRep {
+        public static void Postfix(Turret __instance, Transform parentTransform) {
 
         }
     }
@@ -124,7 +144,7 @@ namespace LowVisibility.Patch {
         public static void Prefix(AbstractActor __instance) {
             // Check for teamID; if it's not present, unit hasn't spawned yet. Defer to UnitSpawnPointGameLogic::SpawnUnit for these updates
             if (State.TurnDirectorStarted && __instance.TeamId != null) {
-                Mod.Log.Debug($"AbstractActor_UpdateLOSPositions:pre - entered for {CombatantUtils.Label(__instance)}.");
+                Mod.Log.Trace($"AbstractActor_UpdateLOSPositions:pre - entered for {CombatantUtils.Label(__instance)}.");
             }
         }
     }
@@ -190,39 +210,172 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(new Type[] { typeof(EffectData), typeof(Ability), typeof(string), typeof(int), typeof(AbstractActor), typeof(bool) })]
     public static class AbstractActor_CreateEffect {
         public static void Postfix(AbstractActor __instance, EffectData effect, Ability fromAbility, string effectId, int stackItemUID, AbstractActor creator, bool skipLogging) {
-            Mod.Log.Trace("AA:CE entered");
+            //Mod.Log.Debug("AA:CreateEffect entered");
 
-
+            Mod.Log.Debug($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: {CombatantUtils.Label(creator)}");
         }
     }
 
-    //[HarmonyPatch(typeof(AbstractActor), "OnAuraAdded")]
-    //public static class AbstractActor_OnAuraAdded {
-    //    public static void Postfix(AbstractActor __instance, MessageCenterMessage message) {
-    //        Mod.Log.Debug("AA:OAA entered");
+    [HarmonyPatch(typeof(AbstractActor), "CancelEffect")]
+        public static class AbstractActor_CancelEffect {
+        public static void Postfix(AbstractActor __instance, EffectData effect) {
+            //Mod.Log.Debug("AA:CancelEffect entered");
 
-    //        AuraAddedMessage auraAddedMessage = message as AuraAddedMessage;
-    //        if (auraAddedMessage.targetID == __instance.GUID) {
-    //            Mod.Log.Debug($"Self aura found for actor:{CombatantUtils.Label(__instance)} with ID: {auraAddedMessage.effectData.Description.Id}");
-    //            if (auraAddedMessage.effectData.statisticData.statName == ModStats.ECMCarrier) {
-    //                if (__instance.Combat.TurnDirector.IsInterleaved) {
-    //                    __instance.Combat.MessageCenter.PublishMessage(new FloatieMessage(auraAddedMessage.creatorID, auraAddedMessage.targetID, new Text("ECM PROTECTED", new object[0]), FloatieMessage.MessageNature.Buff));
-    //                }
-    //                if (__instance.GameRep != null) {
-    //                    __instance.GameRep.PlayVFXAt(__instance.GameRep.thisTransform, Vector3.zero, "vfxPrfPrtl_ECMtargetAdd_burst", true, Vector3.zero, true, -1f);
-    //                    WwiseManager.PostEvent<AudioEventList_ecm>(AudioEventList_ecm.ecm_enter, __instance.GameRep.audioObject, null, null);
-    //                    if (__instance.HasECMAbilityInstalled) {
-    //                        string vfxName = "vfxPrfPrtl_ECM_loop";
-    //                        __instance.GameRep.PlayVFXAt(__instance.GameRep.thisTransform, Vector3.zero, vfxName, true, Vector3.zero, false, -1f);
-    //                        __instance.GameRep.PlayVFXAt(__instance.GameRep.thisTransform, Vector3.zero, "vfxPrfPrtl_ECMcarrierAura_loop", true, Vector3.zero, false, -1f);
-    //                        WwiseManager.PostEvent<AudioEventList_ui>(AudioEventList_ui.ui_ecm_start, __instance.GameRep.audioObject, null, null);
-    //                    }
-    //                }
-    //                __instance.Combat.MessageCenter.PublishMessage(new StealthChangedMessage(__instance.GUID, __instance.StealthPipsCurrent));
-    //            }
+            Mod.Log.Debug($" Cancelling effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: ");
+        }
+    }
+
+    //[HarmonyPatch(typeof(AbstractActor), "OnNewRound")]
+    //public static class AbstractActor_OnNewRound {
+    //    public static void Postfix(AbstractActor __instance, int round) {
+    //        Mod.Log.Debug("AA:ONR entered");
+
+    //        List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
+    //        foreach (Effect effect in list) {
+    //            Mod.Log.Debug($" Actor: ({CombatantUtils.Label(__instance)}) has effect: ({effect.EffectData.Description.Id})");
     //        }
 
-    //        // TODO: Add else if conditional?
     //    }
     //}
+
+
+    //[HarmonyPatch(typeof(AuraCache), "GetEffectID")]
+    //public static class AuraCache_GetEffectID {
+    //    public static void Postfix(AuraCache __instance, AbstractActor fromActor, string fromEffectOwnerId, EffectData fromEffect, AbstractActor target) {
+    //        Mod.Log.Debug("AC:GEID entered");
+
+    //        Mod.Log.Debug($"  fromActor: {CombatantUtils.Label(fromActor)} has effect: {fromEffect.Description.Id} to target: {CombatantUtils.Label(target)}");
+    //    }
+    //}
+
+
+    [HarmonyPatch(typeof(AbstractActor), "OnAuraAdded")]
+    public static class AbstractActor_OnAuraAdded {
+        public static void Postfix(AbstractActor __instance, MessageCenterMessage message) {
+            //Mod.Log.Debug("AA:OAA entered");
+
+            AuraAddedMessage auraAddedMessage = message as AuraAddedMessage;
+            //Mod.Log.Debug($" Adding aura: {auraAddedMessage.effectData.Description.Id} to target: {auraAddedMessage.targetID}");
+            if (auraAddedMessage.targetID == __instance.GUID) {
+                if (auraAddedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
+                    if (__instance.Combat.TurnDirector.IsInterleaved) {
+                        __instance.Combat.MessageCenter.PublishMessage(
+                            new FloatieMessage(auraAddedMessage.creatorID, auraAddedMessage.targetID,
+                                new Text("ECM PROTECTED", new object[0]), FloatieMessage.MessageNature.Buff));
+                    }
+
+                    if (ActorHelper.IsECMCarrier(__instance)) {
+                        Mod.Log.Debug(" ADDING ECM CARRIER LOOP");
+                        // Calculate the range factor
+                        float vfxScaleFactor = auraAddedMessage.effectData.targetingData.range / 100f;
+                        Mod.Log.Debug($" VFX scaling factor {vfxScaleFactor}");
+
+                        // Bubble
+                        ParticleSystem psECMLoop = __instance.GameRep.PlayVFXAt(__instance.GameRep.thisTransform, Vector3.zero, "vfxPrfPrtl_ECM_loop", true, Vector3.zero, false, -1f);
+                        psECMLoop.Stop(true);
+
+                        foreach (Transform child in psECMLoop.transform) {
+                            if (child.gameObject.name == "sphere") {
+                                //Mod.Log.Debug($"  - Found sphere");
+                                child.gameObject.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
+                                //ParticleSystemRenderer spherePSR = child.gameObject.transform.GetComponent<ParticleSystemRenderer>();
+
+                                //Shader alphaShader = Shader.Find("BattleTech/VFX/Alpha");
+                                //Mod.Log.Debug($"  - AlphaShader found: {alphaShader != null}");
+
+                                //DataManager dm = UnityGameInstance.BattleTechGame.DataManager;
+                                //Texture2D rainDropMat = (Texture2D)dm.Get(BattleTechResourceType.Texture2D, "vfxTxrPrtl_rainDot_alpha");
+                                //Mod.Log.Debug($"  - Texture found: {rainDropMat != null}");
+
+                                //Material tmpMat = new Material(alphaShader);
+                                //tmpMat.mainTexture = rainDropMat;
+                                //tmpMat.color = Color.clear;
+
+                                //var mat = Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(m => m.name == "vfxMatPrtl_rainDrop_noFoW_alpha");
+                                //Mod.Log.Debug($"  - STUPID SEARCH Material found: {mat != null}");
+                                //var mat2 = new Material(mat);
+                                //Mod.Log.Debug($"  - MAT Shader is: {mat2.shader.name}");
+                                //Mod.Log.Debug($"  - MAT Texture is: {mat2.mainTexture.name}");
+                                //Mod.Log.Debug($"  - MAT Color is: {mat2.color}");
+
+                                /*
+                                    2019-06-08 04:04:12.752 -   - MAT Shader is: BattleTech/VFX/Alphawa
+                                    2019-06-08 04:04:12.752 -   - MAT Texture is: vfxTxrPrtl_rainDot_alpha
+                                    2019-06-08 04:04:12.752 -   - MAT Color is: RGBA(0.000, 0.000, 0.000, 0.000)
+                                    2019-06-08 04:04:12.752 -   - Material NEW shader name: BattleTech/VFX/Alpha
+                                */
+
+                                //spherePSR.material = mat2;
+                                //Mod.Log.Debug($"  - Material NEW shader name: {spherePSR.material.shader.name}");
+                            } else {
+                                Mod.Log.Debug($"  - Disabling GO: {child.gameObject.name}");
+                                child.gameObject.SetActive(false);
+                            }
+                        }
+                        psECMLoop.Play(true);
+
+                        // AoE loop
+                        ParticleSystem psECMCarrier = __instance.GameRep.PlayVFXAt(__instance.GameRep.thisTransform, Vector3.zero, "vfxPrfPrtl_ECMcarrierAura_loop", true, Vector3.zero, false, -1f);
+                        psECMCarrier.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
+
+                        WwiseManager.PostEvent<AudioEventList_ui>(AudioEventList_ui.ui_ecm_start, __instance.GameRep.audioObject, null, null);
+
+                        Mod.Log.Debug(" DONE ECM CARRIER LOOP");
+                    }
+                }
+
+
+            }// TODO: Add else if conditional?
+        }
+    }
+
+    [HarmonyPatch(typeof(AbstractActor), "OnAuraRemoved")]
+    public static class AbstractActor_OnAuraRemoved {
+        public static void Postfix(AbstractActor __instance, MessageCenterMessage message) {
+            AuraRemovedMessage auraRemovedMessage = message as AuraRemovedMessage;
+            AbstractActor creator = __instance.Combat.FindActorByGUID(auraRemovedMessage.creatorID);
+            Mod.Log.Debug($" Removing aura: {auraRemovedMessage.effectData.Description.Id} from target: {CombatantUtils.Label(__instance)} created by: {CombatantUtils.Label(creator)}");
+            if (auraRemovedMessage.targetID == __instance.GUID) {
+                if (auraRemovedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
+                    if (ActorHelper.IsECMCarrier(__instance)) {
+                        Mod.Log.Debug(" REMOVING ECM CARRIER LOOP");
+                        if (__instance.GameRep != null) {
+                            __instance.GameRep.PlayVFXAt(__instance.GameRep.thisTransform, Vector3.zero, "vfxPrfPrtl_ECMtargetRemove_burst", true, Vector3.zero, true, -1f);
+                            //WwiseManager.PostEvent<AudioEventList_ecm>(AudioEventList_ecm.ecm_exit, __instance.GameRep.audioObject, null, null);
+                            __instance.GameRep.StopManualPersistentVFX("vfxPrfPrtl_ECM_loop");
+                            __instance.GameRep.StopManualPersistentVFX("vfxPrfPrtl_ECM_opponent_loop");
+                            __instance.GameRep.StopManualPersistentVFX("vfxPrfPrtl_ECMcarrierAura_loop");
+                            //WwiseManager.PostEvent<AudioEventList_ui>(AudioEventList_ui.ui_ecm_stop, __instance.GameRep.audioObject, null, null);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(AbstractActor), "OnMoveComplete")]
+    public static class AbstractActor_OnMoveComplete {
+
+        public static void Prefix(AbstractActor __instance) {
+            
+            Mod.Log.Debug($" OnMoveComplete: Effects targeting actor: {CombatantUtils.Label(__instance)}");
+            List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
+            foreach (Effect effect in list) {
+                Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+            }
+
+            foreach(AbstractActor unit in __instance.team.units) {
+                if (unit.GUID != __instance.GUID) {
+                    Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
+                    List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
+                    foreach (Effect effect in list2) {
+                        Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+                    }
+                }
+            }
+            
+        }
+    }
+
 }
+

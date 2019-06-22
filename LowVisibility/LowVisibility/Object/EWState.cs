@@ -19,6 +19,7 @@ namespace LowVisibility.Object {
         public float sensorsBaseRange = 0.0f;
 
         public int ECMShield = 0;
+        public int ECMCarrier = 0;
         public int ECMJammed = 0;
 
         public int ecmMod = 0;
@@ -54,11 +55,12 @@ namespace LowVisibility.Object {
             sensorsCheck = actor.StatCollection.ContainsStatistic(ModStats.SensorCheck) ? 
                 actor.StatCollection.GetStatistic(ModStats.SensorCheck).Value<int>() : 0;
 
-
             ECMJammed = actor.StatCollection.ContainsStatistic(ModStats.ECMJammed) ?
                 actor.StatCollection.GetStatistic(ModStats.ECMJammed).Value<int>() : 0;
             ECMShield = actor.StatCollection.ContainsStatistic(ModStats.ECMShield) ?
                 actor.StatCollection.GetStatistic(ModStats.ECMShield).Value<int>() : 0;
+            ECMCarrier = actor.StatCollection.ContainsStatistic(ModStats.ECMCarrier) ?
+                actor.StatCollection.GetStatistic(ModStats.ECMCarrier).Value<int>() : 0;
 
             ecmMod = actor.StatCollection.ContainsStatistic(ModStats.Jammer) ?
                 actor.StatCollection.GetStatistic(ModStats.Jammer).Value<int>() : 0;
@@ -84,8 +86,10 @@ namespace LowVisibility.Object {
         }
 
         public int GetECMJammedDetailsModifier() { return ECMJammed;  }
-        public float GetECMShieldSignatureModifier() { return ECMShield * 0.05f; }
-        public int GetECMShieldDetailsModifier() { return ECMShield;  }
+
+        public float GetECMShieldSignatureModifier() { return ECMShield > ECMCarrier ? ECMShield * 0.05f : ECMCarrier * 0.05f; }
+        public int GetECMShieldDetailsModifier() { return ECMShield > ECMCarrier ? ECMShield : ECMCarrier;  }
+        public int GetECMShieldAttackModifier() { return ECMShield > ECMCarrier ? ECMShield : ECMCarrier; }
 
         // TODO: Lash this into serialization
         public void RefreshAfterSave(CombatGameState Combat) {
@@ -155,7 +159,9 @@ namespace LowVisibility.Object {
         public override string ToString() { return $"sensorsCheck:{sensorsCheck} ecmMod:{ecmMod}"; }
 
         public string Details() {
-            return $"tacticsBonus:{tacticsBonus} ecmMod:{ecmMod} probeMod:{probeMod} stealthMod:{stealthMod}" +
+            return $"tacticsBonus:{tacticsBonus} ecmMod:{ecmMod} probeMod:{probeMod} stealthMod:{stealthMod} " +
+                $"ecmShieldSigMod:{GetECMShieldSignatureModifier()} ecmShieldDetailsMod:{GetECMShieldDetailsModifier()} ecmShieldAttackMod:{GetECMShieldAttackModifier()} " +
+                $"ecmJammedDetailsMod:{GetECMJammedDetailsModifier()} " +
                 $"stealthMoveMod:{stealthMoveMod[0]}/{stealthMoveMod[1]} " +
                 $"vismodeZoomMod:{vismodeZoomMod} vismodeZoomCap:{vismodeZoomCap} vismodeZoomStep:{vismodeZoomStep} " +
                 $"vismodeHeatMod:{vismodeHeatMod} vismodeHeatDiv:{vismodeHeatDivisor} " +

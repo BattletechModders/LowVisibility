@@ -106,7 +106,7 @@ namespace LowVisibility.Helper {
 
             if (source.GUID == target.GUID || source.Combat.HostilityMatrix.IsFriendly(source.TeamId, target.team.GUID)) {
                 // If they are us, or allied, automatically give sensor details
-                Mod.Log.Debug($"  source:{CombatantUtils.Label(source)} is friendly to target:{CombatantUtils.Label(target)}. Forcing full visibility.");
+                Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is friendly to target:{CombatantUtils.Label(target)}. Forcing full visibility.");
                 return SensorScanType.DentalRecords;
             }
 
@@ -129,11 +129,11 @@ namespace LowVisibility.Helper {
 
             float distance = Vector3.Distance(sourcePos, targetPos);
             float sensorRangeVsTarget = SensorLockHelper.GetAdjustedSensorRange(source, target);
-            Mod.Log.Debug($"SensorLockHelper - source:{CombatantUtils.Label(source)} sensorRangeVsTarget:{sensorRangeVsTarget} vs distance:{distance}");
+            Mod.Log.Trace($"SensorLockHelper - source: {CombatantUtils.Label(source)} sensorRangeVsTarget: {sensorRangeVsTarget} vs distance: {distance}");
             if (distance > sensorRangeVsTarget) {
                 // Check for Narc effect that will show the target regardless of range
                 SensorScanType narcLock = HasNarcBeaconDetection(target) ? SensorScanType.Location : SensorScanType.NoInfo;
-                Mod.Log.Debug($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
+                Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
                 return narcLock;
             } else if ((target as Building) != null) {
                 // If the target is a building, show them so long as they are in sensor distance
