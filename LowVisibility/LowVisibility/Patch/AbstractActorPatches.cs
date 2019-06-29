@@ -2,6 +2,7 @@
 using Harmony;
 using Localize;
 using LowVisibility.Helper;
+using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,6 +22,11 @@ namespace LowVisibility.Patch {
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMCarrier, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMShield, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMJammed, 0);
+
+            __instance.StatCollection.AddStatistic<int>(ModStats.SensorStealth, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.SensorStealthCharge, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.VisionStealth, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.VisionStealthCharge, 0);
 
             __instance.StatCollection.AddStatistic<int>(ModStats.Jammer, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.Probe, 0);
@@ -60,7 +66,6 @@ namespace LowVisibility.Patch {
             }
 
             Mod.Log.Debug($" Updating effects to all actors from actor: {CombatantUtils.Label(__instance)}");
-
 
             Mod.Log.Debug($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantUtils.Label(__instance)}");
             if (__instance.team == __instance.Combat.LocalPlayerTeam) {
@@ -208,22 +213,53 @@ namespace LowVisibility.Patch {
 
     [HarmonyPatch(typeof(AbstractActor), "CreateEffect")]
     [HarmonyPatch(new Type[] { typeof(EffectData), typeof(Ability), typeof(string), typeof(int), typeof(AbstractActor), typeof(bool) })]
-    public static class AbstractActor_CreateEffect {
+    public static class AbstractActor_CreateEffect_AbstractActor {
         public static void Postfix(AbstractActor __instance, EffectData effect, Ability fromAbility, string effectId, int stackItemUID, AbstractActor creator, bool skipLogging) {
-            //Mod.Log.Debug("AA:CreateEffect entered");
+            Mod.Log.Trace("AA:CreateEffect entered");
 
             Mod.Log.Debug($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: {CombatantUtils.Label(creator)}");
+            if (effect.effectType == EffectType.StatisticEffect && 
+                (effect.statisticData.statName == ModStats.SensorStealth || effect.statisticData.statName == ModStats.VisionStealth)) {
+                Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
+                List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
+                __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
+            }
+
+        }
+    }
+
+    [HarmonyPatch(typeof(AbstractActor), "CreateEffect")]
+    [HarmonyPatch(new Type[] { typeof(EffectData), typeof(Ability), typeof(string), typeof(int), typeof(Team), typeof(bool) })]
+    public static class AbstractActor_CreateEffect_Team {
+        public static void Postfix(AbstractActor __instance, EffectData effect, Ability fromAbility, string sourceID, int stackItemUID, Team creator, bool skipLogging) {
+            Mod.Log.Trace("AA:CreateEffect entered");
+
+            Mod.Log.Debug($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from team: {creator.GUID}");
+            if (effect.effectType == EffectType.StatisticEffect &&
+                (effect.statisticData.statName == ModStats.SensorStealth || effect.statisticData.statName == ModStats.VisionStealth)) {
+                Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
+                List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
+                __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
+            }
+
         }
     }
 
     [HarmonyPatch(typeof(AbstractActor), "CancelEffect")]
         public static class AbstractActor_CancelEffect {
         public static void Postfix(AbstractActor __instance, EffectData effect) {
-            //Mod.Log.Debug("AA:CancelEffect entered");
+            Mod.Log.Trace("AA:CancelEffect entered");
 
             Mod.Log.Debug($" Cancelling effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: ");
+            if (effect.effectType == EffectType.StatisticEffect &&
+                (effect.statisticData.statName == ModStats.SensorStealth || effect.statisticData.statName == ModStats.VisionStealth)) {
+                Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
+                List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
+                __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
+            }
         }
     }
+
 
     //[HarmonyPatch(typeof(AbstractActor), "OnNewRound")]
     //public static class AbstractActor_OnNewRound {
@@ -265,65 +301,9 @@ namespace LowVisibility.Patch {
                     }
 
                     if (ActorHelper.IsECMCarrier(__instance)) {
-                        Mod.Log.Debug(" ADDING ECM CARRIER LOOP");
-                        // Calculate the range factor
-                        float vfxScaleFactor = auraAddedMessage.effectData.targetingData.range / 100f;
-                        Mod.Log.Debug($" VFX scaling factor {vfxScaleFactor}");
-
-                        // Bubble
-                        ParticleSystem psECMLoop = __instance.GameRep.PlayVFXAt(__instance.GameRep.thisTransform, Vector3.zero, "vfxPrfPrtl_ECM_loop", true, Vector3.zero, false, -1f);
-                        psECMLoop.Stop(true);
-
-                        foreach (Transform child in psECMLoop.transform) {
-                            if (child.gameObject.name == "sphere") {
-                                //Mod.Log.Debug($"  - Found sphere");
-                                child.gameObject.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
-                                //ParticleSystemRenderer spherePSR = child.gameObject.transform.GetComponent<ParticleSystemRenderer>();
-
-                                //Shader alphaShader = Shader.Find("BattleTech/VFX/Alpha");
-                                //Mod.Log.Debug($"  - AlphaShader found: {alphaShader != null}");
-
-                                //DataManager dm = UnityGameInstance.BattleTechGame.DataManager;
-                                //Texture2D rainDropMat = (Texture2D)dm.Get(BattleTechResourceType.Texture2D, "vfxTxrPrtl_rainDot_alpha");
-                                //Mod.Log.Debug($"  - Texture found: {rainDropMat != null}");
-
-                                //Material tmpMat = new Material(alphaShader);
-                                //tmpMat.mainTexture = rainDropMat;
-                                //tmpMat.color = Color.clear;
-
-                                //var mat = Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(m => m.name == "vfxMatPrtl_rainDrop_noFoW_alpha");
-                                //Mod.Log.Debug($"  - STUPID SEARCH Material found: {mat != null}");
-                                //var mat2 = new Material(mat);
-                                //Mod.Log.Debug($"  - MAT Shader is: {mat2.shader.name}");
-                                //Mod.Log.Debug($"  - MAT Texture is: {mat2.mainTexture.name}");
-                                //Mod.Log.Debug($"  - MAT Color is: {mat2.color}");
-
-                                /*
-                                    2019-06-08 04:04:12.752 -   - MAT Shader is: BattleTech/VFX/Alphawa
-                                    2019-06-08 04:04:12.752 -   - MAT Texture is: vfxTxrPrtl_rainDot_alpha
-                                    2019-06-08 04:04:12.752 -   - MAT Color is: RGBA(0.000, 0.000, 0.000, 0.000)
-                                    2019-06-08 04:04:12.752 -   - Material NEW shader name: BattleTech/VFX/Alpha
-                                */
-
-                                //spherePSR.material = mat2;
-                                //Mod.Log.Debug($"  - Material NEW shader name: {spherePSR.material.shader.name}");
-                            } else {
-                                Mod.Log.Debug($"  - Disabling GO: {child.gameObject.name}");
-                                child.gameObject.SetActive(false);
-                            }
-                        }
-                        psECMLoop.Play(true);
-
-                        // AoE loop
-                        ParticleSystem psECMCarrier = __instance.GameRep.PlayVFXAt(__instance.GameRep.thisTransform, Vector3.zero, "vfxPrfPrtl_ECMcarrierAura_loop", true, Vector3.zero, false, -1f);
-                        psECMCarrier.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
-
-                        WwiseManager.PostEvent<AudioEventList_ui>(AudioEventList_ui.ui_ecm_start, __instance.GameRep.audioObject, null, null);
-
-                        Mod.Log.Debug(" DONE ECM CARRIER LOOP");
+                        VfxHelper.EnableECMCarrierEffect(__instance, auraAddedMessage.effectData);
                     }
                 }
-
 
             }// TODO: Add else if conditional?
         }
@@ -338,15 +318,7 @@ namespace LowVisibility.Patch {
             if (auraRemovedMessage.targetID == __instance.GUID) {
                 if (auraRemovedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
                     if (ActorHelper.IsECMCarrier(__instance)) {
-                        Mod.Log.Debug(" REMOVING ECM CARRIER LOOP");
-                        if (__instance.GameRep != null) {
-                            __instance.GameRep.PlayVFXAt(__instance.GameRep.thisTransform, Vector3.zero, "vfxPrfPrtl_ECMtargetRemove_burst", true, Vector3.zero, true, -1f);
-                            //WwiseManager.PostEvent<AudioEventList_ecm>(AudioEventList_ecm.ecm_exit, __instance.GameRep.audioObject, null, null);
-                            __instance.GameRep.StopManualPersistentVFX("vfxPrfPrtl_ECM_loop");
-                            __instance.GameRep.StopManualPersistentVFX("vfxPrfPrtl_ECM_opponent_loop");
-                            __instance.GameRep.StopManualPersistentVFX("vfxPrfPrtl_ECMcarrierAura_loop");
-                            //WwiseManager.PostEvent<AudioEventList_ui>(AudioEventList_ui.ui_ecm_stop, __instance.GameRep.audioObject, null, null);
-                        }
+                        VfxHelper.DisableECMCarrierEffect(__instance);
                     }
                 }
             }

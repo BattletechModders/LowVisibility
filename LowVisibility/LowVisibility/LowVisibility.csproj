@@ -75,6 +75,7 @@
     <Compile Include="Helper\ActorHelper.cs" />
     <Compile Include="Helper\ECMHelper.cs" />
     <Compile Include="Helper\SensorLockHelper.cs" />
+    <Compile Include="Helper\VfxHelper.cs" />
     <Compile Include="Helper\VisualLockHelper.cs" />
     <Compile Include="Object\EWState.cs" />
     <Compile Include="Helper\MapHelper.cs" />
@@ -89,6 +90,8 @@
     <Compile Include="Patch\ComponentPatches.cs" />
     <Compile Include="Patch\LineOfSightPatches.cs" />
     <Compile Include="Patch\CombatPatches.cs" />
+    <Compile Include="Patch\MechComponentPatches.cs" />
+    <Compile Include="Patch\PilotableActorRepresentationPatches.cs" />
     <Compile Include="Patch\SerializationPatches.cs" />
     <Compile Include="Patch\TeamPatch.cs" />
     <Compile Include="Patch\ToHitPatches.cs" />

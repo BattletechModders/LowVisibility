@@ -22,6 +22,9 @@ namespace LowVisibility.Object {
         public int ECMCarrier = 0;
         public int ECMJammed = 0;
 
+        public int SensorStealth = 0;
+        public int VisionStealth = 0;
+
         public int ecmMod = 0;
         public int probeMod = 0;
         public int stealthMod = 0;
@@ -62,6 +65,11 @@ namespace LowVisibility.Object {
             ECMCarrier = actor.StatCollection.ContainsStatistic(ModStats.ECMCarrier) ?
                 actor.StatCollection.GetStatistic(ModStats.ECMCarrier).Value<int>() : 0;
 
+            SensorStealth = actor.StatCollection.ContainsStatistic(ModStats.SensorStealth) ?
+                actor.StatCollection.GetStatistic(ModStats.SensorStealth).Value<int>() : 0;
+            VisionStealth = actor.StatCollection.ContainsStatistic(ModStats.VisionStealth) ?
+                actor.StatCollection.GetStatistic(ModStats.VisionStealth).Value<int>() : 0;
+
             ecmMod = actor.StatCollection.ContainsStatistic(ModStats.Jammer) ?
                 actor.StatCollection.GetStatistic(ModStats.Jammer).Value<int>() : 0;
             probeMod = actor.StatCollection.ContainsStatistic(ModStats.Probe) ?
@@ -90,6 +98,12 @@ namespace LowVisibility.Object {
         public float GetECMShieldSignatureModifier() { return ECMShield > ECMCarrier ? ECMShield * 0.05f : ECMCarrier * 0.05f; }
         public int GetECMShieldDetailsModifier() { return ECMShield > ECMCarrier ? ECMShield : ECMCarrier;  }
         public int GetECMShieldAttackModifier() { return ECMShield > ECMCarrier ? ECMShield : ECMCarrier; }
+
+        public float GetSensorStealthSignatureModifier() { return SensorStealth * 0.05f; }
+        public int GetSensorStealthDetailsModifier() { return SensorStealth; }
+
+        public float GetVisualStealthVisibilityModifier() { return VisionStealth * 0.05f; }
+        public int GetVisualStealthDetailsModifier() { return VisionStealth;  }
 
         // TODO: Lash this into serialization
         public void RefreshAfterSave(CombatGameState Combat) {

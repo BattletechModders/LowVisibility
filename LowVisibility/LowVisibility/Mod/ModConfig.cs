@@ -6,16 +6,22 @@ namespace LowVisibility {
         public const string SensorCheck = "LV_SensorCheck"; // Int_32
         public const string TacticsMod = "LV_TacticsMod"; // Int_32
 
-        public const string ECMCarrier = "LV_ECM_Carrier"; // Int_32
-        public const string ECMShield = "LV_ECM_Shield"; // Int_32
-        public const string ECMJammed = "LV_ECM_Jammed"; // Int_32
-
         public const string Jammer = "LV_Jammer"; // Int_32
         public const string Probe = "LV_Probe";  // Int_32
         public const string Stealth = "LV_Stealth";  // Int_32
 
         public const string SharesSensors = "LV_Shares_Sensors";
-        
+
+        public const string ECMCarrier = "LV_ECM_Carrier"; // Int_32
+        public const string ECMShield = "LV_ECM_Shield"; // Int_32
+        public const string ECMJammed = "LV_ECM_Jammed"; // Int_32
+
+        public const string SensorStealth = "LV_Sensor_Stealth"; // Int_32
+        public const string SensorStealthCharge = "LV_Sensor_Stealth_Charge";// Int_32
+
+        public const string VisionStealth = "LV_Vision_Stealth"; // Int_32
+        public const string VisionStealthCharge = "LV_Vision_Stealth_Charge"; // Int_32
+
         // TODO: Multiparts are multiple stats, instead of one?
         public const string StealthMoveMod = "LV_Stealth_Move";  // String
         public const string VismodeZoom = "LV_Vismode_Zoom";

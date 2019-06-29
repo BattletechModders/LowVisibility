@@ -94,10 +94,11 @@ namespace LowVisibility.Helper {
 
             EWState ewState = new EWState(target);
             float ecmShieldMod = ewState.GetECMShieldSignatureModifier();
+            float sensorStealthMod = ewState.GetSensorStealthSignatureModifier();
 
             float targetSignature = sensorMod + shutdownMod + ecmShieldMod;
             Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has signature: {targetSignature} = " +
-                $"sensorSignature: {sensorMod} +  shutdown: {shutdownMod} + ecmShield: {ecmShieldMod}");
+                $"sensorSignature: {sensorMod} +  shutdown: {shutdownMod} + ecmShield: {ecmShieldMod} + sensorStealth: {sensorStealthMod}");
 
             return targetSignature;
         }

@@ -50,6 +50,9 @@ namespace LowVisibility.Patch {
                 }
 
             }
+
+            // Initialize the VFX materials
+            VfxHelper.Initialize();
         }
     }
 
