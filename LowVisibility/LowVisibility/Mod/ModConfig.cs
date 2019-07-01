@@ -16,8 +16,10 @@ namespace LowVisibility {
         public const string ECMShield = "LV_ECM_Shield"; // Int_32
         public const string ECMJammed = "LV_ECM_Jammed"; // Int_32
 
-        public const string SensorStealth = "LV_Sensor_Stealth"; // Int_32
-        public const string SensorStealthCharge = "LV_Sensor_Stealth_Charge";// Int_32
+        public const string StaticStealthSensors = "LV_Static_Sensor_Stealth"; // Int_32
+        public const string DecayingStealthSensors = "LV_Decaying_Sensor_Stealth"; // String
+        public const string DecayingStealthSensorsInitial = "LV_Decaying_Sensor_Stealth_Initial"; // Int_32
+        public const string DecayingStealthSensorsCurrentSteps = "LV_Decaying_Sensor_Stealth_Current_Steps"; // Int_32
 
         public const string VisionStealth = "LV_Vision_Stealth"; // Int_32
         public const string VisionStealthCharge = "LV_Vision_Stealth_Charge"; // Int_32

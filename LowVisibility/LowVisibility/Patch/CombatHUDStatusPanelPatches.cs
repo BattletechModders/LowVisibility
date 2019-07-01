@@ -23,12 +23,12 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDStatusPanel __instance, List<CombatHUDStatusIndicator> ___Buffs, List<CombatHUDStatusIndicator> ___Debuffs) {
-            //LowVisibility.Logger.Debug("CombatHUDStatusPanel:RefreshDisplayedCombatant:post - entered.");
+            Mod.Log.Debug("CHUDSP:RDC - entered.");
             if (__instance != null && __instance.DisplayedCombatant != null) {
                 AbstractActor target = __instance.DisplayedCombatant as AbstractActor;
                 // We can receive a building here, so 
                 if (target != null) {
-                    if (target.Combat.HostilityMatrix.IsLocalPlayerEnemy(target.team)) {                        
+                    if (target.Combat.HostilityMatrix.IsLocalPlayerEnemy(target.team)) {
                         Locks lockState = State.LastActivatedLocksForTarget(target);
 
                         if (lockState.sensorLock < SensorScanType.Vector) {
@@ -45,10 +45,46 @@ namespace LowVisibility.Patch {
                             // Do nothing; normal state
                         }
                     }
+
+                    // Calculate stealth pips
+                    Traverse stealthDisplayT = Traverse.Create(__instance).Field("stealthDisplay");
+                    CombatHUDStealthBarPips stealthDisplay = stealthDisplayT.GetValue<CombatHUDStealthBarPips>();
+                    VfxHelper.CalculateStealthPips(stealthDisplay, target);
                 }
             }
         }
     }
+
+
+    [HarmonyPatch(typeof(CombatHUDStatusPanel), "HideStealthIndicator")]
+    public static class CombatHUDStatusPanel_HideStealthIndicator {
+        public static void Postfix(CombatHUDStatusPanel __instance) {
+            Mod.Log.Debug("CHUDSP:HSI - entered.");
+        }
+    }
+
+    [HarmonyPatch(typeof(CombatHUDStatusPanel), "ShowStealthIndicators")]
+    [HarmonyPatch(new Type[] {  typeof(AbstractActor), typeof(Vector3) })]
+    public static class CombatHUDStatusPanel_ShowStealthIndicators_Vector3 {
+        public static void Postfix(CombatHUDStatusPanel __instance, AbstractActor target, Vector3 previewPos, CombatHUDStealthBarPips ___stealthDisplay) {
+            if (___stealthDisplay == null) { return; }
+            Mod.Log.Debug("CHUDSP:SSI:Vector3 - entered.");
+
+            VfxHelper.CalculateStealthPips(___stealthDisplay, target);
+        }
+    }
+
+    [HarmonyPatch(typeof(CombatHUDStatusPanel), "ShowStealthIndicators")]
+    [HarmonyPatch(new Type[] { typeof(AbstractActor), typeof(float) })]
+    public static class CombatHUDStatusPanel_ShowStealthIndicators_float {
+        public static void Postfix(CombatHUDStatusPanel __instance, AbstractActor target, float previewStealth, CombatHUDStealthBarPips ___stealthDisplay) {
+            if (___stealthDisplay == null) { return; }
+            Mod.Log.Debug("CHUDSP:SSI:float - entered.");
+
+            VfxHelper.CalculateStealthPips(___stealthDisplay, target);
+        }
+    }
+
 
     [HarmonyPatch()]
     public static class CombatHUDStatusPanel_ShowActorStatuses {
@@ -59,7 +95,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDStatusPanel __instance) {
-            //LowVisibility.Logger.Debug("___ CombatHUDStatusPanel:ShowActorStatuses:post - entered.");
+            Mod.Log.Debug("CHUDSP:SAS - entered.");
 
             if (__instance.DisplayedCombatant != null) {
                 Type[] iconMethodParams = new Type[] { typeof(SVGAsset), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) };

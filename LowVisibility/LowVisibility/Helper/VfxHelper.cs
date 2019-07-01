@@ -1,6 +1,10 @@
 ﻿using BattleTech;
+using BattleTech.UI;
+using LowVisibility.Object;
+using System;
 using System.Linq;
 using UnityEngine;
+using us.frostraptor.modUtils;
 
 namespace LowVisibility.Helper {
     public static class VfxHelper {
@@ -139,6 +143,23 @@ namespace LowVisibility.Helper {
             PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
             par.BlipObjectGhostStrong.SetActive(false);
             par.BlipObjectGhostWeak.SetActive(false);
+        }
+
+        public static void CalculateStealthPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor) {
+            EWState actorState = new EWState(actor);
+
+            // Check sensor stealth decay
+            if (actorState.DecayingSensorStealthInitial != 0) {
+                Mod.Log.Debug($"Actor: {CombatantUtils.Label(actor)} has sensor stealth decay");
+                // Check for remaining stealth
+                int numDecays = (int)Math.Ceiling(actorState.DecayingSensorStealthCurrentSteps / (float)actorState.DecayingSensorStealthStepsUntilDecay);
+                Mod.Log.Debug($"  decays = {numDecays} from currentSteps: {actorState.DecayingSensorStealthCurrentSteps} / decayPerStep: {actorState.DecayingSensorStealthStepsUntilDecay}");
+                int currentMod = Math.Max(actorState.DecayingSensorStealthInitial - numDecays, 0);
+                Mod.Log.Debug($"  current: {currentMod} = initial: {actorState.DecayingSensorStealthInitial} - decays: {numDecays}");
+                stealthDisplay.ShowNewActorStealth((float)currentMod, (float)actorState.DecayingSensorStealthInitial);
+            }
+
+            // TODO: Visual decay
         }
 
     }

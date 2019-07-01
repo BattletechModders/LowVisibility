@@ -22,7 +22,7 @@ namespace LowVisibility.Patch {
                 List<Effect> allEffectsWithID = __instance.parent.Combat.EffectManager.GetAllEffectsWithID(__instance.createdEffectIDs[i]);
                 foreach (Effect effect in allEffectsWithID) {
                     if (effect.EffectData.effectType == EffectType.StatisticEffect &&
-                        (effect.EffectData.statisticData.statName == ModStats.SensorStealth || effect.EffectData.statisticData.statName == ModStats.VisionStealth)) {
+                        (effect.EffectData.statisticData.statName == ModStats.StaticStealthSensors || effect.EffectData.statisticData.statName == ModStats.VisionStealth)) {
                         Mod.Log.Debug($" -- Found stealth effect to cancel: ({effect.EffectData.Description.Id})");
                         __state = true;
                     }
@@ -38,7 +38,7 @@ namespace LowVisibility.Patch {
 
                 EWState parentState = new EWState(__instance.parent);
                 PilotableActorRepresentation par = __instance.parent.GameRep as PilotableActorRepresentation;
-                if (parentState.SensorStealth != 0) {
+                if (parentState.StaticSensorStealth != 0) {
                     Mod.Log.Debug($" Actor: ({CombatantUtils.Label(__instance.parent)}) has sensor stealth, enabling sparkles");
                     VfxHelper.EnableSensorStealthEffect(__instance.parent);
                 } else if (parentState.VisionStealth != 0) {

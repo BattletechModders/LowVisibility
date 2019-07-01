@@ -16,7 +16,7 @@ namespace LowVisibility.Patch {
             AbstractActor parentActor = parentT.GetValue<AbstractActor>();
 
             EWState parentState = new EWState(parentActor);
-            if (parentState.SensorStealth != 0) {
+            if (parentState.StaticSensorStealth != 0) {
                 Mod.Log.Debug($" Actor: ({CombatantUtils.Label(parentActor)}) has sensor stealth, enabling sparkles.");
                 VfxHelper.EnableSensorStealthEffect(parentActor);
             } else if (parentState.VisionStealth != 0) {

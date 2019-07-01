@@ -23,10 +23,13 @@ namespace LowVisibility.Patch {
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMShield, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMJammed, 0);
 
-            __instance.StatCollection.AddStatistic<int>(ModStats.SensorStealth, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.SensorStealthCharge, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.StaticStealthSensors, 0);
+            __instance.StatCollection.AddStatistic<string>(ModStats.DecayingStealthSensors, "");
+            __instance.StatCollection.AddStatistic<int>(ModStats.DecayingStealthSensorsInitial, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.DecayingStealthSensorsCurrentSteps, 0);
+
             __instance.StatCollection.AddStatistic<int>(ModStats.VisionStealth, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.VisionStealthCharge, 0);
+            __instance.StatCollection.AddStatistic<string>(ModStats.VisionStealthCharge, "");
 
             __instance.StatCollection.AddStatistic<int>(ModStats.Jammer, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.Probe, 0);
@@ -47,6 +50,13 @@ namespace LowVisibility.Patch {
             if (stackItemID == -1 || __instance == null || __instance.HasBegunActivation) {
                 // For some bloody reason DoneWithActor() invokes OnActivationBegin, EVEN THOUGH IT DO ES NOTHING. GAH!
                 return;
+            }
+
+            EWState actorState = new EWState(__instance);
+            if (actorState.DecayingSensorStealthInitial != 0) {
+                Mod.Log.Debug($"-- Sending message to update stealth");
+                StealthChangedMessage message = new StealthChangedMessage(__instance.GUID);
+                __instance.Combat.MessageCenter.PublishMessage(message);
             }
 
             Mod.Log.Debug($"-- OnActivationBegin: Effects targeting actor: {CombatantUtils.Label(__instance)}");
@@ -219,7 +229,7 @@ namespace LowVisibility.Patch {
 
             Mod.Log.Debug($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: {CombatantUtils.Label(creator)}");
             if (effect.effectType == EffectType.StatisticEffect && 
-                (effect.statisticData.statName == ModStats.SensorStealth || effect.statisticData.statName == ModStats.VisionStealth)) {
+                (effect.statisticData.statName == ModStats.StaticStealthSensors || effect.statisticData.statName == ModStats.VisionStealth)) {
                 Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
                 List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
                 __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
@@ -236,7 +246,7 @@ namespace LowVisibility.Patch {
 
             Mod.Log.Debug($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from team: {creator.GUID}");
             if (effect.effectType == EffectType.StatisticEffect &&
-                (effect.statisticData.statName == ModStats.SensorStealth || effect.statisticData.statName == ModStats.VisionStealth)) {
+                (effect.statisticData.statName == ModStats.StaticStealthSensors || effect.statisticData.statName == ModStats.VisionStealth)) {
                 Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
                 List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
                 __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
@@ -252,7 +262,7 @@ namespace LowVisibility.Patch {
 
             Mod.Log.Debug($" Cancelling effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: ");
             if (effect.effectType == EffectType.StatisticEffect &&
-                (effect.statisticData.statName == ModStats.SensorStealth || effect.statisticData.statName == ModStats.VisionStealth)) {
+                (effect.statisticData.statName == ModStats.StaticStealthSensors || effect.statisticData.statName == ModStats.VisionStealth)) {
                 Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
                 List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
                 __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
