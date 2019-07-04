@@ -8,6 +8,12 @@ using us.frostraptor.modUtils.math;
 
 namespace LowVisibility.Object {
 
+    public class DecayingStealth {
+        public int InitialMod = 0;
+        public int StepsUntilDecay = 0;
+        public override string ToString() { return $"initial: {InitialMod} stepsUntilDecay: {StepsUntilDecay}";  }
+    }
+
     public class EWState {
 
         private readonly AbstractActor actor;
@@ -23,14 +29,11 @@ namespace LowVisibility.Object {
         public int ECMJammed = 0;
 
         public int StaticSensorStealth = 0;
-        public int DecayingSensorStealthInitial = 0;
-        public int DecayingSensorStealthStepsUntilDecay = 0;
-        public int DecayingSensorStealthCurrentSteps = 0;
+        public DecayingStealth DecayingSensorStealth = null;
 
-        public int VisionStealth = 0;
-        public int VisionStealthChargeInitial = 0;
-        public int VisionStealthChargeDecaySteps = 0;
-
+        public int StaticVisionStealth = 0;
+        public DecayingStealth DecayingVisionStealth = null;
+        
         public int ecmMod = 0;
         public int probeMod = 0;
         public int stealthMod = 0;
@@ -73,8 +76,6 @@ namespace LowVisibility.Object {
 
             StaticSensorStealth = actor.StatCollection.ContainsStatistic(ModStats.StaticStealthSensors) ?
                 actor.StatCollection.GetStatistic(ModStats.StaticStealthSensors).Value<int>() : 0;
-            DecayingSensorStealthCurrentSteps = actor.StatCollection.ContainsStatistic(ModStats.DecayingStealthSensorsCurrentSteps) ?
-                actor.StatCollection.GetStatistic(ModStats.DecayingStealthSensorsCurrentSteps).Value<int>() : 0;
 
             if (actor.StatCollection.ContainsStatistic(ModStats.DecayingStealthSensors) &&
                 actor.StatCollection.GetStatistic(ModStats.DecayingStealthSensors).Value<string>() != "") {
@@ -82,19 +83,20 @@ namespace LowVisibility.Object {
                 string[] tokens = rawValue.Split('_');
                 if (tokens.Length == 2) {
                     try {
-                        DecayingSensorStealthInitial = Int32.Parse(tokens[0]);
-                        DecayingSensorStealthStepsUntilDecay = Int32.Parse(tokens[1]);
+                        DecayingSensorStealth = new DecayingStealth {
+                            InitialMod = Int32.Parse(tokens[0]),
+                            StepsUntilDecay = Int32.Parse(tokens[1])
+                        };
                     } catch (Exception) {
                         Mod.Log.Info($"Failed to tokenize StealthSensorCharge value: ({rawValue}). Discarding!");
-                        DecayingSensorStealthInitial = 0;
-                        DecayingSensorStealthStepsUntilDecay = 0;
+                        DecayingSensorStealth = null;
                     }
                 } else {
                     Mod.Log.Info($"WARNING: Invalid StealthSensorCharge value: ({rawValue}) found. Discarding!");
                 }
             }
 
-            VisionStealth = actor.StatCollection.ContainsStatistic(ModStats.VisionStealth) ?
+            StaticVisionStealth = actor.StatCollection.ContainsStatistic(ModStats.VisionStealth) ?
                 actor.StatCollection.GetStatistic(ModStats.VisionStealth).Value<int>() : 0;
             if (actor.StatCollection.ContainsStatistic(ModStats.VisionStealthCharge) &&
                 actor.StatCollection.GetStatistic(ModStats.VisionStealthCharge).Value<string>() != "") {
@@ -102,12 +104,13 @@ namespace LowVisibility.Object {
                 string[] tokens = rawValue.Split('_');
                 if (tokens.Length == 2) {
                     try {
-                        VisionStealthChargeInitial = Int32.Parse(tokens[0]);
-                        VisionStealthChargeDecaySteps = Int32.Parse(tokens[1]);
+                        DecayingVisionStealth = new DecayingStealth {
+                            InitialMod = Int32.Parse(tokens[0]),
+                            StepsUntilDecay = Int32.Parse(tokens[1])
+                        };
                     } catch (Exception) {
                         Mod.Log.Info($"Failed to tokenize VisionStealthCharge value: ({rawValue}). Discarding!");
-                        VisionStealthChargeInitial = 0;
-                        VisionStealthChargeDecaySteps = 0;
+                        DecayingVisionStealth = null;
                     }
                 } else {
                     Mod.Log.Info($"WARNING: Invalid VisionStealthCharge value: ({rawValue}) found. Discarding!");
@@ -146,8 +149,8 @@ namespace LowVisibility.Object {
         public float GetSensorStealthSignatureModifier() { return StaticSensorStealth * 0.05f; }
         public int GetSensorStealthDetailsModifier() { return StaticSensorStealth; }
 
-        public float GetVisualStealthVisibilityModifier() { return VisionStealth * 0.05f; }
-        public int GetVisualStealthDetailsModifier() { return VisionStealth;  }
+        public float GetVisualStealthVisibilityModifier() { return StaticVisionStealth * 0.05f; }
+        public int GetVisualStealthDetailsModifier() { return StaticVisionStealth;  }
 
         // TODO: Lash this into serialization
         public void RefreshAfterSave(CombatGameState Combat) {
@@ -161,6 +164,10 @@ namespace LowVisibility.Object {
             return hasMod;
         }
 
+        public bool HasStealth() {
+            return StaticSensorStealth != 0 || DecayingSensorStealth != null || StaticVisionStealth != 0 || DecayingVisionStealth != null;
+        }
+
         public int CalculateStealthMoveMod(AbstractActor owner) {
             int moveMod = 0;
             if (owner != null && this.stealthMoveMod[0] != 0) {
@@ -169,6 +176,7 @@ namespace LowVisibility.Object {
             }
             return moveMod;
         }
+
 
         public VisionModeModifer CalculateVisionModeModifier(ICombatant target, float distance, Weapon weapon) {
 
@@ -221,7 +229,8 @@ namespace LowVisibility.Object {
                 $"ecmShieldSigMod:{GetECMShieldSignatureModifier()} ecmShieldDetailsMod:{GetECMShieldDetailsModifier()} ecmShieldAttackMod:{GetECMShieldAttackModifier()} " +
                 $"ecmJammedDetailsMod:{GetECMJammedDetailsModifier()} " +
                 $"stealthMoveMod:{stealthMoveMod[0]}/{stealthMoveMod[1]} " +
-                $"staticSensorStealth:{StaticSensorStealth} decayingSensorStealthInitial:{DecayingSensorStealthInitial} DecayingSensorStealthStepsUntilDecay:{DecayingSensorStealthStepsUntilDecay}" +
+                $"staticSensorStealth:{StaticSensorStealth} decayingSensorStealth - {(DecayingSensorStealth != null ? DecayingSensorStealth.ToString() : "")}" +
+                $"staticVisionStealth:{StaticVisionStealth} decayingVisionStealth- {(DecayingVisionStealth != null ? DecayingVisionStealth.ToString() : "")}" +
                 $"vismodeZoomMod:{vismodeZoomMod} vismodeZoomCap:{vismodeZoomCap} vismodeZoomStep:{vismodeZoomStep} " +
                 $"vismodeHeatMod:{vismodeHeatMod} vismodeHeatDiv:{vismodeHeatDivisor} " +
                 $"sharesSensors:{sharesSensors}";

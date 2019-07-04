@@ -41,7 +41,7 @@ namespace LowVisibility.Patch {
                 if (parentState.StaticSensorStealth != 0) {
                     Mod.Log.Debug($" Actor: ({CombatantUtils.Label(__instance.parent)}) has sensor stealth, enabling sparkles");
                     VfxHelper.EnableSensorStealthEffect(__instance.parent);
-                } else if (parentState.VisionStealth != 0) {
+                } else if (parentState.StaticVisionStealth != 0) {
                     Mod.Log.Debug($" Actor: ({CombatantUtils.Label(__instance.parent)}) has vision stealth, enabling blip.");
                     VfxHelper.EnableVisionStealthEffect(__instance.parent);
                 } else {

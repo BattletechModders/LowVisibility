@@ -59,28 +59,30 @@ namespace LowVisibility.Patch {
                 __instance.Combat.MessageCenter.PublishMessage(message);
             }
 
-            Mod.Log.Debug($"-- OnActivationBegin: Effects targeting actor: {CombatantUtils.Label(__instance)}");
-            List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
-            foreach (Effect effect in list) {
-                Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
-            }
+            __instance.StatCollection.Set(ModStats.DecayingStealthSensorsCurrentSteps, 0);
 
-            foreach (AbstractActor unit in __instance.team.units) {
-                if (unit.GUID != __instance.GUID) {
-                    Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
-                    List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
-                    foreach (Effect effect in list2) {
-                        Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
-                    }
-                }
-            }
+            //Mod.Log.Debug($"-- OnActivationBegin: Effects targeting actor: {CombatantUtils.Label(__instance)}");
+            //List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
+            //foreach (Effect effect in list) {
+            //    Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+            //}
 
-            Mod.Log.Debug($" Updating effects to all actors from actor: {CombatantUtils.Label(__instance)}");
+            //foreach (AbstractActor unit in __instance.team.units) {
+            //    if (unit.GUID != __instance.GUID) {
+            //        Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
+            //        List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
+            //        foreach (Effect effect in list2) {
+            //            Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+            //        }
+            //    }
+            //}
 
-            Mod.Log.Debug($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantUtils.Label(__instance)}");
-            if (__instance.team == __instance.Combat.LocalPlayerTeam) {
-                State.LastPlayerActor = __instance.GUID;
-            }
+            //Mod.Log.Debug($" Updating effects to all actors from actor: {CombatantUtils.Label(__instance)}");
+
+            //Mod.Log.Debug($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantUtils.Label(__instance)}");
+            //if (__instance.team == __instance.Combat.LocalPlayerTeam) {
+            //    State.LastPlayerActor = __instance.GUID;
+            //}
         }
     }
 
@@ -113,24 +115,10 @@ namespace LowVisibility.Patch {
     public static class AbstractActor_OnPositionUpdate  {
 
         public static void Prefix(AbstractActor __instance, Vector3 position) {
-
-            //List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
-            //foreach (Effect effect in list) {
-            //    Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
-            //}
-
-            //foreach (AbstractActor unit in __instance.team.units) {
-            //    if (unit.GUID != __instance.GUID) {
-            //        Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
-            //        List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
-            //        foreach (Effect effect in list2) {
-            //            Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
-            //        }
-            //    }
-            //}
-
-            Mod.Log.Debug($"-- OnPositionUpdate: Updating effects to all actors from actor: {CombatantUtils.Label(__instance)} at position: {position}");
+            Mod.Log.Trace($"AA:OPU entered");
+             
         }
+
     }
 
     [HarmonyPatch(typeof(Mech), "InitGameRep")]
@@ -250,6 +238,8 @@ namespace LowVisibility.Patch {
                 Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
                 List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
                 __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
+
+                // TODO: Set current stealth pips?
             }
 
         }
@@ -266,6 +256,8 @@ namespace LowVisibility.Patch {
                 Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
                 List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
                 __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
+
+                // TODO: Set current stealth pips?
             }
         }
     }
@@ -339,7 +331,12 @@ namespace LowVisibility.Patch {
     public static class AbstractActor_OnMoveComplete {
 
         public static void Prefix(AbstractActor __instance) {
-            
+
+            EWState actorState = new EWState(__instance);
+            if (actorState.HasStealth()) {
+
+            }
+
             Mod.Log.Debug($" OnMoveComplete: Effects targeting actor: {CombatantUtils.Label(__instance)}");
             List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
             foreach (Effect effect in list) {

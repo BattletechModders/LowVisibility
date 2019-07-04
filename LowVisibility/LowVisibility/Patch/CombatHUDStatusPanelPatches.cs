@@ -70,7 +70,7 @@ namespace LowVisibility.Patch {
             if (___stealthDisplay == null) { return; }
             Mod.Log.Debug("CHUDSP:SSI:Vector3 - entered.");
 
-            VfxHelper.CalculateStealthPips(___stealthDisplay, target);
+            VfxHelper.CalculateStealthPips(___stealthDisplay, target, previewPos);
         }
     }
 
