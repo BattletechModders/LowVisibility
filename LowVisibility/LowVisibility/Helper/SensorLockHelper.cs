@@ -2,7 +2,6 @@
 using LowVisibility.Object;
 using UnityEngine;
 using us.frostraptor.modUtils;
-using us.frostraptor.modUtils.math;
 
 namespace LowVisibility.Helper {
     class SensorLockHelper {

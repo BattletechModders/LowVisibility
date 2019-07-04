@@ -16,13 +16,15 @@ namespace LowVisibility {
         public const string ECMShield = "LV_ECM_Shield"; // Int_32
         public const string ECMJammed = "LV_ECM_Jammed"; // Int_32
 
-        public const string StaticStealthSensors = "LV_Static_Sensor_Stealth"; // Int_32
-        public const string DecayingStealthSensors = "LV_Decaying_Sensor_Stealth"; // String
-        public const string DecayingStealthSensorsInitial = "LV_Decaying_Sensor_Stealth_Initial"; // Int_32
-        public const string DecayingStealthSensorsCurrentSteps = "LV_Decaying_Sensor_Stealth_Current_Steps"; // Int_32
+        public const string StaticSensorStealth = "LV_Static_Sensor_Stealth"; // Int_32
+        public const string DecayingSensorStealthValue = "LV_Decaying_Sensor_Stealth"; // String
+        public const string DecayingSensorStealthInitial = "LV_Decaying_Sensor_Stealth_Initial"; // Int_32
+        public const string DecayingSensorStealthDecayPerStep = "LV_Decaying_Sensor_Stealth_Current_Steps"; // Int_32
 
-        public const string VisionStealth = "LV_Vision_Stealth"; // Int_32
-        public const string VisionStealthCharge = "LV_Vision_Stealth_Charge"; // Int_32
+        public const string StaticVisionStealth = "LV_Static_Vision_Stealth"; // Int_32
+        public const string DecayingVisionStealthValue = "LV_Decaying_Vision_Stealth"; // String
+        public const string DecayingVisionStealthInitial = "LV_Decaying_Vision_Stealth_Initial"; // Int_32
+        public const string DecayingVisionStealthDecayPerStep = "LV_Decaying_Vision_Stealth_Current_Steps"; // Int_32
 
         // TODO: Multiparts are multiple stats, instead of one?
         public const string StealthMoveMod = "LV_Stealth_Move";  // String
@@ -30,6 +32,15 @@ namespace LowVisibility {
         public const string VismodeHeat = "LV_Vismode_Heat";
 
         // TODO: Should normalized skills be added here?
+
+        public static bool IsStealthStat(string statName) {
+            return statName != null && statName != "" && (
+                statName.Equals(ModStats.StaticSensorStealth) ||
+                statName.Equals(ModStats.DecayingSensorStealthValue) ||
+                statName.Equals(ModStats.StaticVisionStealth) ||
+                statName.Equals(ModStats.DecayingVisionStealthValue)
+                );
+        }
     }
 
     public class ModConfig {

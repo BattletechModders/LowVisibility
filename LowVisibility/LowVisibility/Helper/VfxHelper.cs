@@ -1,9 +1,12 @@
 ﻿using BattleTech;
 using BattleTech.UI;
+using Harmony;
 using LowVisibility.Object;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Helper {
@@ -158,32 +161,34 @@ namespace LowVisibility.Helper {
 
         public static void CalculateStealthPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, float distanceMoved) {
             EWState actorState = new EWState(actor);
-            
+            Mod.Log.Debug($"Calculating stealthPips for Actor: {CombatantUtils.Label(actor)}");
+
+            int stepsMoved = (int)Math.Ceiling(distanceMoved / 30f);
+            Mod.Log.Debug($"  stepsMoved: {stepsMoved} = distanceMoved: {distanceMoved} / 30");
+
             int sensorStealthPips = actorState.StaticSensorStealth;
             int sensorStealthPipsMax = actorState.StaticSensorStealth + (actorState.DecayingSensorStealth != null ? actorState.DecayingSensorStealth.InitialMod : 0);
             if (actorState.DecayingSensorStealth != null) {
-                Mod.Log.Debug($"Actor: {CombatantUtils.Label(actor)} has sensor stealth decay");
-                // Check for remaining stealth
-                
-                int numDecays = (int)Math.Floor(distanceMoved / (float)actorState.DecayingSensorStealth.StepsUntilDecay);
-                Mod.Log.Debug($"  decays = {numDecays} from currentSteps: {distanceMoved} / decayPerStep: {actorState.DecayingSensorStealth.StepsUntilDecay}");
+                Mod.Log.Debug($"  decaying sensor stealth");
+                int numDecays = (int)Math.Floor(stepsMoved / (float)actorState.DecayingSensorStealth.StepsUntilDecay);
+                Mod.Log.Debug($"  -- decays = {numDecays} from currentSteps: {stepsMoved} / decayPerStep: {actorState.DecayingSensorStealth.StepsUntilDecay}");
                 int currentMod = Math.Max(actorState.DecayingSensorStealth.InitialMod - numDecays, 0);
-                Mod.Log.Debug($"  current: {currentMod} = initial: {actorState.DecayingSensorStealth.InitialMod} - decays: {numDecays}");
+                Mod.Log.Debug($"  -- current: {currentMod} = initial: {actorState.DecayingSensorStealth.InitialMod} - decays: {numDecays}");
                 sensorStealthPips += currentMod;
             }
+            Mod.Log.Debug($"  sensor stealth max pips: {sensorStealthPips} current pips: {sensorStealthPipsMax} static: {actorState.StaticSensorStealth}");
 
             int visionStealthPips = actorState.StaticVisionStealth;
             int visionStealthPipsMax = actorState.StaticVisionStealth + (actorState.DecayingVisionStealth != null ? actorState.DecayingVisionStealth.InitialMod : 0);
             if (actorState.DecayingVisionStealth != null) {
-                Mod.Log.Debug($"Actor: {CombatantUtils.Label(actor)} has vision stealth decay");
-                // Check for remaining stealth
-
-                int numDecays = (int)Math.Floor(distanceMoved / (float)actorState.DecayingVisionStealth.StepsUntilDecay);
-                Mod.Log.Debug($"  decays = {numDecays} from currentSteps: {distanceMoved} / decayPerStep: {actorState.DecayingVisionStealth.StepsUntilDecay}");
+                Mod.Log.Debug($"  decaying vision stealth");
+                int numDecays = (int)Math.Floor(stepsMoved / (float)actorState.DecayingVisionStealth.StepsUntilDecay);
+                Mod.Log.Debug($"  -- decays = {numDecays} from currentSteps: {stepsMoved} / decayPerStep: {actorState.DecayingVisionStealth.StepsUntilDecay}");
                 int currentMod = Math.Max(actorState.DecayingVisionStealth.InitialMod - numDecays, 0);
-                Mod.Log.Debug($"  current: {currentMod} = initial: {actorState.DecayingVisionStealth.InitialMod} - decays: {numDecays}");
+                Mod.Log.Debug($"  -- current: {currentMod} = initial: {actorState.DecayingVisionStealth.InitialMod} - decays: {numDecays}");
                 visionStealthPips += currentMod;
             }
+            Mod.Log.Debug($"  vision stealth max pips: {visionStealthPipsMax} current pips: {visionStealthPips} static: {actorState.StaticVisionStealth}");
 
             // Update number of pips
             int maxPips = Math.Max(sensorStealthPipsMax, visionStealthPipsMax);
@@ -191,6 +196,27 @@ namespace LowVisibility.Helper {
             stealthDisplay.ShowNewActorStealth(currPips, maxPips);
 
             // Change colors to reflect maxmimums
+            Traverse pipsT = Traverse.Create(stealthDisplay).Property("Pips");
+            List<Graphic> pips = pipsT.GetValue<List<Graphic>>();
+            for (int i = 0; i < pips.Count; i++) {
+                Graphic g = pips[i];
+                if (g.isActiveAndEnabled) {
+                    Color pipColor = GetPipColor(i, sensorStealthPips, visionStealthPips);
+                    UIHelpers.SetImageColor(g, pipColor);
+                }
+            }
+        }
+
+        private static Color GetPipColor(int idx, int sensorPips, int visionPips) {
+            if (idx <= sensorPips && idx <= visionPips) {
+                return Color.green;
+            } else if (idx <= sensorPips && idx > visionPips) {
+                return Color.blue;
+            } else if (idx <= visionPips && idx > sensorPips) {
+                return Color.red;
+            } else {
+                return Color.gray;
+            }
         }
 
     }

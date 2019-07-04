@@ -3,7 +3,6 @@ using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System.Collections.Generic;
-using UnityEngine;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
@@ -21,8 +20,7 @@ namespace LowVisibility.Patch {
             for (int i = 0; i < __instance.createdEffectIDs.Count; i++) {
                 List<Effect> allEffectsWithID = __instance.parent.Combat.EffectManager.GetAllEffectsWithID(__instance.createdEffectIDs[i]);
                 foreach (Effect effect in allEffectsWithID) {
-                    if (effect.EffectData.effectType == EffectType.StatisticEffect &&
-                        (effect.EffectData.statisticData.statName == ModStats.StaticStealthSensors || effect.EffectData.statisticData.statName == ModStats.VisionStealth)) {
+                    if (effect.EffectData.effectType == EffectType.StatisticEffect && ModStats.IsStealthStat(effect.EffectData.statisticData.statName)) {
                         Mod.Log.Debug($" -- Found stealth effect to cancel: ({effect.EffectData.Description.Id})");
                         __state = true;
                     }
@@ -38,18 +36,18 @@ namespace LowVisibility.Patch {
 
                 EWState parentState = new EWState(__instance.parent);
                 PilotableActorRepresentation par = __instance.parent.GameRep as PilotableActorRepresentation;
-                if (parentState.StaticSensorStealth != 0) {
-                    Mod.Log.Debug($" Actor: ({CombatantUtils.Label(__instance.parent)}) has sensor stealth, enabling sparkles");
+                if (parentState.StaticSensorStealth != 0 || parentState.DecayingSensorStealth != null) {
                     VfxHelper.EnableSensorStealthEffect(__instance.parent);
-                } else if (parentState.StaticVisionStealth != 0) {
-                    Mod.Log.Debug($" Actor: ({CombatantUtils.Label(__instance.parent)}) has vision stealth, enabling blip.");
-                    VfxHelper.EnableVisionStealthEffect(__instance.parent);
                 } else {
-                    Mod.Log.Debug($" Actor: ({CombatantUtils.Label(__instance.parent)}) lost stealth, disabling collider.");
                     VfxHelper.DisableSensorStealthEffect(__instance.parent);
-                    VfxHelper.DisableVisionStealthEffect(__instance.parent);
                 }
 
+                if (parentState.StaticVisionStealth != 0 || parentState.DecayingVisionStealth!= null) {
+                    VfxHelper.EnableVisionStealthEffect(__instance.parent);
+                } else {
+                    VfxHelper.DisableVisionStealthEffect(__instance.parent);
+                }
+                
                 // Force a refresh in case the signature increased due to stealth loss
                 // TODO: Make this player hostile only
                 List<ICombatant> allLivingCombatants = __instance.parent.Combat.GetAllLivingCombatants();

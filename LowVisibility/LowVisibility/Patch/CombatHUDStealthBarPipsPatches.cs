@@ -65,7 +65,7 @@ namespace LowVisibility.Patch {
                     float distance = Vector3.Distance(actor.CurrentPosition, worldPos);
                     int steps = (int)Math.Ceiling(distance / 30f);
                     Mod.Log.Debug($" position change for: ({CombatantUtils.Label(actor)}), moved {distance}m = {steps} steps");
-                    actor.StatCollection.Set(ModStats.DecayingStealthSensorsCurrentSteps, steps);
+                    actor.StatCollection.Set(ModStats.DecayingSensorStealthDecayPerStep, steps);
                 }
             }
         }

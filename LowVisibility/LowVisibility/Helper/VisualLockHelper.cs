@@ -108,10 +108,18 @@ namespace LowVisibility.Helper {
             if (target == null) { return 1f; }
 
             float baseVisMulti = 0f;
-            float shutdownVisMulti = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownVisibilityModifier;
+            float shutdownVisMulti = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownVisibilityModifier;        
             float spottingVisibilityMultiplier = target.SpottingVisibilityMultiplier;
 
-            return baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier;
+            EWState ewState = new EWState(target);
+            float visionStealthMod = ewState.GetVisualStealthVisibilityModifier();
+
+            float targetVisibility = baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier + visionStealthMod;
+            Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has visibility: {targetVisibility} = " +
+                $"baseVisMulti: {baseVisMulti} +  shutdownVisMulti: {shutdownVisMulti} + spottingVisibilityMultiplier: {spottingVisibilityMultiplier} + visionStealthMod: {visionStealthMod}");
+
+            return targetVisibility;
+            //return baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier;
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
@@ -139,6 +147,8 @@ namespace LowVisibility.Helper {
             if (distance > spottingRangeVsTarget) {
                 return VisualScanType.None;
             }
+
+            // TODO: VisualScanType needs to account for visual steatlh
 
             // I think this is what prevents you from seeing things from behind you - the rotation is set to 0?
             Vector3 forward = targetPos - sourcePos;

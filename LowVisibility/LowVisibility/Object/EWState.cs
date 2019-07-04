@@ -3,6 +3,7 @@ using HBS.Collections;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using us.frostraptor.modUtils;
 using us.frostraptor.modUtils.math;
 
@@ -74,12 +75,12 @@ namespace LowVisibility.Object {
             ECMCarrier = actor.StatCollection.ContainsStatistic(ModStats.ECMCarrier) ?
                 actor.StatCollection.GetStatistic(ModStats.ECMCarrier).Value<int>() : 0;
 
-            StaticSensorStealth = actor.StatCollection.ContainsStatistic(ModStats.StaticStealthSensors) ?
-                actor.StatCollection.GetStatistic(ModStats.StaticStealthSensors).Value<int>() : 0;
-
-            if (actor.StatCollection.ContainsStatistic(ModStats.DecayingStealthSensors) &&
-                actor.StatCollection.GetStatistic(ModStats.DecayingStealthSensors).Value<string>() != "") {
-                string rawValue = actor.StatCollection.GetStatistic(ModStats.DecayingStealthSensors).Value<string>();
+            // Sensor stealth
+            StaticSensorStealth = actor.StatCollection.ContainsStatistic(ModStats.StaticSensorStealth) ?
+                actor.StatCollection.GetStatistic(ModStats.StaticSensorStealth).Value<int>() : 0;
+            if (actor.StatCollection.ContainsStatistic(ModStats.DecayingSensorStealthValue) &&
+                actor.StatCollection.GetStatistic(ModStats.DecayingSensorStealthValue).Value<string>() != "") {
+                string rawValue = actor.StatCollection.GetStatistic(ModStats.DecayingSensorStealthValue).Value<string>();
                 string[] tokens = rawValue.Split('_');
                 if (tokens.Length == 2) {
                     try {
@@ -96,11 +97,12 @@ namespace LowVisibility.Object {
                 }
             }
 
-            StaticVisionStealth = actor.StatCollection.ContainsStatistic(ModStats.VisionStealth) ?
-                actor.StatCollection.GetStatistic(ModStats.VisionStealth).Value<int>() : 0;
-            if (actor.StatCollection.ContainsStatistic(ModStats.VisionStealthCharge) &&
-                actor.StatCollection.GetStatistic(ModStats.VisionStealthCharge).Value<string>() != "") {
-                string rawValue = actor.StatCollection.GetStatistic(ModStats.VisionStealthCharge).Value<string>();
+            // Vision stealth
+            StaticVisionStealth = actor.StatCollection.ContainsStatistic(ModStats.StaticVisionStealth) ?
+                actor.StatCollection.GetStatistic(ModStats.StaticVisionStealth).Value<int>() : 0;
+            if (actor.StatCollection.ContainsStatistic(ModStats.DecayingVisionStealthValue) &&
+                actor.StatCollection.GetStatistic(ModStats.DecayingVisionStealthValue).Value<string>() != "") {
+                string rawValue = actor.StatCollection.GetStatistic(ModStats.DecayingVisionStealthValue).Value<string>();
                 string[] tokens = rawValue.Split('_');
                 if (tokens.Length == 2) {
                     try {
@@ -146,11 +148,46 @@ namespace LowVisibility.Object {
         public int GetECMShieldDetailsModifier() { return ECMShield > ECMCarrier ? ECMShield : ECMCarrier;  }
         public int GetECMShieldAttackModifier() { return ECMShield > ECMCarrier ? ECMShield : ECMCarrier; }
 
-        public float GetSensorStealthSignatureModifier() { return StaticSensorStealth * 0.05f; }
-        public int GetSensorStealthDetailsModifier() { return StaticSensorStealth; }
+        // Sensor Stealth
+        public float GetSensorStealthSignatureModifier() { return CurrentSensorStealthPips() * 0.05f; }
+        public int GetSensorStealthDetailsModifier() { return CurrentSensorStealthPips(); }
 
-        public float GetVisualStealthVisibilityModifier() { return StaticVisionStealth * 0.05f; }
-        public int GetVisualStealthDetailsModifier() { return StaticVisionStealth;  }
+        public int CurrentSensorStealthPips(float distance) { return CurrentStealthPips(StaticSensorStealth, DecayingSensorStealth, distance); }
+        public int CurrentSensorStealthPips() {
+            float distance = Vector3.Distance(actor.PreviousPosition, actor.CurrentPosition);
+            return CurrentStealthPips(StaticSensorStealth, DecayingSensorStealth, distance);
+        }
+        public int MaxSensorStealthPips() { return StaticSensorStealth + (DecayingSensorStealth != null ? DecayingSensorStealth.InitialMod : 0); }
+
+        // Vision Stealth
+        public float GetVisualStealthVisibilityModifier() { return CurrentVisionStealthPips() * 0.05f; }
+        public int GetVisualStealthDetailsModifier() { return CurrentVisionStealthPips(); }
+
+        public int CurrentVisionStealthPips(float distance) { return CurrentStealthPips(StaticVisionStealth, DecayingVisionStealth, distance); }
+        public int CurrentVisionStealthPips() {
+            float distance = Vector3.Distance(actor.PreviousPosition, actor.CurrentPosition);
+            return CurrentStealthPips(StaticVisionStealth, DecayingVisionStealth, distance);
+        }
+        public int MaxVisionStealthPips() { return StaticVisionStealth + (DecayingVisionStealth != null ? DecayingVisionStealth.InitialMod : 0); }
+
+        private int CurrentStealthPips(int staticStealth, DecayingStealth decay, float distance) {
+            int stepsMoved = (int)Math.Ceiling(distance / 30f);
+            Mod.Log.Debug($"  stepsMoved: {stepsMoved} = distanceMoved: {distance} / 30");
+
+            int pips = staticStealth;
+            Mod.Log.Debug($"  Actor:({CombatantUtils.Label(actor)}) has basePips: {pips}");
+            if (decay != null) {
+                Mod.Log.Debug($"  decaying sensor stealth");
+                int numDecays = (int)Math.Floor(stepsMoved / (float)decay.StepsUntilDecay);
+                Mod.Log.Debug($"  -- decays = {numDecays} from currentSteps: {stepsMoved} / decayPerStep: {decay.StepsUntilDecay}");
+                int currentMod = Math.Max(decay.InitialMod - numDecays, 0);
+                Mod.Log.Debug($"  -- current: {currentMod} = initial: {decay.InitialMod} - decays: {numDecays}");
+                pips += currentMod;
+            }
+
+            return pips;
+        }
+
 
         // TODO: Lash this into serialization
         public void RefreshAfterSave(CombatGameState Combat) {

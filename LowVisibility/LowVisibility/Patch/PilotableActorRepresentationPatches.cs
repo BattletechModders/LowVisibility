@@ -3,7 +3,6 @@ using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using UnityEngine;
-using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
 
@@ -16,13 +15,18 @@ namespace LowVisibility.Patch {
             AbstractActor parentActor = parentT.GetValue<AbstractActor>();
 
             EWState parentState = new EWState(parentActor);
-            if (parentState.StaticSensorStealth != 0) {
-                Mod.Log.Debug($" Actor: ({CombatantUtils.Label(parentActor)}) has sensor stealth, enabling sparkles.");
+
+            if (parentState.StaticSensorStealth != 0 || parentState.DecayingSensorStealth != null) {
                 VfxHelper.EnableSensorStealthEffect(parentActor);
-            } else if (parentState.StaticVisionStealth != 0) {
-                Mod.Log.Debug($" Actor: ({CombatantUtils.Label(parentActor)}) has vision stealth, enabling ghostBlip.");
+            } else {
+                VfxHelper.DisableSensorStealthEffect(parentActor);
+            }
+
+            if (parentState.StaticVisionStealth != 0 || parentState.DecayingVisionStealth != null) {
                 VfxHelper.EnableVisionStealthEffect(parentActor);
-            } 
+            } else {
+                VfxHelper.DisableVisionStealthEffect(parentActor);
+            }
         }
     }
 
