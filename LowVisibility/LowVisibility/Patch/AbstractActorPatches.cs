@@ -16,30 +16,38 @@ namespace LowVisibility.Patch {
         private static void Postfix(AbstractActor __instance) {
             Mod.Log.Trace("AA:IES entered");
 
-            __instance.StatCollection.AddStatistic<int>(ModStats.SensorCheck, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.TacticsMod, 0);
 
+            __instance.StatCollection.AddStatistic<int>(ModStats.CurrentRoundEWCheck, 0);
+
+            // ECM
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMCarrier, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMShield, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMJammed, 0);
 
+            // Sensors
+            __instance.StatCollection.AddStatistic<int>(ModStats.AdvancedSensors, 0);
+
+            // Probe
+            __instance.StatCollection.AddStatistic<int>(ModStats.ProbeCarrier, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.ProbeSweepTarget, 0);
+
+            // Sensor Stealth
             __instance.StatCollection.AddStatistic<int>(ModStats.StaticSensorStealth, 0);
             __instance.StatCollection.AddStatistic<string>(ModStats.DecayingSensorStealthValue, "");
             __instance.StatCollection.AddStatistic<int>(ModStats.DecayingSensorStealthInitial, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.DecayingSensorStealthDecayPerStep, 0);
+            __instance.StatCollection.AddStatistic<string>(ModStats.SensorStealthAttackMulti, "");
 
+            // Visual Stealth
             __instance.StatCollection.AddStatistic<int>(ModStats.StaticVisionStealth, 0);
             __instance.StatCollection.AddStatistic<string>(ModStats.DecayingVisionStealthValue, "");
             __instance.StatCollection.AddStatistic<int>(ModStats.DecayingVisionStealthInitial, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.DecayingVisionStealthDecayPerStep, 0);
-
-            __instance.StatCollection.AddStatistic<int>(ModStats.Jammer, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.Probe, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.Stealth, 0);
+            __instance.StatCollection.AddStatistic<string>(ModStats.VisionStealthAttackMulti, "");
 
             __instance.StatCollection.AddStatistic<bool>(ModStats.SharesSensors, false);
 
-            __instance.StatCollection.AddStatistic<int>(ModStats.StealthMoveMod, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.VismodeZoom, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.VismodeHeat, 0);
         }

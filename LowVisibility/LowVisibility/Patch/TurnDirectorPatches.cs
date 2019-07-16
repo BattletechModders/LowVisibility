@@ -35,8 +35,6 @@ namespace LowVisibility.Patch {
 
                             // Make a pre-encounter detectCheck for them
                             ActorHelper.UpdateSensorCheck(actor);
-                            EWState ewState = new EWState(actor);
-                            Mod.Log.Debug($"  Actor:{CombatantUtils.Label(actor)} has rangeCheck:{ewState.sensorsCheck} at load/start");
 
                             bool isPlayer = actor.TeamId == __instance.Combat.LocalPlayerTeamGuid;
                             if (isPlayer && randomPlayerActor == null) {

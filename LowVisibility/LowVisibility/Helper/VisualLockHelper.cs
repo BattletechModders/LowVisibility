@@ -83,8 +83,8 @@ namespace LowVisibility.Helper {
                 if (source.IsPilotable) {
                     Pilot pilot = source.GetPilot();
                     if (pilot != null) {
-                        EWState staticState = new EWState(source);
-                        pilotSkillMod = (float)staticState.tacticsBonus * source.Combat.Constants.Visibility.SpotterTacticsMultiplier;
+                        EWState parentState = new EWState(source);
+                        pilotSkillMod = parentState.GetTacticsVisionBoost();
                     }
                 }
                 absoluteModifier = pilotSkillMod + source.SpotterDistanceAbsolute;
@@ -112,7 +112,7 @@ namespace LowVisibility.Helper {
             float spottingVisibilityMultiplier = target.SpottingVisibilityMultiplier;
 
             EWState ewState = new EWState(target);
-            float visionStealthMod = ewState.GetVisualStealthVisibilityModifier();
+            float visionStealthMod = ewState.GetVisionStealthVisibilityModifier();
 
             float targetVisibility = baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier + visionStealthMod;
             Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has visibility: {targetVisibility} = " +
@@ -148,7 +148,7 @@ namespace LowVisibility.Helper {
                 return VisualScanType.None;
             }
 
-            // TODO: VisualScanType needs to account for visual steatlh
+            // TODO: VisualScanType needs to account for visual stealth
 
             // I think this is what prevents you from seeing things from behind you - the rotation is set to 0?
             Vector3 forward = targetPos - sourcePos;

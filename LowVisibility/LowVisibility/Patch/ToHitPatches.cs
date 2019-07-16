@@ -21,9 +21,6 @@ namespace LowVisibility.Patch {
                 Locks locks = State.LocksForTarget(attacker, targetActor);
                 float distance = Vector3.Distance(attackPosition, targetPosition);
                 EWState attackerState = new EWState(attacker);
-                EWState targetState = new EWState(targetActor);
-
-                Mod.Log.Debug($"TARGET:{CombatantUtils.Label(targetActor)} has ewState:{targetState.Details()}");
 
                 if (locks.sensorLock == SensorScanType.NoInfo) {
                     //LowVisibility.Logger.Debug($"Attacker:{CombatantUtils.Label(attacker)} has no sensor lock to target:{CombatantUtils.Label(target as AbstractActor)} " +
@@ -37,13 +34,14 @@ namespace LowVisibility.Patch {
                     __result = __result + (float)Mod.Config.SensorsOnlyPenalty;
                 }
 
-                if (targetState.GetECMShieldAttackModifier() != 0) {
+                EWState targetState = new EWState(targetActor);
+                Mod.Log.Debug($"TARGET:{CombatantUtils.Label(targetActor)} has ewState:{targetState.Details()}");
+                if (targetState.GetECMShieldAttackModifier(attackerState) != 0) {
                     //LowVisibility.Logger.Debug($"Attacker:{CombatantUtils.Label(attacker)} has no visual lock to target:{CombatantUtils.Label(target as AbstractActor)} " +
                     //    $" applying modifier:{LowVisibility.Config.NoSensorLockAttackPenalty}");
-                    Mod.Log.Debug($" Target:{CombatantUtils.Label(target)} has ECM_SHIELD, applying modifier: {targetState.GetECMShieldAttackModifier()}");
-                    __result = __result + (float)targetState.GetECMShieldAttackModifier();
+                    Mod.Log.Debug($" Target:{CombatantUtils.Label(target)} has ECM_SHIELD, applying modifier: {targetState.GetECMShieldAttackModifier(attackerState)}");
+                    __result = __result + (float)targetState.GetECMShieldAttackModifier(attackerState);
                 }
-
 
                 VisionModeModifer vismodeMod = attackerState.CalculateVisionModeModifier(target, distance, weapon);
                 if (vismodeMod.modifier != 0) {
@@ -51,12 +49,22 @@ namespace LowVisibility.Patch {
                     __result = __result + (float)vismodeMod.modifier;
                 }
 
-                if (targetState.HasStealthMoveMod()) {
-                    int stealthMoveMod = targetState.CalculateStealthMoveMod(targetActor);
-                    if (stealthMoveMod != 0) {
-                        __result = __result + (float)stealthMoveMod;
+                if (targetState.HasStealth()) {
+                    float magnitude = (attacker.CurrentPosition - target.CurrentPosition).magnitude;
+
+                    // Sensor stealth
+                    int sStealthMod = targetState.GetSensorStealthAttackModifier(weapon, magnitude, attackerState);
+                    if (sStealthMod != 0) {
+                        __result = __result + (float)sStealthMod;
+                    }
+
+                    // Visual stealth
+                    int vStealthMod = targetState.GetVisionStealthAttackModifier(weapon, magnitude, attackerState);
+                    if (vStealthMod != 0) {
+                        __result = __result + (float)vStealthMod;
                     }
                 }
+
             }            
         }
     }
@@ -77,7 +85,6 @@ namespace LowVisibility.Patch {
                 Locks lockState = State.LocksForTarget(attacker, targetActor);
                 float distance = Vector3.Distance(attackPosition, targetPosition);
                 EWState attackerState = new EWState(attacker);
-                EWState targetState = new EWState(targetActor);
                 
                 if (lockState.sensorLock == SensorScanType.NoInfo) {
                     __result = string.Format("{0}NO SENSOR LOCK {1:+#;-#}; ", __result, Mod.Config.VisionOnlyPenalty);
@@ -87,24 +94,35 @@ namespace LowVisibility.Patch {
                     __result = string.Format("{0}NO VISUAL LOCK {1:+#;-#}; ", __result, Mod.Config.SensorsOnlyPenalty);
                 }
 
-                if (targetState.GetECMShieldAttackModifier() != 0) {
-                    //LowVisibility.Logger.Debug($"Attacker:{CombatantUtils.Label(attacker)} has no visual lock to target:{CombatantUtils.Label(target as AbstractActor)} " +
-                    //    $" applying modifier:{LowVisibility.Config.NoSensorLockAttackPenalty}");
-                    Mod.Log.Debug($" Target:{CombatantUtils.Label(target)} has ECM_SHIELD, applying modifier: {targetState.GetECMShieldAttackModifier()} to label ECM_JAMING");
-                    __result = string.Format("{0}ECM JAMMING {1:+#;-#}; ", __result, targetState.GetECMShieldAttackModifier());
-                }
-
                 VisionModeModifer vismodeMod = attackerState.CalculateVisionModeModifier(target, distance, weapon);
                 if (vismodeMod.modifier != 0) {
                     Mod.Log.Trace($" VisionMode modifier vs target:{CombatantUtils.Label(target)} => {vismodeMod.ToString()}");
                     __result = string.Format("{0}{1} {2:+#;-#}; ", __result, vismodeMod.label, vismodeMod.modifier);
                 }
 
+
+                EWState targetState = new EWState(targetActor);
+                if (targetState.GetECMShieldAttackModifier(attackerState) != 0) {
+                    //LowVisibility.Logger.Debug($"Attacker:{CombatantUtils.Label(attacker)} has no visual lock to target:{CombatantUtils.Label(target as AbstractActor)} " +
+                    //    $" applying modifier:{LowVisibility.Config.NoSensorLockAttackPenalty}");
+                    Mod.Log.Debug($" Target:{CombatantUtils.Label(target)} has ECM_SHIELD, applying modifier: {targetState.GetECMShieldAttackModifier(attackerState)} to label ECM_JAMING");
+                    __result = string.Format("{0}ECM JAMMING {1:+#;-#}; ", __result, targetState.GetECMShieldAttackModifier(attackerState));
+                }
+
                 EWState targetEWConfig = new EWState(targetActor);
-                if (targetEWConfig.HasStealthMoveMod()) {
-                    int stealthMoveMod = targetEWConfig.CalculateStealthMoveMod(targetActor);
-                    if (stealthMoveMod != 0) {
-                        __result = string.Format("{0}STEALTH - MOVEMENT {1:+#;-#}; ", __result, stealthMoveMod);
+                if (targetState.HasStealth()) {
+                    float magnitude = (attacker.CurrentPosition - target.CurrentPosition).magnitude;
+
+                    // Sensor stealth
+                    int sStealthMod = targetState.GetSensorStealthAttackModifier(weapon, magnitude, attackerState);
+                    if (sStealthMod != 0) {
+                        __result = string.Format("{0}SENSOR STEALTH {1:+#;-#}; ", __result, sStealthMod);
+                    }
+
+                    // Visual stealth
+                    int vStealthMod = targetState.GetVisionStealthAttackModifier(weapon, magnitude, attackerState);
+                    if (vStealthMod != 0) {
+                        __result = string.Format("{0}VISUAL STEALTH {1:+#;-#}; ", __result, vStealthMod);
                     }
                 }
             }

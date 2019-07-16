@@ -3,31 +3,40 @@ namespace LowVisibility {
 
     public class ModStats {
 
-        public const string SensorCheck = "LV_SensorCheck"; // Int_32
         public const string TacticsMod = "LV_TacticsMod"; // Int_32
 
-        public const string Jammer = "LV_Jammer"; // Int_32
-        public const string Probe = "LV_Probe";  // Int_32
-        public const string Stealth = "LV_Stealth";  // Int_32
+        public const string CurrentRoundEWCheck = "LV_Current_Round_EW_Check"; // Int_32
 
-        public const string SharesSensors = "LV_Shares_Sensors";
-
+        // ECM 
         public const string ECMCarrier = "LV_ECM_Carrier"; // Int_32
         public const string ECMShield = "LV_ECM_Shield"; // Int_32
         public const string ECMJammed = "LV_ECM_Jammed"; // Int_32
 
+        // Sensors
+        public const string AdvancedSensors = "LV_Advanced_Sensors";
+
+        // Probe    
+        public const string ProbeCarrier = "LV_Probe_Carrier";
+        public const string ProbeSweepTarget = "LV_Probe_Sweep_Target";
+
+        // Sensor Stealth
         public const string StaticSensorStealth = "LV_Static_Sensor_Stealth"; // Int_32
         public const string DecayingSensorStealthValue = "LV_Decaying_Sensor_Stealth"; // String
         public const string DecayingSensorStealthInitial = "LV_Decaying_Sensor_Stealth_Initial"; // Int_32
         public const string DecayingSensorStealthDecayPerStep = "LV_Decaying_Sensor_Stealth_Current_Steps"; // Int_32
+        public const string SensorStealthAttackMulti = "LV_Sensor_Stealth_Attack_Multi"; // String
 
+        // Visual Stealth
         public const string StaticVisionStealth = "LV_Static_Vision_Stealth"; // Int_32
         public const string DecayingVisionStealthValue = "LV_Decaying_Vision_Stealth"; // String
         public const string DecayingVisionStealthInitial = "LV_Decaying_Vision_Stealth_Initial"; // Int_32
         public const string DecayingVisionStealthDecayPerStep = "LV_Decaying_Vision_Stealth_Current_Steps"; // Int_32
+        public const string VisionStealthAttackMulti = "LV_Vision_Stealth_Attack_Multi"; // String
+
+        // Sensor sharing
+        public const string SharesSensors = "LV_Shares_Sensors";
 
         // TODO: Multiparts are multiple stats, instead of one?
-        public const string StealthMoveMod = "LV_Stealth_Move";  // String
         public const string VismodeZoom = "LV_Vismode_Zoom";
         public const string VismodeHeat = "LV_Vismode_Heat";
 

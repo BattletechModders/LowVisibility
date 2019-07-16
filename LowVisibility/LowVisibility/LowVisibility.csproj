@@ -77,6 +77,7 @@
     <Compile Include="Helper\SensorLockHelper.cs" />
     <Compile Include="Helper\VfxHelper.cs" />
     <Compile Include="Helper\VisualLockHelper.cs" />
+    <Compile Include="Helper\WeaponHelper.cs" />
     <Compile Include="Object\EWState.cs" />
     <Compile Include="Helper\MapHelper.cs" />
     <Compile Include="Mod.cs" />

@@ -13,16 +13,16 @@ namespace LowVisibility.Patch {
         [HarmonyPatch(typeof(CombatHUDStealthBarPips), "ShowValue")]
         public static class CombatHUDStealthBarPips_ShowValue {
             public static void Postfix(CombatHUDStealthBarPips __instance, float current, float projected) {
-                Mod.Log.Debug("CHUDSBP:SV entered");
+                Mod.Log.Trace("CHUDSBP:SV entered");
 
-                Mod.Log.Debug($"StealthBarPips incoming count is: {current} with projected: {projected}");
+                Mod.Log.Trace($"StealthBarPips incoming count is: {current} with projected: {projected}");
 
                 Traverse HUDT = Traverse.Create(__instance).Property("HUD");
                 CombatHUD HUD = HUDT.GetValue<CombatHUD>();
 
                 Traverse actorT = Traverse.Create(HUD).Field("selectedUnit");
                 AbstractActor selectedActor = actorT.GetValue<AbstractActor>();
-                Mod.Log.Debug($"  selectedActor: ({CombatantUtils.Label(selectedActor)})");
+                Mod.Log.Trace($"  selectedActor: ({CombatantUtils.Label(selectedActor)})");
 
                 Traverse floorCurrentT = Traverse.Create(__instance).Field("floorCurrent");
                 int floorCurrent = floorCurrentT.GetValue<int>();
@@ -35,13 +35,13 @@ namespace LowVisibility.Patch {
 
                 Traverse remainderT = Traverse.Create(__instance).Field("remainder");
                 float remainder = remainderT.GetValue<float>();
-                Mod.Log.Debug($"  floorCurrent: {floorCurrent} floorLocked: {floorLocked} floorProjected: {floorProjected} remainder: {remainder}");
+                Mod.Log.Trace($"  floorCurrent: {floorCurrent} floorLocked: {floorLocked} floorProjected: {floorProjected} remainder: {remainder}");
 
                 Traverse pipsT = Traverse.Create(__instance).Property("Pips");
                 List<Graphic> pips = pipsT.GetValue<List<Graphic>>();
 
                 for (int i = 0; i < pips.Count; i++) {
-                    Mod.Log.Debug($"    -- pips graphic: {i} isEnabled: {pips[i].IsActive()}");
+                    Mod.Log.Trace($"    -- pips graphic: {i} isEnabled: {pips[i].IsActive()}");
                 }
             }
         }

@@ -65,7 +65,7 @@ namespace LowVisibility.Object {
     public enum VisualScanType {
         None,
         Silhouette,
-        Chassis,
+        Chassis, // TODO: IMPLEMENT THIS
         VisualID
     }
 

@@ -165,77 +165,76 @@ namespace LowVisibility.Patch {
             List<string> sensorDetails = new List<string>();
             sensorDetails.Add(" Sensor Check:");
             
-            if (ewState.sensorsCheck >= 0) {
-                sensorDetails.Add($"<color=#00FF00>{ewState.sensorsCheck:+0}</color>");                                        
-            } else {
-                sensorDetails.Add($"<color=#FF0000>{ewState.sensorsCheck:0}</color>");
-            }
+            // TODO: FIX ME!
 
-            sensorDetails.Add($" (Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>)");
+            //if (ewState.CurrentRoundEWCheck >= 0) {
+            //    sensorDetails.Add($"<color=#00FF00>{ewState.CurrentRoundEWCheck:+0}</color>");                                        
+            //} else {
+            //    sensorDetails.Add($"<color=#FF0000>{ewState.CurrentRoundEWCheck:0}</color>");
+            //}
 
-            if (ewState.probeMod > 0) {
-                sensorDetails.Add($" (Probe:<color=#00FF00>{ewState.probeMod:0}</color>)");
-            }
+            //sensorDetails.Add($" (Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>)");
 
-            // TODO: Should include equipment bonuses, etc
-            float rangeMulti = (1f + ewState.SensorCheckRangeMultiplier());
-            if (rangeMulti >= 1.0) {
-                sensorDetails.Add($" = <color=#00FF00>x{rangeMulti:0.00}</color>");
-            } else {
-                sensorDetails.Add($" = <color=#FF0000>x{rangeMulti:0.00}</color>");
-            }
+            //if (ewState.probeMod > 0) {
+            //    sensorDetails.Add($" (Probe:<color=#00FF00>{ewState.probeMod:0}</color>)");
+            //}
 
-            sensorDetails.Add("\n");
+            //// TODO: Should include equipment bonuses, etc
+            //float rangeMulti = (1f + ewState.SensorCheckRangeMultiplier());
+            //if (rangeMulti >= 1.0) {
+            //    sensorDetails.Add($" = <color=#00FF00>x{rangeMulti:0.00}</color>");
+            //} else {
+            //    sensorDetails.Add($" = <color=#FF0000>x{rangeMulti:0.00}</color>");
+            //}
 
-            // Sensor Info below
-            int checkResult = ewState.sensorsCheck;
+            //sensorDetails.Add("\n");
 
-            sensorDetails.Add($" Info Roll:");            
-            if (ewState.sensorsCheck >= 0) {
-                sensorDetails.Add($"<color=#00FF00>{ewState.sensorsCheck:0}</color>");
-            } else {
-                sensorDetails.Add($"<color=#FF0000>{ewState.sensorsCheck:0}</color>");
-            }
-            checkResult += ewState.tacticsBonus;
-            sensorDetails.Add($" + Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>");                        
+            //// Sensor Info below
+            //int checkResult = ewState.CurrentRoundEWCheck;
 
-            if (ewState.probeMod > 0) {
-                checkResult += ewState.probeMod;
-                sensorDetails.Add($" + Probe: <color=#00FF00>{ewState.probeMod:0}</color>");
-            }
+            //sensorDetails.Add($" Info Roll:");            
+            //if (ewState.CurrentRoundEWCheck >= 0) {
+            //    sensorDetails.Add($"<color=#00FF00>{ewState.CurrentRoundEWCheck:0}</color>");
+            //} else {
+            //    sensorDetails.Add($"<color=#FF0000>{ewState.CurrentRoundEWCheck:0}</color>");
+            //}
+            //checkResult += ewState.tacticsBonus;
+            //sensorDetails.Add($" + Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>");                        
 
-            if (State.ECMJamming(actor) != 0) {
-                checkResult -= State.ECMJamming(actor);
-                sensorDetails.Add($" + Jammed: <color=#FF0000>{State.ECMJamming(actor):-0}</color>");
-            }
+            //if (ewState.probeMod > 0) {
+            //    checkResult += ewState.probeMod;
+            //    sensorDetails.Add($" + Probe: <color=#00FF00>{ewState.probeMod:0}</color>");
+            //}
 
-            sensorDetails.Add(" = Result: ");
-            if (checkResult >= 0) {
-                sensorDetails.Add($"<color=#00FF00>{checkResult:0}</color>");
-            } else {
-                sensorDetails.Add($"<color=#FF0000>{checkResult:0}</color>");
-            }
-            sensorDetails.Add("\n");
+            //if (State.ECMJamming(actor) != 0) {
+            //    checkResult -= State.ECMJamming(actor);
+            //    sensorDetails.Add($" + Jammed: <color=#FF0000>{State.ECMJamming(actor):-0}</color>");
+            //}
 
-            // Sensor range
-            SensorScanType checkLevel = SensorScanType.NoInfo;
-            if (checkLevel > SensorScanType.DentalRecords) {
-                checkLevel = SensorScanType.DentalRecords;
-            } else if (checkLevel < SensorScanType.NoInfo) {
-                checkLevel = SensorScanType.NoInfo;
-            } else {
-                checkLevel = (SensorScanType)checkResult;
-            }
-            details.Add($"Sensors Lock:{sensorsRange:0}m Info:[{checkLevel.Label()}]\n");
-            details.AddRange(sensorDetails);
+            //sensorDetails.Add(" = Result: ");
+            //if (checkResult >= 0) {
+            //    sensorDetails.Add($"<color=#00FF00>{checkResult:0}</color>");
+            //} else {
+            //    sensorDetails.Add($"<color=#FF0000>{checkResult:0}</color>");
+            //}
+            //sensorDetails.Add("\n");
 
-            // Sensor check:(+/-0) SensorScanLevel:
-            if (ewState.ecmMod != 0) {
-                details.Add($"ECM => Enemy Modifier:<color=#FF0000>{ewState.ecmMod:-0}</color>");
-            }
-            if (ewState.stealthMod != 0) {
-                details.Add($"STEALTH => Enemy Modifier:<color=#FF0000>{ewState.stealthMod:-0}</color>");
-            }
+            //// Sensor range
+            //SensorScanType checkLevel = SensorScanType.NoInfo;
+            //if (checkLevel > SensorScanType.DentalRecords) {
+            //    checkLevel = SensorScanType.DentalRecords;
+            //} else if (checkLevel < SensorScanType.NoInfo) {
+            //    checkLevel = SensorScanType.NoInfo;
+            //} else {
+            //    checkLevel = (SensorScanType)checkResult;
+            //}
+            //details.Add($"Sensors Lock:{sensorsRange:0}m Info:[{checkLevel.Label()}]\n");
+            //details.AddRange(sensorDetails);
+
+            //// Sensor check:(+/-0) SensorScanLevel:
+            //if (ewState.ecmMod != 0) {
+            //    details.Add($"ECM => Enemy Modifier:<color=#FF0000>{ewState.ecmMod:-0}</color>");
+            //}
 
             string tooltipText = String.Join("", details.ToArray());
             return tooltipText;

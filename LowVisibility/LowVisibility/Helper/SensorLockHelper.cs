@@ -17,15 +17,15 @@ namespace LowVisibility.Helper {
             Mod.Log.Trace($"  == Sensors Range for for actor:{CombatantUtils.Label(source)}");
 
             float rawRangeMulti = SensorLockHelper.GetAllSensorRangeMultipliers(source);
-            float rangeMulti = rawRangeMulti + ewState.SensorCheckRangeMultiplier();
-            Mod.Log.Trace($"    rangeMulti: {rangeMulti} = rawRangeMulti: {rawRangeMulti} + sensorCheckRangeMulti: {ewState.SensorCheckRangeMultiplier()}");
+            float rangeMulti = rawRangeMulti + ewState.GetSensorsRangeMulti();
+            Mod.Log.Trace($"    rangeMulti: {rangeMulti} = rawRangeMulti: {rawRangeMulti} + sensorCheckRangeMulti: {ewState.GetSensorsRangeMulti()}");
 
             float rawRangeMod = SensorLockHelper.GetAllSensorRangeAbsolutes(source);
-            float rangeMod = rawRangeMod * (1 + ewState.SensorCheckRangeMultiplier());
-            Mod.Log.Trace($"    rangeMod: {rangeMod} = rawRangeMod: {rawRangeMod} + sensorCheckRangeMulti: {ewState.SensorCheckRangeMultiplier()}");
+            float rangeMod = rawRangeMod * (1 + ewState.GetSensorsRangeMulti());
+            Mod.Log.Trace($"    rangeMod: {rangeMod} = rawRangeMod: {rawRangeMod} + sensorCheckRangeMulti: {ewState.GetSensorsRangeMulti()}");
 
-            float sensorsRange = ewState.sensorsBaseRange * rangeMulti + rangeMod;
-            Mod.Log.Trace($"    sensorsRange: { sensorsRange} = baseRange: {ewState.sensorsBaseRange} * rangeMult: {rangeMulti} + rangeMod: {rangeMod}");
+            float sensorsRange = ewState.GetSensorsBaseRange() * rangeMulti + rangeMod;
+            Mod.Log.Trace($"    sensorsRange: { sensorsRange} = baseRange: {ewState.GetSensorsBaseRange()} * rangeMult: {rangeMulti} + rangeMod: {rangeMod}");
 
             if (sensorsRange < Mod.Config.MinimumSensorRange() ||
                 source.Combat.TurnDirector.CurrentRound <= 1 && Mod.Config.FirstTurnForceFailedChecks) {
@@ -140,7 +140,8 @@ namespace LowVisibility.Helper {
                 // TODO: ADD FRIENDLY ECM CHECK HERE?
                 EWState sourceState = new EWState(source);
                 Building targetBuilding = target as Building;
-                SensorScanType buildingLock = sourceState.sensorsCheck > 0 ? SensorScanType.SurfaceScan: SensorScanType.NoInfo;
+                // TODO: This should be calculated more fully! Major bug here!
+                SensorScanType buildingLock = sourceState.GetCurrentEWCheck() > 0 ? SensorScanType.SurfaceScan: SensorScanType.NoInfo;
                 Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} is a building with lockState:{buildingLock}");
                 return buildingLock;
             } else if ((target as AbstractActor) != null) {
@@ -187,57 +188,59 @@ namespace LowVisibility.Helper {
 
         private static SensorScanType CalculateSensorInfoLevel(AbstractActor source, ICombatant target) {
             SensorScanType sensorInfo = SensorScanType.NoInfo;
-
-            AbstractActor targetActor = target as AbstractActor;
+            Mod.Log.Debug($"Calculating SensorInfo from source: ({CombatantUtils.Label(source)}) to target: ({CombatantUtils.Label(target)})");
 
             // Determine modified check against target
             EWState sourceState = new EWState(source);
-            int baseSourceCheck = sourceState.sensorsCheck;
-            int modifiedSourceCheck = baseSourceCheck;
+            int detailsLevel = sourceState.GetCurrentEWCheck();
 
-            // --- Source modifier: ECM Jamming
-            if (sourceState.ECMJammed > 0) {
-                modifiedSourceCheck -= sourceState.GetECMJammedDetailsModifier();
-                Mod.Log.Debug($"  source: {CombatantUtils.Label(source)} has ECM jamming: {sourceState.GetECMJammedDetailsModifier()}, " +
-                    $"reducing sourceCheckResult to:{modifiedSourceCheck}");
+            // --- Source: Advanced Sensors
+            if (sourceState.GetAdvancedSensorsMod() > 0) {
+                Mod.Log.Debug($" == source has advanced sensors, detailsLevel = {detailsLevel} + {sourceState.GetAdvancedSensorsMod()}");
+                detailsLevel += sourceState.GetAdvancedSensorsMod();
             }
 
-            // --- Target Modifiers: Stealth, Narc, Tag
+            // --- Source: ECM Jamming
+            if (sourceState.GetECMJammedDetailsModifier() > 0) {
+                Mod.Log.Debug($" == source is jammed by ECM, detailsLevel = {detailsLevel} - {sourceState.GetECMJammedDetailsModifier()}");
+                detailsLevel -= sourceState.GetECMJammedDetailsModifier();
+            }
+
+            // --- Target: Stealth, Narc, Tag
+            AbstractActor targetActor = target as AbstractActor;
             if (targetActor != null) {
                 EWState targetState = new EWState(targetActor);
 
-                // ECM protection reduces sensor info
-                if (targetState.ECMShield > 0) {
-                    modifiedSourceCheck -= sourceState.GetECMShieldDetailsModifier();
-                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has ECM shield: {sourceState.GetECMShieldDetailsModifier()}, " +
-                        $"reducing sourceCheckResult to:{modifiedSourceCheck}");
+                // ECM Shield reduces sensor info
+                if (targetState.GetECMShieldSignatureModifier() > 0) {
+                    Mod.Log.Debug($" == target is shielded by ECM, detailsLevel = {detailsLevel} - {sourceState.GetECMShieldDetailsModifier()}");
+                    detailsLevel -= sourceState.GetECMShieldDetailsModifier();
                 }
 
-                // Stealth reduces sensor info
-                if (targetState.stealthMod != 0) {
-                    modifiedSourceCheck -= targetState.stealthMod;
-                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has stealthMod:{targetState.stealthMod}, " +
-                        $"reducing sourceCheckResult to:{modifiedSourceCheck}");
+                // Sensor Stealth reduces sensor info
+                if (targetState.HasSensorStealth()) {
+                    Mod.Log.Debug($" == target has sensor stealth, detailsLevel = {detailsLevel} - {sourceState.GetSensorStealthDetailsModifier()}");
+                    detailsLevel -= targetState.GetSensorStealthDetailsModifier();
                 }
 
                 // A Narc effect increases sensor info
+                // TODO: Narc should effect buildings
                 if (State.NARCEffect(targetActor) != 0) {
-                    modifiedSourceCheck += State.NARCEffect(targetActor);
-                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has NARC effect:{State.NARCEffect(targetActor)}, " +
-                        $"increasing sourceCheckResult to:{modifiedSourceCheck}");
+                    Mod.Log.Debug($" == target is narc'd, detailsLevel = {detailsLevel} - {State.NARCEffect(targetActor)}");
+                    detailsLevel += State.NARCEffect(targetActor);
                 }
 
                 // A TAG effect increases sensor info
+                // TODO: TAG should effect buildings
                 if (State.TAGEffect(targetActor) != 0) {
-                    modifiedSourceCheck += State.TAGEffect(targetActor);
-                    Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} has TAG effect:{State.TAGEffect(targetActor)}, " +
-                        $"increasing sourceCheckResult to:{modifiedSourceCheck}");
+                    Mod.Log.Debug($" == target is tagged, detailsLevel = {detailsLevel} + {State.TAGEffect(targetActor)}");
+                    detailsLevel += State.TAGEffect(targetActor);
                 }
 
             }
 
-            sensorInfo = DetectionLevelForCheck(modifiedSourceCheck);
-            //LowVisibility.Logger.Debug($"Calculated sensorInfo:{sensorInfo} for modifiedCheck:{modifiedSourceCheck} (from baseCheck:{baseSourceCheck})");
+            sensorInfo = DetectionLevelForCheck(detailsLevel);
+            Mod.Log.Debug($"Calculated )");
 
             return sensorInfo;
         }
