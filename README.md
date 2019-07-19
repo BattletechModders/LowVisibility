@@ -7,6 +7,8 @@ __WARNING: THIS MOD LIKELY BREAKS SKIRMISH MULTIPLAYER.__ It has not been tested
 
 *REQUIRES* [IRBTModUtils](https://github.com/IceRaptor/IRBTModUtils) to compile.
 
+CAE is highly recommended. Many effects assume they aren't active at the same time (stealth/ecm, vision modes, etc.) You can enforce yourself through convention, or through CAE.
+
 ## Summary
 
 This mod is comprehensive, but a short summary of changes in the mod include:
@@ -16,6 +18,7 @@ This mod is comprehensive, but a short summary of changes in the mod include:
 * Enemy details are hidden and are only revealed to strong sensors and/or pilots with high Tactics.
 * The environment can reduce visibility due to snow, rain, night, etc. This makes sensors critical to success on those maps.
 * Stealth can hide enemy mechs (and your own!) allowing you to close range safely.
+* Memetic armor reduces your ability to be targeted, but decreases if you move
 
 ## Target Detection
 
@@ -310,7 +313,16 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 
 > Example Two: A tag of `lv-stealth-move-mod_m3_s2` applies a +3 penalty to the attacker if the target does not move. If the target moves 1 or 2 hexes, this penalty would be reduced (by -1) to +2. If the target moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
 
-## WIP Features
+## WIP
+
+### 1.6 Bugs
+* Auras stack endlessly; need to read VALUES statistic instead of raw statistic
+* Melee vs. stealth causes hardlock
+* Stealth textures don't always load
+* Cannot shoot stealthed enemies; hardlock due to NRE
+
+### WIP Features
+
 - [x] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
 - [ ] BUG: ticket-0304 in Discord - SensorDistanceAbsolute multipliers may not be adding to the total sensor distance value.
 - [ ] BUG: Sensor sharing not taking effect like it should. 

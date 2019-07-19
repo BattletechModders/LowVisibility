@@ -112,7 +112,7 @@ namespace LowVisibility.Helper {
             float spottingVisibilityMultiplier = target.SpottingVisibilityMultiplier;
 
             EWState ewState = new EWState(target);
-            float visionStealthMod = ewState.GetVisionStealthVisibilityModifier();
+            float visionStealthMod = ewState.MimeticVisibilityMod();
 
             float targetVisibility = baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier + visionStealthMod;
             Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has visibility: {targetVisibility} = " +

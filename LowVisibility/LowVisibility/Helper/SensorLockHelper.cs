@@ -93,7 +93,7 @@ namespace LowVisibility.Helper {
 
             EWState ewState = new EWState(target);
             float ecmShieldMod = ewState.GetECMShieldSignatureModifier();
-            float sensorStealthMod = ewState.GetSensorStealthSignatureModifier();
+            float sensorStealthMod = ewState.StealthSignatureMod();
 
             float targetSignature = sensorMod + shutdownMod + ecmShieldMod;
             Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has signature: {targetSignature} = " +
@@ -223,9 +223,9 @@ namespace LowVisibility.Helper {
                 }
 
                 // Sensor Stealth reduces sensor info
-                if (targetState.HasSensorStealth()) {
-                    Mod.Log.Debug($" == target has sensor stealth, detailsLevel = {detailsLevel} - {sourceState.GetSensorStealthDetailsModifier()}");
-                    detailsLevel -= targetState.GetSensorStealthDetailsModifier();
+                if (targetState.HasStealth()) {
+                    Mod.Log.Debug($" == target has sensor stealth, detailsLevel = {detailsLevel} - {sourceState.StealthDetailsMod()}");
+                    detailsLevel -= targetState.StealthDetailsMod();
                 }
 
                 // A Narc effect increases sensor info

@@ -168,11 +168,11 @@ namespace LowVisibility.Helper {
 
             // Update number of pips
             int maxSensorStealthPips = actorState.MaxSensorStealthPips();
-            int maxVisionStealthPips = actorState.MaxVisionStealthPips();
+            int maxVisionStealthPips = actorState.MaxMimeticPips();
             int maxPips = Math.Max(maxSensorStealthPips, maxVisionStealthPips);
 
             int sensorStealthPips = actorState.CurrentSensorStealthPips();
-            int visionStealthPips = actorState.CurrentVisionStealthPips();
+            int visionStealthPips = actorState.CurrentMimeticPips();
             int currPips = Math.Max(sensorStealthPips, visionStealthPips);
 
             stealthDisplay.ShowNewActorStealth(currPips, maxPips);

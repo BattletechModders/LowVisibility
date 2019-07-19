@@ -16,13 +16,13 @@ namespace LowVisibility.Patch {
 
             EWState parentState = new EWState(parentActor);
 
-            if (parentState.HasSensorStealth()) {
+            if (parentState.HasStealth()) {
                 VfxHelper.EnableSensorStealthEffect(parentActor);
             } else {
                 VfxHelper.DisableSensorStealthEffect(parentActor);
             }
 
-            if (parentState.HasVisionStealth()) {
+            if (parentState.HasMimetic()) {
                 VfxHelper.EnableVisionStealthEffect(parentActor);
             } else {
                 VfxHelper.DisableVisionStealthEffect(parentActor);

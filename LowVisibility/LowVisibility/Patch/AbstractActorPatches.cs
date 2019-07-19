@@ -33,17 +33,17 @@ namespace LowVisibility.Patch {
             __instance.StatCollection.AddStatistic<int>(ModStats.ProbeSweepTarget, 0);
 
             // Sensor Stealth
-            __instance.StatCollection.AddStatistic<int>(ModStats.StaticSensorStealth, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.StealthEffect, 0);
             __instance.StatCollection.AddStatistic<string>(ModStats.DecayingSensorStealthValue, "");
             __instance.StatCollection.AddStatistic<int>(ModStats.DecayingSensorStealthInitial, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.DecayingSensorStealthDecayPerStep, 0);
             __instance.StatCollection.AddStatistic<string>(ModStats.SensorStealthAttackMulti, "");
 
             // Visual Stealth
-            __instance.StatCollection.AddStatistic<int>(ModStats.StaticVisionStealth, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.MimeticEffect, 0);
             __instance.StatCollection.AddStatistic<string>(ModStats.DecayingVisionStealthValue, "");
-            __instance.StatCollection.AddStatistic<int>(ModStats.DecayingVisionStealthInitial, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.DecayingVisionStealthDecayPerStep, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.MimeticInitAttackMod, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.MimeticStepsUntilDecay, 0);
             __instance.StatCollection.AddStatistic<string>(ModStats.VisionStealthAttackMulti, "");
 
             __instance.StatCollection.AddStatistic<bool>(ModStats.SharesSensors, false);

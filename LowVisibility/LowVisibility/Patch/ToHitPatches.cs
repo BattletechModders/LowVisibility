@@ -52,14 +52,14 @@ namespace LowVisibility.Patch {
                 if (targetState.HasStealth()) {
                     float magnitude = (attacker.CurrentPosition - target.CurrentPosition).magnitude;
 
-                    // Sensor stealth
-                    int sStealthMod = targetState.GetSensorStealthAttackModifier(weapon, magnitude, attackerState);
+                    // Stealth
+                    int sStealthMod = targetState.StealthAttackMod(weapon, magnitude);
                     if (sStealthMod != 0) {
                         __result = __result + (float)sStealthMod;
                     }
 
-                    // Visual stealth
-                    int vStealthMod = targetState.GetVisionStealthAttackModifier(weapon, magnitude, attackerState);
+                    // Mimetic
+                    int vStealthMod = targetState.MimeticAttackMod(weapon, magnitude);
                     if (vStealthMod != 0) {
                         __result = __result + (float)vStealthMod;
                     }
@@ -114,13 +114,13 @@ namespace LowVisibility.Patch {
                     float magnitude = (attacker.CurrentPosition - target.CurrentPosition).magnitude;
 
                     // Sensor stealth
-                    int sStealthMod = targetState.GetSensorStealthAttackModifier(weapon, magnitude, attackerState);
+                    int sStealthMod = targetState.StealthAttackMod(weapon, magnitude, attackerState);
                     if (sStealthMod != 0) {
                         __result = string.Format("{0}SENSOR STEALTH {1:+#;-#}; ", __result, sStealthMod);
                     }
 
                     // Visual stealth
-                    int vStealthMod = targetState.GetVisionStealthAttackModifier(weapon, magnitude, attackerState);
+                    int vStealthMod = targetState.MimeticAttackMod(weapon, magnitude, attackerState);
                     if (vStealthMod != 0) {
                         __result = string.Format("{0}VISUAL STEALTH {1:+#;-#}; ", __result, vStealthMod);
                     }

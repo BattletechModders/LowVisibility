@@ -81,43 +81,54 @@ namespace LowVisibility.Patch {
             if (targetActor != null && __instance.DisplayedWeapon != null) {
                 //LowVisibility.Logger.Debug($"___CombatHUDTargetingComputer - SetHitChance for source:{CombatantUtils.Label(targetActor)} target:{CombatantUtils.Label(targetActor)}");
                 Locks lockState = State.LocksForTarget(actor, targetActor);
-                float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
+                float magnitude = (actor.CurrentPosition - target.CurrentPosition).magnitude;
                 EWState attackerState = new EWState(actor);
+                EWState targetState = new EWState(targetActor);
 
                 // Visual modifiers
+                VisionModeModifer vismodeMod = attackerState.CalculateVisionModeModifier(target, magnitude, __instance.DisplayedWeapon);
+                int zoomVisionMod = targetState.GetZoomVisionAttackMod();
+                int nightVisionMod = targetState.GetNightVisionMod();
+                int vStealthMod = targetState.HasMimetic() ? targetState.MimeticAttackMod(__instance.DisplayedWeapon, magnitude, attackerState) : 0;
                 if (!lockState.hasLineOfSight) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO LOS", Mod.Config.SensorsOnlyPenalty });
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO LINE OF SIGHT", Mod.Config.SensorsOnlyPenalty });
                 }
 
-                VisionModeModifer vismodeMod = attackerState.CalculateVisionModeModifier(target, distance, __instance.DisplayedWeapon);
                 if (vismodeMod.modifier != 0) {
                     AddToolTipDetailMethod.GetValue(new object[] { vismodeMod.label, vismodeMod.modifier });
                 }
 
+                if (targetState.HasMimetic()) {
+                    // Visual stealth
+                    
+                    if (vStealthMod != 0) {
+                        AddToolTipDetailMethod.GetValue(new object[] { "VISUAL STEALTH", vStealthMod });
+                    }
+                }
+
+                // Sensor modifiers
+                int ecmShieldMod = targetState.GetECMShieldAttackModifier(attackerState);
+                int sStealthMod = targetState.HasStealth() ? targetState.StealthAttackMod(__instance.DisplayedWeapon, magnitude, attackerState) : 0;
+                int heatVisionMod = targetState.GetHeatVisionMod();
                 if (lockState.sensorLock == SensorScanType.NoInfo) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", Mod.Config.VisionOnlyPenalty });
                 }
 
-                EWState targetState = new EWState(targetActor);
-                if (targetState.GetECMShieldAttackModifier(attackerState) != 0) {
+                if ( != 0) {
                     Mod.Log.Debug($" CHUDWS:SHC Target:{CombatantUtils.Label(target)} has ECM_SHIELD, applying modifier: {targetState.GetECMShieldAttackModifier(attackerState)}");
                     AddToolTipDetailMethod.GetValue(new object[] { "ECM SHIELD", targetState.GetECMShieldAttackModifier(attackerState) });
                 }
 
+
+                VisionModeModifer vismodeMod = attackerState.CalculateVisionModeModifier(target, magnitude, __instance.DisplayedWeapon);
+                if (vismodeMod.modifier != 0) {
+                    AddToolTipDetailMethod.GetValue(new object[] { vismodeMod.label, vismodeMod.modifier });
+                }
+
                 if (targetState.HasStealth()) {
-                    // Sensor stealth
-                    float magnitude = (actor.CurrentPosition - target.CurrentPosition).magnitude;
-                    int sStealthMod = targetState.GetSensorStealthAttackModifier(__instance.DisplayedWeapon, magnitude, attackerState);
                     if (sStealthMod != 0) {
                         AddToolTipDetailMethod.GetValue(new object[] { "SENSOR STEALTH", sStealthMod });
                     }
-
-                    // Visual stealth
-                    int vStealthMod = targetState.GetVisionStealthAttackModifier(__instance.DisplayedWeapon, magnitude, attackerState);
-                    if (vStealthMod != 0) {
-                        AddToolTipDetailMethod.GetValue(new object[] { "VISUAL STEALTH", vStealthMod });
-                    }
-
                 }
             }          
         }

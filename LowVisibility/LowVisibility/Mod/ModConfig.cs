@@ -19,35 +19,22 @@ namespace LowVisibility {
         public const string ProbeCarrier = "LV_Probe_Carrier";
         public const string ProbeSweepTarget = "LV_Probe_Sweep_Target";
 
-        // Sensor Stealth
-        public const string StaticSensorStealth = "LV_Static_Sensor_Stealth"; // Int_32
-        public const string DecayingSensorStealthValue = "LV_Decaying_Sensor_Stealth"; // String
-        public const string DecayingSensorStealthInitial = "LV_Decaying_Sensor_Stealth_Initial"; // Int_32
-        public const string DecayingSensorStealthDecayPerStep = "LV_Decaying_Sensor_Stealth_Current_Steps"; // Int_32
-        public const string SensorStealthAttackMulti = "LV_Sensor_Stealth_Attack_Multi"; // String
-
-        // Visual Stealth
-        public const string StaticVisionStealth = "LV_Static_Vision_Stealth"; // Int_32
-        public const string DecayingVisionStealthValue = "LV_Decaying_Vision_Stealth"; // String
-        public const string DecayingVisionStealthInitial = "LV_Decaying_Vision_Stealth_Initial"; // Int_32
-        public const string DecayingVisionStealthDecayPerStep = "LV_Decaying_Vision_Stealth_Current_Steps"; // Int_32
-        public const string VisionStealthAttackMulti = "LV_Vision_Stealth_Attack_Multi"; // String
+        public const string StealthEffect = "LV_Stealth"; // String
+        public const string MimeticEffect = "LV_Mimetic"; // String
+        public const string MimeticCurrentSteps = "LV_Mimetic_Current_Steps"; // Int_32
 
         // Sensor sharing
         public const string SharesSensors = "LV_Shares_Sensors";
 
-        // TODO: Multiparts are multiple stats, instead of one?
-        public const string VismodeZoom = "LV_Vismode_Zoom";
-        public const string VismodeHeat = "LV_Vismode_Heat";
-
-        // TODO: Should normalized skills be added here?
+        // Vision modes
+        public const string HeatVision = "LV_Heat_Vision";
+        public const string ZoomVision = "LV_Zoom_Vision";
+        public const string NightVision = "LV_Night_Vision"; // TODO
 
         public static bool IsStealthStat(string statName) {
             return statName != null && statName != "" && (
-                statName.Equals(ModStats.StaticSensorStealth) ||
-                statName.Equals(ModStats.DecayingSensorStealthValue) ||
-                statName.Equals(ModStats.StaticVisionStealth) ||
-                statName.Equals(ModStats.DecayingVisionStealthValue)
+                statName.Equals(ModStats.StealthEffect) ||
+                statName.Equals(ModStats.MimeticEffect)
                 );
         }
     }
