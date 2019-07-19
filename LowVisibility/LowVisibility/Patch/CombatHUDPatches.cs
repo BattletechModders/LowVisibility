@@ -72,6 +72,7 @@ namespace LowVisibility.Patch {
 
         private static void Postfix(CombatHUDWeaponSlot __instance, ICombatant target) {
             if (__instance == null || target == null) { return;  }
+            Mod.Log.Trace("CHUDWS:SHC - entered.");
 
             AbstractActor actor = __instance.DisplayedWeapon.parent;
             AbstractActor targetActor = target as AbstractActor;
@@ -83,17 +84,18 @@ namespace LowVisibility.Patch {
                 float distance = Vector3.Distance(actor.CurrentPosition, targetActor.CurrentPosition);
                 EWState attackerState = new EWState(actor);
 
-                if (lockState.sensorLock == SensorScanType.NoInfo) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", Mod.Config.VisionOnlyPenalty});
-                }
-
-                if (lockState.visualLock == VisualScanType.None) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO VISUAL LOCK", Mod.Config.SensorsOnlyPenalty });
+                // Visual modifiers
+                if (!lockState.hasLineOfSight) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO LOS", Mod.Config.SensorsOnlyPenalty });
                 }
 
                 VisionModeModifer vismodeMod = attackerState.CalculateVisionModeModifier(target, distance, __instance.DisplayedWeapon);
                 if (vismodeMod.modifier != 0) {
                     AddToolTipDetailMethod.GetValue(new object[] { vismodeMod.label, vismodeMod.modifier });
+                }
+
+                if (lockState.sensorLock == SensorScanType.NoInfo) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", Mod.Config.VisionOnlyPenalty });
                 }
 
                 EWState targetState = new EWState(targetActor);

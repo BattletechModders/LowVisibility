@@ -127,6 +127,11 @@ namespace LowVisibility.Helper {
                 return SensorScanType.NoInfo;
             }
 
+            if (source.IsGhosted) {
+                Mod.Log.Debug($"  source is ghosted. Treating as noInfo.");
+                return SensorScanType.NoInfo;
+            }
+
             float distance = Vector3.Distance(sourcePos, targetPos);
             float sensorRangeVsTarget = SensorLockHelper.GetAdjustedSensorRange(source, target);
             Mod.Log.Trace($"SensorLockHelper - source: {CombatantUtils.Label(source)} sensorRangeVsTarget: {sensorRangeVsTarget} vs distance: {distance}");

@@ -7,7 +7,7 @@ namespace LowVisibility.Object {
     public class Locks {
         public string sourceGUID;
         public string targetGUID;
-        public VisualScanType visualLock;
+        public bool hasLineOfSight;
         public SensorScanType sensorLock;
 
         public Locks() { }
@@ -15,32 +15,31 @@ namespace LowVisibility.Object {
         public Locks(AbstractActor source, ICombatant target) {
             this.sourceGUID = source.GUID;
             this.targetGUID = target.GUID;
-            this.visualLock = VisualScanType.None;
+            this.hasLineOfSight = false;
             this.sensorLock = SensorScanType.NoInfo;
         }
 
-        public Locks(AbstractActor source, ICombatant target, VisualScanType visualLock, SensorScanType sensorLock) {
+        public Locks(AbstractActor source, ICombatant target, bool hasLineOfSight, SensorScanType sensorLock) {
             this.sourceGUID = source.GUID;
             this.targetGUID = target.GUID;
-            this.visualLock = visualLock;
+            this.hasLineOfSight = hasLineOfSight;
             this.sensorLock = sensorLock;
         }
 
         public Locks(Locks source) {
             this.sourceGUID = source.sourceGUID;
             this.targetGUID = source.targetGUID;
-            this.visualLock = source.visualLock;
+            this.hasLineOfSight= source.hasLineOfSight;
             this.sensorLock = source.sensorLock;
         }
 
         public override string ToString() {
-            return $"visionLockLevel:{visualLock}, sensorLockLevel:{sensorLock}";
+            return $"hasLineOfSight:{hasLineOfSight}, sensorLockLevel:{sensorLock}";
         }
     }
 
     public class AggregateLocks {
         public string targetGUID;
-        public VisualScanType visualLock;
         public SensorScanType sensorLock;
 
         public AggregateLocks() { }
@@ -48,10 +47,6 @@ namespace LowVisibility.Object {
         public static AggregateLocks Aggregate(List<Locks> allLocks) {
             AggregateLocks aggregatedLocks = new AggregateLocks();
             foreach (Locks locks in allLocks) {
-                if (locks.visualLock > aggregatedLocks.visualLock) {
-                    aggregatedLocks.visualLock = locks.visualLock;
-                    aggregatedLocks.targetGUID = locks.targetGUID;
-                }
                 if (locks.sensorLock > aggregatedLocks.sensorLock) {
                     aggregatedLocks.sensorLock = locks.sensorLock;
                     aggregatedLocks.targetGUID = locks.targetGUID;
@@ -59,40 +54,6 @@ namespace LowVisibility.Object {
             }
             return aggregatedLocks;
         }
-    }
-
-    // TODO: Update visionLockType to use same detectionLevel scheme as below
-    public enum VisualScanType {
-        None,
-        Silhouette,
-        Chassis, // TODO: IMPLEMENT THIS
-        VisualID
-    }
-
-    static class VisualLockTypeExtensions {
-        public static string Label(this VisualScanType visualLock) {
-            switch (visualLock) {
-                case VisualScanType.Silhouette:
-                    return "Silhouette";
-                case VisualScanType.VisualID:
-                    return "Visual ID";
-                case VisualScanType.None:
-                default:
-                    return "No Lock";                
-            }
-        }
-
-        public static VisibilityLevel Visibility(this VisualScanType level) {
-            switch (level) {
-                case VisualScanType.Silhouette:
-                case VisualScanType.VisualID:
-                    return VisibilityLevel.LOSFull;
-                case VisualScanType.None:
-                default:
-                    return VisibilityLevel.None;
-            }
-        }
-
     }
 
     public enum SensorScanType {

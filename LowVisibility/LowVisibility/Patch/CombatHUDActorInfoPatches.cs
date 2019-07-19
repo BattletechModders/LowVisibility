@@ -110,7 +110,7 @@ namespace LowVisibility.Patch {
 
                         setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                         setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
-                    } else if (lockState.visualLock == VisualScanType.VisualID) {
+                    } else if (lockState.hasLineOfSight) {
                         // Hide unit summary
                         setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 

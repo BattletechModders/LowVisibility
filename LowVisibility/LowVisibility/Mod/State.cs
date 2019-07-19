@@ -88,41 +88,28 @@ namespace LowVisibility {
                 locks[target.GUID] : new Locks(State.GetLastPlayerActivatedActor(target.Combat), target);
         }
 
-        public static void UpdateActorLocks(AbstractActor source, ICombatant target, VisualScanType visualLock, SensorScanType sensorLock) {
-            if (source != null && target != null) {
-                Locks newLocks = new Locks(source, target, visualLock, sensorLock);
-                if (PlayerActorLocks.ContainsKey(source.GUID)) {
-                    PlayerActorLocks[source.GUID][target.GUID] = newLocks;
-                } else {
-                    PlayerActorLocks[source.GUID] = new Dictionary<string, Locks> {
-                        [target.GUID] = newLocks
-                    };
-                }
-            }
-        }
+        //public static Locks LocksForTarget(AbstractActor attacker, ICombatant target) {
+        //    Locks locks = null;
+        //    if (State.PlayerActorLocks.ContainsKey(attacker.GUID)) {
+        //        Dictionary<string, Locks> actorLocks = State.PlayerActorLocks[attacker.GUID];
+        //        if (actorLocks.ContainsKey(target.GUID)) {
+        //            locks = actorLocks[target.GUID];
+        //        }
+        //    }
+        //    return locks ?? new Locks(attacker, target);
+        //}
 
-        public static Locks LocksForTarget(AbstractActor attacker, ICombatant target) {
-            Locks locks = null;
-            if (State.PlayerActorLocks.ContainsKey(attacker.GUID)) {
-                Dictionary<string, Locks> actorLocks = State.PlayerActorLocks[attacker.GUID];
-                if (actorLocks.ContainsKey(target.GUID)) {
-                    locks = actorLocks[target.GUID];
-                }
-            }
-            return locks ?? new Locks(attacker, target);
-        }
-
-        public static List<Locks> TeamLocksForTarget(ICombatant target) {
-            List<Locks> allTargetLocks = new List<Locks>();
-            if (State.PlayerActorLocks != null && State.PlayerActorLocks.Count > 0) {
-                allTargetLocks = State.PlayerActorLocks
-                    .Select(pal => pal.Value)
-                    .Where(pald => pald != null && pald.ContainsKey(target.GUID))
-                    .Select(pald => pald[target.GUID])
-                    .ToList();                    
-            }
-            return allTargetLocks;
-        }
+        //public static List<Locks> TeamLocksForTarget(ICombatant target) {
+        //    List<Locks> allTargetLocks = new List<Locks>();
+        //    if (State.PlayerActorLocks != null && State.PlayerActorLocks.Count > 0) {
+        //        allTargetLocks = State.PlayerActorLocks
+        //            .Select(pal => pal.Value)
+        //            .Where(pald => pald != null && pald.ContainsKey(target.GUID))
+        //            .Select(pald => pald[target.GUID])
+        //            .ToList();                    
+        //    }
+        //    return allTargetLocks;
+        //}
 
         // --- Methods manipulating CheckResults
         public static void InitializeCheckResults() {

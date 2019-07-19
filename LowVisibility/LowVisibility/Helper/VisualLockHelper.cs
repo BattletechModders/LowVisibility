@@ -135,46 +135,35 @@ namespace LowVisibility.Helper {
 
         // Determines if a source has visual lock to a target from a given position. Because units have differnet positions, check all of them.
         //  Typically from head-to-head for mechs, but buildings have multiple positions.
-        // TODO: Refactor to eliminate need for LoS instance - put Getter funcs into a helper
-        public static VisualScanType CalculateVisualLock(AbstractActor source, Vector3 sourcePos,
+        public static bool CalculateVisualLock(AbstractActor source, Vector3 sourcePos,
                 ICombatant target, Vector3 targetPos, Quaternion targetRot, LineOfSight los) {
 
             float spottingRangeVsTarget = VisualLockHelper.GetAdjustedSpotterRange(source, target);
-            float visualScanRange = VisualLockHelper.GetVisualScanRange(source);
             float distance = Vector3.Distance(sourcePos, targetPos);
 
             // Check range first
             if (distance > spottingRangeVsTarget) {
-                return VisualScanType.None;
+                return false;
             }
-
-            // TODO: VisualScanType needs to account for visual stealth
 
             // I think this is what prevents you from seeing things from behind you - the rotation is set to 0?
             Vector3 forward = targetPos - sourcePos;
             forward.y = 0f;
             Quaternion rotation = Quaternion.LookRotation(forward);
 
-            VisualScanType visualLock = VisualScanType.None;
             if (distance <= spottingRangeVsTarget) {
                 Vector3[] lossourcePositions = source.GetLOSSourcePositions(sourcePos, rotation);
                 Vector3[] lostargetPositions = target.GetLOSTargetPositions(targetPos, targetRot);
                 for (int i = 0; i < lossourcePositions.Length; i++) {
-                    for (int j = 0; j < lostargetPositions.Length; j++) {
-                        // If you can visually spot the target, you immediately have detection on then
+                    for (int j = 0; j < lostargetPositions.Length; j++) {                        
                         if (los.HasLineOfSight(lossourcePositions[i], lostargetPositions[j], spottingRangeVsTarget, target.GUID)) {
-                            visualLock = distance <= visualScanRange ? VisualScanType.VisualID : VisualScanType.Silhouette;
-                            break;
+                            return true;
                         }
-                    }
-
-                    if (visualLock != VisualScanType.None) {
-                        break;
                     }
                 }
             }
 
-            return visualLock;
+            return false;
         }
     }
 }

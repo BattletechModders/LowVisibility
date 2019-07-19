@@ -24,11 +24,11 @@ namespace LowVisibility.Patch {
                 AggregateLocks locks = AggregateLocks.Aggregate(allLocks);
                 if (locks.sensorLock >= SensorScanType.DeepScan) {
                     label = new Text($"{fullName}");
-                } else if (locks.sensorLock >= SensorScanType.SurfaceAnalysis|| locks.visualLock >= VisualScanType.VisualID) {
-                    label = new Text($"{chassisName} {variantName} ({tonnage}t)");
+                } else if (locks.sensorLock >= SensorScanType.SurfaceAnalysis) {
+                    label = new Text($"{chassisName} {variantName}");
                 } else {
                     // Silhouette or better
-                    label = new Text($"{chassisName} ?");
+                    label = new Text($"{chassisName} ({tonnage}t)");
                 }
             } else if (visLevel == VisibilityLevel.Blip4Maximum) {
                 label = new Text($"{fullName}");
