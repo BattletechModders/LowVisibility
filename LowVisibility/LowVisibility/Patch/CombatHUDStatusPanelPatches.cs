@@ -29,19 +29,20 @@ namespace LowVisibility.Patch {
                 // We can receive a building here, so 
                 if (target != null) {
                     if (target.Combat.HostilityMatrix.IsLocalPlayerEnemy(target.team)) {
-                        Locks lockState = State.LastActivatedLocksForTarget(target);
 
-                        if (lockState.sensorLock < SensorScanType.Vector) {
+                        SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, State.LastPlayerActorActivated);
+
+                        if (scanType < SensorScanType.Vector) {
                             //// Hide the evasive indicator, hide the buffs and debuffs
                             //Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
                             //hideEvasionIndicatorMethod.GetValue();
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        } else if (lockState.sensorLock < SensorScanType.StructureAnalysis) {
+                        } else if (scanType < SensorScanType.StructureAnalysis) {
                             // Hide the buffs and debuffs
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        } else if (lockState.sensorLock >= SensorScanType.StructureAnalysis) {
+                        } else if (scanType >= SensorScanType.StructureAnalysis) {
                             // Do nothing; normal state
                         }
                     }
@@ -49,7 +50,7 @@ namespace LowVisibility.Patch {
                     // Calculate stealth pips
                     Traverse stealthDisplayT = Traverse.Create(__instance).Field("stealthDisplay");
                     CombatHUDStealthBarPips stealthDisplay = stealthDisplayT.GetValue<CombatHUDStealthBarPips>();
-                    VfxHelper.CalculateStealthPips(stealthDisplay, target);
+                    VfxHelper.CalculateMimeticPips(stealthDisplay, target);
                 }
             }
         }
@@ -70,7 +71,7 @@ namespace LowVisibility.Patch {
             if (___stealthDisplay == null) { return; }
             Mod.Log.Debug("CHUDSP:SSI:Vector3 - entered.");
 
-            VfxHelper.CalculateStealthPips(___stealthDisplay, target, previewPos);
+            VfxHelper.CalculateMimeticPips(___stealthDisplay, target, previewPos);
         }
     }
 
@@ -81,7 +82,7 @@ namespace LowVisibility.Patch {
             if (___stealthDisplay == null) { return; }
             Mod.Log.Debug("CHUDSP:SSI:float - entered.");
 
-            VfxHelper.CalculateStealthPips(___stealthDisplay, target);
+            VfxHelper.CalculateMimeticPips(___stealthDisplay, target);
         }
     }
 
@@ -107,7 +108,7 @@ namespace LowVisibility.Patch {
                 Traverse showBuffStringMethod = Traverse.Create(__instance).Method("ShowBuff", stringMethodParams);
 
                 AbstractActor actor = __instance.DisplayedCombatant as AbstractActor;
-                EWState staticState = new EWState(actor);
+                EWState actorState = new EWState(actor);
 
                 bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 if (isPlayer) {
@@ -130,7 +131,7 @@ namespace LowVisibility.Patch {
                     }
                 }
 
-                if (State.ECMProtection(actor) != 0) {
+                if (actorState.GetECMShieldDetailsModifier() != 0) {
                     showDebuffStringMethod.GetValue(new object[] {
                         "uixSvgIcon_status_sensorsImpaired",
                         new Text("ECM PROTECTION", new object[0]),
@@ -140,7 +141,7 @@ namespace LowVisibility.Patch {
                     });
                 }
 
-                if (State.ECMJamming(actor) != 0) {
+                if (actorState.GetECMJammedDetailsModifier() != 0) {
                     showDebuffStringMethod.GetValue(new object[] {
                         "uixSvgIcon_status_sensorsImpaired",
                         new Text("ECM JAMMING", new object[0]),

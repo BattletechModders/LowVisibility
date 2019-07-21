@@ -2,40 +2,43 @@
 namespace LowVisibility {
 
     public class ModStats {
+        // WARNING: HBS Code upper-cases all stat names; if you try to comparison match in a case-sensitive fashion
+        //  it will fail. Better to uppercase everthing.
 
-        public const string TacticsMod = "LV_TacticsMod"; // Int_32
+        public const string TacticsMod = "LV_TACTICS_MOD"; // Int_32
 
-        public const string CurrentRoundEWCheck = "LV_Current_Round_EW_Check"; // Int_32
+        public const string CurrentRoundEWCheck = "LV_CURRENT_ROUND_EW_CHECK"; // Int_32
 
         // ECM 
-        public const string ECMCarrier = "LV_ECM_Carrier"; // Int_32
-        public const string ECMShield = "LV_ECM_Shield"; // Int_32
-        public const string ECMJammed = "LV_ECM_Jammed"; // Int_32
+        public const string ECMCarrier = "LV_ECM_CARRIER"; // Int_32
+        public const string ECMShield = "LV_ECM_SHIELD"; // Int_32
+        public const string ECMJammed = "LV_ECM_JAMMED"; // Int_32
 
         // Sensors
-        public const string AdvancedSensors = "LV_Advanced_Sensors";
+        public const string AdvancedSensors = "LV_ADVANCED_SENSORS";
 
         // Probe    
-        public const string ProbeCarrier = "LV_Probe_Carrier";
-        public const string ProbeSweepTarget = "LV_Probe_Sweep_Target";
+        public const string ProbeCarrier = "LV_PROBE_CARRIER";
+        public const string ProbeSweepTarget = "LV_PROBE_SWEEP_TARGET";
 
-        public const string StealthEffect = "LV_Stealth"; // String
-        public const string MimeticEffect = "LV_Mimetic"; // String
-        public const string MimeticCurrentSteps = "LV_Mimetic_Current_Steps"; // Int_32
+        // Stealth
+        public const string StealthEffect = "LV_STEALTH"; // String
+
+        // Mimetic
+        public const string MimeticEffect = "LV_MIMETIC"; // String
+        public const string MimeticCurrentSteps = "LV_MIMETIC_CURRENT_STEPS"; // Int_32
 
         // Sensor sharing
-        public const string SharesSensors = "LV_Shares_Sensors";
+        public const string SharesSensors = "LV_SHARES_SENSORS";
 
         // Vision modes
-        public const string HeatVision = "LV_Heat_Vision";
-        public const string ZoomVision = "LV_Zoom_Vision";
-        public const string NightVision = "LV_Night_Vision"; // TODO
+        public const string HeatVision = "LV_HEAT_VISION";
+        public const string ZoomVision = "LV_ZOOM_VISION";
+        public const string NightVision = "LV_NIGHT_VISION"; // TODO
 
         public static bool IsStealthStat(string statName) {
-            return statName != null && statName != "" && (
-                statName.Equals(ModStats.StealthEffect) ||
-                statName.Equals(ModStats.MimeticEffect)
-                );
+            return statName != null && statName != "" && 
+                (statName.Equals(ModStats.StealthEffect) || statName.Equals(ModStats.MimeticEffect));
         }
     }
 
@@ -73,12 +76,12 @@ namespace LowVisibility {
         // The range (in hexes) from which you can identify some elements of a unit
         public int VisualScanRange = 7;
 
-        // Applied when the attacker has sensor but no visual lock to a target.
-        public int VisionOnlyPenalty = 1;
+        // Applied when the attacker does not have sensor lock to the target
+        public int NoSensorLockPenalty = 5;
         public float VisionOnlyCriticalPenalty = 0.0f;
 
-        // Applied when the attacker has sensor but no visual lock to a target.
-        public int SensorsOnlyPenalty = 2;
+        // Applied when the attacker does not have a line of sight to the target
+        public int NoLineOfSightPenalty = 5;
         public float SensorsOnlyCriticalPenalty = 0.0f;
 
         public int MultipleECMSourceModifier = 1;
@@ -101,13 +104,13 @@ namespace LowVisibility {
             
             Mod.Log.Info($"  == Sensors ==");
             Mod.Log.Info($"Mech:{SensorRangeMechType} Vehicle:{SensorRangeVehicleType} Turret:{SensorRangeTurretType} UnknownType:{SensorRangeUnknownType}");
-            Mod.Log.Info($"SensorsOnlyPenalty:{SensorsOnlyPenalty}, SensorsOnlyCriticalPenalty:{SensorsOnlyCriticalPenalty}");
+            Mod.Log.Info($"SensorsOnlyPenalty:{NoLineOfSightPenalty}, SensorsOnlyCriticalPenalty:{SensorsOnlyCriticalPenalty}");
 
             Mod.Log.Info($"  == Vision ==");
             Mod.Log.Info($"VisionRangeBaseDaylight:{VisionRangeBaseDaylight} VisionRangeBaseDimlight:{VisionRangeBaseDimlight} VisionRangeBaseNight:{VisionRangeBaseNight}");
             Mod.Log.Info($"VisionRangeMultiRainSnow:{VisionRangeMultiRainSnow} VisionRangeMultiLightFog:{VisionRangeMultiLightFog} VisionRangeMultiHeavyFog:{VisionRangeMultiHeavyFog}");
             Mod.Log.Info($"VisionRangeMinimum:{VisionRangeMinimum} SensorRangeMinimum:{SensorRangeMinimum}, VisualIDRange:{VisualScanRange}");
-            Mod.Log.Info($"VisionOnlyPenalty:{VisionOnlyPenalty} VisionOnlyCriticalPenalty:{VisionOnlyCriticalPenalty}");
+            Mod.Log.Info($"VisionOnlyPenalty:{NoSensorLockPenalty} VisionOnlyCriticalPenalty:{VisionOnlyCriticalPenalty}");
 
             Mod.Log.Info("=== MOD CONFIG END ===");
         }

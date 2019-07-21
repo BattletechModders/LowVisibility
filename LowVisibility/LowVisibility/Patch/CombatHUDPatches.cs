@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using BattleTech.UI;
 using Harmony;
+using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using us.frostraptor.modUtils;
@@ -74,12 +75,9 @@ namespace LowVisibility.Patch {
             Mod.Log.Trace("CHUDWS:SHC - entered.");
 
             AbstractActor actor = __instance.DisplayedWeapon.parent;
-            AbstractActor targetActor = target as AbstractActor;
             Traverse AddToolTipDetailMethod = Traverse.Create(__instance).Method("AddToolTipDetail", new Type[] { typeof(string), typeof(int) });
 
-            if (targetActor != null && __instance.DisplayedWeapon != null) {
-                //LowVisibility.Logger.Debug($"___CombatHUDTargetingComputer - SetHitChance for source:{CombatantUtils.Label(targetActor)} target:{CombatantUtils.Label(targetActor)}");
-                Locks locks = State.LocksForTarget(actor, targetActor);
+            if (target is AbstractActor targetActor && __instance.DisplayedWeapon != null) {
                 float magnitude = (actor.CurrentPosition - target.CurrentPosition).magnitude;
                 EWState attackerState = new EWState(actor);
                 EWState targetState = new EWState(targetActor);
@@ -88,8 +86,9 @@ namespace LowVisibility.Patch {
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(__instance.DisplayedWeapon, magnitude);
                 int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, __instance.DisplayedWeapon);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState, __instance.DisplayedWeapon, magnitude);
-                if (!locks.hasLineOfSight) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO LINE OF SIGHT", Mod.Config.SensorsOnlyPenalty });
+                bool hasLineOfSight = VisualLockHelper.CalculateVisualLock(actor, actor.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, actor.Combat.LOS);
+                if (!hasLineOfSight) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO LINE OF SIGHT", Mod.Config.NoLineOfSightPenalty });
                 } else {
                     if (zoomVisionMod != 0) {
                         AddToolTipDetailMethod.GetValue(new object[] { "ZOOM VISION", zoomVisionMod });
@@ -98,15 +97,16 @@ namespace LowVisibility.Patch {
                         AddToolTipDetailMethod.GetValue(new object[] { "HEAT VISION", zoomVisionMod });
                     }
                     if (mimeticMod != 0) {
-                        AddToolTipDetailMethod.GetValue(new object[] { "MIMETIC ARMOR", mimeticMod});
+                        AddToolTipDetailMethod.GetValue(new object[] { "MIMETIC ARMOR", mimeticMod });
                     }
                 }
-                
+
                 // Sensor modifiers
                 int ecmShieldMod = targetState.GetECMShieldAttackModifier(attackerState);
                 int stealthMod = targetState.StealthAttackMod(attackerState, __instance.DisplayedWeapon, magnitude);
-                if (locks.sensorLock == SensorScanType.NoInfo) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", Mod.Config.VisionOnlyPenalty });
+                SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, actor);
+                if (sensorScan == SensorScanType.NoInfo) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", Mod.Config.NoSensorLockPenalty });
                 } else {
                     if (ecmShieldMod != 0) {
                         Mod.Log.Debug($" CHUDWS:SHC Target:{CombatantUtils.Label(target)} has ECM_SHIELD, applying modifier: {targetState.GetECMShieldAttackModifier(attackerState)}");
@@ -118,7 +118,7 @@ namespace LowVisibility.Patch {
                     }
                 }
 
-            }          
+            }
         }
     }
 }

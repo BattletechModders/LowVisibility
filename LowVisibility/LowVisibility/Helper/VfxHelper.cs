@@ -148,34 +148,28 @@ namespace LowVisibility.Helper {
             par.BlipObjectGhostWeak.SetActive(false);
         }
 
-        public static void CalculateStealthPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, Vector3 previewPos) {
+        public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, Vector3 previewPos) {
             float distanceMoved = Vector3.Distance(previewPos, actor.CurrentPosition);
-            CalculateStealthPips(stealthDisplay, actor, distanceMoved);
+            CalculateMimeticPips(stealthDisplay, actor, distanceMoved);
         }
 
-        public static void CalculateStealthPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor) {
+        public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor) {
             float distanceMoved = Vector3.Distance(actor.PreviousPosition, actor.CurrentPosition);
-            CalculateStealthPips(stealthDisplay, actor, distanceMoved);
+            CalculateMimeticPips(stealthDisplay, actor, distanceMoved);
 
         }
 
-        public static void CalculateStealthPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, float distanceMoved) {
+        public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, float distanceMoved) {
             EWState actorState = new EWState(actor);
-            Mod.Log.Debug($"Calculating stealthPips for Actor: {CombatantUtils.Label(actor)}");
+            Mod.Log.Debug($"Calculating mimeticPips for Actor: {CombatantUtils.Label(actor)}");
 
             int stepsMoved = (int)Math.Ceiling(distanceMoved / 30f);
             Mod.Log.Debug($"  stepsMoved: {stepsMoved} = distanceMoved: {distanceMoved} / 30");
 
-            // Update number of pips
-            int maxSensorStealthPips = actorState.MaxSensorStealthPips();
-            int maxVisionStealthPips = actorState.MaxMimeticPips();
-            int maxPips = Math.Max(maxSensorStealthPips, maxVisionStealthPips);
-
-            int sensorStealthPips = actorState.CurrentSensorStealthPips();
-            int visionStealthPips = actorState.CurrentMimeticPips();
-            int currPips = Math.Max(sensorStealthPips, visionStealthPips);
-
-            stealthDisplay.ShowNewActorStealth(currPips, maxPips);
+            // Update # of pips
+            int maxPips = actorState.MaxMimeticPips();
+            int currentPips = actorState.CurrentMimeticPips();
+            stealthDisplay.ShowNewActorStealth(currentPips, maxPips);
 
             // Change colors to reflect maxmimums
             Traverse pipsT = Traverse.Create(stealthDisplay).Property("Pips");
@@ -183,10 +177,32 @@ namespace LowVisibility.Helper {
             for (int i = 0; i < pips.Count; i++) {
                 Graphic g = pips[i];
                 if (g.isActiveAndEnabled) {
-                    Color pipColor = GetPipColor(i, sensorStealthPips, visionStealthPips);
+                    Color pipColor = Color.grey;
                     UIHelpers.SetImageColor(g, pipColor);
                 }
             }
+
+            // Update number of pips
+            //int maxSensorStealthPips = actorState.MaxSensorStealthPips();
+            //int maxVisionStealthPips = actorState.MaxMimeticPips();
+            //int maxPips = Math.Max(maxSensorStealthPips, maxVisionStealthPips);
+
+            //int sensorStealthPips = actorState.CurrentSensorStealthPips();
+            //int visionStealthPips = actorState.CurrentMimeticPips();
+            //int currPips = Math.Max(sensorStealthPips, visionStealthPips);
+
+            //stealthDisplay.ShowNewActorStealth(currPips, maxPips);
+
+            //// Change colors to reflect maxmimums
+            //Traverse pipsT = Traverse.Create(stealthDisplay).Property("Pips");
+            //List<Graphic> pips = pipsT.GetValue<List<Graphic>>();
+            //for (int i = 0; i < pips.Count; i++) {
+            //    Graphic g = pips[i];
+            //    if (g.isActiveAndEnabled) {
+            //        Color pipColor = GetPipColor(i, sensorStealthPips, visionStealthPips);
+            //        UIHelpers.SetImageColor(g, pipColor);
+            //    }
+            //}
         }
 
         private static Color GetPipColor(int idx, int sensorPips, int visionPips) {

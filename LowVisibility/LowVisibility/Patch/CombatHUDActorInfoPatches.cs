@@ -18,7 +18,7 @@ namespace LowVisibility.Patch {
 
                 StealthChangedMessage stealthChangedMessage = message as StealthChangedMessage;
                 if (___displayedActor != null && stealthChangedMessage.affectedObjectGuid == ___displayedActor.GUID && __instance.StealthDisplay != null) {
-                    VfxHelper.CalculateStealthPips(__instance.StealthDisplay, ___displayedActor);
+                    VfxHelper.CalculateMimeticPips(__instance.StealthDisplay, ___displayedActor);
                 }
             }
         }
@@ -29,7 +29,7 @@ namespace LowVisibility.Patch {
                 Mod.Log.Debug("CHUDAI:RAI entered");
 
                 if (___displayedActor != null && __instance.StealthDisplay != null) {
-                    VfxHelper.CalculateStealthPips(__instance.StealthDisplay, ___displayedActor);
+                    VfxHelper.CalculateMimeticPips(__instance.StealthDisplay, ___displayedActor);
                 }
             }
         }
@@ -66,12 +66,13 @@ namespace LowVisibility.Patch {
                 Traverse setGOActiveMethod = Traverse.Create(__instance).Method("SetGOActive", new Type[] { typeof(MonoBehaviour), typeof(bool) });
                 // The actual method should handle allied and friendly units fine, so we can just change it for enemies
                 if (isEnemyOrNeutral && visibilityLevel > VisibilityLevel.Blip0Minimum && ___displayedActor != null) {
-                    Locks lockState = State.LastActivatedLocksForTarget(___displayedActor);
+
+                    SensorScanType scanType = SensorLockHelper.CalculateSharedLock(___displayedActor, State.LastPlayerActorActivated);
 
                     // Values that are always displayed
                     setGOActiveMethod.GetValue(__instance.NameDisplay, true);
 
-                    if (lockState.sensorLock >= SensorScanType.StructureAnalysis) {
+                    if (scanType >= SensorScanType.StructureAnalysis) {
                         // Show unit summary
                         setGOActiveMethod.GetValue(__instance.DetailsDisplay, true);
 
@@ -93,7 +94,7 @@ namespace LowVisibility.Patch {
                             setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                             setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                         }
-                    } else if (lockState.sensorLock >= SensorScanType.SurfaceScan) {
+                    } else if (scanType >= SensorScanType.SurfaceScan) {
                         // Show unit summary
                         setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
@@ -110,7 +111,7 @@ namespace LowVisibility.Patch {
 
                         setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                         setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
-                    } else if (lockState.hasLineOfSight) {
+                    } else if (State.LastPlayerActorActivated.VisibilityToTargetUnit(___displayedActor) == VisibilityLevel.LOSFull) {
                         // Hide unit summary
                         setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 

@@ -1,5 +1,6 @@
 ﻿using BattleTech;
 using Harmony;
+using LowVisibility.Helper;
 using LowVisibility.Object;
 using UnityEngine;
 using us.frostraptor.modUtils;
@@ -13,12 +14,11 @@ namespace LowVisibility.Patch {
         private static void Postfix(ToHit __instance, ref float __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
 
-            Mod.Log.Trace($"Getting modifiers for attacker:{CombatantUtils.Label(attacker)} " +
-                $"using weapon:{weapon.Name} vs target:{CombatantUtils.Label(target)}");
+            Mod.Log.Debug($"Getting modifiers for attacker:{CombatantUtils.Label(attacker)} " +
+                $"using weapon:{weapon.Name} vs target:{CombatantUtils.Label(target)} with initial result:{__result}");
 
             AbstractActor targetActor = target as AbstractActor;
             if (__instance != null && attacker != null && targetActor != null) {
-                Locks locks = State.LocksForTarget(attacker, targetActor);
                 float distance = Vector3.Distance(attackPosition, targetPosition);
                 EWState attackerState = new EWState(attacker);
                 EWState targetState = new EWState(targetActor);
@@ -27,8 +27,9 @@ namespace LowVisibility.Patch {
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(weapon, distance);
                 int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, weapon);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState, weapon, distance);
-                if (!locks.hasLineOfSight) {
-                    __result = __result + (float)Mod.Config.SensorsOnlyPenalty;
+                bool hasLineOfSight = VisualLockHelper.CalculateVisualLock(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
+                if (!hasLineOfSight) {
+                    __result = __result + (float)Mod.Config.NoLineOfSightPenalty;
                 } else {
                     if (zoomVisionMod != 0) {
                         __result = __result + (float)zoomVisionMod;
@@ -44,8 +45,9 @@ namespace LowVisibility.Patch {
                 // Sensor modifiers
                 int ecmShieldMod = targetState.GetECMShieldAttackModifier(attackerState);
                 int stealthMod = targetState.StealthAttackMod(attackerState, weapon, distance);
-                if (locks.sensorLock == SensorScanType.NoInfo) {
-                    __result = __result + (float)Mod.Config.SensorsOnlyPenalty;
+                SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, attacker);
+                if (sensorScan == SensorScanType.NoInfo) {
+                    __result = __result + (float)Mod.Config.NoSensorLockPenalty;
                 } else {
                     if (ecmShieldMod != 0) {
                         __result = __result + (float)ecmShieldMod;
@@ -55,7 +57,9 @@ namespace LowVisibility.Patch {
                     }
                 }
 
-            }            
+                Mod.Log.Debug($" -- Final result:{__result}");
+
+            }
         }
     }
 
@@ -72,7 +76,6 @@ namespace LowVisibility.Patch {
 
             AbstractActor targetActor = target as AbstractActor;
             if (__instance != null && attacker != null && weapon != null && target != null && targetActor != null) {
-                Locks locks = State.LocksForTarget(attacker, targetActor);
                 float distance = Vector3.Distance(attackPosition, targetPosition);
                 EWState attackerState = new EWState(attacker);
                 EWState targetState = new EWState(targetActor);
@@ -81,8 +84,9 @@ namespace LowVisibility.Patch {
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(weapon, distance);
                 int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, weapon);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState, weapon, distance);
-                if (!locks.hasLineOfSight) {
-                    __result = string.Format("{0}NO LINE OF SIGHT {1:+#;-#}; ", __result, Mod.Config.SensorsOnlyPenalty);
+                bool hasLineOfSight = VisualLockHelper.CalculateVisualLock(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
+                if (!hasLineOfSight) {
+                    __result = string.Format("{0}NO LINE OF SIGHT {1:+#;-#}; ", __result, Mod.Config.NoLineOfSightPenalty);
                 } else {
                     if (zoomVisionMod != 0) {
                         __result = string.Format("{0}ZOOM MODE {1:+#;-#}; ", __result, zoomVisionMod);
@@ -98,8 +102,9 @@ namespace LowVisibility.Patch {
                 // Sensor modifiers
                 int ecmShieldMod = targetState.GetECMShieldAttackModifier(attackerState);
                 int stealthMod = targetState.StealthAttackMod(attackerState, weapon, distance);
-                if (locks.sensorLock == SensorScanType.NoInfo) {
-                    __result = string.Format("{0}NO SENSOR LOCK {1:+#;-#}; ", __result, Mod.Config.VisionOnlyPenalty);
+                SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, attacker);
+                if (sensorScan == SensorScanType.NoInfo) {
+                    __result = string.Format("{0}NO SENSOR LOCK {1:+#;-#}; ", __result, Mod.Config.NoSensorLockPenalty);
                 } else {
                     if (ecmShieldMod != 0) {
                         __result = string.Format("{0}ECM SHIELD {1:+#;-#}; ", __result, ecmShieldMod);

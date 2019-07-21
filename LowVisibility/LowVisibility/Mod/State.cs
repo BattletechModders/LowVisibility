@@ -27,7 +27,8 @@ namespace LowVisibility {
             = new Dictionary<string, Dictionary<string, Locks>>();
         
         // TODO: Do I need this anymore?
-        public static string LastPlayerActor;
+        //public static string LastPlayerActor;
+        public static AbstractActor LastPlayerActorActivated;
 
         // -- State related to ECM/effects
         public static Dictionary<string, int> ECMJammedActors = new Dictionary<string, int>();
@@ -45,7 +46,7 @@ namespace LowVisibility {
             State.EWState.Clear();
             State.PlayerActorLocks.Clear();
 
-            State.LastPlayerActor = null;
+          //  State.LastPlayerActor = null;
 
             State.ECMJammedActors.Clear();
             State.ECMProtectedActors.Clear();
@@ -74,19 +75,19 @@ namespace LowVisibility {
         }
 
         // --- Methods for SourceActorLockStates
-        public static Dictionary<string, Locks> LastActivatedLocks(CombatGameState Combat) {
-            AbstractActor lastActivated = GetLastPlayerActivatedActor(Combat);
-            if (!PlayerActorLocks.ContainsKey(lastActivated.GUID)) {
-                PlayerActorLocks[lastActivated.GUID] = new Dictionary<string, Locks>();                
-            }
-            return PlayerActorLocks[lastActivated.GUID];
-        }
+        //public static Dictionary<string, Locks> LastActivatedLocks(CombatGameState Combat) {
+        //    AbstractActor lastActivated = GetLastPlayerActivatedActor(Combat);
+        //    if (!PlayerActorLocks.ContainsKey(lastActivated.GUID)) {
+        //        PlayerActorLocks[lastActivated.GUID] = new Dictionary<string, Locks>();                
+        //    }
+        //    return PlayerActorLocks[lastActivated.GUID];
+        //}
 
-        public static Locks LastActivatedLocksForTarget(ICombatant target) {
-            Dictionary<string, Locks> locks = State.LastActivatedLocks(target.Combat);
-            return locks.ContainsKey(target.GUID) ? 
-                locks[target.GUID] : new Locks(State.GetLastPlayerActivatedActor(target.Combat), target);
-        }
+        //public static Locks LastActivatedLocksForTarget(ICombatant target) {
+        //    Dictionary<string, Locks> locks = State.LastActivatedLocks(target.Combat);
+        //    return locks.ContainsKey(target.GUID) ? 
+        //        locks[target.GUID] : new Locks(State.GetLastPlayerActivatedActor(target.Combat), target);
+        //}
 
         //public static Locks LocksForTarget(AbstractActor attacker, ICombatant target) {
         //    Locks locks = null;
@@ -141,50 +142,49 @@ namespace LowVisibility {
         }
         
         // The last actor that the player activated. Used to determine visibility in targetingHUD between activations
-
-        public static AbstractActor GetLastPlayerActivatedActor(CombatGameState Combat) {
-            if (LastPlayerActor == null) {
-                List<AbstractActor> playerActors = HostilityHelper.PlayerActors(Combat);
-                LastPlayerActor = playerActors[0].GUID;
-            }
-            return Combat.FindActorByGUID(LastPlayerActor);
-        }
+        //public static AbstractActor GetLastPlayerActivatedActor(CombatGameState Combat) {
+        //    if (LastPlayerActor == null) {
+        //        List<AbstractActor> playerActors = HostilityHelper.PlayerActors(Combat);
+        //        LastPlayerActor = playerActors[0].GUID;
+        //    }
+        //    return Combat.FindActorByGUID(LastPlayerActor);
+        //}
 
         // --- ECM JAMMING STATE TRACKING ---
-        public static int ECMJamming(AbstractActor actor) {
-            return ECMJammedActors.ContainsKey(actor.GUID) ? ECMJammedActors[actor.GUID] : 0;
-        }
+        //public static int ECMJamming(AbstractActor actor) {
+        //    return ECMJammedActors.ContainsKey(actor.GUID) ? ECMJammedActors[actor.GUID] : 0;
+        //}
 
-        public static void AddECMJamming(AbstractActor actor, int modifier) {
-            if (!ECMJammedActors.ContainsKey(actor.GUID)) {
-                ECMJammedActors.Add(actor.GUID, modifier);
-            } else if (modifier > ECMJammedActors[actor.GUID]) {
-                ECMJammedActors[actor.GUID] = modifier;
-            }            
-        }
-        public static void RemoveECMJamming(AbstractActor actor) {
-            if (ECMJammedActors.ContainsKey(actor.GUID)) {
-                ECMJammedActors.Remove(actor.GUID);
-            }            
-        }
+        //public static void AddECMJamming(AbstractActor actor, int modifier) {
+        //    if (!ECMJammedActors.ContainsKey(actor.GUID)) {
+        //        ECMJammedActors.Add(actor.GUID, modifier);
+        //    } else if (modifier > ECMJammedActors[actor.GUID]) {
+        //        ECMJammedActors[actor.GUID] = modifier;
+        //    }            
+        //}
+        //public static void RemoveECMJamming(AbstractActor actor) {
+        //    if (ECMJammedActors.ContainsKey(actor.GUID)) {
+        //        ECMJammedActors.Remove(actor.GUID);
+        //    }            
+        //}
 
-        // --- ECM PROTECTION STATE TRACKING
-        public static int ECMProtection(ICombatant actor) {
-            return ECMProtectedActors.ContainsKey(actor.GUID) ? ECMProtectedActors[actor.GUID] : 0;
-        }
+        //// --- ECM PROTECTION STATE TRACKING
+        //public static int ECMProtection(ICombatant actor) {
+        //    return ECMProtectedActors.ContainsKey(actor.GUID) ? ECMProtectedActors[actor.GUID] : 0;
+        //}
 
-        public static void AddECMProtection(ICombatant actor, int modifier) {            
-            if (!ECMProtectedActors.ContainsKey(actor.GUID)) {
-                ECMProtectedActors.Add(actor.GUID, modifier);
-            } else if (modifier > ECMProtectedActors[actor.GUID]) {
-                ECMProtectedActors[actor.GUID] = modifier;
-            }
-        }
-        public static void RemoveECMProtection(ICombatant actor) {
-            if (ECMProtectedActors.ContainsKey(actor.GUID)) {
-                ECMProtectedActors.Remove(actor.GUID);
-            }
-        }
+        //public static void AddECMProtection(ICombatant actor, int modifier) {            
+        //    if (!ECMProtectedActors.ContainsKey(actor.GUID)) {
+        //        ECMProtectedActors.Add(actor.GUID, modifier);
+        //    } else if (modifier > ECMProtectedActors[actor.GUID]) {
+        //        ECMProtectedActors[actor.GUID] = modifier;
+        //    }
+        //}
+        //public static void RemoveECMProtection(ICombatant actor) {
+        //    if (ECMProtectedActors.ContainsKey(actor.GUID)) {
+        //        ECMProtectedActors.Remove(actor.GUID);
+        //    }
+        //}
 
         // --- ECM NARC EFFECT
         public static int NARCEffect(ICombatant actor) {
@@ -227,7 +227,7 @@ namespace LowVisibility {
             public Dictionary<string, EWState> staticState;
             public Dictionary<string, Dictionary<string, Locks>> PlayerActorLocks;
 
-            public string LastPlayerActivatedActorGUID;
+            //public string LastPlayerActivatedActorGUID;
 
             public Dictionary<string, int> ecmJammedActors;
             public Dictionary<string, int> ecmProtectedActors;
@@ -263,8 +263,8 @@ namespace LowVisibility {
                     State.PlayerActorLocks = savedState.PlayerActorLocks;
                     Mod.Log.Info($"  -- SourceActorLockStates.count: {savedState.PlayerActorLocks.Count}");
 
-                    State.LastPlayerActor = savedState.LastPlayerActivatedActorGUID;
-                    Mod.Log.Info($"  -- LastPlayerActivatedActorGUID: {LastPlayerActor}");
+                    //State.LastPlayerActor = savedState.LastPlayerActivatedActorGUID;
+                    //Mod.Log.Info($"  -- LastPlayerActivatedActorGUID: {LastPlayerActor}");
 
                     State.ECMJammedActors = savedState.ecmJammedActors;
                     Mod.Log.Info($"  -- ecmJammedActors.count: {savedState.ecmJammedActors.Count}");
@@ -298,7 +298,7 @@ namespace LowVisibility {
                     staticState = State.EWState,
                     PlayerActorLocks = State.PlayerActorLocks,
 
-                    LastPlayerActivatedActorGUID = State.LastPlayerActor,
+                    //LastPlayerActivatedActorGUID = State.LastPlayerActor,
 
                     ecmJammedActors = State.ECMJammedActors,
                     ecmProtectedActors = State.ECMProtectedActors,

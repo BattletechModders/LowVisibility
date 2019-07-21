@@ -13,9 +13,9 @@ namespace LowVisibility.Patch {
             Mod.Log.Debug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {CombatantUtils.Label(actor)}.");
             if (__instance != null && actor != null && __result == true && actor.IsAvailableThisPhase) {
                 ECMHelper.UpdateECMState(actor);
-                if (actor.team == actor.Combat.LocalPlayerTeam) {
-                    State.LastPlayerActor = actor.GUID;
-                }
+                //if (actor.team == actor.Combat.LocalPlayerTeam) {
+                //    State.LastPlayerActor = actor.GUID;
+                //}
 
                 // Do this to force a refresh during a combat save
                 if (TurnDirector_OnEncounterBegin.IsFromSave) {

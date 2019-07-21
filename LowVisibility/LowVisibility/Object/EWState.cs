@@ -72,12 +72,11 @@ namespace LowVisibility.Object {
         private ZoomVision ZoomVision = null;
         private HeatVision HeatVision = null;
         // TODO: Night vision here
+        
+        private int TacticsBonus = 1;
 
-        // The amount of tactics bonus to the sensor check
-        private float tacticsModifier = 1.0f;
-
-        // Whether this actor will share sensor data with others
-        private bool sharesSensors = false;
+        // If true, actor shares sensor information with all allies
+        public bool SharesSensors = false;
 
         // Necessary for serialization
         public EWState() {}
@@ -86,23 +85,71 @@ namespace LowVisibility.Object {
         public EWState(AbstractActor actor) {
             this.actor = actor;
 
-            tacticsModifier = actor.StatCollection.ContainsStatistic(ModStats.TacticsMod) ?
-                actor.StatCollection.GetStatistic(ModStats.TacticsMod).Value<int>() : 0;
+            // Pilot effects; cache and only read once
+            if (actor.StatCollection.ContainsStatistic(ModStats.TacticsMod)) {
+                TacticsBonus = actor.StatCollection.GetStatistic(ModStats.TacticsMod).Value<int>();
+                if (TacticsBonus == 0 && actor.GetPilot() != null) {
+                    TacticsBonus = SkillUtils.GetTacticsModifier(actor.GetPilot());
+                }
+            }
 
-            CurrentRoundEWCheck = actor.StatCollection.ContainsStatistic(ModStats.CurrentRoundEWCheck) ? 
+            // Emphereal round check
+            CurrentRoundEWCheck = actor.StatCollection.ContainsStatistic(ModStats.CurrentRoundEWCheck) ?
                 actor.StatCollection.GetStatistic(ModStats.CurrentRoundEWCheck).Value<int>() : 0;
 
             // ECM
-            ECMJammed = actor.StatCollection.ContainsStatistic(ModStats.ECMJammed) ?
-                actor.StatCollection.GetStatistic(ModStats.ECMJammed).Value<int>() : 0;
-            ECMShield = actor.StatCollection.ContainsStatistic(ModStats.ECMShield) ?
-                actor.StatCollection.GetStatistic(ModStats.ECMShield).Value<int>() : 0;
             ECMCarrier = actor.StatCollection.ContainsStatistic(ModStats.ECMCarrier) ?
                 actor.StatCollection.GetStatistic(ModStats.ECMCarrier).Value<int>() : 0;
+
+            // Possible overlapping values
+            ECMJammed = actor.StatCollection.ContainsStatistic(ModStats.ECMJammed) ?
+                actor.StatCollection.GetStatistic(ModStats.ECMJammed).Value<int>() : 0;
+            string ecmJammedValuesStat = ModStats.ECMJammed + "_AH_VALUES";
+            if (actor.StatCollection.ContainsStatistic(ecmJammedValuesStat) && 
+                actor.StatCollection.GetStatistic(ecmJammedValuesStat).Value<string>() != "") {
+                string valuesStat = actor.StatCollection.GetStatistic(ecmJammedValuesStat).Value<string>();
+                //Mod.Log.Debug($"Multiple values found for ECM_JAMMED: ({valuesStat})");
+                string[] values = valuesStat.Split(',');
+                int count = 0;
+                int highest = 0;
+                foreach (string value in values) {
+                    // value format should be like LV_ECM_SHIELD:Cicada_Kraken_42004E3F:Weapon_PPC_PPC_0-STOCK:4
+                    string[] tokens = value.Split(':');
+                    string valS = tokens[3];
+                    int val = Int32.Parse(valS);
+                    if (val > highest) { highest = val;  }
+                    count++;
+                }
+                //Mod.Log.Debug($"Setting ECM_JAMMED to highest:{highest} + count:{count} - 1");
+                ECMJammed = highest + (count - 1);
+            }
+
+            ECMShield = actor.StatCollection.ContainsStatistic(ModStats.ECMShield) ?
+                actor.StatCollection.GetStatistic(ModStats.ECMShield).Value<int>() : 0;
+            string ecmShieldValuesStat = ModStats.ECMShield + "_AH_VALUES";
+            if (actor.StatCollection.ContainsStatistic(ecmShieldValuesStat)) {
+                string valuesStat = actor.StatCollection.GetStatistic(ecmShieldValuesStat).Value<string>();
+                //Mod.Log.Debug($"Multiple values found for ECM_SHIELD: ({valuesStat})");
+                string[] values = valuesStat.Split(',');
+                int count = 0;
+                int highest = 0;
+                foreach (string value in values) {
+                    // value format should be like LV_ECM_SHIELD:Cicada_Kraken_42004E3F:Weapon_PPC_PPC_0-STOCK:4
+                    string[] tokens = value.Split(':');
+                    string valS = tokens[3];
+                    int val = Int32.Parse(valS);
+                    if (val > highest) { highest = val; }
+                    count++;
+                }
+                //Mod.Log.Debug($"Setting ECM_SHIELD to highest:{highest} + count:{count} - 1");
+                ECMShield = highest + (count - 1);
+            }
 
             // Sensors
             AdvancedSensors = actor.StatCollection.ContainsStatistic(ModStats.AdvancedSensors) ?
                 actor.StatCollection.GetStatistic(ModStats.AdvancedSensors).Value<int>() : 0;
+            SharesSensors = actor.StatCollection.ContainsStatistic(ModStats.SharesSensors) ?
+                actor.StatCollection.GetStatistic(ModStats.SharesSensors).Value<bool>() : false;
 
             // Probes
             ProbeCarrier = actor.StatCollection.ContainsStatistic(ModStats.ProbeCarrier) ?
@@ -187,18 +234,18 @@ namespace LowVisibility.Object {
                             HeatDivisor = float.Parse(tokens[1]),
                     };
                     } catch (Exception) {
-                        Mod.Log.Info($"Failed to tokenize HeatVision  value: ({rawValue}). Discarding!");
+                        Mod.Log.Info($"Failed to tokenize HeatVision value: ({rawValue}). Discarding!");
                         Mimetic = null;
                     }
                 } else {
-                    Mod.Log.Info($"WARNING: Invalid HeatVision  value: ({rawValue}) found. Discarding!");
+                    Mod.Log.Info($"WARNING: Invalid HeatVision value: ({rawValue}) found. Discarding!");
                 }
             }
 
             //EWStateHelper.UpdateStaticState(this, actor);
         }
 
-        public int GetCurrentEWCheck() { return CurrentRoundEWCheck; }
+        public int GetCurrentEWCheck() { return CurrentRoundEWCheck + TacticsBonus; }
 
         // ECM
         public int GetECMJammedDetailsModifier() { return ECMJammed;  }
@@ -214,7 +261,7 @@ namespace LowVisibility.Object {
 
         // Sensors
         public int GetAdvancedSensorsMod() { return AdvancedSensors; }
-        public float GetSensorsRangeMulti() { return CurrentRoundEWCheck / 20.0f + tacticsModifier / 10.0f; }
+        public float GetSensorsRangeMulti() { return CurrentRoundEWCheck / 20.0f + TacticsBonus / 10.0f; }
         public float GetSensorsBaseRange() {
             if (actor.GetType() == typeof(Mech)) {
                 return Mod.Config.SensorRangeMechType * 30.0f;
@@ -323,7 +370,7 @@ namespace LowVisibility.Object {
         public override string ToString() { return $"sensorsCheck:{CurrentRoundEWCheck}"; }
 
         public string Details() {
-            return $"tacticsModifier:{tacticsModifier}" +
+            return $"tacticsBonus:{TacticsBonus}" +
                 $"ecmShieldSigMod:{GetECMShieldSignatureModifier()} ecmShieldDetailsMod:{GetECMShieldDetailsModifier()} " +
                 $"ecmJammedDetailsMod:{GetECMJammedDetailsModifier()} " +
                 $"probeCarrier:{GetProbeSelfModifier()} probeSweepTarget:{GetTargetOfProbeModifier()}" +
@@ -334,7 +381,7 @@ namespace LowVisibility.Object {
                 //$"visionStealthAttackMulti:{(VisionStealthAttackMulti != null ? VisionStealthAttackMulti.ToString() : "1")} " +
                 //$"vismodeZoomMod:{vismodeZoomMod} vismodeZoomCap:{vismodeZoomCap} vismodeZoomStep:{vismodeZoomStep} " +
                 //$"vismodeHeatMod:{vismodeHeatMod} vismodeHeatDiv:{vismodeHeatDivisor} " +
-                $"sharesSensors:{sharesSensors}";
+                $"sharesSensors:{SharesSensors}";
         }
 
         public void Update(AbstractActor actor) {
@@ -350,11 +397,7 @@ namespace LowVisibility.Object {
                 string actorLabel = CombatantUtils.Label(actor);
 
                 // Determine the bonus from the pilots tactics
-                if (actor.GetPilot() != null) {
-                    state.tacticsModifier = 1.0f + (SkillUtils.GetTacticsModifier(actor.GetPilot()) / 10.0f);
-                } else {
-                    Mod.Log.Info($"Actor:{CombatantUtils.Label(actor)} HAS NO PILOT!");
-                }
+
 
             }
   

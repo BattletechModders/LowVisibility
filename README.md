@@ -317,9 +317,10 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 
 ### 1.6 Bugs
 * Auras stack endlessly; need to read VALUES statistic instead of raw statistic
-* Melee vs. stealth causes hardlock
+* ~~Melee vs. stealth causes hardlock~~
 * Stealth textures don't always load
-* Cannot shoot stealthed enemies; hardlock due to NRE
+* ~~Cannot shoot stealthed enemies; hardlock due to NRE~~
+* Prefix not showing for mimetic
 
 ### WIP Features
 

@@ -1,5 +1,6 @@
 ﻿using BattleTech;
 using LowVisibility.Object;
+using System.Collections.Generic;
 using UnityEngine;
 using us.frostraptor.modUtils;
 
@@ -102,6 +103,41 @@ namespace LowVisibility.Helper {
             return targetSignature;
         }
 
+        // Iterates over all player-allied units, checks for highest lock level to determine unit 
+        public static SensorScanType CalculateSharedLock(ICombatant target, AbstractActor source) {
+            SensorScanType scanType = SensorScanType.NoInfo;
+
+            List<AbstractActor> sensorSources = new List<AbstractActor>();
+            if (source == null) {
+                // We don't have an active source, so treat the entire allied faction as sources
+                Mod.Log.Debug($"No primary lock source, assuming all allies.");
+                sensorSources.AddRange(target.Combat.GetAllAlliesOf(target.Combat.LocalPlayerTeam));
+            } else {
+                // We have an active source, so only use that model plus any 'shares sensors' models
+                Mod.Log.Debug($"Actor:({CombatantUtils.Label(source)}) is primary lock source.");
+                sensorSources.Add(source);
+                foreach (AbstractActor friendly in source.Combat.GetAllAlliesOf(source)) {
+                    EWState friendlyState = new EWState(friendly);
+                    if (friendlyState.SharesSensors) {
+                        Mod.Log.Debug($"Actor:({CombatantUtils.Label(friendly)}) shares sensors, adding their lock.");
+                        sensorSources.Add(friendly);
+                    }
+                }
+            }
+
+            Mod.Log.Debug($"Checking locks from {sensorSources.Count} sources.");
+            foreach (AbstractActor actor in sensorSources) {
+                SensorScanType actorScanType = CalculateSensorInfoLevel(actor, target);
+                if (actorScanType > scanType) {
+                    Mod.Log.Debug($"Increasing scanType to: ({actorScanType}) from source:({CombatantUtils.Label(actor)}) ");
+                    scanType = actorScanType;
+                }
+            }
+
+            Mod.Log.Debug($"Shared lock to target:({CombatantUtils.Label(target)}) is type: ({scanType})");
+            return scanType;
+        }
+
         public static SensorScanType CalculateSensorLock(AbstractActor source, Vector3 sourcePos, ICombatant target, Vector3 targetPos) {
 
             if (source.GUID == target.GUID || source.Combat.HostilityMatrix.IsFriendly(source.TeamId, target.team.GUID)) {
@@ -135,52 +171,55 @@ namespace LowVisibility.Helper {
             float distance = Vector3.Distance(sourcePos, targetPos);
             float sensorRangeVsTarget = SensorLockHelper.GetAdjustedSensorRange(source, target);
             Mod.Log.Trace($"SensorLockHelper - source: {CombatantUtils.Label(source)} sensorRangeVsTarget: {sensorRangeVsTarget} vs distance: {distance}");
-            if (distance > sensorRangeVsTarget) {
-                // Check for Narc effect that will show the target regardless of range
-                SensorScanType narcLock = HasNarcBeaconDetection(target) ? SensorScanType.Location : SensorScanType.NoInfo;
-                Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
-                return narcLock;
-            } else if ((target as Building) != null) {
+            if ((target as Building) != null) {
                 // If the target is a building, show them so long as they are in sensor distance
                 // TODO: ADD FRIENDLY ECM CHECK HERE?
                 EWState sourceState = new EWState(source);
                 Building targetBuilding = target as Building;
                 // TODO: This should be calculated more fully! Major bug here!
-                SensorScanType buildingLock = sourceState.GetCurrentEWCheck() > 0 ? SensorScanType.SurfaceScan: SensorScanType.NoInfo;
+                SensorScanType buildingLock = sourceState.GetCurrentEWCheck() > 0 ? SensorScanType.SurfaceScan : SensorScanType.NoInfo;
                 Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} is a building with lockState:{buildingLock}");
                 return buildingLock;
             } else if ((target as AbstractActor) != null) {
                 AbstractActor targetActor = target as AbstractActor;
+                EWState targetState = new EWState(targetActor);
 
-                SensorScanType sensorLock = SensorScanType.NoInfo;
-                if (targetActor.IsTeleportedOffScreen) {
-                    Mod.Log.Debug($"  target is teleported off screen. Skipping.");                
+                if (distance > sensorRangeVsTarget) {
+                    // Check for Narc effect that will show the target regardless of range
+                    SensorScanType narcLock = HasNarcBeaconDetection(target, targetState) ? SensorScanType.Location : SensorScanType.NoInfo;
+                    Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
+                    return narcLock;
                 } else {
-                    // TODO: Re-add shadowing logic
-                    // TODO: SensorLock adds a boost from friendlies if they have shares sensors?
-                    // We are within range, but check to see if the sensorInfoCheck failed
-                    sensorLock = CalculateSensorInfoLevel(source, target);
+                    SensorScanType sensorLock = SensorScanType.NoInfo;
+                    if (targetActor.IsTeleportedOffScreen) {
+                        Mod.Log.Debug($"  target is teleported off screen. Skipping.");
+                    } else {
+                        // TODO: Re-add shadowing logic
+                        // TODO: SensorLock adds a boost from friendlies if they have shares sensors?
+                        // We are within range, but check to see if the sensorInfoCheck failed
+                        sensorLock = CalculateSensorInfoLevel(source, target);
 
-                    // Check for Narc effect overriding detection
-                    if (sensorLock < SensorScanType.Location && HasNarcBeaconDetection(targetActor)) {
-                        sensorLock = SensorScanType.Location;
+                        // Check for Narc effect overriding detection
+                        if (sensorLock < SensorScanType.Location && HasNarcBeaconDetection(targetActor, targetState)) {
+                            sensorLock = SensorScanType.Location;
+                        }
                     }
+                    Mod.Log.Trace($"SensorLockHelper - source:{CombatantUtils.Label(source)} has sensorLock:({sensorLock}) vs " +
+                        $"target:{CombatantUtils.Label(target)}");
+                    return sensorLock;
                 }
-                Mod.Log.Trace($"SensorLockHelper - source:{CombatantUtils.Label(source)} has sensorLock:({sensorLock}) vs " +
-                    $"target:{CombatantUtils.Label(target)}");
-                return sensorLock;
             } else {
                 Mod.Log.Info($"SensorLockHelper - fallthrough case we don't know how to handle. Returning NoLock!");
                 return SensorScanType.NoInfo;
             }
         }
 
-        private static bool HasNarcBeaconDetection(ICombatant target) {
+        private static bool HasNarcBeaconDetection(ICombatant target, EWState targetState) {
             bool hasDetection = false;
             if (target != null && State.NARCEffect(target) != 0) {
-                int delta = State.NARCEffect(target) - State.ECMProtection(target);
+                int delta = State.NARCEffect(target) - targetState.GetECMShieldDetailsModifier();
                 Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} has an active " +
-                    $"narc effect {State.NARCEffect(target)} vs. ECM Protection:{State.ECMProtection(target)}, delta is:{delta}");
+                    $"narc effect {State.NARCEffect(target)} vs. ECM Protection:{targetState.GetECMShieldDetailsModifier()}, delta is:{delta}");
 
                 if (delta >= 1) {
                     Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} has an active NARC effect, " +
@@ -198,6 +237,7 @@ namespace LowVisibility.Helper {
             // Determine modified check against target
             EWState sourceState = new EWState(source);
             int detailsLevel = sourceState.GetCurrentEWCheck();
+            Mod.Log.Debug($" == detailsLevel from EW check = {detailsLevel}");
 
             // --- Source: Advanced Sensors
             if (sourceState.GetAdvancedSensorsMod() > 0) {
@@ -218,13 +258,13 @@ namespace LowVisibility.Helper {
 
                 // ECM Shield reduces sensor info
                 if (targetState.GetECMShieldSignatureModifier() > 0) {
-                    Mod.Log.Debug($" == target is shielded by ECM, detailsLevel = {detailsLevel} - {sourceState.GetECMShieldDetailsModifier()}");
-                    detailsLevel -= sourceState.GetECMShieldDetailsModifier();
+                    Mod.Log.Debug($" == target is shielded by ECM, detailsLevel = {detailsLevel} - {targetState.GetECMShieldDetailsModifier()}");
+                    detailsLevel -= targetState.GetECMShieldDetailsModifier();
                 }
 
                 // Sensor Stealth reduces sensor info
                 if (targetState.HasStealth()) {
-                    Mod.Log.Debug($" == target has sensor stealth, detailsLevel = {detailsLevel} - {sourceState.StealthDetailsMod()}");
+                    Mod.Log.Debug($" == target has sensor stealth, detailsLevel = {detailsLevel} - {targetState.StealthDetailsMod()}");
                     detailsLevel -= targetState.StealthDetailsMod();
                 }
 
@@ -245,7 +285,7 @@ namespace LowVisibility.Helper {
             }
 
             sensorInfo = DetectionLevelForCheck(detailsLevel);
-            Mod.Log.Debug($"Calculated )");
+            Mod.Log.Debug($" == Calculated sensorInfo as: ({sensorInfo})");
 
             return sensorInfo;
         }

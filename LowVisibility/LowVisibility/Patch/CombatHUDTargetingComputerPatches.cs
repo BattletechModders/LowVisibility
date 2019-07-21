@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using BattleTech.UI;
 using Harmony;
+using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
@@ -130,14 +131,14 @@ namespace LowVisibility.Patch {
                 
                 if ((__instance.ActivelyShownCombatant as AbstractActor) != null) {
                     AbstractActor target = __instance.ActivelyShownCombatant as AbstractActor;
-                    AbstractActor lastActivated = State.GetLastPlayerActivatedActor(target.Combat);
-                    Locks lockState = State.LastActivatedLocksForTarget(target);
-                    Mod.Log.Debug($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(lastActivated)} vs. enemy:{CombatantUtils.Label(target)} has lockState:{lockState}");
+                    SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, State.LastPlayerActorActivated);
+                    Mod.Log.Debug($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(State.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} has scanType:{scanType}");
 
-                    if (lockState.sensorLock >= SensorScanType.WeaponAnalysis) {
+                    if (scanType >= SensorScanType.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
                         SetArmorDisplayActive(__instance, true);
-                    } else if (lockState.sensorLock == SensorScanType.SurfaceAnalysis || lockState.hasLineOfSight) {
+                    } else if (scanType == SensorScanType.SurfaceAnalysis ||
+                        State.LastPlayerActorActivated.VisibilityToTargetUnit(target) == VisibilityLevel.LOSFull) {
 
                         SetArmorDisplayActive(__instance, true);
 

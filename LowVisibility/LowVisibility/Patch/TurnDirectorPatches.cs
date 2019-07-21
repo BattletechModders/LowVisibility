@@ -50,9 +50,17 @@ namespace LowVisibility.Patch {
             }
 
             // Initialize the VFX materials
+            // TODO: Do a pooled instantiate here?
             VfxHelper.Initialize();
+
+            // Attach to the message bus so we get updates on selected actor
+            SelectedActorHelper.Combat = __instance.Combat;
+            __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorSelectedMessage, 
+                new ReceiveMessageCenterMessage(SelectedActorHelper.OnActorSelectedMessage), true);
         }
+
     }
+
 
     [HarmonyPatch()]
     public static class TurnDirector_BeginNewRound {
@@ -77,10 +85,15 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(TurnDirector), "OnCombatGameDestroyed")]
     public static class TurnDirector_OnCombatGameDestroyed {
         public static void Postfix(TurnDirector __instance) {
-            Mod.Log.Trace($"TD:OCGD entered");
+            Mod.Log.Debug($"TD:OCGD entered");
             // Remove all combat state
             State.ClearStateOnCombatGameDestroyed();
             CombatHUD_SubscribeToMessages.OnCombatGameDestroyed(__instance.Combat);
+
+            // Unsubscribe from actor selected messages
+            SelectedActorHelper.Combat = null;
+            __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorSelectedMessage, 
+                new ReceiveMessageCenterMessage(SelectedActorHelper.OnActorSelectedMessage), false);
         }
     }
 
@@ -96,6 +109,21 @@ namespace LowVisibility.Patch {
             Mod.Log.Trace($"TD:IFSPT entered");
 
             TurnDirector_OnEncounterBegin.IsFromSave = true;
+        }
+    }
+
+    // Helper that coordinates state changes to allow id of the last player unit a player selected
+    public static class SelectedActorHelper {
+
+        public static CombatGameState Combat = null;
+
+        public static void OnActorSelectedMessage(MessageCenterMessage message) {
+            ActorSelectedMessage actorSelectedMessage = message as ActorSelectedMessage;
+            AbstractActor actor = Combat.FindActorByGUID(actorSelectedMessage.affectedObjectGuid);
+            if (actor.team.IsLocalPlayer) {
+                Mod.Log.Info($"Updating last activated actor to: ({actor})");
+                State.LastPlayerActorActivated = actor;
+            }
         }
     }
 }

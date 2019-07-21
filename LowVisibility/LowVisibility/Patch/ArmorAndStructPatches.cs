@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using BattleTech.UI;
 using Harmony;
+using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using System.Reflection;
@@ -11,15 +12,16 @@ namespace LowVisibility.Patches {
     public static class Helper {
         public static void HideArmorAndStructure(AbstractActor target, TextMeshProUGUI armorHover, TextMeshProUGUI structHover) {
 
-            Locks lockState = State.LastActivatedLocksForTarget(target);
+            SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, State.LastPlayerActorActivated);
+
             string armorText = null;
             string structText = null;
 
-            if (lockState.sensorLock >= SensorScanType.StructureAnalysis) {
+            if (scanType >= SensorScanType.StructureAnalysis) {
                 // See all values
                 armorText = armorHover.text;
                 structText = structHover.text;
-            } else if (lockState.hasLineOfSight) {
+            } else if (scanType >= SensorScanType.SurfaceScan || State.LastPlayerActorActivated.VisibilityToTargetUnit(target) == VisibilityLevel.LOSFull) {
                 // See max armor, max struct                
                 string rawArmor = armorHover.text;
                 string maxArmor = rawArmor.Split('/')[1];

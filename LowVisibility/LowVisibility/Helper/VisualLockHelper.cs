@@ -76,21 +76,25 @@ namespace LowVisibility.Helper {
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         public static float GetAllSpotterAbsolutes(AbstractActor source) {
-            float absoluteModifier = 0f;
 
-            if (source != null) {
-                float pilotSkillMod = 0f;
-                if (source.IsPilotable) {
-                    Pilot pilot = source.GetPilot();
-                    if (pilot != null) {
-                        EWState parentState = new EWState(source);
-                        pilotSkillMod = parentState.GetTacticsVisionBoost();
-                    }
-                }
-                absoluteModifier = pilotSkillMod + source.SpotterDistanceAbsolute;
-            }
+            // Intentionally don't allow tactics to influence spotting range. Tactics gives enough other
+            //   benefits, no need to add it here.
 
-            return absoluteModifier;
+            //float absoluteModifier = 0f;
+
+            //if (source != null) {
+            //    float pilotSkillMod = 0f;
+            //    if (source.IsPilotable) {
+            //        Pilot pilot = source.GetPilot();
+            //        if (pilot != null) {
+            //            EWState parentState = new EWState(source);
+            //            pilotSkillMod = parentState.GetTacticsVisionBoost();
+            //        }
+            //    }
+            //    absoluteModifier = pilotSkillMod + source.SpotterDistanceAbsolute;
+            //}
+
+            return source.SpotterDistanceAbsolute;
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
