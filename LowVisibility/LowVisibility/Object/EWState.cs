@@ -57,8 +57,6 @@ namespace LowVisibility.Object {
 
         private int CurrentRoundEWCheck = 0; // Raw value before any manipulation
 
-        private string parentGUID = null;
-
         private int ECMShield = 0;
         private int ECMCarrier = 0;
         private int ECMJammed = 0;
@@ -182,7 +180,7 @@ namespace LowVisibility.Object {
                 actor.StatCollection.GetStatistic(ModStats.HeatVision).Value<string>() != "") {
                 string rawValue = actor.StatCollection.GetStatistic(ModStats.HeatVision).Value<string>();
                 string[] tokens = rawValue.Split('_');
-                if (tokens.Length == 3) {
+                if (tokens.Length == 2) {
                     try {
                         HeatVision = new HeatVision {
                             AttackMod = Int32.Parse(tokens[0]),
@@ -206,6 +204,7 @@ namespace LowVisibility.Object {
         public int GetECMJammedDetailsModifier() { return ECMJammed;  }
         public float GetECMShieldSignatureModifier() { return ECMShield > ECMCarrier ? ECMShield * 0.05f : ECMCarrier * 0.05f; }
         public int GetECMShieldDetailsModifier() { return ECMShield > ECMCarrier ? ECMShield : ECMCarrier;  }
+        // Defender modifier
         public int GetECMShieldAttackModifier(EWState attackerState) {
             int ECMMod = ECMShield > ECMCarrier ? ECMShield : ECMCarrier;
             Mod.Log.Debug($"Target:({CombatantUtils.Label(actor)}) has ECMAttackMod:{ECMMod} - ProbeMod:{attackerState.GetProbeSelfModifier()} " +
@@ -232,30 +231,35 @@ namespace LowVisibility.Object {
         public int GetProbeSelfModifier() { return ProbeCarrier; }
         public int GetTargetOfProbeModifier() { return ProbeSweepTarget; }
 
-        // Stealth - Defender
+        // Stealth
         public float StealthSignatureMod() { return HasStealth() ? Stealth.SignatureMulti : 0.0f; }
         public int StealthDetailsMod() { return HasStealth() ? Stealth.DetailsMod: 0; }
-        public int StealthAttackMod(Weapon weapon, float distance) {
+        // Defender modifier
+        public int StealthAttackMod(EWState attackerState, Weapon weapon, float distance) {
             if (Stealth == null) { return 0; }
 
+            int stealthMod = 0;
             if (distance < weapon.MediumRange) {
-                return Stealth.MediumRangeAttackMod;
+                stealthMod = Stealth.MediumRangeAttackMod;
             } else if (distance < weapon.LongRange) {
-                return Stealth.LongRangeAttackMod;
+                stealthMod = Stealth.LongRangeAttackMod;
             } else if (distance < weapon.MaxRange) {
-                return Stealth.ExtremeRangeAttackMod;
-            } else {
-                return 0;
+                stealthMod = Stealth.ExtremeRangeAttackMod;
             }
 
+            return Math.Max(0, stealthMod - attackerState.GetProbeSelfModifier());
         }
         public bool HasStealth() { return Stealth != null; }
 
-        // Mimetic - Defender
+        // Mimetic
         public float MimeticVisibilityMod() { return CurrentMimeticPips() * 0.05f; }
-        public int MimeticAttackMod(EWState targetState, Weapon weapon, float distance) {
-            int attackMod = targetState.CurrentMimeticPips();
-            return attackMod;
+        // Defender modifier
+        public int MimeticAttackMod(EWState attackerState, Weapon weapon, float distance) {
+            if (Mimetic == null) { return 0;  }
+
+            int mimeticMod = CurrentMimeticPips();
+
+            return Math.Max(0, mimeticMod - attackerState.GetProbeSelfModifier());
         }
         //public int MimeticPips(float distance) {
         //    return CalculatePipCount(distance);
@@ -298,12 +302,11 @@ namespace LowVisibility.Object {
         }
 
         // HeatVision - Attacker
-        public int GetHeatVisionAttackMod(ICombatant target, Weapon weapon, float distance) {
+        public int GetHeatVisionAttackMod(AbstractActor target, Weapon weapon) {
             if (HeatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return 0; }
 
             int currentMod = 0;
-            Mech targetMech = target as Mech;
-            if (targetMech != null) {
+            if (target is Mech targetMech) {
                 double targetHeat = targetMech != null ? (double)targetMech.CurrentHeat : 0.0;
                 int numDecays = (int)Math.Floor(targetHeat / HeatVision.HeatDivisor);
                 Mod.Log.Debug($"  numDecays: {numDecays} = targetHeat: {targetHeat} / divisor: {HeatVision.HeatDivisor}");

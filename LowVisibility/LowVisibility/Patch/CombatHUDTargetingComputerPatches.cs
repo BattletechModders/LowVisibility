@@ -137,7 +137,7 @@ namespace LowVisibility.Patch {
                     if (lockState.sensorLock >= SensorScanType.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
                         SetArmorDisplayActive(__instance, true);
-                    } else if (lockState.visualLock == VisualScanType.VisualID || lockState.sensorLock == SensorScanType.SurfaceAnalysis) {
+                    } else if (lockState.sensorLock == SensorScanType.SurfaceAnalysis || lockState.hasLineOfSight) {
 
                         SetArmorDisplayActive(__instance, true);
 

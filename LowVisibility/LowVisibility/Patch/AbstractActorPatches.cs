@@ -33,23 +33,16 @@ namespace LowVisibility.Patch {
             __instance.StatCollection.AddStatistic<int>(ModStats.ProbeSweepTarget, 0);
 
             // Sensor Stealth
-            __instance.StatCollection.AddStatistic<int>(ModStats.StealthEffect, 0);
-            __instance.StatCollection.AddStatistic<string>(ModStats.DecayingSensorStealthValue, "");
-            __instance.StatCollection.AddStatistic<int>(ModStats.DecayingSensorStealthInitial, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.DecayingSensorStealthDecayPerStep, 0);
-            __instance.StatCollection.AddStatistic<string>(ModStats.SensorStealthAttackMulti, "");
+            __instance.StatCollection.AddStatistic<string>(ModStats.StealthEffect, "");
 
             // Visual Stealth
-            __instance.StatCollection.AddStatistic<int>(ModStats.MimeticEffect, 0);
-            __instance.StatCollection.AddStatistic<string>(ModStats.DecayingVisionStealthValue, "");
-            __instance.StatCollection.AddStatistic<int>(ModStats.MimeticInitAttackMod, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.MimeticStepsUntilDecay, 0);
-            __instance.StatCollection.AddStatistic<string>(ModStats.VisionStealthAttackMulti, "");
-
+            __instance.StatCollection.AddStatistic<string>(ModStats.MimeticEffect, "");
+            __instance.StatCollection.AddStatistic<int>(ModStats.MimeticCurrentSteps, 0);
+            
             __instance.StatCollection.AddStatistic<bool>(ModStats.SharesSensors, false);
 
-            __instance.StatCollection.AddStatistic<int>(ModStats.VismodeZoom, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.VismodeHeat, 0);
+            __instance.StatCollection.AddStatistic<string>(ModStats.HeatVision, "");
+            __instance.StatCollection.AddStatistic<string>(ModStats.ZoomVision, "");
         }
     }
 
@@ -68,8 +61,6 @@ namespace LowVisibility.Patch {
                 StealthChangedMessage message = new StealthChangedMessage(__instance.GUID);
                 __instance.Combat.MessageCenter.PublishMessage(message);
             }
-
-            __instance.StatCollection.Set(ModStats.DecayingSensorStealthDecayPerStep, 0);
 
             //Mod.Log.Debug($"-- OnActivationBegin: Effects targeting actor: {CombatantUtils.Label(__instance)}");
             //List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
