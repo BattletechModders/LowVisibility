@@ -1,10 +1,10 @@
 ﻿using BattleTech;
 using Harmony;
 using Localize;
+using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
-using static LowVisibility.Helper.VisibilityHelper;
 
 namespace LowVisibility.Patch {
 
@@ -15,21 +15,20 @@ namespace LowVisibility.Patch {
             variantName -> Mech.VariantName = MechDef.Chassis.VariantName -> AS7-D / TBT-5N
             fullname -> Mech.NickName = MechDef.Description.Name -> Atlas II AS7-D-HT or Atlas AS7-D / Trebuchet
         */
-        public static Text GetDetectionLabel(ICombatant target, VisibilityLevel visLevel, 
+        public static Text GetDetectionLabel(ICombatant target, VisibilityLevel visLevel, SensorScanType sensorScanType,
             string fullName, string variantName, string chassisName, string type, float tonnage) {
 
             Text label = new Text("?");
 
             if (visLevel == VisibilityLevel.LOSFull) {
-                List<Locks> allLocks = State.TeamLocksForTarget(target);
-                AggregateLocks locks = AggregateLocks.Aggregate(allLocks);
-                if (locks.sensorLock >= SensorScanType.DeepScan) {
+                
+                if (sensorScanType >= SensorScanType.DeepScan) {
                     label = new Text($"{fullName}");
-                } else if (locks.sensorLock >= SensorScanType.SurfaceAnalysis|| locks.visualLock >= VisualScanType.VisualID) {
-                    label = new Text($"{chassisName} {variantName} ({tonnage}t)");
+                } else if (sensorScanType >= SensorScanType.SurfaceAnalysis) {
+                    label = new Text($"{chassisName} {variantName}");
                 } else {
                     // Silhouette or better
-                    label = new Text($"{chassisName} ?");
+                    label = new Text($"{chassisName} ({tonnage}t)");
                 }
             } else if (visLevel == VisibilityLevel.Blip4Maximum) {
                 label = new Text($"{fullName}");
@@ -43,7 +42,7 @@ namespace LowVisibility.Patch {
                 label = new Text($"?");
             }
 
-            LowVisibility.Logger.LogIfDebug($"GetDetectionLabel - label:({label}) for visLevel:{visLevel} " +
+            Mod.Log.Debug($"GetDetectionLabel - label:({label}) for visLevel:{visLevel} " +
                 $"chassisName:({chassisName}) variantName:({variantName}) fullName:({fullName}) type:({type}) tonnage:{tonnage}t");
             return label;
         }
@@ -68,7 +67,9 @@ namespace LowVisibility.Patch {
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.MechDef.Chassis.Tonnage;
 
-                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel,fullName, variantName, chassisName, "MECH", tonnage);
+                SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
+                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel, scanType, 
+                    fullName, variantName, chassisName, "MECH", tonnage);
                 __result = response;
             }
         }
@@ -91,7 +92,9 @@ namespace LowVisibility.Patch {
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.TurretDef.Chassis.Tonnage;
 
-                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel, fullName, variantName, chassisName, "TURRET", tonnage);
+                SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
+                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel, scanType, 
+                    fullName, variantName, chassisName, "TURRET", tonnage);
                 __result = response;
             }
         }
@@ -108,7 +111,7 @@ namespace LowVisibility.Patch {
                     Alacorn Mk.VI-P / vehicledef_ARES_CLAN / Demolisher II / Galleon GAL-102
                 Vehicle.VariantName = string.Empty -> ""
                 Vehicle.NickName = VehicleDef.Description.Name -> 
-                    Pirate Alacorn Gauss Carrier / Ares / Demolisher II
+                    Pirate Alacorn Gauss Carrier / Ares / Demolisher II`
                     VehicleDef.Description.Id ->
                         / / vehicledef_DEMOLISHER-II / vehicledef_GALLEON_GAL102
             */
@@ -118,7 +121,9 @@ namespace LowVisibility.Patch {
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.VehicleDef.Chassis.Tonnage;
 
-                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel, fullName, variantName, chassisName, "VEHICLE", tonnage);
+                SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
+                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel, scanType,
+                    fullName, variantName, chassisName, "VEHICLE", tonnage);
                 __result = response;
             }
         }

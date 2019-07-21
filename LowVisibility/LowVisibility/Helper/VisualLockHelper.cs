@@ -1,6 +1,8 @@
 ﻿using BattleTech;
 using LowVisibility.Object;
 using UnityEngine;
+using us.frostraptor.modUtils;
+using us.frostraptor.modUtils.math;
 
 namespace LowVisibility.Helper {
     class VisualLockHelper {
@@ -29,18 +31,18 @@ namespace LowVisibility.Helper {
                 float absolutes = VisualLockHelper.GetAllSpotterAbsolutes(source);
                 
                 visualRange = visionRange * multipliers + absolutes;
-                LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} has spotting " +
+                Mod.Log.Trace($" -- source:{CombatantUtils.Label(source)} has spotting " +
                     $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
             }
 
-            if (visualRange < LowVisibility.Config.MinimumVisionRange()) {
-                visualRange = LowVisibility.Config.MinimumVisionRange();
+            if (visualRange < Mod.Config.MinimumVisionRange()) {
+                visualRange = Mod.Config.MinimumVisionRange();
             }
 
             // Round up to the nearest full hex
-            float normalizedRange = MathHelper.CountHexes(visualRange, false) * 30f;
+            float normalizedRange = HexUtils.CountHexes(visualRange, false) * 30f;
             
-            //LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} visual range is:{normalizedRange}m normalized from:{visualRange}m");
+            //LowVisibility.Logger.Trace($" -- source:{CombatantUtils.Label(source)} visual range is:{normalizedRange}m normalized from:{visualRange}m");
             return normalizedRange;
         }
 
@@ -56,14 +58,14 @@ namespace LowVisibility.Helper {
             float spotterRange = VisualLockHelper.GetSpotterRange(source);
 
             float modifiedRange = spotterRange * targetVisibility;
-            if (modifiedRange < LowVisibility.Config.MinimumVisionRange()) {
-                modifiedRange = LowVisibility.Config.MinimumVisionRange();
+            if (modifiedRange < Mod.Config.MinimumVisionRange()) {
+                modifiedRange = Mod.Config.MinimumVisionRange();
             }
 
             // Round up to the nearest full hex
-            float normalizedRange = MathHelper.CountHexes(spotterRange, true) * 30f;
+            float normalizedRange = HexUtils.CountHexes(spotterRange, true) * 30f;
 
-            //LowVisibility.Logger.LogIfTrace($" -- source:{CombatantHelper.Label(source)} adjusted spotterRange:{normalizedRange}m normalized from:{spotterRange}m");
+            //LowVisibility.Logger.Trace($" -- source:{CombatantUtils.Label(source)} adjusted spotterRange:{normalizedRange}m normalized from:{spotterRange}m");
             return normalizedRange;
         }
 
@@ -74,21 +76,25 @@ namespace LowVisibility.Helper {
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         public static float GetAllSpotterAbsolutes(AbstractActor source) {
-            float absoluteModifier = 0f;
 
-            if (source != null) {
-                float pilotSkillMod = 0f;
-                if (source.IsPilotable) {
-                    Pilot pilot = source.GetPilot();
-                    if (pilot != null) {
-                        EWState staticState = State.GetEWState(source);
-                        pilotSkillMod = (float)staticState.tacticsBonus * source.Combat.Constants.Visibility.SpotterTacticsMultiplier;
-                    }
-                }
-                absoluteModifier = pilotSkillMod + source.SpotterDistanceAbsolute;
-            }
+            // Intentionally don't allow tactics to influence spotting range. Tactics gives enough other
+            //   benefits, no need to add it here.
 
-            return absoluteModifier;
+            //float absoluteModifier = 0f;
+
+            //if (source != null) {
+            //    float pilotSkillMod = 0f;
+            //    if (source.IsPilotable) {
+            //        Pilot pilot = source.GetPilot();
+            //        if (pilot != null) {
+            //            EWState parentState = new EWState(source);
+            //            pilotSkillMod = parentState.GetTacticsVisionBoost();
+            //        }
+            //    }
+            //    absoluteModifier = pilotSkillMod + source.SpotterDistanceAbsolute;
+            //}
+
+            return source.SpotterDistanceAbsolute;
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
@@ -106,10 +112,18 @@ namespace LowVisibility.Helper {
             if (target == null) { return 1f; }
 
             float baseVisMulti = 0f;
-            float shutdownVisMulti = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownVisibilityModifier;
+            float shutdownVisMulti = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownVisibilityModifier;        
             float spottingVisibilityMultiplier = target.SpottingVisibilityMultiplier;
 
-            return baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier;
+            EWState ewState = new EWState(target);
+            float visionStealthMod = ewState.MimeticVisibilityMod();
+
+            float targetVisibility = baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier + visionStealthMod;
+            Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has visibility: {targetVisibility} = " +
+                $"baseVisMulti: {baseVisMulti} +  shutdownVisMulti: {shutdownVisMulti} + spottingVisibilityMultiplier: {spottingVisibilityMultiplier} + visionStealthMod: {visionStealthMod}");
+
+            return targetVisibility;
+            //return baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier;
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
@@ -125,17 +139,15 @@ namespace LowVisibility.Helper {
 
         // Determines if a source has visual lock to a target from a given position. Because units have differnet positions, check all of them.
         //  Typically from head-to-head for mechs, but buildings have multiple positions.
-        // TODO: Refactor to eliminate need for LoS instance - put Getter funcs into a helper
-        public static VisualScanType CalculateVisualLock(AbstractActor source, Vector3 sourcePos,
+        public static bool CalculateVisualLock(AbstractActor source, Vector3 sourcePos,
                 ICombatant target, Vector3 targetPos, Quaternion targetRot, LineOfSight los) {
 
             float spottingRangeVsTarget = VisualLockHelper.GetAdjustedSpotterRange(source, target);
-            float visualScanRange = VisualLockHelper.GetVisualScanRange(source);
             float distance = Vector3.Distance(sourcePos, targetPos);
 
             // Check range first
             if (distance > spottingRangeVsTarget) {
-                return VisualScanType.None;
+                return false;
             }
 
             // I think this is what prevents you from seeing things from behind you - the rotation is set to 0?
@@ -143,26 +155,19 @@ namespace LowVisibility.Helper {
             forward.y = 0f;
             Quaternion rotation = Quaternion.LookRotation(forward);
 
-            VisualScanType visualLock = VisualScanType.None;
             if (distance <= spottingRangeVsTarget) {
                 Vector3[] lossourcePositions = source.GetLOSSourcePositions(sourcePos, rotation);
                 Vector3[] lostargetPositions = target.GetLOSTargetPositions(targetPos, targetRot);
                 for (int i = 0; i < lossourcePositions.Length; i++) {
-                    for (int j = 0; j < lostargetPositions.Length; j++) {
-                        // If you can visually spot the target, you immediately have detection on then
+                    for (int j = 0; j < lostargetPositions.Length; j++) {                        
                         if (los.HasLineOfSight(lossourcePositions[i], lostargetPositions[j], spottingRangeVsTarget, target.GUID)) {
-                            visualLock = distance <= visualScanRange ? VisualScanType.VisualID : VisualScanType.Silhouette;
-                            break;
+                            return true;
                         }
-                    }
-
-                    if (visualLock != VisualScanType.None) {
-                        break;
                     }
                 }
             }
 
-            return visualLock;
+            return false;
         }
     }
 }

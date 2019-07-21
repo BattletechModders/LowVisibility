@@ -1,6 +1,7 @@
 ﻿using BattleTech.Rendering.Mood;
 using HBS.Collections;
 using System;
+using us.frostraptor.modUtils.math;
 
 namespace LowVisibility.Helper {
     public static class MapHelper {
@@ -38,7 +39,7 @@ namespace LowVisibility.Helper {
         }
 
         public static MapConfig ParseCurrentMap() {
-            LowVisibility.Logger.Log("MH:PCM Parsing current map.");
+            Mod.Log.Info("MH:PCM Parsing current map.");
 
             // This is a VERY slow call, that can add 30-40ms just to execute. Cache it!
             MoodController moodController = UnityEngine.Object.FindObjectOfType<MoodController>();
@@ -47,20 +48,20 @@ namespace LowVisibility.Helper {
             TagSet moodTags = moodSettings?.moodTags;
             if (moodTags == null || moodTags.IsEmpty) {
                 return new MapConfig {
-                    visionRange = LowVisibility.Config.VisionRangeBaseDaylight,
-                    scanRange = LowVisibility.Config.VisualScanRange
+                    visionRange = Mod.Config.VisionRangeBaseDaylight,
+                    scanRange = Mod.Config.VisualScanRange
                 };
             }
 
 
-            LowVisibility.Logger.LogIfDebug($"  - Parsing current map for mod config");
+            Mod.Log.Debug($"  - Parsing current map for mod config");
 
             MapConfig mapConfig = new MapConfig();
             
             String allTags = String.Join(", ", moodTags.ToArray());
-            LowVisibility.Logger.LogIfDebug($"  - All mood tags are: {allTags}");
+            Mod.Log.Debug($"  - All mood tags are: {allTags}");
 
-            float baseVision = LowVisibility.Config.VisionRangeBaseDaylight;
+            float baseVision = Mod.Config.VisionRangeBaseDaylight;
             float visionMulti = 1.0f;
             foreach (string tag in moodTags) {
                 switch (tag) {
@@ -68,7 +69,7 @@ namespace LowVisibility.Helper {
                     case "mood_timeNoon":
                     case "mood_timeAfternoon":
                     case "mood_timeDay":
-                        LowVisibility.Logger.LogIfDebug($"  - {tag}");
+                        Mod.Log.Debug($"  - {tag}");
                         mapConfig.isDay = true;
                         mapConfig.isDim = false;
                         mapConfig.isDark = false;
@@ -76,48 +77,48 @@ namespace LowVisibility.Helper {
                     case "mood_timeSunrise":
                     case "mood_timeSunset":
                     case "mood_timeTwilight":
-                        LowVisibility.Logger.LogIfDebug($"  - {tag}");
-                        if (baseVision > LowVisibility.Config.VisionRangeBaseDimlight) {
-                            baseVision = LowVisibility.Config.VisionRangeBaseDimlight;
+                        Mod.Log.Debug($"  - {tag}");
+                        if (baseVision > Mod.Config.VisionRangeBaseDimlight) {
+                            baseVision = Mod.Config.VisionRangeBaseDimlight;
                             mapConfig.isDay = false;
                             mapConfig.isDim = true;
                             mapConfig.isDark = false;
                         }
                         break;
                     case "mood_timeNight":
-                        LowVisibility.Logger.LogIfDebug($"  - {tag}");
-                        if (baseVision > LowVisibility.Config.VisionRangeBaseNight) {
-                            baseVision = LowVisibility.Config.VisionRangeBaseNight;
+                        Mod.Log.Debug($"  - {tag}");
+                        if (baseVision > Mod.Config.VisionRangeBaseNight) {
+                            baseVision = Mod.Config.VisionRangeBaseNight;
                             mapConfig.isDay = false;
                             mapConfig.isDim = false;
                             mapConfig.isDark = true;
                         }
                         break;
                     case "mood_weatherRain":
-                        LowVisibility.Logger.LogIfDebug($"  - {tag}");
-                        if (visionMulti > LowVisibility.Config.VisionRangeMultiRainSnow) {
-                            visionMulti = LowVisibility.Config.VisionRangeMultiRainSnow;
+                        Mod.Log.Debug($"  - {tag}");
+                        if (visionMulti > Mod.Config.VisionRangeMultiRainSnow) {
+                            visionMulti = Mod.Config.VisionRangeMultiRainSnow;
                             mapConfig.hasRain = true;
                         }
                         break;
                     case "mood_weatherSnow":
-                        LowVisibility.Logger.LogIfDebug($"  - {tag}");
-                        if (visionMulti > LowVisibility.Config.VisionRangeMultiRainSnow) {
-                            visionMulti = LowVisibility.Config.VisionRangeMultiRainSnow;
+                        Mod.Log.Debug($"  - {tag}");
+                        if (visionMulti > Mod.Config.VisionRangeMultiRainSnow) {
+                            visionMulti = Mod.Config.VisionRangeMultiRainSnow;
                             mapConfig.hasSnow = true;
                         }
                         break;
                     case "mood_fogLight":
-                        LowVisibility.Logger.LogIfDebug($"  - {tag}");
-                        if (visionMulti > LowVisibility.Config.VisionRangeMultiLightFog) {
-                            visionMulti = LowVisibility.Config.VisionRangeMultiLightFog;
+                        Mod.Log.Debug($"  - {tag}");
+                        if (visionMulti > Mod.Config.VisionRangeMultiLightFog) {
+                            visionMulti = Mod.Config.VisionRangeMultiLightFog;
                             mapConfig.hasLightFog = true;
                         }
                         break;
                     case "mood_fogHeavy":
-                        LowVisibility.Logger.LogIfDebug($"  - {tag}");
-                        if (visionMulti > LowVisibility.Config.VisionRangeMultiHeavyFog) {
-                            visionMulti = LowVisibility.Config.VisionRangeMultiHeavyFog;
+                        Mod.Log.Debug($"  - {tag}");
+                        if (visionMulti > Mod.Config.VisionRangeMultiHeavyFog) {
+                            visionMulti = Mod.Config.VisionRangeMultiHeavyFog;
                             mapConfig.hasHeavyFog = true;
                         }
                         break;
@@ -126,17 +127,17 @@ namespace LowVisibility.Helper {
                 }
             }            
             float visRange = (float)Math.Ceiling(baseVision * 30f * visionMulti);
-            LowVisibility.Logger.Log($"  Calculating vision range as Math.Ceil(baseVision:{baseVision} * 30.0 * visionMulti:{visionMulti}) = visRange:{visRange}.");
-            if (visRange < LowVisibility.Config.MinimumVisionRange()) {
-                visRange = LowVisibility.Config.MinimumVisionRange();
+            Mod.Log.Info($"  Calculating vision range as Math.Ceil(baseVision:{baseVision} * 30.0 * visionMulti:{visionMulti}) = visRange:{visRange}.");
+            if (visRange < Mod.Config.MinimumVisionRange()) {
+                visRange = Mod.Config.MinimumVisionRange();
             }
             
-            float normalizedVisionRange = MathHelper.CountHexes(visRange, false) * 30f;
-            LowVisibility.Logger.Log($"MapHelper: Vision range for map will be ==> {normalizedVisionRange}m (normalized from {visRange}m)");
+            float normalizedVisionRange = HexUtils.CountHexes(visRange, false) * 30f;
+            Mod.Log.Info($"MapHelper: Vision range for map will be ==> {normalizedVisionRange}m (normalized from {visRange}m)");
             mapConfig.visionRange = normalizedVisionRange;
-            mapConfig.scanRange = Math.Min(normalizedVisionRange, LowVisibility.Config.VisualScanRange * 30.0f);
+            mapConfig.scanRange = Math.Min(normalizedVisionRange, Mod.Config.VisualScanRange * 30.0f);
 
-            LowVisibility.Logger.Log($"Map vision range = visual:{normalizedVisionRange} / visualScan:{mapConfig.scanRange}");
+            Mod.Log.Info($"Map vision range = visual:{normalizedVisionRange} / visualScan:{mapConfig.scanRange}");
 
             return mapConfig;
         }
