@@ -20,33 +20,40 @@ This mod is comprehensive, but a short summary of changes in the mod include:
 * Stealth can hide enemy mechs (and your own!) allowing you to close range safely.
 * Memetic armor reduces your ability to be targeted, but decreases if you move
 
-## Target Detection
+## Concepts
 
-What you can detect is defined by your unit's _visual lock_ or _sensor lock_. __Visual Lock__ occurs when your unit can visually identify a target, while __Sensor Lock__ occurs when your unit can identify a target using electronics. A unit can have one, both or no lock to a target, depending on various factors (described below).
+Every model in the game is in one of the three states. A target is either:
 
-### Visual Locks
-Visual Locks offer the least information, providing little more than the target chassis and it's location. At long ranges all you will be able to say is that a target is an Atlas, Catapult, or Missile Carrier but you won't be able to tell which variant it is, or what it's carrying. At close range (typically within 5 hexes or so) the pilot can approximate some values such as armor and weapon types, but these are best guesses and can't always be trusted.
+* **Visible** - your team can directly observing the target.
+* **Detected** - your team tracks the target using sensors.
+* **Unknown** - your team does not know the position of the target at all.
 
-Information from visual locks is shared between all friendly units. The player and allied units share visual locks, while neutral and enemy units only share visual locks between their 'faction'.
+All allied units contribute towards determining if a model is visible or detected. If one unit can see a target, it passes that information to all other units on that team. However, each unit **individually** calculates whether it has a *Line of Sight* to the target, and what level of *Identification* it has for the target.
 
-### Sensor Locks
-_Sensor Locks_ offer more information at a further distance. Experienced pilots and advanced equipment can use their sensors to identify fine details of a target. Some examples include exact armor values, component locations and possibly even the pilot name.
+A unit has a *line of sight* to a target if it can directly observe the target. Line of sight can be obstructed by terrain such as hills, or reduced by weather conditions such as rain or fog. A line of sight can be *obstructed*, which means it partially passes through a terrain feature.
 
-Sensor locks only share the location and outline of a target with their allies. Each unit has to rely upon their own sensors for the detailed breakdown of weapons, armor and equipment on the target. Specialized equipment can bypass this restriction and allow allied units to share detailed information as well as general location data.
+Even if a target is visible or detected, you may know its location but all other details can be hidden. **Identification** of the target's details comes from either visual inspection or sensor analysis:
 
-#### Sensor Lock Checks
-_Sensor Locks_ aren't reliable; they depend on the pilot's ability to interpret results amidst a changing electronic battlefield. At the start of each round, every unit makes a _sensor range_ and _sensor detail_ check.
+* **Visual ID** - if you are close enough, your pilots can determine some basic information such as the chassis type, rough armor/structure values, and type of weapon. You have to be within 150 meters for visual identification.
+* **Sensor ID** - with a good electronic warfare check your pilots can determine all of a target's details, including current armor values, weapon names, and component locations.
 
- The __sensor range__ check influences how far out the unit can detect targets. A good roll increases the range, while a poor roll reduces it. The check result acts as a multiplier to the __total__ sensor range of the model, after any component multipliers or additions are included.
+## Electronic Warfare Checks
+A MechWarrior's ability to understand detailed sensor readouts and make snap assessments of a target depends on their circumstances and experience. At the start of each round, every unit makes an **electronic warfare check**. A good check result allows the pilot to maximize their equipment, while a poor one can significantly reduce its effectiveness.
 
- The __sensor detail__ check influences what information you are presented on the target when you select them. If the roll is failed, you're unable to determine any specifics of the target and have to shoot blindly at them. Successes will reveal information such as their actual weapon loadout and armor status.
+The EW check is used in the following conditions:
 
- The results of your current check are displayed in a tooltip in the status bar of each player mech. Check the icons in the bottom right corner, over the armor paperdoll, for a detailed breakdown.
+* As a bonus to visual identification
+* As a bonus to sensor identification
 
-### EW Equipment
-__ECM__ components generate interference in a bubble around the unit, which makes the _sensor check_ of enemy units within that bubble more difficult. Units within the range of a friendly ECM are harder to detect as well. Powerful ECM can completely shutdown a unit's sensors, forcing them to rely upon visual lock for targeting purposes.
+Your current check result is displayed in a tooltip in the status bar of each player mech. Check the icons in the bottom right corner, over the armor paper-doll, for a detailed breakdown of the result.
 
-__Stealth__ components makes the equipped unit harder to detect. They require an ECM component to operate, but disable the ECM bubble effects.
+## Equipment
+
+This mod adds several types of equipment that generate electronic warfare effects. A short summary of their effects are:
+
+* __ECM__ components generate a scrambling bubble that protects the carrier and friendly units within its area. This makes provides an attack penalty to attacks against friendly units, increases the difficulty of sensor identification against friendly units, and applies a penalty to sensor identification for any enemy unit within the area of effect.
+* __Stealth__ components makes the equipped unit harder to detect by absorbing sensor emissions. They make the carrier harder to detect, increase the difficulty of sensor identification against the carrier,
+
 
 __Active Probe__ components improve the quality of the units' sensors, and can break through ECM and Stealth if they are powerful enough.
 
@@ -326,9 +333,9 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 
 - [x] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
 - [ ] BUG: ticket-0304 in Discord - SensorDistanceAbsolute multipliers may not be adding to the total sensor distance value.
-- [ ] BUG: Sensor sharing not taking effect like it should. 
+- [ ] BUG: Sensor sharing not taking effect like it should.
 - [ ] BUG: Report of vehicle blips showing mech paperdoll instead of vehicle. Photo proof, so see if it can be reproduced.
-- [ ] BUG: AIM calculations aren't accurate. Likely caused by LV going after AIM in the patch order? 
+- [ ] BUG: AIM calculations aren't accurate. Likely caused by LV going after AIM in the patch order?
 - [ ] BUG: Offensive push shows damaged areas even with a crap information roll. LA suggestion: restrict offensive push to a minimum info roll.
 - [ ] BUG: Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
 - [ ] BUG: Armor/structure exact values are being shown, not just as ??
@@ -336,6 +343,8 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 - [ ] FEATURE: Prevent called shot against blips
 - [ ] FEATURE: Per Denandan, move functions from tags into Custom {} to allow getting item defs w/o needing to search/parse
 - [ ] FEATURE: Per LA, nerf multi-targeting but add  an item tag that helps/hurts. One tag that adds a penalty to each target. A second 'multitracker' that grants bonus to this (reduce penalty or bonus). Third, no multitargeting stealth w/o a multitracker. Maybe make the latter that you need a positive attack modifier from FCS/etc to multi-shoot against stealth? Have to think more.
+- [ ] FEATURE: Should tactics limit equipment modifiers? I.e. tactics +2 means you can't make use of a +4 ECM gear. If you tactics equals the gear, maybe get a bonus?
+- [ ] FEATURE: Wounds detracts from your EW check each round
 - [ ] FEATURE: Rename `lv-scrambler_mX` to `lv-stealth-boost_mX` to match probes.
 - [ ] FEATURE: Rename active probes to `lv-sensormod-highest_mX` and `lv-sensormod-sum_mX`
 - [ ] FEATURE: Show signature, visibility modifiers for target on the tooltips. Show same for player mechs.
