@@ -94,6 +94,8 @@ namespace LowVisibility.Helper {
 
             EWState ewState = new EWState(target);
             float ecmShieldMod = ewState.GetECMShieldSignatureModifier();
+
+            // TODO: Stealth boost should be opposed by probes 
             float sensorStealthMod = ewState.StealthSignatureMod();
 
             float targetSignature = sensorMod + shutdownMod + ecmShieldMod;
@@ -224,7 +226,7 @@ namespace LowVisibility.Helper {
                 if (delta >= 1) {
                     Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} has an active NARC effect, " +
                         $"marking them visible!");
-                    hasDetection = true;
+                    hasDetection = true; 
                 }
             }
             return hasDetection;

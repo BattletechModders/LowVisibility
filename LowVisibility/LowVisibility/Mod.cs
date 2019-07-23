@@ -1,6 +1,7 @@
 ﻿using Harmony;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using us.frostraptor.modUtils.logging;
 
@@ -30,6 +31,11 @@ namespace LowVisibility {
             }
 
             Log = new IntraModLogger(modDirectory, "low_visibility", Config.Debug, Config.Trace);
+
+            Assembly asm = Assembly.GetExecutingAssembly();
+            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(asm.Location);
+            Log.Info($"Assembly version: {fvi.ProductVersion}");
+
             Log.Debug($"ModDir is:{modDirectory}");
             Log.Debug($"mod.json settings are:({settingsJSON})");
             Mod.Config.LogConfig();

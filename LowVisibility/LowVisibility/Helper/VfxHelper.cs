@@ -131,18 +131,18 @@ namespace LowVisibility.Helper {
             actor.GameRep.StopManualPersistentVFX("vfxPrfPrtl_ECM_loop");
         }
 
-        public static void EnableVisionStealthEffect(AbstractActor actor) {
+        public static void EnableMimeticEffect(AbstractActor actor) {
 
             if (!State.TurnDirectorStarted) { return; }
 
-            Mod.Log.Debug("ENABLING VISION STEALTH EFFECT");
+            Mod.Log.Debug("ENABLING MIMETIC EFFECT");
             PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
             par.BlipObjectGhostStrong.SetActive(false);
             par.BlipObjectGhostWeak.SetActive(true);
         }
 
-        public static void DisableVisionStealthEffect(AbstractActor actor) {
-            Mod.Log.Debug("DISABLING VISION STEALTH EFFECT");
+        public static void DisableMimeticEffect(AbstractActor actor) {
+            Mod.Log.Debug("DISABLING MIMETIC EFFECT");
             PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
             par.BlipObjectGhostStrong.SetActive(false);
             par.BlipObjectGhostWeak.SetActive(false);

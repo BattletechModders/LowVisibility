@@ -43,9 +43,9 @@ namespace LowVisibility.Patch {
                 }
 
                 if (parentState.HasMimetic()) {
-                    VfxHelper.EnableVisionStealthEffect(__instance.parent);
+                    VfxHelper.EnableMimeticEffect(__instance.parent);
                 } else {
-                    VfxHelper.DisableVisionStealthEffect(__instance.parent);
+                    VfxHelper.DisableMimeticEffect(__instance.parent);
                 }
                 
                 // Force a refresh in case the signature increased due to stealth loss

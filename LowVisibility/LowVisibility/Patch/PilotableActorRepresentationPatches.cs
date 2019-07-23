@@ -23,9 +23,9 @@ namespace LowVisibility.Patch {
             }
 
             if (parentState.HasMimetic()) {
-                VfxHelper.EnableVisionStealthEffect(parentActor);
+                VfxHelper.EnableMimeticEffect(parentActor);
             } else {
-                VfxHelper.DisableVisionStealthEffect(parentActor);
+                VfxHelper.DisableMimeticEffect(parentActor);
             }
         }
     }

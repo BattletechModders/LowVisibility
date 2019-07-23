@@ -1,9 +1,7 @@
 ﻿using BattleTech;
-using LowVisibility.Helper;
 using System;
 using UnityEngine;
 using us.frostraptor.modUtils;
-using us.frostraptor.modUtils.math;
 
 namespace LowVisibility.Object {
 
@@ -382,25 +380,6 @@ namespace LowVisibility.Object {
                 //$"vismodeZoomMod:{vismodeZoomMod} vismodeZoomCap:{vismodeZoomCap} vismodeZoomStep:{vismodeZoomStep} " +
                 //$"vismodeHeatMod:{vismodeHeatMod} vismodeHeatDiv:{vismodeHeatDivisor} " +
                 $"sharesSensors:{SharesSensors}";
-        }
-
-        public void Update(AbstractActor actor) {
-            EWStateHelper.UpdateStaticState(this, actor);
-        }
-
-        private static class EWStateHelper {
-
-            public static void UpdateStaticState(EWState state, AbstractActor actor) {
-
-                if (state == null || actor == null) { return; }
-
-                string actorLabel = CombatantUtils.Label(actor);
-
-                // Determine the bonus from the pilots tactics
-
-
-            }
-  
         }
 
     };
