@@ -117,11 +117,11 @@ namespace LowVisibility.Helper {
             float spottingVisibilityMultiplier = target.SpottingVisibilityMultiplier;
 
             EWState ewState = new EWState(target);
-            float visionStealthMod = ewState.MimeticVisibilityMod(sourceState);
+            float mimeticMod = ewState.MimeticVisibilityMod(sourceState);
 
-            float targetVisibility = baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier + visionStealthMod;
+            float targetVisibility = baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier + mimeticMod;
             Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has visibility: {targetVisibility} = " +
-                $"baseVisMulti: {baseVisMulti} +  shutdownVisMulti: {shutdownVisMulti} + spottingVisibilityMultiplier: {spottingVisibilityMultiplier} + visionStealthMod: {visionStealthMod}");
+                $"baseVisMulti: {baseVisMulti} +  shutdownVisMulti: {shutdownVisMulti} + spottingVisibilityMultiplier: {spottingVisibilityMultiplier} + visionStealthMod: {mimeticMod}");
 
             return targetVisibility;
             //return baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier;
@@ -140,7 +140,7 @@ namespace LowVisibility.Helper {
 
         // Determines if a source has visual lock to a target from a given position. Because units have differnet positions, check all of them.
         //  Typically from head-to-head for mechs, but buildings have multiple positions.
-        public static bool CalculateVisualLock(AbstractActor source, Vector3 sourcePos,
+        public static bool CanSpotTarget(AbstractActor source, Vector3 sourcePos,
                 ICombatant target, Vector3 targetPos, Quaternion targetRot, LineOfSight los) {
 
             float spottingRangeVsTarget = VisualLockHelper.GetAdjustedSpotterRange(source, target);

@@ -49,7 +49,7 @@ namespace LowVisibility.Patch {
         [HarmonyPatch(typeof(CombatHUDPipBar), "ActivatePips")]
         public static class CombatHUDPipBar_ActivatePips {
             public static void Postfix(CombatHUDPipBar __instance, int totalPips) {
-                Mod.Log.Debug("CHUDSBP:AP entered");
+                Mod.Log.Trace("CHUDSBP:AP entered");
 
                 Mod.Log.Debug($"Activating pips: {totalPips}");
             }
@@ -59,7 +59,7 @@ namespace LowVisibility.Patch {
         public static class MoveStatusPreview_DisplayPreviewStatus {
 
             public static void Prefix(MoveStatusPreview __instance, AbstractActor actor, Vector3 worldPos, MoveType moveType) {
-                Mod.Log.Debug("MSP:DPS entered.");
+                Mod.Log.Trace("MSP:DPS entered.");
 
                 if (actor.CurrentPosition != worldPos) {
                     float distance = Vector3.Distance(actor.CurrentPosition, worldPos);

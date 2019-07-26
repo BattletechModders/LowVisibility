@@ -118,15 +118,15 @@ namespace LowVisibility.Patch {
         
         public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames, CombatHUDStatusPanel ___StatusPanel) {
             if (__instance.ActivelyShownCombatant == null ) {
-                Mod.Log.Debug($"CHTC:RAI ~~~ target is null, skipping.");
+                Mod.Log.Trace($"CHTC:RAI ~~~ target is null, skipping.");
                 return;
             } else if (
                 __instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID)) {
-                Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
+                Mod.Log.Trace($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
                 __instance.WeaponList.SetActive(true);
                 return;
             } else {
-                Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy");
+                Mod.Log.Trace($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy");
                 
                 if ((__instance.ActivelyShownCombatant as AbstractActor) != null) {
                     AbstractActor target = __instance.ActivelyShownCombatant as AbstractActor;

@@ -19,7 +19,7 @@ namespace LowVisibility {
 
         // Probe    
         public const string ProbeCarrier = "LV_PROBE_CARRIER";
-        public const string PingedByProbe = "LV_PROBE_SWEEP_PING";
+        public const string PingedByProbe = "LV_PROBE_PING";
 
         // Stealth
         public const string StealthEffect = "LV_STEALTH"; // String
@@ -77,13 +77,14 @@ namespace LowVisibility {
 
         // The range (in hexes) from which you can identify some elements of a unit
         public int VisualScanRange = 7;
+        
+        public int NoSensorInfoPenalty = 5; // Applied when the attacker cannot detect the target
+        public int NoVisualsPenalty = 5; // Applied when the attacker cannot spot the target
+        public int BlindFirePenalty = 13; // Applied if both of the above are true
 
-        // Applied when the attacker does not have sensor lock to the target
-        public int NoSensorLockPenalty = 5;
         public float VisionOnlyCriticalPenalty = 0.0f;
 
         // Applied when the attacker does not have a line of sight to the target
-        public int NoLineOfSightPenalty = 5;
         public float SensorsOnlyCriticalPenalty = 0.0f;
 
         public int MultipleECMSourceModifier = 1;
@@ -106,13 +107,16 @@ namespace LowVisibility {
             
             Mod.Log.Info($"  == Sensors ==");
             Mod.Log.Info($"Mech:{SensorRangeMechType} Vehicle:{SensorRangeVehicleType} Turret:{SensorRangeTurretType} UnknownType:{SensorRangeUnknownType}");
-            Mod.Log.Info($"SensorsOnlyPenalty:{NoLineOfSightPenalty}, SensorsOnlyCriticalPenalty:{SensorsOnlyCriticalPenalty}");
+            Mod.Log.Info($"SensorsOnlyCriticalPenalty:{SensorsOnlyCriticalPenalty}");
 
             Mod.Log.Info($"  == Vision ==");
             Mod.Log.Info($"VisionRangeBaseDaylight:{VisionRangeBaseDaylight} VisionRangeBaseDimlight:{VisionRangeBaseDimlight} VisionRangeBaseNight:{VisionRangeBaseNight}");
             Mod.Log.Info($"VisionRangeMultiRainSnow:{VisionRangeMultiRainSnow} VisionRangeMultiLightFog:{VisionRangeMultiLightFog} VisionRangeMultiHeavyFog:{VisionRangeMultiHeavyFog}");
             Mod.Log.Info($"VisionRangeMinimum:{VisionRangeMinimum} SensorRangeMinimum:{SensorRangeMinimum}, VisualIDRange:{VisualScanRange}");
-            Mod.Log.Info($"VisionOnlyPenalty:{NoSensorLockPenalty} VisionOnlyCriticalPenalty:{VisionOnlyCriticalPenalty}");
+            Mod.Log.Info($"VisionOnlyCriticalPenalty:{VisionOnlyCriticalPenalty}");
+
+            Mod.Log.Info($"  == Attacking ==");
+            Mod.Log.Info($"NoSensorInfoPenalty:{NoSensorInfoPenalty} NoVisualsPenalty:{NoVisualsPenalty} BlindFirePenalty:{BlindFirePenalty}");
 
             Mod.Log.Info("=== MOD CONFIG END ===");
         }

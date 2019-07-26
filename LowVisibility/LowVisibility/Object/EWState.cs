@@ -312,7 +312,7 @@ namespace LowVisibility.Object {
                 strength = ecmCarrierMod - attackerState.ProbeCarrierMod();
                 Mod.Log.Debug($"Target:({CombatantUtils.Label(actor)}) has ECMShield:{shieldedByECMMod} - ProbeMod:{attackerState.ProbeCarrierMod()} " +
     $"from source:{CombatantUtils.Label(attackerState.actor)}");
-            }
+            } else { return 0f; }
 
             if (pingedByProbeMod > 0) { strength -= pingedByProbeMod; }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
@@ -320,7 +320,7 @@ namespace LowVisibility.Object {
             strength = Math.Max(0, strength);
 
             float sigMod = strength * 0.1f;
-            Mod.Log.Debug($"Target:({CombatantUtils.Label(actor)}) has ECMSignatureMod:{sigMod}");
+            if (sigMod != 0) { Mod.Log.Debug($"Target:({CombatantUtils.Label(actor)}) has ECMSignatureMod:{sigMod}"); }
 
             return sigMod;
         }
@@ -334,6 +334,7 @@ namespace LowVisibility.Object {
 
             return strength;
         }
+        public bool IsECMCarrier() { return ecmCarrierMod > 0; }
         // Defender modifier
         public int ECMAttackMod(EWState attackerState) {
             int strength = shieldedByECMMod > ecmCarrierMod ? shieldedByECMMod : ecmCarrierMod;
@@ -483,23 +484,23 @@ namespace LowVisibility.Object {
 
         // NARC effects
         public bool IsNarced(EWState attackerState) {
-            return narcEffect != null && Math.Max(0, narcEffect.AttackMod - ECMAttackMod(attackerState)) > 0;
+            return narcEffect != null;
         }
-        public int GetNarcAttackMod(EWState attackerState) {
+        public int NarcAttackMod(EWState attackerState) {
             int val = 0;
             if (narcEffect != null) {
                 val = Math.Max(0, narcEffect.AttackMod - ECMAttackMod(attackerState));
             }
             return val;
         }
-        public int GetNarcDetailsMod(EWState attackerState) {
+        public int NarcDetailsMod(EWState attackerState) {
             int val = 0;
             if (narcEffect != null) {
                 val = Math.Max(0, narcEffect.DetailsMod - ECMDetailsMod(attackerState));
             }
             return val;
         }
-        public float GetNarcSignatureMulti(EWState attackerState) {
+        public float NarcSignatureMod(EWState attackerState) {
             float val = 0;
             if (narcEffect != null) {
                 val = (float)Math.Max(0.0f, narcEffect.SignatureMod - ECMDetailsMod(attackerState) * 0.1f);
@@ -511,10 +512,24 @@ namespace LowVisibility.Object {
         public bool IsTagged(EWState attackerState) {
             return tagEffect != null && Math.Max(0, tagEffect.AttackMod - MimeticAttackMod(attackerState)) > 0;
         }
-        public int GetTagDetailsMod(EWState attackerState) {
+        public int TagAttackMod(EWState attackerState) {
+            int val = 0;
+            if (tagEffect != null) {
+                val = Math.Max(0, tagEffect.AttackMod - MimeticAttackMod(attackerState));
+            }
+            return val;
+        }
+        public int TagDetailsMod(EWState attackerState) {
             int val = 0;
             if (tagEffect != null) {
                 val = Math.Max(0, tagEffect.DetailsMod - MimeticAttackMod(attackerState));
+            }
+            return val;
+        }
+        public float TagSignatureMod(EWState attackerState) {
+            float val = 0;
+            if (tagEffect != null) {
+                val = (float)Math.Max(0.0f, tagEffect.SignatureMod - MimeticVisibilityMod(attackerState));
             }
             return val;
         }

@@ -70,7 +70,7 @@ namespace LowVisibility.Patch {
             AbstractActor sourceActor = source as AbstractActor;
 
             // TODO: Handle buildings here
-            bool sourceHasLineOfSight = VisualLockHelper.CalculateVisualLock(sourceActor, sourcePosition, target, targetPosition, targetRotation, __instance);
+            bool sourceHasLineOfSight = VisualLockHelper.CanSpotTarget(sourceActor, sourcePosition, target, targetPosition, targetRotation, __instance);
             if (sourceHasLineOfSight) {
                 __result = VisibilityLevel.LOSFull;
             } else {

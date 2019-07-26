@@ -27,33 +27,47 @@ namespace LowVisibility.Patch {
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(weapon, distance);
                 int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, weapon);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState);
-                bool hasLineOfSight = VisualLockHelper.CalculateVisualLock(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
-                if (!hasLineOfSight) {
-                    __result = __result + (float)Mod.Config.NoLineOfSightPenalty;
-                } else {
-                    if (zoomVisionMod != 0) {
-                        __result = __result + (float)zoomVisionMod;
-                    }
-                    if (heatVisionMod != 0) {
-                        __result = __result + (float)heatVisionMod;
-                    }
-                    if (mimeticMod != 0) {
-                        __result = __result + (float)mimeticMod;
-                    }
-                }
+                bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
 
                 // Sensor modifiers
                 int ecmShieldMod = targetState.ECMAttackMod(attackerState);
                 int stealthMod = targetState.StealthAttackMod(attackerState, weapon, distance);
+                int narcMod = targetState.NarcAttackMod(attackerState);
+                int tagMod = targetState.TagAttackMod(attackerState);
                 SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, attacker);
-                if (sensorScan == SensorScanType.NoInfo) {
-                    __result = __result + (float)Mod.Config.NoSensorLockPenalty;
+
+                if (sensorScan == SensorScanType.NoInfo && !canSpotTarget) {
+                    __result = __result + (float)Mod.Config.BlindFirePenalty;
                 } else {
-                    if (ecmShieldMod != 0) {
-                        __result = __result + (float)ecmShieldMod;
+                    if (!canSpotTarget) {
+                        __result = __result + (float)Mod.Config.NoVisualsPenalty;
+                    } else {
+                        if (zoomVisionMod != 0) {
+                            __result = __result + (float)zoomVisionMod;
+                        }
+                        if (heatVisionMod != 0) {
+                            __result = __result + (float)heatVisionMod;
+                        }
+                        if (mimeticMod != 0) {
+                            __result = __result + (float)mimeticMod;
+                        }
                     }
-                    if (stealthMod != 0) {
-                        __result = __result + (float)stealthMod;
+
+                    if (sensorScan == SensorScanType.NoInfo) {
+                        __result = __result + (float)Mod.Config.NoSensorInfoPenalty;
+                    } else {
+                        if (ecmShieldMod != 0) {
+                            __result = __result + (float)ecmShieldMod;
+                        }
+                        if (stealthMod != 0) {
+                            __result = __result + (float)stealthMod;
+                        }
+                        if (narcMod != 0) {
+                            __result = __result + (float)narcMod;
+                        }
+                        if (tagMod != 0) {
+                            __result = __result + (float)tagMod;
+                        }
                     }
                 }
 
@@ -84,33 +98,47 @@ namespace LowVisibility.Patch {
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(weapon, distance);
                 int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, weapon);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState);
-                bool hasLineOfSight = VisualLockHelper.CalculateVisualLock(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
-                if (!hasLineOfSight) {
-                    __result = string.Format("{0}NO LINE OF SIGHT {1:+#;-#}; ", __result, Mod.Config.NoLineOfSightPenalty);
-                } else {
-                    if (zoomVisionMod != 0) {
-                        __result = string.Format("{0}ZOOM MODE {1:+#;-#}; ", __result, zoomVisionMod);
-                    }
-                    if (heatVisionMod != 0) {
-                        __result = string.Format("{0}THERMAL MODE {1:+#;-#}; ", __result, heatVisionMod);
-                    }
-                    if (mimeticMod != 0) {
-                        __result = string.Format("{0}MIMETIC ARMOR {1:+#;-#}; ", __result, mimeticMod);
-                    }
-                }
+                bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
 
                 // Sensor modifiers
                 int ecmShieldMod = targetState.ECMAttackMod(attackerState);
                 int stealthMod = targetState.StealthAttackMod(attackerState, weapon, distance);
+                int narcMod = targetState.NarcAttackMod(attackerState);
+                int tagMod = targetState.TagAttackMod(attackerState);
                 SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, attacker);
-                if (sensorScan == SensorScanType.NoInfo) {
-                    __result = string.Format("{0}NO SENSOR LOCK {1:+#;-#}; ", __result, Mod.Config.NoSensorLockPenalty);
+
+                if (sensorScan == SensorScanType.NoInfo && !canSpotTarget) {
+                    __result = string.Format("{0}FIRING BLIND {1:+#;-#}; ", __result, Mod.Config.BlindFirePenalty);
                 } else {
-                    if (ecmShieldMod != 0) {
-                        __result = string.Format("{0}ECM SHIELD {1:+#;-#}; ", __result, ecmShieldMod);
+                    if (!canSpotTarget) {
+                        __result = string.Format("{0}NO VISUALS {1:+#;-#}; ", __result, Mod.Config.NoVisualsPenalty);
+                    } else {
+                        if (zoomVisionMod != 0) {
+                            __result = string.Format("{0}ZOOM VISION {1:+#;-#}; ", __result, zoomVisionMod);
+                        }
+                        if (heatVisionMod != 0) {
+                            __result = string.Format("{0}HEAT VISION {1:+#;-#}; ", __result, heatVisionMod);
+                        }
+                        if (mimeticMod != 0) {
+                            __result = string.Format("{0}MIMETIC ARMOR {1:+#;-#}; ", __result, mimeticMod);
+                        }
                     }
-                    if (stealthMod != 0) {
-                        __result = string.Format("{0}STEALTH {1:+#;-#}; ", __result, stealthMod);
+
+                    if (sensorScan == SensorScanType.NoInfo) {
+                        __result = string.Format("{0}NO SENSOR INFO {1:+#;-#}; ", __result, Mod.Config.NoSensorInfoPenalty);
+                    } else {
+                        if (ecmShieldMod != 0) {
+                            __result = string.Format("{0}ECM SHIELD {1:+#;-#}; ", __result, ecmShieldMod);
+                        }
+                        if (stealthMod != 0) {
+                            __result = string.Format("{0}STEALTH {1:+#;-#}; ", __result, stealthMod);
+                        }
+                        if (ecmShieldMod != 0) {
+                            __result = string.Format("{0}NARCED {1:+#;-#}; ", __result, narcMod);
+                        }
+                        if (stealthMod != 0) {
+                            __result = string.Format("{0}TAGGED {1:+#;-#}; ", __result, tagMod);
+                        }
                     }
                 }
             }

@@ -23,7 +23,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDStatusPanel __instance, List<CombatHUDStatusIndicator> ___Buffs, List<CombatHUDStatusIndicator> ___Debuffs) {
-            Mod.Log.Debug("CHUDSP:RDC - entered.");
+            Mod.Log.Trace("CHUDSP:RDC - entered.");
             if (__instance != null && __instance.DisplayedCombatant != null) {
                 AbstractActor target = __instance.DisplayedCombatant as AbstractActor;
                 // We can receive a building here, so 
@@ -60,7 +60,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(CombatHUDStatusPanel), "HideStealthIndicator")]
     public static class CombatHUDStatusPanel_HideStealthIndicator {
         public static void Postfix(CombatHUDStatusPanel __instance) {
-            Mod.Log.Debug("CHUDSP:HSI - entered.");
+            Mod.Log.Trace("CHUDSP:HSI - entered.");
         }
     }
 
@@ -69,7 +69,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDStatusPanel_ShowStealthIndicators_Vector3 {
         public static void Postfix(CombatHUDStatusPanel __instance, AbstractActor target, Vector3 previewPos, CombatHUDStealthBarPips ___stealthDisplay) {
             if (___stealthDisplay == null) { return; }
-            Mod.Log.Debug("CHUDSP:SSI:Vector3 - entered.");
+            Mod.Log.Trace("CHUDSP:SSI:Vector3 - entered.");
 
             VfxHelper.CalculateMimeticPips(___stealthDisplay, target, previewPos);
         }
@@ -80,7 +80,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDStatusPanel_ShowStealthIndicators_float {
         public static void Postfix(CombatHUDStatusPanel __instance, AbstractActor target, float previewStealth, CombatHUDStealthBarPips ___stealthDisplay) {
             if (___stealthDisplay == null) { return; }
-            Mod.Log.Debug("CHUDSP:SSI:float - entered.");
+            Mod.Log.Trace("CHUDSP:SSI:float - entered.");
 
             VfxHelper.CalculateMimeticPips(___stealthDisplay, target);
         }
@@ -96,7 +96,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(CombatHUDStatusPanel __instance) {
-            Mod.Log.Debug("CHUDSP:SAS - entered.");
+            Mod.Log.Trace("CHUDSP:SAS - entered.");
 
             if (__instance.DisplayedCombatant != null) {
                 Type[] iconMethodParams = new Type[] { typeof(SVGAsset), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) };

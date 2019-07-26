@@ -51,7 +51,7 @@ namespace LowVisibility.Patch {
 
             // Initialize the VFX materials
             // TODO: Do a pooled instantiate here?
-            VfxHelper.Initialize();
+            VfxHelper.Initialize(__instance.Combat);
 
             // Attach to the message bus so we get updates on selected actor
             SelectedActorHelper.Combat = __instance.Combat;

@@ -4,7 +4,6 @@ using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
-using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
 
@@ -18,7 +17,6 @@ namespace LowVisibility.Patch {
         private static Traverse ShowTargetMethod = null;
 
         public static void Postfix(CombatHUD __instance, bool shouldAdd) {
-            //LowVisibility.Logger.Debug("CombatHUD:SubscribeToMessages:post - entered.");
             if (shouldAdd) {
                 Combat = __instance.Combat;
                 TargetingComputer = __instance.TargetingComputer;
@@ -86,38 +84,49 @@ namespace LowVisibility.Patch {
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(__instance.DisplayedWeapon, magnitude);
                 int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, __instance.DisplayedWeapon);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState);
-                bool hasLineOfSight = VisualLockHelper.CalculateVisualLock(actor, actor.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, actor.Combat.LOS);
-                if (!hasLineOfSight) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO LINE OF SIGHT", Mod.Config.NoLineOfSightPenalty });
-                } else {
-                    if (zoomVisionMod != 0) {
-                        AddToolTipDetailMethod.GetValue(new object[] { "ZOOM VISION", zoomVisionMod });
-                    }
-                    if (heatVisionMod != 0) {
-                        AddToolTipDetailMethod.GetValue(new object[] { "HEAT VISION", zoomVisionMod });
-                    }
-                    if (mimeticMod != 0) {
-                        AddToolTipDetailMethod.GetValue(new object[] { "MIMETIC ARMOR", mimeticMod });
-                    }
-                }
+                bool canSpotTarget = VisualLockHelper.CanSpotTarget(actor, actor.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, actor.Combat.LOS);
 
                 // Sensor modifiers
                 int ecmShieldMod = targetState.ECMAttackMod(attackerState);
                 int stealthMod = targetState.StealthAttackMod(attackerState, __instance.DisplayedWeapon, magnitude);
+                int narcMod = targetState.NarcAttackMod(attackerState);
+                int tagMod = targetState.TagAttackMod(attackerState);
                 SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, actor);
-                if (sensorScan == SensorScanType.NoInfo) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", Mod.Config.NoSensorLockPenalty });
+                 
+                if (sensorScan == SensorScanType.NoInfo && !canSpotTarget) {
+                    AddToolTipDetailMethod.GetValue(new object[] { "FIRING BLIND", Mod.Config.BlindFirePenalty });
                 } else {
-                    if (ecmShieldMod != 0) {
-                        Mod.Log.Debug($" CHUDWS:SHC Target:{CombatantUtils.Label(target)} has ECM_SHIELD, applying modifier: {targetState.ECMAttackMod(attackerState)}");
-                        AddToolTipDetailMethod.GetValue(new object[] { "ECM SHIELD", targetState.ECMAttackMod(attackerState) });
+                    if (!canSpotTarget) {
+                        AddToolTipDetailMethod.GetValue(new object[] { "NO VISUALS", Mod.Config.NoVisualsPenalty });
+                    } else {
+                        if (zoomVisionMod != 0) {
+                            AddToolTipDetailMethod.GetValue(new object[] { "ZOOM VISION", zoomVisionMod });
+                        }
+                        if (heatVisionMod != 0) {
+                            AddToolTipDetailMethod.GetValue(new object[] { "HEAT VISION", zoomVisionMod });
+                        }
+                        if (mimeticMod != 0) {
+                            AddToolTipDetailMethod.GetValue(new object[] { "MIMETIC ARMOR", mimeticMod });
+                        }
                     }
-                    if (stealthMod != 0) {
-                        Mod.Log.Debug($" CHUDWS:SHC Target:{CombatantUtils.Label(target)} has STEALTH, applying modifier: {targetState.ECMAttackMod(attackerState)}");
-                        AddToolTipDetailMethod.GetValue(new object[] { "SENSOR STEALTH", stealthMod });
+
+                    if (sensorScan == SensorScanType.NoInfo) {
+                        AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR INFO", Mod.Config.NoSensorInfoPenalty });
+                    } else {
+                        if (ecmShieldMod != 0) {
+                            AddToolTipDetailMethod.GetValue(new object[] { "ECM SHIELD", targetState.ECMAttackMod(attackerState) });
+                        }
+                        if (stealthMod != 0) {
+                            AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", stealthMod });
+                        }
+                        if (stealthMod != 0) {
+                            AddToolTipDetailMethod.GetValue(new object[] { "TARGET NARCED", narcMod });
+                        }
+                        if (stealthMod != 0) {
+                            AddToolTipDetailMethod.GetValue(new object[] { "TARGET TAGGED", tagMod });
+                        }
                     }
                 }
-
             }
         }
     }

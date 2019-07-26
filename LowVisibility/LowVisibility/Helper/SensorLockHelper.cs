@@ -94,13 +94,14 @@ namespace LowVisibility.Helper {
 
             EWState ewState = new EWState(target);
             float ecmShieldMod = ewState.ECMSignatureMod(sourceState);
+            float stealthMod = ewState.StealthSignatureMod(sourceState);
+            float narcMod = ewState.NarcSignatureMod(sourceState);
+            float tagMod = ewState.TagSignatureMod(sourceState);
 
-            // TODO: Stealth boost should be opposed by probes 
-            float sensorStealthMod = ewState.StealthSignatureMod(sourceState);
-
-            float targetSignature = rawSignature + shutdownMod + ecmShieldMod;
+            float targetSignature = rawSignature + shutdownMod + ecmShieldMod + narcMod + tagMod;
             Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has signature: {targetSignature} = " +
-                $"rawSignature: {rawSignature} +  shutdown: {shutdownMod} + ecmShield: {ecmShieldMod} + sensorStealth: {sensorStealthMod}");
+                $"rawSignature: {rawSignature} +  shutdown: {shutdownMod} + ecmShield: {ecmShieldMod} " +
+                $"+ stealth: {stealthMod} + narc: {narcMod} + tag: {tagMod}");
 
             return targetSignature;
         }
@@ -178,7 +179,7 @@ namespace LowVisibility.Helper {
                 if (distance > sensorRangeVsTarget) {
                     // Check for Narc effect that will show the target regardless of range
                     SensorScanType narcLock = HasNarcBeaconDetection(target, sourceState, targetState) ? SensorScanType.Location : SensorScanType.NoInfo;
-                    Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
+                    Mod.Log.Debug($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
                     return narcLock;
                 } else {
                     SensorScanType sensorLock = SensorScanType.NoInfo;
@@ -195,7 +196,7 @@ namespace LowVisibility.Helper {
                             sensorLock = SensorScanType.Location;
                         }
                     }
-                    Mod.Log.Trace($"SensorLockHelper - source:{CombatantUtils.Label(source)} has sensorLock:({sensorLock}) vs " +
+                    Mod.Log.Debug($"SensorLockHelper - source:{CombatantUtils.Label(source)} has sensorLock:({sensorLock}) vs " +
                         $"target:{CombatantUtils.Label(target)}");
                     return sensorLock;
                 }
@@ -217,7 +218,6 @@ namespace LowVisibility.Helper {
         private static bool HasNarcBeaconDetection(ICombatant target, EWState sourceState, EWState targetState) {
             bool hasDetection = false;
             if (target != null && targetState != null && targetState.IsNarced(sourceState)) {
-                Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} has an active NARC beacon");
                 hasDetection = true; 
             }
             return hasDetection;
@@ -264,15 +264,15 @@ namespace LowVisibility.Helper {
                 // A Narc effect increases sensor info
                 // TODO: Narc should effect buildings
                 if (targetState.IsNarced(sourceState)) {
-                    Mod.Log.Debug($" == target is NARC'd, detailsLevel = {detailsLevel} - {targetState.GetNarcDetailsMod(sourceState)}");
-                    detailsLevel += targetState.GetNarcDetailsMod(sourceState);
+                    Mod.Log.Debug($" == target is NARC'd, detailsLevel = {detailsLevel} + {targetState.NarcDetailsMod(sourceState)}");
+                    detailsLevel += targetState.NarcDetailsMod(sourceState);
                 }
 
                 // A TAG effect increases sensor info
                 // TODO: TAG should effect buildings
                 if (targetState.IsTagged(sourceState)) {
-                    Mod.Log.Debug($" == target is tagged, detailsLevel = {detailsLevel} + {targetState.GetTagDetailsMod(sourceState)}");
-                    detailsLevel += targetState.GetTagDetailsMod(sourceState);
+                    Mod.Log.Debug($" == target is tagged, detailsLevel = {detailsLevel} + {targetState.TagDetailsMod(sourceState)}");
+                    detailsLevel += targetState.TagDetailsMod(sourceState);
                 }
 
             }

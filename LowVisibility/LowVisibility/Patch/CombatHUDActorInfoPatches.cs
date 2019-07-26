@@ -26,7 +26,7 @@ namespace LowVisibility.Patch {
         [HarmonyPatch(typeof(CombatHUDActorInfo), "RefreshAllInfo")]
         public static class CombatHUDActorInfo_RefreshAllInfo {
             public static void Postfix(CombatHUDActorInfo __instance, AbstractActor ___displayedActor) {
-                Mod.Log.Debug("CHUDAI:RAI entered");
+                Mod.Log.Trace("CHUDAI:RAI entered");
 
                 if (___displayedActor != null && __instance.StealthDisplay != null) {
                     VfxHelper.CalculateMimeticPips(__instance.StealthDisplay, ___displayedActor);

@@ -22,15 +22,5 @@ namespace LowVisibility.Helper {
             return checkResult;
         }
 
-        public static bool IsECMCarrier(AbstractActor actor) {
-            List<Effect> list = actor.Combat.EffectManager.GetAllEffectsTargeting(actor)
-                .FindAll((Effect x) =>
-                    x.EffectData.effectType == EffectType.StatisticEffect
-                    && x.EffectData.statisticData.statName == ModStats.ECMCarrier);
-
-            Mod.Log.Debug($" ACTOR HAS ECM: Actor: {CombatantUtils.Label(actor)} hasECM: {list.Count > 0}");
-            return list.Count > 0;
-        }
-
     }
 }

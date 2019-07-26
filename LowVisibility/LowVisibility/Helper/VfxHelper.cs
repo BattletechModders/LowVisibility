@@ -17,8 +17,17 @@ namespace LowVisibility.Helper {
         public static Material MaterialECMBubble;
         
 
-        public static void Initialize() {
+        public static void Initialize(CombatGameState cgs) {
             Mod.Log.Debug("== INITIALIZING MATERIALS ==");
+            GameObject go = cgs.DataManager.PooledInstantiate("vfxMatPrtl_shockwaveBlack_alpha", BattleTechResourceType.Prefab, null, null, null);
+            if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: vfxMatPrtl_shockwaveBlack_alpha"); }
+
+            go = cgs.DataManager.PooledInstantiate("envMatStct_darkMetal_generic", BattleTechResourceType.Prefab, null, null, null);
+            if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: envMatStct_darkMetal_generic"); }
+
+            go = cgs.DataManager.PooledInstantiate("vfxTxrPrtl_rainDot_alpha", BattleTechResourceType.Prefab, null, null, null);
+            if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: vfxTxrPrtl_rainDot_alpha"); }
+
             MaterialSensorStealthBubble = Resources.FindObjectsOfTypeAll<Material>()
                 .FirstOrDefault(m => m.name == "vfxMatPrtl_shockwaveBlack_alpha");
             MaterialSensorStealthCapsule = Resources.FindObjectsOfTypeAll<Material>()
