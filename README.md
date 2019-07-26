@@ -20,7 +20,7 @@ This mod is comprehensive, but a short summary of changes in the mod include:
 * Stealth can hide enemy mechs (and your own!) allowing you to close range safely.
 * Memetic armor reduces your ability to be targeted, but decreases if you move
 
-## Concepts
+## Target States
 
 Every model in the game is in one of the three states. A target is either:
 
@@ -37,51 +37,75 @@ Even if a target is visible or detected, you may know its location but all other
 * **Visual ID** - if you are close enough, your pilots can determine some basic information such as the chassis type, rough armor/structure values, and type of weapon. You have to be within 150 meters for visual identification.
 * **Sensor ID** - with a good electronic warfare check your pilots can determine all of a target's details, including current armor values, weapon names, and component locations.
 
-## Electronic Warfare Checks
-A MechWarrior's ability to understand detailed sensor readouts and make snap assessments of a target depends on their circumstances and experience. At the start of each round, every unit makes an **electronic warfare check**. A good check result allows the pilot to maximize their equipment, while a poor one can significantly reduce its effectiveness.
+### Pilot Skill
 
-The EW check is used in the following conditions:
+Even the most advanced equipment depends upon the pilot... `TODO: CONTINUE ME`
 
-* As a bonus to visual identification
-* As a bonus to sensor identification
-
-Your current check result is displayed in a tooltip in the status bar of each player mech. Check the icons in the bottom right corner, over the armor paper-doll, for a detailed breakdown of the result.
-
-## Equipment
+### Equipment
 
 This mod adds several types of equipment that generate electronic warfare effects. A short summary of their effects are:
 
 * __ECM__ components generate a scrambling bubble that protects the carrier and friendly units within its area. This makes provides an attack penalty to attacks against friendly units, increases the difficulty of sensor identification against friendly units, and applies a penalty to sensor identification for any enemy unit within the area of effect.
-* __Stealth__ components makes the equipped unit harder to detect by absorbing sensor emissions. They make the carrier harder to detect, increase the difficulty of sensor identification against the carrier,
+* __Stealth__ components makes the equipped unit harder to detect by absorbing sensor emissions. They make the carrier harder to detect, increase the difficulty of sensor identification, and applies an attack penalty to any attacker.
+* __Mimetic__ components make the unit harder to visually identify through a chameleonic effect. The carrier will be less visible and attacks will suffer a penalty. These effects are lost if the carrier moves during their turn.
+* __Probe__ components are advanced sensors that make it easier to detect enemy units. They provide a bonus to sensor identification and reduce ECM, Stealth, and Mimetic effects on targets.
+* __Narc__ weapons fire a transmitter the broadcasts data about the target across the entire map. This effect ignores Stealth and Mimetic effects on the target.
+* __TAG__ weapons fire a specialized beam that locates and identifies a target. This effect is lost when the target moves. This effect ignores ECM or Stealth on the target.
 
+## Details
 
-__Active Probe__ components improve the quality of the units' sensors, and can break through ECM and Stealth if they are powerful enough.
-
-__Narc Beacon__ weapons attach a powerful transmitter to targets. For a short duration, they will emit a signal that friendly units can use to identify the target's location __at any range__. This signal is opposed by friendly ECM, and may be disabled if enough ECM is present to overcome it's signal.
-
-__TAG__ weapons identify the location and details of the target for all friendly units that receive the signal. This effect persists until the unit moves away from the position it was identified. Friendly ECM has no impact on this signal.
-
-## Implementation Details
-This section contains describes how to customize the mod's behavior. The values below impact various mechanics used through the mod to control visibility and detection.
+This section describes the various mechanics that used throughout *LowVisibility*. Players may find this information overwhelming, as its written as a reference for mod authors.
 
 While not necessary, it's suggested that you are familiar with the information in the [Low Visibility Design Doc](DesignDoc.md).
 
-### Visual Detection
+Any variable name in `code syntax` is a configuration value. It can be changed by modifying the named value in **LowVisibility/mod.json**.
 
-The range of visual detection in _LowVisibility_ is typically much less than vanilla. Because sensor locks allow targeting and attacks, visual ranges have been reduced. Hopefully this provides a verisimilitude of an environment where both are necessary to survival.
+### Electronic Warfare Checks
+At the start of each round, every unit makes an **electronic warfare check**. A good check result represents the pilot making the best use of their equipment, while a poor one reflects them being preoccupied with other things.
 
-No matter the circumstances, vision range cannot drop below a number of hexes equal to _VisionRangeMinimum_. This value can be edited in `LowVisibility/mod.json` and defaults to 2 hexes.
+Each check is a random value between -14 to +14, assigned from a normal distribution (aka a bell curve). The distribution uses mu=-2 and a sigma=4 value, resulting in a wide curve that's centered at the -2 result.
 
-#### Visual Identification
+![Sensor Check Distribution](check_distribution.png "Sensor Check Distribution")
 
-In _LowVisibility_ many opponent details are hidden to simulate the uncertainty pilots would experience on the BattleTech battlefield.
-Sensors are the best way to gain detailed information on your opponent (see the [Sensor Info](#Sensor-Info) section below), but the Mk.1 eyeball can be useful as well.
+Each check is further modified by the source unit's tactics skill, as per the table below. (Skills 11-13 are for [RogueTech](http://roguetech.org) elite units).
 
-If a unit has visual lock to a target and is within a short distance, they can approximate many target details. Units within _VisualIDRange_ (which defaults to 5 hexes) will treat any opponent unit as if they have __Surface Analysis__.
+| Skill |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |  10  | 11 | 12 | 13 |
+| -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- |
+| Modifier | +0 | +1 | +1 | +2 | +2 | +3 | +3 | +4 | +4 | +5 | +6 | +7 | +8 |
+| w/ Lvl 5 Ability | +0 | +1 | +1 | +2 | +3 | +4 | +4 | +5 | +5 | +6 | +7 | +8 | +9 |
+| w/ Lvl 8 Ability | +0 | +1 | +1 | +2 | +4 | +5 | +5 | +6 | +6 | +7 | +8 | +9 | +10 |
 
-#### Environmental Modifiers
+The current check result is displayed in a tooltip in the status bar of each player mech. The check result contributes to various calculations in the mod, including:
 
-_Visual Lock_ is heavily influenced by the environment of the map. Each map contains one or more _mood_ tags that influence the vision range on that map. When each map is loaded, a base vision range is calculated for every unit from these tags. Flags related to the ambient light the a base vision range, while flags related to obscurement provide a multiplier that reduces this range.
+* As a bonus to visual identification
+* As a bonus to sensor identification
+
+### Spotting and Sensors
+
+Every unit in the game has four related values that control whether it can be seen and targeted:
+
+* **Spotting Range** determines how far (in meters) the unit can visually locate a target. You can only draw a *line of sight* to a target closer than your spotting range.
+* **Visibility** is a multiplier from the target that modifies the source's *spotting range*.
+* **Sensor Range** determines how far (in meters) the unit can locate targets using sensors.
+* **Signature** is a multiplier from the target that modifies the source's *sensor range*.
+
+For both cases the math is straightforward. If a source has a 500 meter range, and the target has visibility/signature of 0.5, the target can be detected at 250 meters or closer. If the target's visibility/signature is 1.5, it can be detected at 750 meters or closer.
+
+Terrain can modify visibility and signature values. Forests apply a 0.8  modifier to signature, while water applies a 1.2.
+
+### Spotting
+
+In *LowVisibility* unit's *base spotting range* is shorter than vanilla , as sensor locks allow targets to be identified and attacked. It can also be influenced by weather effects (see below). No matter the circumstances, a unit's spotting range cannot drop below `VisionRangeMinimum`. This value is expressed as 30 meter hexes, and defaults to 2 hexes (60 meters).
+
+A MechWarrior can make some guesses about the target when they are very close. Units at `VisualIDRange` or will identify basic details about the target even if they have no sensor lock. Details will be limited to approximate armor and structure amounts, general weapon types, and the like. The default value is 5 hexes (180 meters).
+
+TODO: Add EW check to effect to allow stronger pilots to know more
+
+#### Environmental Effects
+
+Each map contains one or more _mood_ tags, some of which apply a limit to all units spotting distance. Conceptually tags related to the ambient light level set the base vision range, while tags related to obscurement provide a multiplier that reduces this base range.
+
+Any modifiers to a units _SpottingVisibilityMultiplier_ or _SpottingVisibilityAbsolute_ statistic increase the calculated base range.
 
 Base Vision Range | Light |  Tags
 -- | -- | --
@@ -95,21 +119,7 @@ x0.7 | mood_weatherRain, mood_weatherSnow
 x0.5 | mood_fogLight
 x0.3 | mood_fogHeavy
 
-A map with _dim light_ and _rain_ has a vision range of `11 hexes * 30.0m * 0.7 = 231m`. Any _SpottingVisibilityMultiplier_ or _SpottingVisibilityAbsolute_ modifiers on the unit increase this base range as normal.
-
-### Sensor Detection
-
-At the start of every combat round, every unit (player or AI) makes two __sensor checks__. Each check is a random value between -14 to +14, assigned as per a normal distribution (aka a bell curve). The distribution uses mu=-2 and a sigma=4 value, resulting in a wide curve that's centered at the -2 result.
-
-![Sensor Check Distribution](check_distribution.png "Sensor Check Distribution")
-
-Each check is further modified by the source unit's tactics skill, as per the table below. (Skills 11-13 are for [RogueTech](http://roguetech.org) elite units).
-
-| Skill |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |  10  | 11 | 12 | 13 |
-| -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- |
-| Modifier | +0 | +1 | +1 | +2 | +2 | +3 | +3 | +4 | +4 | +5 | +6 | +7 | +8 |
-| w/ Lvl 5 Ability | +0 | +1 | +1 | +2 | +3 | +4 | +4 | +5 | +5 | +6 | +7 | +8 | +9 |
-| w/ Lvl 8 Ability | +0 | +1 | +1 | +2 | +4 | +5 | +5 | +6 | +6 | +7 | +8 | +9 | +10 |
+> A map with _dim light_ and _rain_ has a vision range of `11 hexes * 30.0m * 0.7 = 231m`.
 
 #### Sensor Range
 
@@ -122,9 +132,9 @@ The first check (the __range check__) is used to determine the unit's sensor ran
 | Turret | 15 hexes * 30m = __450m__ |
 | Others | 6 hexes * 30m = __180m__ |
 
-The range check result is divided by ten, then used as a multiplier against the unit's sensor range. A range check result of +3 yields a  sensor range multiplier of (1 + 3/10) = 1.3x. A negative range check of -2 would result in a multiplier of (1.0 - 2/10) = 0.8x.
+The range check result is divided by ten, then used as a multiplier against the unit's sensor range. A range check result of +3 yields a sensor range multiplier of (1 + 3/10) = 1.3x. A negative range check of -2 would result in a multiplier of (1.0 - 2/10) = 0.8x.
 
-No matter the circumstances, sensors range cannot drop below a number of hexes equal to _SensorRangeMinimum_. This value can be edited in `LowVisibility/mod.json` and defaults to 6 hexes.
+No matter the circumstances, sensors range cannot drop below a number of hexes equal to _SensorRangeMinimum_. This value defaults to 6 hexes (240 meters).
 
 ##### Target Signature
 
@@ -136,9 +146,7 @@ Target signatures act as a multiplier to the sensor range. If a unit has a senso
   * A standard target with signature 1.0 would be detectable at 400m or closer.
   * An easy to detect target with signature 1.2 would be detectable at 480m.
 
-__EVEN IF A TARGET IS WITHIN YOUR SENSOR RANGE AND YOU HAVE A GOOD CHECK, IT DOES NOT GUARANTEE YOU CAN DETECT THEM.__ Their signature can reduce your effective range without you ever knowing.
 
-Players should note that forests provide a 0.8 signature, while water applies a 1.2.
 
 #### Sensor Info
 
@@ -162,22 +170,21 @@ The second check (the __info check__) determines how much target information the
 
 On the very first turn of every combat, every unit (friendly, neutral, or foe) always fail their __range check__. This ensures players can move away from their deployment zone before the AI has a chance to attack them. This behavior can be disabled by setting `FirstTurnForceFailedChecks` to __false__ in `mod.json`.
 
-## Components
-The sections below define behaviors exposed through components, such as equipment and weapons.
-
 ### ECM
 
-ECM components emit a bubble around the unit. After every movement occurs, all units are checked to see if they are within the ECM bubble of another unit.
+ECM components generate an aura around the carrier unit. Any friendly unit within the bubble receives an **ECM Shield** effect. Enemy units within the bubble receive an **ECM Jamming** effect. If there are multiple ECM sources a target uses the strongest modifier, +1 for each additional emitter. You can change the modifier for multiplier emitters can be modified by changing `MultipleJammerPenalty`.
 
-If they are within an enemy ECM bubble, they gain an __ECM jamming__ modifier equal to the strength of the emitter. This reduces __both__ _Detection_ checks by the emitter strength.
+For each point of **ECM Shield** on a target, attackers gain a +1 attack penalty and -1 sensors identification check. The target gains a 0.05 increase to their signature, making it easier for them to be located.
 
-If the unit is within a friendly ECM bubble it gains __ECM protection__. This adds the friendly emitter's strength as a negative modifier to any _Detection Info_ checks made against the target.
+For each point of **ECM Jamming** on a target, the target suffers a -1 penalty to any sensors identification check they make.
 
-If there are multiple ECM emitters covering a target, the strongest modifier will be applied. Each additional emitter will add +1 strength to the strongest emitter's modifier. This value can be tweaked by changing the ``MultipleJammerPenalty`` in ``mod.json``.
+If a source with **ECM Jamming** is attempting to identify a target protected by **ECM Shield**, both modifiers apply.
 
-ECM components must have the tag ```lv-jammer_mX_rY``` to be recognized as an ECM emitter. The X value is the modifier the emitter adds as protection or jamming to the target. The Y value is the size of the ECM bubble generated, in hexes. A tag of __lv-jammer_m4_r8__ would apply to any targets within 8 hexes, apply a modifier of -4 to jammed enemies, and add 4 points of protection to friendly units.
+To enable ECM on a component, define the following effects on the componentDef:
 
-If an enemy unit within an ECM bubble is attempting to detect a friendly unit protected by the bubble, __both modifiers apply__. If there are two overlapping bubbles of __lv-jammer_m4_r8__ emitters, the enemy would have a total `-4 -1 = -5` penalty from being __jammed__, and a further `-4 -1 = -5` modifier due to the target having __protection__. Their checks would have a __-10__ modifier to detect the unit protected by both bubbles.
+```
+
+```
 
 ### Active Probes
 
@@ -323,11 +330,12 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 ## WIP
 
 ### 1.6 Bugs
-* Auras stack endlessly; need to read VALUES statistic instead of raw statistic
-* ~~Melee vs. stealth causes hardlock~~
 * Stealth textures don't always load
-* ~~Cannot shoot stealthed enemies; hardlock due to NRE~~
 * Prefix not showing for mimetic
+* Vehicles need an oblate spheroid for stealth effect, not prolate.
+* Better VFX definition for Stealth (instead of black bubble)
+* ECM/Stealth/Mimetic applies a flat hexes reduction to signature/visibility, instead of a multiplicative one?
+* Show EYE icon on enemies and friendlys for stealth, etc
 
 ### WIP Features
 
