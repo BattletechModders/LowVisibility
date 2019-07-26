@@ -7,7 +7,6 @@ using us.frostraptor.modUtils;
 namespace LowVisibility.Helper {
     class SensorLockHelper {
 
-
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         public static float GetSensorsRange(AbstractActor source) {
 
@@ -37,8 +36,9 @@ namespace LowVisibility.Helper {
         }
 
         public static float GetAdjustedSensorRange(AbstractActor source, ICombatant target) {
+            EWState sourceState = new EWState(source);
             float sourceSensorRange = SensorLockHelper.GetSensorsRange(source);
-            float targetSignature = SensorLockHelper.GetTargetSignature(target);
+            float targetSignature = SensorLockHelper.GetTargetSignature(target, sourceState);
             //LowVisibility.Logger.Debug($"   source:{CombatantUtils.Label(source)} sensorRange:{sourceSensorRange}m vs targetSignature:x{targetSignature}");
 
             //if (target != null && source.VisibilityToTargetUnit(target) > VisibilityLevel.None) {
@@ -70,11 +70,11 @@ namespace LowVisibility.Helper {
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        public static float GetTargetSignature(ICombatant target) {
+        public static float GetTargetSignature(ICombatant target, EWState sourceState) {
             if (target == null || (target as AbstractActor) == null) { return 1f; }
 
             AbstractActor targetActor = target as AbstractActor;
-            float allTargetSignatureModifiers = GetAllTargetSignatureModifiers(targetActor);
+            float allTargetSignatureModifiers = GetAllTargetSignatureModifiers(targetActor, sourceState);
             float staticSignature = 1f + allTargetSignatureModifiers;
 
             // Add in any design mask boosts
@@ -86,21 +86,21 @@ namespace LowVisibility.Helper {
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        private static float GetAllTargetSignatureModifiers(AbstractActor target) {
+        private static float GetAllTargetSignatureModifiers(AbstractActor target, EWState sourceState) {
             if (target == null) { return 0f; }
 
             float shutdownMod = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownSignatureModifier;
-            float sensorMod = target.SensorSignatureModifier;
+            float rawSignature = target.SensorSignatureModifier;
 
             EWState ewState = new EWState(target);
-            float ecmShieldMod = ewState.GetECMShieldSignatureModifier();
+            float ecmShieldMod = ewState.ECMSignatureMod(sourceState);
 
             // TODO: Stealth boost should be opposed by probes 
-            float sensorStealthMod = ewState.StealthSignatureMod();
+            float sensorStealthMod = ewState.StealthSignatureMod(sourceState);
 
-            float targetSignature = sensorMod + shutdownMod + ecmShieldMod;
+            float targetSignature = rawSignature + shutdownMod + ecmShieldMod;
             Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has signature: {targetSignature} = " +
-                $"sensorSignature: {sensorMod} +  shutdown: {shutdownMod} + ecmShield: {ecmShieldMod} + sensorStealth: {sensorStealthMod}");
+                $"rawSignature: {rawSignature} +  shutdown: {shutdownMod} + ecmShield: {ecmShieldMod} + sensorStealth: {sensorStealthMod}");
 
             return targetSignature;
         }
@@ -118,13 +118,6 @@ namespace LowVisibility.Helper {
                 // We have an active source, so only use that model plus any 'shares sensors' models
                 Mod.Log.Debug($"Actor:({CombatantUtils.Label(source)}) is primary lock source.");
                 sensorSources.Add(source);
-                foreach (AbstractActor friendly in source.Combat.GetAllAlliesOf(source)) {
-                    EWState friendlyState = new EWState(friendly);
-                    if (friendlyState.SharesSensors) {
-                        Mod.Log.Debug($"Actor:({CombatantUtils.Label(friendly)}) shares sensors, adding their lock.");
-                        sensorSources.Add(friendly);
-                    }
-                }
             }
 
             Mod.Log.Debug($"Checking locks from {sensorSources.Count} sources.");
@@ -161,22 +154,18 @@ namespace LowVisibility.Helper {
             }
 
             if (source.IsTeleportedOffScreen) {
-                Mod.Log.Debug($"  source is teleported off screen. Skipping.");
+                Mod.Log.Debug($"  source as is teleported off screen. Skipping.");
                 return SensorScanType.NoInfo;
             }
 
-            if (source.IsGhosted) {
-                Mod.Log.Debug($"  source is ghosted. Treating as noInfo.");
-                return SensorScanType.NoInfo;
-            }
-
+            EWState sourceState = new EWState(source);
             float distance = Vector3.Distance(sourcePos, targetPos);
             float sensorRangeVsTarget = SensorLockHelper.GetAdjustedSensorRange(source, target);
             Mod.Log.Trace($"SensorLockHelper - source: {CombatantUtils.Label(source)} sensorRangeVsTarget: {sensorRangeVsTarget} vs distance: {distance}");
             if ((target as Building) != null) {
                 // If the target is a building, show them so long as they are in sensor distance
                 // TODO: ADD FRIENDLY ECM CHECK HERE?
-                EWState sourceState = new EWState(source);
+                
                 Building targetBuilding = target as Building;
                 // TODO: This should be calculated more fully! Major bug here!
                 SensorScanType buildingLock = sourceState.GetCurrentEWCheck() > 0 ? SensorScanType.SurfaceScan : SensorScanType.NoInfo;
@@ -188,7 +177,7 @@ namespace LowVisibility.Helper {
 
                 if (distance > sensorRangeVsTarget) {
                     // Check for Narc effect that will show the target regardless of range
-                    SensorScanType narcLock = HasNarcBeaconDetection(target, targetState) ? SensorScanType.Location : SensorScanType.NoInfo;
+                    SensorScanType narcLock = HasNarcBeaconDetection(target, sourceState, targetState) ? SensorScanType.Location : SensorScanType.NoInfo;
                     Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
                     return narcLock;
                 } else {
@@ -202,7 +191,7 @@ namespace LowVisibility.Helper {
                         sensorLock = CalculateSensorInfoLevel(source, target);
 
                         // Check for Narc effect overriding detection
-                        if (sensorLock < SensorScanType.Location && HasNarcBeaconDetection(targetActor, targetState)) {
+                        if (sensorLock < SensorScanType.Location && HasNarcBeaconDetection(targetActor, sourceState, targetState)) {
                             sensorLock = SensorScanType.Location;
                         }
                     }
@@ -210,24 +199,26 @@ namespace LowVisibility.Helper {
                         $"target:{CombatantUtils.Label(target)}");
                     return sensorLock;
                 }
+
+                // TODO:
+                /*
+                 *             if (source.IsGhosted) {
+                Mod.Log.Debug($"  source is ghosted. Treating as noInfo.");
+                return SensorScanType.NoInfo;
+            }
+
+                 */
             } else {
                 Mod.Log.Info($"SensorLockHelper - fallthrough case we don't know how to handle. Returning NoLock!");
                 return SensorScanType.NoInfo;
             }
         }
 
-        private static bool HasNarcBeaconDetection(ICombatant target, EWState targetState) {
+        private static bool HasNarcBeaconDetection(ICombatant target, EWState sourceState, EWState targetState) {
             bool hasDetection = false;
-            if (target != null && State.NARCEffect(target) != 0) {
-                int delta = State.NARCEffect(target) - targetState.GetECMShieldDetailsModifier();
-                Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} has an active " +
-                    $"narc effect {State.NARCEffect(target)} vs. ECM Protection:{targetState.GetECMShieldDetailsModifier()}, delta is:{delta}");
-
-                if (delta >= 1) {
-                    Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} has an active NARC effect, " +
-                        $"marking them visible!");
-                    hasDetection = true; 
-                }
+            if (target != null && targetState != null && targetState.IsNarced(sourceState)) {
+                Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} has an active NARC beacon");
+                hasDetection = true; 
             }
             return hasDetection;
         }
@@ -242,15 +233,15 @@ namespace LowVisibility.Helper {
             Mod.Log.Debug($" == detailsLevel from EW check = {detailsLevel}");
 
             // --- Source: Advanced Sensors
-            if (sourceState.GetAdvancedSensorsMod() > 0) {
-                Mod.Log.Debug($" == source has advanced sensors, detailsLevel = {detailsLevel} + {sourceState.GetAdvancedSensorsMod()}");
-                detailsLevel += sourceState.GetAdvancedSensorsMod();
+            if (sourceState.AdvancedSensorsMod() > 0) {
+                Mod.Log.Debug($" == source has advanced sensors, detailsLevel = {detailsLevel} + {sourceState.AdvancedSensorsMod()}");
+                detailsLevel += sourceState.AdvancedSensorsMod();
             }
 
             // --- Source: ECM Jamming
-            if (sourceState.GetECMJammedDetailsModifier() > 0) {
-                Mod.Log.Debug($" == source is jammed by ECM, detailsLevel = {detailsLevel} - {sourceState.GetECMJammedDetailsModifier()}");
-                detailsLevel -= sourceState.GetECMJammedDetailsModifier();
+            if (sourceState.ECMJammedMod() > 0) {
+                Mod.Log.Debug($" == source is jammed by ECM, detailsLevel = {detailsLevel} - {sourceState.ECMJammedMod()}");
+                detailsLevel -= sourceState.ECMJammedMod();
             }
 
             // --- Target: Stealth, Narc, Tag
@@ -259,29 +250,29 @@ namespace LowVisibility.Helper {
                 EWState targetState = new EWState(targetActor);
 
                 // ECM Shield reduces sensor info
-                if (targetState.GetECMShieldSignatureModifier() > 0) {
-                    Mod.Log.Debug($" == target is shielded by ECM, detailsLevel = {detailsLevel} - {targetState.GetECMShieldDetailsModifier()}");
-                    detailsLevel -= targetState.GetECMShieldDetailsModifier();
+                if (targetState.ECMDetailsMod(sourceState) > 0) {
+                    Mod.Log.Debug($" == target is shielded by ECM, detailsLevel = {detailsLevel} - {targetState.ECMDetailsMod(sourceState)}");
+                    detailsLevel -= targetState.ECMDetailsMod(sourceState);
                 }
 
-                // Sensor Stealth reduces sensor info
+                // Stealth reduces sensor info
                 if (targetState.HasStealth()) {
-                    Mod.Log.Debug($" == target has sensor stealth, detailsLevel = {detailsLevel} - {targetState.StealthDetailsMod()}");
+                    Mod.Log.Debug($" == target has stealth, detailsLevel = {detailsLevel} - {targetState.StealthDetailsMod()}");
                     detailsLevel -= targetState.StealthDetailsMod();
                 }
 
                 // A Narc effect increases sensor info
                 // TODO: Narc should effect buildings
-                if (State.NARCEffect(targetActor) != 0) {
-                    Mod.Log.Debug($" == target is narc'd, detailsLevel = {detailsLevel} - {State.NARCEffect(targetActor)}");
-                    detailsLevel += State.NARCEffect(targetActor);
+                if (targetState.IsNarced(sourceState)) {
+                    Mod.Log.Debug($" == target is NARC'd, detailsLevel = {detailsLevel} - {targetState.GetNarcDetailsMod(sourceState)}");
+                    detailsLevel += targetState.GetNarcDetailsMod(sourceState);
                 }
 
                 // A TAG effect increases sensor info
                 // TODO: TAG should effect buildings
-                if (State.TAGEffect(targetActor) != 0) {
-                    Mod.Log.Debug($" == target is tagged, detailsLevel = {detailsLevel} + {State.TAGEffect(targetActor)}");
-                    detailsLevel += State.TAGEffect(targetActor);
+                if (targetState.IsTagged(sourceState)) {
+                    Mod.Log.Debug($" == target is tagged, detailsLevel = {detailsLevel} + {targetState.GetTagDetailsMod(sourceState)}");
+                    detailsLevel += targetState.GetTagDetailsMod(sourceState);
                 }
 
             }

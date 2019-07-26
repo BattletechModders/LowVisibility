@@ -6,8 +6,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using us.frostraptor.modUtils;
 using us.frostraptor.modUtils.Redzen;
 using static LowVisibility.Helper.MapHelper;
 
@@ -23,16 +21,12 @@ namespace LowVisibility {
 
         // -- Mutable state
         public static Dictionary<string, EWState> EWState = new Dictionary<string, EWState>();
-        public static Dictionary<string, Dictionary<string, Locks>> PlayerActorLocks 
-            = new Dictionary<string, Dictionary<string, Locks>>();
         
         // TODO: Do I need this anymore?
         //public static string LastPlayerActor;
         public static AbstractActor LastPlayerActorActivated;
 
         // -- State related to ECM/effects
-        public static Dictionary<string, int> ECMJammedActors = new Dictionary<string, int>();
-        public static Dictionary<string, int> ECMProtectedActors = new Dictionary<string, int>();
         public static Dictionary<string, int> NarcedActors = new Dictionary<string, int>();
         public static Dictionary<string, int> TaggedActors = new Dictionary<string, int>();
         
@@ -44,12 +38,7 @@ namespace LowVisibility {
         // --- Methods Below ---
         public static void ClearStateOnCombatGameDestroyed() {
             State.EWState.Clear();
-            State.PlayerActorLocks.Clear();
 
-          //  State.LastPlayerActor = null;
-
-            State.ECMJammedActors.Clear();
-            State.ECMProtectedActors.Clear();
             State.NarcedActors.Clear();
             State.TaggedActors.Clear();
 
@@ -73,44 +62,6 @@ namespace LowVisibility {
         public static void InitMapConfig() {
             MapConfig = MapHelper.ParseCurrentMap();            
         }
-
-        // --- Methods for SourceActorLockStates
-        //public static Dictionary<string, Locks> LastActivatedLocks(CombatGameState Combat) {
-        //    AbstractActor lastActivated = GetLastPlayerActivatedActor(Combat);
-        //    if (!PlayerActorLocks.ContainsKey(lastActivated.GUID)) {
-        //        PlayerActorLocks[lastActivated.GUID] = new Dictionary<string, Locks>();                
-        //    }
-        //    return PlayerActorLocks[lastActivated.GUID];
-        //}
-
-        //public static Locks LastActivatedLocksForTarget(ICombatant target) {
-        //    Dictionary<string, Locks> locks = State.LastActivatedLocks(target.Combat);
-        //    return locks.ContainsKey(target.GUID) ? 
-        //        locks[target.GUID] : new Locks(State.GetLastPlayerActivatedActor(target.Combat), target);
-        //}
-
-        //public static Locks LocksForTarget(AbstractActor attacker, ICombatant target) {
-        //    Locks locks = null;
-        //    if (State.PlayerActorLocks.ContainsKey(attacker.GUID)) {
-        //        Dictionary<string, Locks> actorLocks = State.PlayerActorLocks[attacker.GUID];
-        //        if (actorLocks.ContainsKey(target.GUID)) {
-        //            locks = actorLocks[target.GUID];
-        //        }
-        //    }
-        //    return locks ?? new Locks(attacker, target);
-        //}
-
-        //public static List<Locks> TeamLocksForTarget(ICombatant target) {
-        //    List<Locks> allTargetLocks = new List<Locks>();
-        //    if (State.PlayerActorLocks != null && State.PlayerActorLocks.Count > 0) {
-        //        allTargetLocks = State.PlayerActorLocks
-        //            .Select(pal => pal.Value)
-        //            .Where(pald => pald != null && pald.ContainsKey(target.GUID))
-        //            .Select(pald => pald[target.GUID])
-        //            .ToList();                    
-        //    }
-        //    return allTargetLocks;
-        //}
 
         // --- Methods manipulating CheckResults
         public static void InitializeCheckResults() {
@@ -141,106 +92,19 @@ namespace LowVisibility {
             return (int)result;
         }
         
-        // The last actor that the player activated. Used to determine visibility in targetingHUD between activations
-        //public static AbstractActor GetLastPlayerActivatedActor(CombatGameState Combat) {
-        //    if (LastPlayerActor == null) {
-        //        List<AbstractActor> playerActors = HostilityHelper.PlayerActors(Combat);
-        //        LastPlayerActor = playerActors[0].GUID;
-        //    }
-        //    return Combat.FindActorByGUID(LastPlayerActor);
-        //}
-
-        // --- ECM JAMMING STATE TRACKING ---
-        //public static int ECMJamming(AbstractActor actor) {
-        //    return ECMJammedActors.ContainsKey(actor.GUID) ? ECMJammedActors[actor.GUID] : 0;
-        //}
-
-        //public static void AddECMJamming(AbstractActor actor, int modifier) {
-        //    if (!ECMJammedActors.ContainsKey(actor.GUID)) {
-        //        ECMJammedActors.Add(actor.GUID, modifier);
-        //    } else if (modifier > ECMJammedActors[actor.GUID]) {
-        //        ECMJammedActors[actor.GUID] = modifier;
-        //    }            
-        //}
-        //public static void RemoveECMJamming(AbstractActor actor) {
-        //    if (ECMJammedActors.ContainsKey(actor.GUID)) {
-        //        ECMJammedActors.Remove(actor.GUID);
-        //    }            
-        //}
-
-        //// --- ECM PROTECTION STATE TRACKING
-        //public static int ECMProtection(ICombatant actor) {
-        //    return ECMProtectedActors.ContainsKey(actor.GUID) ? ECMProtectedActors[actor.GUID] : 0;
-        //}
-
-        //public static void AddECMProtection(ICombatant actor, int modifier) {            
-        //    if (!ECMProtectedActors.ContainsKey(actor.GUID)) {
-        //        ECMProtectedActors.Add(actor.GUID, modifier);
-        //    } else if (modifier > ECMProtectedActors[actor.GUID]) {
-        //        ECMProtectedActors[actor.GUID] = modifier;
-        //    }
-        //}
-        //public static void RemoveECMProtection(ICombatant actor) {
-        //    if (ECMProtectedActors.ContainsKey(actor.GUID)) {
-        //        ECMProtectedActors.Remove(actor.GUID);
-        //    }
-        //}
-
-        // --- ECM NARC EFFECT
-        public static int NARCEffect(ICombatant actor) {
-            return NarcedActors.ContainsKey(actor.GUID) ? NarcedActors[actor.GUID] : 0;
-        }
-
-        public static void AddNARCEffect(ICombatant actor, int modifier) {
-            if (!NarcedActors.ContainsKey(actor.GUID)) {
-                NarcedActors.Add(actor.GUID, modifier);
-            } else if (modifier > NarcedActors[actor.GUID]) {
-                NarcedActors[actor.GUID] = modifier;
-            }
-        }
-        public static void RemoveNARCEffect(ICombatant actor) {
-            if (NarcedActors != null && actor != null && NarcedActors.ContainsKey(actor.GUID)) {
-                NarcedActors.Remove(actor.GUID);
-            }
-        }
-
-        // --- ECM TAG EFFECT
-        public static int TAGEffect(AbstractActor actor) {
-            return TaggedActors.ContainsKey(actor.GUID) ? TaggedActors[actor.GUID] : 0;
-        }
-
-        public static void AddTAGEffect(AbstractActor actor, int modifier) {
-            if (!TaggedActors.ContainsKey(actor.GUID)) {
-                TaggedActors.Add(actor.GUID, modifier);
-            } else if (modifier > TaggedActors[actor.GUID]) {
-                TaggedActors[actor.GUID] = modifier;
-            }
-        }
-        public static void RemoveTAGEffect(AbstractActor actor) {
-            if (TaggedActors != null && actor != null && TaggedActors.ContainsKey(actor.GUID)) {
-                TaggedActors.Remove(actor.GUID);
-            }
-        }
-
         // --- FILE SAVE/READ BELOW ---
         public class SerializationState {
             public Dictionary<string, EWState> staticState;
-            public Dictionary<string, Dictionary<string, Locks>> PlayerActorLocks;
-
+            
             //public string LastPlayerActivatedActorGUID;
 
-            public Dictionary<string, int> ecmJammedActors;
-            public Dictionary<string, int> ecmProtectedActors;
-            public Dictionary<string, int> narcedActors;
-            public Dictionary<string, int> taggedActors;
         }
 
         public static void LoadStateData(string saveFileID) {
-            ECMJammedActors.Clear();
-            ECMProtectedActors.Clear();
+            //ECMJammedActors.Clear();
+            //ECMProtectedActors.Clear();
             NarcedActors.Clear();
             TaggedActors.Clear();
-            PlayerActorLocks.Clear();
             EWState.Clear();
 
             string normalizedFileID = saveFileID.Substring(5);
@@ -259,21 +123,6 @@ namespace LowVisibility {
                     // TODO: NEED TO REFRESH STATIC STATE ON ACTORS
                     State.EWState = savedState.staticState;
                     Mod.Log.Info($"  -- StaticEWState.count: {savedState.staticState.Count}");
-
-                    State.PlayerActorLocks = savedState.PlayerActorLocks;
-                    Mod.Log.Info($"  -- SourceActorLockStates.count: {savedState.PlayerActorLocks.Count}");
-
-                    //State.LastPlayerActor = savedState.LastPlayerActivatedActorGUID;
-                    //Mod.Log.Info($"  -- LastPlayerActivatedActorGUID: {LastPlayerActor}");
-
-                    State.ECMJammedActors = savedState.ecmJammedActors;
-                    Mod.Log.Info($"  -- ecmJammedActors.count: {savedState.ecmJammedActors.Count}");
-                    State.ECMProtectedActors = savedState.ecmProtectedActors;
-                    Mod.Log.Info($"  -- ecmProtectedActors.count: {savedState.ecmProtectedActors.Count}");
-                    State.NarcedActors = savedState.narcedActors;
-                    Mod.Log.Info($"  -- narcedActors.count: {savedState.narcedActors.Count}");
-                    State.TaggedActors = savedState.taggedActors;
-                    Mod.Log.Info($"  -- taggedActors.count: {savedState.taggedActors.Count}");
 
                     Mod.Log.Info($"Loaded save state from file:{stateFilePath.FullName}.");
                 } catch (Exception e) {
@@ -296,14 +145,6 @@ namespace LowVisibility {
             try {
                 SerializationState state = new SerializationState {
                     staticState = State.EWState,
-                    PlayerActorLocks = State.PlayerActorLocks,
-
-                    //LastPlayerActivatedActorGUID = State.LastPlayerActor,
-
-                    ecmJammedActors = State.ECMJammedActors,
-                    ecmProtectedActors = State.ECMProtectedActors,
-                    narcedActors = State.NarcedActors,
-                    taggedActors = State.TaggedActors
                 };
                             
                 using (StreamWriter w = new StreamWriter(saveStateFilePath.FullName, false)) {

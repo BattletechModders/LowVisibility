@@ -85,7 +85,7 @@ namespace LowVisibility.Patch {
                 // Vision modifiers
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(__instance.DisplayedWeapon, magnitude);
                 int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, __instance.DisplayedWeapon);
-                int mimeticMod = targetState.MimeticAttackMod(attackerState, __instance.DisplayedWeapon, magnitude);
+                int mimeticMod = targetState.MimeticAttackMod(attackerState);
                 bool hasLineOfSight = VisualLockHelper.CalculateVisualLock(actor, actor.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, actor.Combat.LOS);
                 if (!hasLineOfSight) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO LINE OF SIGHT", Mod.Config.NoLineOfSightPenalty });
@@ -102,18 +102,18 @@ namespace LowVisibility.Patch {
                 }
 
                 // Sensor modifiers
-                int ecmShieldMod = targetState.GetECMShieldAttackModifier(attackerState);
+                int ecmShieldMod = targetState.ECMAttackMod(attackerState);
                 int stealthMod = targetState.StealthAttackMod(attackerState, __instance.DisplayedWeapon, magnitude);
                 SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, actor);
                 if (sensorScan == SensorScanType.NoInfo) {
                     AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR LOCK", Mod.Config.NoSensorLockPenalty });
                 } else {
                     if (ecmShieldMod != 0) {
-                        Mod.Log.Debug($" CHUDWS:SHC Target:{CombatantUtils.Label(target)} has ECM_SHIELD, applying modifier: {targetState.GetECMShieldAttackModifier(attackerState)}");
-                        AddToolTipDetailMethod.GetValue(new object[] { "ECM SHIELD", targetState.GetECMShieldAttackModifier(attackerState) });
+                        Mod.Log.Debug($" CHUDWS:SHC Target:{CombatantUtils.Label(target)} has ECM_SHIELD, applying modifier: {targetState.ECMAttackMod(attackerState)}");
+                        AddToolTipDetailMethod.GetValue(new object[] { "ECM SHIELD", targetState.ECMAttackMod(attackerState) });
                     }
                     if (stealthMod != 0) {
-                        Mod.Log.Debug($" CHUDWS:SHC Target:{CombatantUtils.Label(target)} has STEALTH, applying modifier: {targetState.GetECMShieldAttackModifier(attackerState)}");
+                        Mod.Log.Debug($" CHUDWS:SHC Target:{CombatantUtils.Label(target)} has STEALTH, applying modifier: {targetState.ECMAttackMod(attackerState)}");
                         AddToolTipDetailMethod.GetValue(new object[] { "SENSOR STEALTH", stealthMod });
                     }
                 }

@@ -12,7 +12,6 @@ namespace LowVisibility.Patch {
         public static void Postfix(CombatSelectionHandler __instance, bool __result, AbstractActor actor, bool manualSelection) {
             Mod.Log.Debug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {CombatantUtils.Label(actor)}.");
             if (__instance != null && actor != null && __result == true && actor.IsAvailableThisPhase) {
-                ECMHelper.UpdateECMState(actor);
                 //if (actor.team == actor.Combat.LocalPlayerTeam) {
                 //    State.LastPlayerActor = actor.GUID;
                 //}

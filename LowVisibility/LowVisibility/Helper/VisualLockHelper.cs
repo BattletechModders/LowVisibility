@@ -51,8 +51,9 @@ namespace LowVisibility.Helper {
 
             float targetVisibility = 1f;
             AbstractActor abstractActor = target as AbstractActor;
+            EWState sourceState = new EWState(source);
             if (abstractActor != null) {
-                targetVisibility = VisualLockHelper.GetTargetVisibility(abstractActor);
+                targetVisibility = VisualLockHelper.GetTargetVisibility(abstractActor, sourceState);
             }
 
             float spotterRange = VisualLockHelper.GetSpotterRange(source);
@@ -98,17 +99,17 @@ namespace LowVisibility.Helper {
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        public static float GetTargetVisibility(AbstractActor target) {
+        public static float GetTargetVisibility(AbstractActor target, EWState sourceState) {
             if (target == null) { return 1f; }
 
-            float allTargetVisibilityMultipliers = GetAllTargetVisibilityMultipliers(target);
+            float allTargetVisibilityMultipliers = GetAllTargetVisibilityMultipliers(target, sourceState);
             float allTargetVisibilityAbsolutes = GetAllTargetVisibilityAbsolutes(target);
 
             return 1f * allTargetVisibilityMultipliers + allTargetVisibilityAbsolutes;
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        private static float GetAllTargetVisibilityMultipliers(AbstractActor target) {
+        private static float GetAllTargetVisibilityMultipliers(AbstractActor target, EWState sourceState) {
             if (target == null) { return 1f; }
 
             float baseVisMulti = 0f;
@@ -116,7 +117,7 @@ namespace LowVisibility.Helper {
             float spottingVisibilityMultiplier = target.SpottingVisibilityMultiplier;
 
             EWState ewState = new EWState(target);
-            float visionStealthMod = ewState.MimeticVisibilityMod();
+            float visionStealthMod = ewState.MimeticVisibilityMod(sourceState);
 
             float targetVisibility = baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier + visionStealthMod;
             Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has visibility: {targetVisibility} = " +

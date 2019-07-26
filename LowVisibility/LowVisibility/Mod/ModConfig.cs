@@ -11,15 +11,15 @@ namespace LowVisibility {
 
         // ECM 
         public const string ECMCarrier = "LV_ECM_CARRIER"; // Int_32
-        public const string ECMShield = "LV_ECM_SHIELD"; // Int_32
-        public const string ECMJammed = "LV_ECM_JAMMED"; // Int_32
+        public const string ShieldedByECM = "LV_ECM_SHIELD"; // Int_32
+        public const string JammedByECM = "LV_ECM_JAMMED"; // Int_32
 
         // Sensors
         public const string AdvancedSensors = "LV_ADVANCED_SENSORS";
 
         // Probe    
         public const string ProbeCarrier = "LV_PROBE_CARRIER";
-        public const string ProbeSweepTarget = "LV_PROBE_SWEEP_TARGET";
+        public const string PingedByProbe = "LV_PROBE_SWEEP_PING";
 
         // Stealth
         public const string StealthEffect = "LV_STEALTH"; // String
@@ -28,14 +28,16 @@ namespace LowVisibility {
         public const string MimeticEffect = "LV_MIMETIC"; // String
         public const string MimeticCurrentSteps = "LV_MIMETIC_CURRENT_STEPS"; // Int_32
 
-        // Sensor sharing
-        public const string SharesSensors = "LV_SHARES_SENSORS";
 
         // Vision modes
-        public const string HeatVision = "LV_HEAT_VISION";
-        public const string ZoomVision = "LV_ZOOM_VISION";
+        public const string HeatVision = "LV_HEAT_VISION"; // String
+        public const string ZoomVision = "LV_ZOOM_VISION"; // String
         public const string NightVision = "LV_NIGHT_VISION"; // TODO
 
+        // Narc
+        public const string NarcEffect = "LV_NARC"; // String
+        public const string TagEffect = "LV_TAG"; // String
+        
         public static bool IsStealthStat(string statName) {
             return statName != null && statName != "" && 
                 (statName.Equals(ModStats.StealthEffect) || statName.Equals(ModStats.MimeticEffect));

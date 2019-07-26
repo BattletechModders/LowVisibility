@@ -131,17 +131,18 @@ namespace LowVisibility.Patch {
                     }
                 }
 
-                if (actorState.GetECMShieldDetailsModifier() != 0) {
-                    showDebuffStringMethod.GetValue(new object[] {
-                        "uixSvgIcon_status_sensorsImpaired",
-                        new Text("ECM PROTECTION", new object[0]),
-                        new Text($"Unit is protected by friendly ECM and will be harder to detect by enemy units."),
-                        __instance.effectIconScale,
-                        false
-                    });
-                }
+                // TODO: FIXME
+                //if (actorState.ECMAttackMod() != 0) {
+                //    showDebuffStringMethod.GetValue(new object[] {
+                //        "uixSvgIcon_status_sensorsImpaired",
+                //        new Text("ECM PROTECTION", new object[0]),
+                //        new Text($"Unit is protected by friendly ECM and will be harder to detect by enemy units."),
+                //        __instance.effectIconScale,
+                //        false
+                //    });
+                //}
 
-                if (actorState.GetECMJammedDetailsModifier() != 0) {
+                if (actorState.ECMJammedMod() != 0) {
                     showDebuffStringMethod.GetValue(new object[] {
                         "uixSvgIcon_status_sensorsImpaired",
                         new Text("ECM JAMMING", new object[0]),

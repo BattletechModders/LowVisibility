@@ -117,7 +117,6 @@ namespace LowVisibility.Patch {
         }
         
         public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames, CombatHUDStatusPanel ___StatusPanel) {
-            //KnowYourFoe.Logger.Log("CombatHUDTargetingComputer:RefreshActorInfo:post - entered.");
             if (__instance.ActivelyShownCombatant == null ) {
                 Mod.Log.Debug($"CHTC:RAI ~~~ target is null, skipping.");
                 return;

@@ -22,15 +22,15 @@ namespace LowVisibility.Patch {
 
             // ECM
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMCarrier, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.ECMShield, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.ECMJammed, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.ShieldedByECM, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.JammedByECM, 0);
 
             // Sensors
             __instance.StatCollection.AddStatistic<int>(ModStats.AdvancedSensors, 0);
 
             // Probe
             __instance.StatCollection.AddStatistic<int>(ModStats.ProbeCarrier, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.ProbeSweepTarget, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.PingedByProbe, 0);
 
             // Sensor Stealth
             __instance.StatCollection.AddStatistic<string>(ModStats.StealthEffect, "");
@@ -38,11 +38,16 @@ namespace LowVisibility.Patch {
             // Visual Stealth
             __instance.StatCollection.AddStatistic<string>(ModStats.MimeticEffect, "");
             __instance.StatCollection.AddStatistic<int>(ModStats.MimeticCurrentSteps, 0);
-            
-            __instance.StatCollection.AddStatistic<bool>(ModStats.SharesSensors, false);
 
+            // Vision
             __instance.StatCollection.AddStatistic<string>(ModStats.HeatVision, "");
             __instance.StatCollection.AddStatistic<string>(ModStats.ZoomVision, "");
+
+            // Narc 
+            __instance.StatCollection.AddStatistic<string>(ModStats.NarcEffect, "");
+
+            // Tag
+            __instance.StatCollection.AddStatistic<string>(ModStats.TagEffect, "");
         }
     }
 
@@ -293,7 +298,7 @@ namespace LowVisibility.Patch {
             AuraAddedMessage auraAddedMessage = message as AuraAddedMessage;
             //Mod.Log.Debug($" Adding aura: {auraAddedMessage.effectData.Description.Id} to target: {auraAddedMessage.targetID}");
             if (auraAddedMessage.targetID == __instance.GUID) {
-                if (auraAddedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
+                if (auraAddedMessage.effectData.statisticData.statName == ModStats.ShieldedByECM) {
                     if (__instance.Combat.TurnDirector.IsInterleaved) {
                         __instance.Combat.MessageCenter.PublishMessage(
                             new FloatieMessage(auraAddedMessage.creatorID, auraAddedMessage.targetID,
@@ -316,7 +321,7 @@ namespace LowVisibility.Patch {
             AbstractActor creator = __instance.Combat.FindActorByGUID(auraRemovedMessage.creatorID);
             Mod.Log.Debug($" Removing aura: {auraRemovedMessage.effectData.Description.Id} from target: {CombatantUtils.Label(__instance)} created by: {CombatantUtils.Label(creator)}");
             if (auraRemovedMessage.targetID == __instance.GUID) {
-                if (auraRemovedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
+                if (auraRemovedMessage.effectData.statisticData.statName == ModStats.ShieldedByECM) {
                     if (ActorHelper.IsECMCarrier(__instance)) {
                         VfxHelper.DisableECMCarrierEffect(__instance);
                     }
