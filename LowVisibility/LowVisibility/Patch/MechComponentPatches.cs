@@ -37,7 +37,7 @@ namespace LowVisibility.Patch {
                 EWState parentState = new EWState(__instance.parent);
                 PilotableActorRepresentation par = __instance.parent.GameRep as PilotableActorRepresentation;
                 if (parentState.HasStealth()) {
-                    VfxHelper.EnableSensorStealthEffect(__instance.parent);
+                    VfxHelper.EnableStealthVfx(__instance.parent);
                 } else {
                     VfxHelper.DisableSensorStealthEffect(__instance.parent);
                 }

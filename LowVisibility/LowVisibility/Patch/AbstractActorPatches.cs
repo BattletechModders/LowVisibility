@@ -97,23 +97,23 @@ namespace LowVisibility.Patch {
 
         public static void Prefix(AbstractActor __instance) {
             
-            Mod.Log.Debug($"-- OnActivationEnd: Effects targeting actor: {CombatantUtils.Label(__instance)}");
-            List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
-            foreach (Effect effect in list) {
-                Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
-            }
+            //Mod.Log.Debug($"-- OnActivationEnd: Effects targeting actor: {CombatantUtils.Label(__instance)}");
+            //List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
+            //foreach (Effect effect in list) {
+            //    Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+            //}
 
-            foreach (AbstractActor unit in __instance.team.units) {
-                if (unit.GUID != __instance.GUID) {
-                    Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
-                    List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
-                    foreach (Effect effect in list2) {
-                        Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
-                    }
-                }
-            }
+            //foreach (AbstractActor unit in __instance.team.units) {
+            //    if (unit.GUID != __instance.GUID) {
+            //        Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
+            //        List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
+            //        foreach (Effect effect in list2) {
+            //            Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+            //        }
+            //    }
+            //}
 
-            Mod.Log.Debug($" Updating effects to all actors from actor: {CombatantUtils.Label(__instance)}");
+            //Mod.Log.Debug($" Updating effects to all actors from actor: {CombatantUtils.Label(__instance)}");
         }
     }
 
@@ -234,7 +234,7 @@ namespace LowVisibility.Patch {
                     EWState sourceState = new EWState(__instance);
                     if (sourceState.IsECMCarrier()) {
                         Mod.Log.Debug("  - ECM carrier found, starting effect");
-                        VfxHelper.EnableECMCarrierEffect(__instance, effect);
+                        VfxHelper.EnableECMCarrierVfx(__instance, effect);
                     }
                 }
             }
@@ -261,7 +261,7 @@ namespace LowVisibility.Patch {
                     EWState sourceState = new EWState(__instance);
                     if (sourceState.IsECMCarrier()) {
                         Mod.Log.Debug("  - ECM carrier found, starting effect");
-                        VfxHelper.EnableECMCarrierEffect(__instance, effect);
+                        VfxHelper.EnableECMCarrierVfx(__instance, effect);
                     }
                 }
             }
@@ -288,7 +288,7 @@ namespace LowVisibility.Patch {
                     EWState sourceState = new EWState(__instance);
                     if (!sourceState.IsECMCarrier()) {
                         Mod.Log.Debug("  - ECM carrier NOT found, disabling effect");
-                        VfxHelper.DisableECMCarrierEffect(__instance);
+                        VfxHelper.DisableECMCarrierVfx(__instance);
                     }
                 }
             }
@@ -346,7 +346,7 @@ namespace LowVisibility.Patch {
 
                     EWState actorState = new EWState(__instance);
                     if (actorState.IsECMCarrier()) {
-                        VfxHelper.EnableECMCarrierEffect(__instance, auraAddedMessage.effectData);
+                        VfxHelper.EnableECMCarrierVfx(__instance, auraAddedMessage.effectData);
                     }
                 }
 
@@ -364,7 +364,7 @@ namespace LowVisibility.Patch {
                 if (auraRemovedMessage.effectData.statisticData.statName == ModStats.ShieldedByECM) {
                     EWState actorState = new EWState(__instance);
                     if (actorState.IsECMCarrier()) {
-                        VfxHelper.DisableECMCarrierEffect(__instance);
+                        VfxHelper.DisableECMCarrierVfx(__instance);
                     }
                 }
             }

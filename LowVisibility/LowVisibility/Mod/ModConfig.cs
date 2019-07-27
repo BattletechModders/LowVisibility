@@ -11,6 +11,7 @@ namespace LowVisibility {
 
         // ECM 
         public const string ECMCarrier = "LV_ECM_CARRIER"; // Int_32
+        public const string ECMVFXEnabled = "LV_ECM_VFX_ENABLED"; // Boolean
         public const string ShieldedByECM = "LV_ECM_SHIELD"; // Int_32
         public const string JammedByECM = "LV_ECM_JAMMED"; // Int_32
 
@@ -23,9 +24,11 @@ namespace LowVisibility {
 
         // Stealth
         public const string StealthEffect = "LV_STEALTH"; // String
+        public const string StealthVFXEnabled = "LV_STEALTH_VFX_ENABLED"; // bool
 
         // Mimetic
         public const string MimeticEffect = "LV_MIMETIC"; // String
+        public const string MimeticVFXEnabled = "LV_MIMETIC_VFX_ENABLED"; // bool
         public const string MimeticCurrentSteps = "LV_MIMETIC_CURRENT_STEPS"; // Int_32
 
 
@@ -83,8 +86,6 @@ namespace LowVisibility {
         public int BlindFirePenalty = 13; // Applied if both of the above are true
 
         public float VisionOnlyCriticalPenalty = 0.0f;
-
-        // Applied when the attacker does not have a line of sight to the target
         public float SensorsOnlyCriticalPenalty = 0.0f;
 
         public int MultipleECMSourceModifier = 1;

@@ -113,24 +113,24 @@ namespace LowVisibility.Helper {
             List<AbstractActor> sensorSources = new List<AbstractActor>();
             if (source == null) {
                 // We don't have an active source, so treat the entire allied faction as sources
-                Mod.Log.Debug($"No primary lock source, assuming all allies.");
+                Mod.Log.Trace($"No primary lock source, assuming all allies.");
                 sensorSources.AddRange(target.Combat.GetAllAlliesOf(target.Combat.LocalPlayerTeam));
             } else {
                 // We have an active source, so only use that model plus any 'shares sensors' models
-                Mod.Log.Debug($"Actor:({CombatantUtils.Label(source)}) is primary lock source.");
+                Mod.Log.Trace($"Actor:({CombatantUtils.Label(source)}) is primary lock source.");
                 sensorSources.Add(source);
             }
 
-            Mod.Log.Debug($"Checking locks from {sensorSources.Count} sources.");
+            Mod.Log.Trace($"Checking locks from {sensorSources.Count} sources.");
             foreach (AbstractActor actor in sensorSources) {
                 SensorScanType actorScanType = CalculateSensorInfoLevel(actor, target);
                 if (actorScanType > scanType) {
-                    Mod.Log.Debug($"Increasing scanType to: ({actorScanType}) from source:({CombatantUtils.Label(actor)}) ");
+                    Mod.Log.Trace($"Increasing scanType to: ({actorScanType}) from source:({CombatantUtils.Label(actor)}) ");
                     scanType = actorScanType;
                 }
             }
 
-            Mod.Log.Debug($"Shared lock to target:({CombatantUtils.Label(target)}) is type: ({scanType})");
+            Mod.Log.Trace($"Shared lock to target:({CombatantUtils.Label(target)}) is type: ({scanType})");
             return scanType;
         }
 
@@ -144,18 +144,18 @@ namespace LowVisibility.Helper {
 
             if (source.IsDead || source.IsFlaggedForDeath) {
                 // If we're dead, we can't have vision or sensors. If we're off the map, we can't either. If the target is off the map, we can't see it.                
-                Mod.Log.Debug($"  source:{CombatantUtils.Label(source)} is dead or dying. Forcing no visibility.");
+                Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is dead or dying. Forcing no visibility.");
                 return SensorScanType.NoInfo;
             }
 
             if (target.IsDead || target.IsFlaggedForDeath) {
                 // If the target is dead, we can't have sensor but we have vision 
-                Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
+                Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
                 return SensorScanType.NoInfo;
             }
 
             if (source.IsTeleportedOffScreen) {
-                Mod.Log.Debug($"  source as is teleported off screen. Skipping.");
+                Mod.Log.Trace($"  source as is teleported off screen. Skipping.");
                 return SensorScanType.NoInfo;
             }
 
@@ -170,7 +170,7 @@ namespace LowVisibility.Helper {
                 Building targetBuilding = target as Building;
                 // TODO: This should be calculated more fully! Major bug here!
                 SensorScanType buildingLock = sourceState.GetCurrentEWCheck() > 0 ? SensorScanType.SurfaceScan : SensorScanType.NoInfo;
-                Mod.Log.Debug($"  target:{CombatantUtils.Label(target)} is a building with lockState:{buildingLock}");
+                Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} is a building with lockState:{buildingLock}");
                 return buildingLock;
             } else if ((target as AbstractActor) != null) {
                 AbstractActor targetActor = target as AbstractActor;
@@ -179,12 +179,12 @@ namespace LowVisibility.Helper {
                 if (distance > sensorRangeVsTarget) {
                     // Check for Narc effect that will show the target regardless of range
                     SensorScanType narcLock = HasNarcBeaconDetection(target, sourceState, targetState) ? SensorScanType.Location : SensorScanType.NoInfo;
-                    Mod.Log.Debug($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
+                    Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
                     return narcLock;
                 } else {
                     SensorScanType sensorLock = SensorScanType.NoInfo;
                     if (targetActor.IsTeleportedOffScreen) {
-                        Mod.Log.Debug($"  target is teleported off screen. Skipping.");
+                        Mod.Log.Trace($"  target is teleported off screen. Skipping.");
                     } else {
                         // TODO: Re-add shadowing logic
                         // TODO: SensorLock adds a boost from friendlies if they have shares sensors?
@@ -196,15 +196,15 @@ namespace LowVisibility.Helper {
                             sensorLock = SensorScanType.Location;
                         }
                     }
-                    Mod.Log.Debug($"SensorLockHelper - source:{CombatantUtils.Label(source)} has sensorLock:({sensorLock}) vs " +
+                    Mod.Log.Trace($"SensorLockHelper - source:{CombatantUtils.Label(source)} has sensorLock:({sensorLock}) vs " +
                         $"target:{CombatantUtils.Label(target)}");
                     return sensorLock;
                 }
 
                 // TODO:
                 /*
-                 *             if (source.IsGhosted) {
-                Mod.Log.Debug($"  source is ghosted. Treating as noInfo.");
+                 *if (source.IsGhosted) {
+                Mod.Log.Trace($"  source is ghosted. Treating as noInfo.");
                 return SensorScanType.NoInfo;
             }
 
@@ -225,22 +225,22 @@ namespace LowVisibility.Helper {
 
         private static SensorScanType CalculateSensorInfoLevel(AbstractActor source, ICombatant target) {
             SensorScanType sensorInfo = SensorScanType.NoInfo;
-            Mod.Log.Debug($"Calculating SensorInfo from source: ({CombatantUtils.Label(source)}) to target: ({CombatantUtils.Label(target)})");
+            Mod.Log.Trace($"Calculating SensorInfo from source: ({CombatantUtils.Label(source)}) to target: ({CombatantUtils.Label(target)})");
 
             // Determine modified check against target
             EWState sourceState = new EWState(source);
             int detailsLevel = sourceState.GetCurrentEWCheck();
-            Mod.Log.Debug($" == detailsLevel from EW check = {detailsLevel}");
+            Mod.Log.Trace($" == detailsLevel from EW check = {detailsLevel}");
 
             // --- Source: Advanced Sensors
             if (sourceState.AdvancedSensorsMod() > 0) {
-                Mod.Log.Debug($" == source has advanced sensors, detailsLevel = {detailsLevel} + {sourceState.AdvancedSensorsMod()}");
+                Mod.Log.Trace($" == source has advanced sensors, detailsLevel = {detailsLevel} + {sourceState.AdvancedSensorsMod()}");
                 detailsLevel += sourceState.AdvancedSensorsMod();
             }
 
             // --- Source: ECM Jamming
             if (sourceState.ECMJammedMod() > 0) {
-                Mod.Log.Debug($" == source is jammed by ECM, detailsLevel = {detailsLevel} - {sourceState.ECMJammedMod()}");
+                Mod.Log.Trace($" == source is jammed by ECM, detailsLevel = {detailsLevel} - {sourceState.ECMJammedMod()}");
                 detailsLevel -= sourceState.ECMJammedMod();
             }
 
@@ -251,34 +251,34 @@ namespace LowVisibility.Helper {
 
                 // ECM Shield reduces sensor info
                 if (targetState.ECMDetailsMod(sourceState) > 0) {
-                    Mod.Log.Debug($" == target is shielded by ECM, detailsLevel = {detailsLevel} - {targetState.ECMDetailsMod(sourceState)}");
+                    Mod.Log.Trace($" == target is shielded by ECM, detailsLevel = {detailsLevel} - {targetState.ECMDetailsMod(sourceState)}");
                     detailsLevel -= targetState.ECMDetailsMod(sourceState);
                 }
 
                 // Stealth reduces sensor info
                 if (targetState.HasStealth()) {
-                    Mod.Log.Debug($" == target has stealth, detailsLevel = {detailsLevel} - {targetState.StealthDetailsMod()}");
+                    Mod.Log.Trace($" == target has stealth, detailsLevel = {detailsLevel} - {targetState.StealthDetailsMod()}");
                     detailsLevel -= targetState.StealthDetailsMod();
                 }
 
                 // A Narc effect increases sensor info
                 // TODO: Narc should effect buildings
                 if (targetState.IsNarced(sourceState)) {
-                    Mod.Log.Debug($" == target is NARC'd, detailsLevel = {detailsLevel} + {targetState.NarcDetailsMod(sourceState)}");
+                    Mod.Log.Trace($" == target is NARC'd, detailsLevel = {detailsLevel} + {targetState.NarcDetailsMod(sourceState)}");
                     detailsLevel += targetState.NarcDetailsMod(sourceState);
                 }
 
                 // A TAG effect increases sensor info
                 // TODO: TAG should effect buildings
                 if (targetState.IsTagged(sourceState)) {
-                    Mod.Log.Debug($" == target is tagged, detailsLevel = {detailsLevel} + {targetState.TagDetailsMod(sourceState)}");
+                    Mod.Log.Trace($" == target is tagged, detailsLevel = {detailsLevel} + {targetState.TagDetailsMod(sourceState)}");
                     detailsLevel += targetState.TagDetailsMod(sourceState);
                 }
 
             }
 
             sensorInfo = DetectionLevelForCheck(detailsLevel);
-            Mod.Log.Debug($" == Calculated sensorInfo as: ({sensorInfo})");
+            Mod.Log.Trace($" == Calculated sensorInfo as: ({sensorInfo})");
 
             return sensorInfo;
         }

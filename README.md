@@ -336,12 +336,11 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 * Better VFX definition for Stealth (instead of black bubble)
 * ECM/Stealth/Mimetic applies a flat hexes reduction to signature/visibility, instead of a multiplicative one?
 * Show EYE icon on enemies and friendlys for stealth, etc
+* BUG: Visual penalties shouldn't be applied if firing indirectly
 
 ### WIP Features
 
-- [x] BUG: Evasion pips display in T.HUD but not on the GameRepresentation
 - [ ] BUG: ticket-0304 in Discord - SensorDistanceAbsolute multipliers may not be adding to the total sensor distance value.
-- [ ] BUG: Sensor sharing not taking effect like it should.
 - [ ] BUG: Report of vehicle blips showing mech paperdoll instead of vehicle. Photo proof, so see if it can be reproduced.
 - [ ] BUG: AIM calculations aren't accurate. Likely caused by LV going after AIM in the patch order?
 - [ ] BUG: Offensive push shows damaged areas even with a crap information roll. LA suggestion: restrict offensive push to a minimum info roll.
@@ -349,40 +348,23 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 - [ ] BUG: Armor/structure exact values are being shown, not just as ??
 - [ ] FEATURE: Show 'Cannon' / 'Missile' / 'Support' instead of 'Unidentified'
 - [ ] FEATURE: Prevent called shot against blips
-- [ ] FEATURE: Per Denandan, move functions from tags into Custom {} to allow getting item defs w/o needing to search/parse
 - [ ] FEATURE: Per LA, nerf multi-targeting but add  an item tag that helps/hurts. One tag that adds a penalty to each target. A second 'multitracker' that grants bonus to this (reduce penalty or bonus). Third, no multitargeting stealth w/o a multitracker. Maybe make the latter that you need a positive attack modifier from FCS/etc to multi-shoot against stealth? Have to think more.
 - [ ] FEATURE: Should tactics limit equipment modifiers? I.e. tactics +2 means you can't make use of a +4 ECM gear. If you tactics equals the gear, maybe get a bonus?
 - [ ] FEATURE: Wounds detracts from your EW check each round
-- [ ] FEATURE: Rename `lv-scrambler_mX` to `lv-stealth-boost_mX` to match probes.
-- [ ] FEATURE: Rename active probes to `lv-sensormod-highest_mX` and `lv-sensormod-sum_mX`
 - [ ] FEATURE: Show signature, visibility modifiers for target on the tooltips. Show same for player mechs.
-- [ ] FEATURE: Make sensor lock not end your turn (SensorLockSequence)
 - [ ] FEATURE: ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
-- [ ] FEATURE: On shutdown, no stealth / ecm / etc applies
-- [ ] FEATURE: Component damage should eliminate ECM, AP, Stealth bonuses
-- [ ] FEATURE: ```lv_shared_spotter``` tag on pilots to share LOS
-- [ ] FEATURE: Implement ```lv-mimetic_m``` which represents reduces visibility if you don't move
-- [ ] FEATURE: Implement rings for vision lock range, ECM range, similar to what you have with sensor range (blue/white ring around unit)
 - [ ] FEATURE: Implement stealth multi-target prohibition
-- [ ] FEATURE: Reimplement sensor shadows?
-- [ ] FEATURE: Add a ```lv-max-info``` tag that caps the level of info that can be returned for a given unit. This would support certain units like infantry that have been asked for.
-- [ ] FEATURE: injuries reduce sensor check
+- [ ] FEATURE: Reduce critical % chance when sensors only/visual only (VisionOnlyCriticalPenalty/SensorsOnlyCriticalPenalty)
 
 ### Possible Additions
 
 - [] Add ability for a pilot to get a bad reading / critical failure. Tie to tactics as a roll, so poor pilots have it happen more often.  In failure, show wrong name/tonnage/information to confuse the player. May need some hidden marker indicating that this is a false lead - possibly a temporarily value that can be removed once we introduce the mod.
-- [] Should stealth have a visibility modifier that changes as you move move? I.e. 0.1 visibility if you don't move, 0.5 if you do, etc. (Think Chameleon shield - should make it harder to see the less you move)
 - [] Experiment with AllowRearArcSpotting:false in CombatGameConstants.json
 - [] SensorLock becomes passive ability that doubles your tactics, boosts sensor detect level by +1 (for 'what you know'). Eliminate it as a menu item, ensure forceVisRebuild never gets called.
-- [] Add a 'lv-dentist' tag that always provides the highest rating of info
-- [] Add a 'lv-ninja' tag that always hides all the information of a unit.
 - [] Add a 'lv-vision-lowlight_rX' for low-light vision; increases visual range during a non-daylight mood
-- [] Add a 'lv-sensor-heat_rX_hY' for heat vision; increases detection of units with high heat ratings. For every Y heat, add +1 to the sensor check for this unit.
 
 ### To Document
-- [x] FEATURE: Add `lv-vision-heat_m` modifiers; reduces direct fire penalty, but at different ranges
 - [x] BUG: SensorRange not respecting SensorRangeMinimum.
-- [x] BUG: stealth_move_mod is unbounded, can result in a +81 bonuses
 - [x] BUG: Narc, Tag not cleaned up on combat end. Causes some NPEs.
 - [x] BUG: VisibilityRange not respecting VisionRangeminiumum
 - [x] BUG - When you overheat a mech, it disappears from vision
