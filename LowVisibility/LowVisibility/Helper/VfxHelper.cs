@@ -29,8 +29,14 @@ namespace LowVisibility.Helper {
                     Mod.Log.Info($"Target material:{vme.Id} comes from bundle:{vme.AssetBundleName}");
                 }
             }
-            GameObject go = cgs.DataManager.PooledInstantiate("vfxPrfPrtl_orbitalPPC_oneshot", BattleTechResourceType.Prefab, null, null, null);
-            if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: vfxPrfPrtl_orbitalPPC_oneshot"); }
+
+            GameObject go = null;
+
+            //go = cgs.DataManager.PooledInstantiate("vfxPrfPrtl_orbitalPPC_oneshot", BattleTechResourceType.Prefab, null, null, null);
+            //if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: vfxPrfPrtl_orbitalPPC_oneshot"); }
+
+            go = cgs.DataManager.PooledInstantiate("vfxPrfPrtl_weaponPPCImpact_crit", BattleTechResourceType.Prefab, null, null, null);
+            if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: vfxPrfPrtl_weaponPPCImpact_crit"); }
 
             go = cgs.DataManager.PooledInstantiate("envMatStct_darkMetal_generic", BattleTechResourceType.Prefab, null, null, null);
             if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: envMatStct_darkMetal_generic"); }
