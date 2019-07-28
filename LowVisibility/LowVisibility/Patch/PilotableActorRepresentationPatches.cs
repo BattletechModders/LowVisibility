@@ -1,7 +1,9 @@
 ﻿using BattleTech;
+using BattleTech.UI;
 using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
+using System;
 using UnityEngine;
 using us.frostraptor.modUtils;
 
@@ -65,9 +67,36 @@ namespace LowVisibility.Patch {
 
     [HarmonyPatch(typeof(PilotableActorRepresentation), "updateBlips")]
     public static class PilotableActorRepresentation_updateBlips {
-        public static void Postfix(PilotableActorRepresentation __instance, Vector3 ___blipPendingPosition) {
-            Mod.Log.Debug($" UPDATE BLIPS INVOKED");
+        public static void Prefix(PilotableActorRepresentation __instance, ref Vector3 ___blipPendingPosition) {
+            //Mod.Log.Debug($" UPDATE BLIPS INVOKED");
+            if (__instance.BlipObjectUnknown.activeSelf && __instance.VisibleObject.activeSelf
+                && !__instance.BlipObjectIdentified.activeSelf) {
+                Mod.Log.Debug($" updateBlips: BLIP CONDITION IDENTIFIED, setting pos: {___blipPendingPosition} to y+20");
+                float height = Math.Min(__instance.VisibleObject.transform.position.y + 20f, ___blipPendingPosition.y + 20f);
+                ___blipPendingPosition.y = height;
+                //Vector3 currentPos = __instance.BlipObjectUnknown.transform.position;
+                //currentPos.y += 100;
+                //__instance.BlipObjectUnknown.transform.position = currentPos;
+            }
+        }
+    }
 
+    [HarmonyPatch(typeof(CombatHUDNumFlagHex), "LateUpdate")]
+    public static class CombatHUDNumFlagHex_LateUpdate {
+        public static void Postfix(CombatHUDNumFlagHex __instance) {
+            if (__instance.DisplayedActor != null && __instance.DisplayedActor.IsActorOnScreen()) {
+                PilotableActorRepresentation par = (PilotableActorRepresentation)__instance.DisplayedActor.GameRep;
+                if (par != null && par.VisibleObject.activeSelf && par.BlipObjectUnknown.activeSelf) {
+                    Mod.Log.Debug($" lateUpdate: BLIP CONDITION IDENTIFIED, setting pos: {par.transform.position} to y+20");
+                    __instance.anchorPosition = CombatHUDInWorldScalingActorInfo.AnchorPosition.Feet;
+                    //Vector3 originalPos = __instance.transform.position;
+                    //Vector3 newPos = new Vector3(originalPos.x, originalPos.y + 20f, originalPos.z);
+                    //__instance.transform.position = newPos;
+                } else {
+                    __instance.anchorPosition = CombatHUDInWorldScalingActorInfo.AnchorPosition.Head;
+                }
+            }
+            
         }
     }
 
