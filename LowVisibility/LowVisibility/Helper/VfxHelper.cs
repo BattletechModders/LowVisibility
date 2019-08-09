@@ -111,7 +111,6 @@ namespace LowVisibility.Helper {
 
                 ParticleSystem ps = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform, Vector3.zero, ECMBubbleBaseVFX, StealthEffectVfxId, true, Vector3.zero, false, -1f); ;
                 ps.Stop(true);
-                Mod.Log.Debug($"Simulation speed is: {ps.main.simulationSpeed}");
 
                 foreach (Transform child in ps.transform) {
                     if (child.gameObject.name == "sphere") {
@@ -153,7 +152,6 @@ namespace LowVisibility.Helper {
                         ParticleSystemRenderer spherePSR = child.gameObject.transform.GetComponent<ParticleSystemRenderer>();
                         spherePSR.material = VfxHelper.StealthBubbleMaterial;
                     } else {
-                        Mod.Log.Debug($"  - Disabling GO: {child.gameObject.name}");
                         child.gameObject.SetActive(false);
                     }
                 }
@@ -281,14 +279,14 @@ namespace LowVisibility.Helper {
 
         public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, float distanceMoved) {
             EWState actorState = new EWState(actor);
-            Mod.Log.Debug($"Calculating mimeticPips for Actor: {CombatantUtils.Label(actor)}");
+            Mod.Log.Trace($"Calculating mimeticPips for Actor: {CombatantUtils.Label(actor)}");
 
             int stepsMoved = (int)Math.Ceiling(distanceMoved / 30f);
-            Mod.Log.Debug($"  stepsMoved: {stepsMoved} = distanceMoved: {distanceMoved} / 30");
+            Mod.Log.Trace($"  stepsMoved: {stepsMoved} = distanceMoved: {distanceMoved} / 30");
 
             // Update # of pips
             int maxPips = actorState.MaxMimeticPips();
-            int currentPips = actorState.CurrentMimeticPips();
+            int currentPips = actorState.CurrentMimeticPips(distanceMoved);
             stealthDisplay.ShowNewActorStealth(currentPips, maxPips);
 
             // Change colors to reflect maxmimums
@@ -297,45 +295,24 @@ namespace LowVisibility.Helper {
             for (int i = 0; i < pips.Count; i++) {
                 Graphic g = pips[i];
                 if (g.isActiveAndEnabled) {
-                    Color pipColor = Color.grey;
+                    //Color pipColor = Color.white;
+                    Color pipColor = new Color(50f, 206f, 230f);
                     UIHelpers.SetImageColor(g, pipColor);
                 }
             }
-
-            // Update number of pips
-            //int maxSensorStealthPips = actorState.MaxSensorStealthPips();
-            //int maxVisionStealthPips = actorState.MaxMimeticPips();
-            //int maxPips = Math.Max(maxSensorStealthPips, maxVisionStealthPips);
-
-            //int sensorStealthPips = actorState.CurrentSensorStealthPips();
-            //int visionStealthPips = actorState.CurrentMimeticPips();
-            //int currPips = Math.Max(sensorStealthPips, visionStealthPips);
-
-            //stealthDisplay.ShowNewActorStealth(currPips, maxPips);
-
-            //// Change colors to reflect maxmimums
-            //Traverse pipsT = Traverse.Create(stealthDisplay).Property("Pips");
-            //List<Graphic> pips = pipsT.GetValue<List<Graphic>>();
-            //for (int i = 0; i < pips.Count; i++) {
-            //    Graphic g = pips[i];
-            //    if (g.isActiveAndEnabled) {
-            //        Color pipColor = GetPipColor(i, sensorStealthPips, visionStealthPips);
-            //        UIHelpers.SetImageColor(g, pipColor);
-            //    }
-            //}
         }
 
-        private static Color GetPipColor(int idx, int sensorPips, int visionPips) {
-            if (idx <= sensorPips && idx <= visionPips) {
-                return Color.green;
-            } else if (idx <= sensorPips && idx > visionPips) {
-                return Color.blue;
-            } else if (idx <= visionPips && idx > sensorPips) {
-                return Color.red;
-            } else {
-                return Color.gray;
-            }
-        }
+        //private static Color GetPipColor(int idx, int sensorPips, int visionPips) {
+        //    if (idx <= sensorPips && idx <= visionPips) {
+        //        return Color.green;
+        //    } else if (idx <= sensorPips && idx > visionPips) {
+        //        return Color.blue;
+        //    } else if (idx <= visionPips && idx > sensorPips) {
+        //        return Color.red;
+        //    } else {
+        //        return Color.gray;
+        //    }
+        //}
 
         public static ParticleSystem PlayVFXAt(GameRepresentation gameRep, Transform parentTransform, Vector3 offset, string vfxName, string effectName, 
             bool attached, Vector3 lookAtPos, bool oneShot, float duration) {

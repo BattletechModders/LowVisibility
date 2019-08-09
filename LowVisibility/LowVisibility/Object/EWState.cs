@@ -424,9 +424,10 @@ namespace LowVisibility.Object {
 
             return strength;
         }
-        //public int MimeticPips(float distance) {
-        //    return CalculatePipCount(distance);
-        //}       
+
+        public int CurrentMimeticPips(float distance) {
+            return CalculatePipCount(distance);
+        }
         public int CurrentMimeticPips() {
             float distance = Vector3.Distance(actor.PreviousPosition, actor.CurrentPosition);
             return CalculatePipCount(distance);
@@ -437,13 +438,13 @@ namespace LowVisibility.Object {
             if (mimetic == null) { return 0;  }
 
             int hexesMoved = (int)Math.Ceiling(distance / 30f);
-            Mod.Log.Debug($"  hexesMoved: {hexesMoved} = distanceMoved: {distance} / 30");
+//            Mod.Log.Debug($"  hexesMoved: {hexesMoved} = distanceMoved: {distance} / 30");
 
             int pips = mimetic.AttackMod;
             int numDecays = (int)Math.Floor(hexesMoved / (float)mimetic.HexesUntilDecay);
-            Mod.Log.Debug($"  -- decays = {numDecays} from currentSteps: {hexesMoved} / decayPerStep: {mimetic.HexesUntilDecay}");
+            Mod.Log.Trace($"  -- decays = {numDecays} from currentSteps: {hexesMoved} / decayPerStep: {mimetic.HexesUntilDecay}");
             int currentMod = Math.Max(mimetic.AttackMod - numDecays, 0);
-            Mod.Log.Debug($"  -- current: {currentMod} = initial: {mimetic.AttackMod} - decays: {numDecays}");
+            Mod.Log.Trace($"  -- current: {currentMod} = initial: {mimetic.AttackMod} - decays: {numDecays}");
 
             return currentMod;
         }

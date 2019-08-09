@@ -51,9 +51,9 @@ namespace LowVisibility.Patch {
             public static void Postfix(CombatHUDPipBar __instance, int totalPips) {
                 Mod.Log.Trace("CHUDSBP:AP entered");
 
-                if (__instance.enabled) {
-                    Mod.Log.Debug($"Activating pips: {totalPips}");
-                }
+                //if (__instance.enabled) {
+                //    Mod.Log.Debug($"Activating pips: {totalPips}");
+                //}
                 
             }
         }
@@ -67,7 +67,7 @@ namespace LowVisibility.Patch {
                 if (actor.CurrentPosition != worldPos) {
                     float distance = Vector3.Distance(actor.CurrentPosition, worldPos);
                     int steps = (int)Math.Ceiling(distance / 30f);
-                    Mod.Log.Debug($" position change for: ({CombatantUtils.Label(actor)}), moved {distance}m = {steps} steps");
+                    Mod.Log.Trace($" position change for: ({CombatantUtils.Label(actor)}), moved {distance}m = {steps} steps");
                     actor.StatCollection.Set(ModStats.MimeticCurrentSteps, steps);
                 }
             }
