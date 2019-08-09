@@ -17,6 +17,11 @@ namespace LowVisibility.Patch {
             Traverse parentT = Traverse.Create(__instance).Property("parentActor");
             AbstractActor parentActor = parentT.GetValue<AbstractActor>();
 
+            if (parentActor == null) {
+                Mod.Log.Trace($"ParentActor is null, skipping!");
+                return;
+            }
+
             EWState parentState = new EWState(parentActor);
 
             if (newLevel == VisibilityLevel.LOSFull) {
@@ -63,6 +68,8 @@ namespace LowVisibility.Patch {
         }
     }
 
+    // Required to move the floating actor info above a blip closer to the source. It natively assumes it anchors off the head, 
+    //   while the blip centers on the ground. This leaves significant empty space.
     [HarmonyPatch(typeof(CombatHUDNumFlagHex), "LateUpdate")]
     public static class CombatHUDNumFlagHex_LateUpdate {
         public static void Postfix(CombatHUDNumFlagHex __instance) {

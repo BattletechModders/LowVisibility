@@ -332,10 +332,10 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 ### 1.6 Bugs
 * Stealth textures don't always load
 * Prefix not showing for mimetic
-* Vehicles need an oblate spheroid for stealth effect, not prolate.
+* ~~Vehicles need an oblate spheroid for stealth effect, not prolate.~~
 * Better VFX definition for Stealth (instead of black bubble)
-* ECM/Stealth/Mimetic applies a flat hexes reduction to signature/visibility, instead of a multiplicative one?
-* Show EYE icon on enemies and friendlys for stealth, etc
+* ~~ECM/Stealth/Mimetic applies a flat hexes reduction to signature/visibility, instead of a multiplicative one?~~
+* ~~Show EYE icon on enemies and friendlys for stealth, etc~~
 * BUG: Visual penalties shouldn't be applied if firing indirectly
 
 ### WIP Features

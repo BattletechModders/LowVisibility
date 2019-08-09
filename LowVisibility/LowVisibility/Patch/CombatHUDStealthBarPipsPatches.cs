@@ -51,7 +51,10 @@ namespace LowVisibility.Patch {
             public static void Postfix(CombatHUDPipBar __instance, int totalPips) {
                 Mod.Log.Trace("CHUDSBP:AP entered");
 
-                Mod.Log.Debug($"Activating pips: {totalPips}");
+                if (__instance.enabled) {
+                    Mod.Log.Debug($"Activating pips: {totalPips}");
+                }
+                
             }
         }
 

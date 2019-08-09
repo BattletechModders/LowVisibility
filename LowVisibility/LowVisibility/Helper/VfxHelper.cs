@@ -1,5 +1,7 @@
 ﻿using BattleTech;
 using BattleTech.Assetbundles;
+using BattleTech.Data;
+using BattleTech.Rendering;
 using BattleTech.UI;
 using Harmony;
 using LowVisibility.Object;
@@ -13,62 +15,37 @@ using us.frostraptor.modUtils;
 namespace LowVisibility.Helper {
     public static class VfxHelper {
 
-        public static Material MaterialSensorStealthBubble;
-        public static Material MaterialSensorStealthCapsule;
-        public static Material MaterialECMBubble;
+        public const string ECMBubbleBaseVFX = "vfxPrfPrtl_ECM_loop";
+        public const string ECMBubbleOpforBaseVFX = "vfxPrfPrtl_ECM_opponent_loop";
+        public const string ECMBubbleRemovedBaseBFX = "vfxPrfPrtl_ECMtargetRemove_burst";
+        public const string ECMCarrierBaseVFX = "vfxPrfPrtl_ECMcarrierAura_loop";
+
+        public const string ECMBubbleVfxId = "lv_ecm_bubble_vfx";
+        public const string ECMCarrierVfxId = "lv_ecm_carrier_vfx";
+        public const string StealthEffectVfxId = "lv_stealth_vfx";
+        public const string MimeticEffectVfxId = "lv_mimetic_vfx";
+
+        public static Material StealthBubbleMaterial;
+        public static Material DistortionMaterial;
         
         public static void Initialize(CombatGameState cgs) {
             Mod.Log.Debug("== INITIALIZING MATERIALS ==");
 
-            // Try to find the asset bundles for each thing
-            VersionManifestEntry[] allEntries = cgs.DataManager.ResourceLocator.AllEntries();
-            foreach (VersionManifestEntry vme in allEntries) {
-                if (vme.Id.ToLower() == "vfxPrfPrtl_orbitalPPC_oneshot".ToLower() ||
-                    vme.Id.ToLower() == "envMatStct_darkMetal_generic".ToLower() ||
-                    vme.Id.ToLower() == "vfxPrfPrtl_weatherCamRain".ToLower()) {
-                    Mod.Log.Info($"Target material:{vme.Id} comes from bundle:{vme.AssetBundleName}");
-                }
-            }
+            Traverse abmT = Traverse.Create(cgs.DataManager).Property("AssetBundleManager");
+            AssetBundleManager abm = abmT.GetValue<AssetBundleManager>();
+            
+            GameObject ppcImpactGO = abm.GetAssetFromBundle<GameObject>("vfxPrfPrtl_weaponPPCImpact_crit", "vfx");
 
-            GameObject go = null;
-
-            //go = cgs.DataManager.PooledInstantiate("vfxPrfPrtl_orbitalPPC_oneshot", BattleTechResourceType.Prefab, null, null, null);
-            //if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: vfxPrfPrtl_orbitalPPC_oneshot"); }
-
-            go = cgs.DataManager.PooledInstantiate("vfxPrfPrtl_weaponPPCImpact_crit", BattleTechResourceType.Prefab, null, null, null);
-            if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: vfxPrfPrtl_weaponPPCImpact_crit"); }
-
-            go = cgs.DataManager.PooledInstantiate("envMatStct_darkMetal_generic", BattleTechResourceType.Prefab, null, null, null);
-            if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: envMatStct_darkMetal_generic"); }
-
-            go = cgs.DataManager.PooledInstantiate("vfxPrfPrtl_weatherCamRain", BattleTechResourceType.Prefab, null, null, null);
-            if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: vfxPrfPrtl_weatherCamRain"); }
-
-            go = cgs.DataManager.PooledInstantiate("vfxTxrPrtl_rainDot_alpha", BattleTechResourceType.Prefab, null, null, null);
-            if (go == null) { Mod.Log.Info("FAILED TO LOAD MATERIAL: vfxTxrPrtl_rainDot_alpha"); }
-
-            // Comes from 
-            //   assets/vfx/prefabs/environental/firepower/vfxprfprtl_orbitalppc_oneshot.prefab
-            //   assets/vfx/prefabs/weapon/ppc/vfxprfprtl_weaponppcimpact_crit.prefab
-            MaterialSensorStealthBubble = Resources.FindObjectsOfTypeAll<Material>()
+            StealthBubbleMaterial = Resources.FindObjectsOfTypeAll<Material>()
                 .FirstOrDefault(m => m.name == "vfxMatPrtl_shockwaveBlack_alpha");
-            Mod.Log.Info($" == shockwaveBlack_alpha loaded? {MaterialSensorStealthBubble != null}");
+            Mod.Log.Info($" == shockwaveBlack_alpha loaded? {StealthBubbleMaterial != null}");
 
-            MaterialSensorStealthCapsule = Resources.FindObjectsOfTypeAll<Material>()
-                .FirstOrDefault(m => m.name == "envMatStct_darkMetal_generic");
-            Mod.Log.Info($" == envMatStct_darkMetal_generic loaded? {MaterialSensorStealthCapsule != null}");
+            DistortionMaterial = Resources.FindObjectsOfTypeAll<Material>()
+                .FirstOrDefault(m => m.name == "vfxMatPrtl_ECMdistortionStrong");
+            Mod.Log.Info($" == vfxMatPrtl_ECMdistortionStrong loaded? {DistortionMaterial != null}");
 
-            // Comes from 
-            //   assets/vfx/prefabs/weather/vfxprfprtl_weathercamrain.prefab
-            //   assets/vfx/prefabs/weather/vfxprfprtl_weathercamrain_junglestorm.prefab
-            //   assets/vfx/prefabs/weather/vfxprfprtl_weathercamrain_storm.prefab
-            MaterialECMBubble = Resources.FindObjectsOfTypeAll<Material>()
-                .FirstOrDefault(m => m.name == "vfxTxrPrtl_rainDot_alpha");
-            Mod.Log.Info($" == vfxTxrPrtl_rainDot_alpha loaded? {MaterialECMBubble != null}");
-
-            // vfxMatPrtl_zapArcFlip2_blue_alpha
-
-            Mod.Log.Debug("== MATERIALS INITIALIZED ==");
+            // vfxMatPrtl_distortion_distort_left or vfxMatPrtl_distortion_distort_right
+            // vfxMatPrtl_ECMdistortionWeak or vfxMatPrtl_ECMdistortionStrong
         }
 
         public static void EnableECMCarrierVfx(AbstractActor actor, EffectData effectData) {
@@ -84,10 +61,9 @@ namespace LowVisibility.Helper {
 
                 // Bubble
                 ParticleSystem psECMLoop = actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform,
-                    Vector3.zero, "vfxPrfPrtl_ECM_loop", true, Vector3.zero, false, -1f);
+                    Vector3.zero, ECMBubbleBaseVFX, true, Vector3.zero, false, -1f);
                 psECMLoop.Stop(true);
                 ParticleSystem.MainModule main = psECMLoop.main;
-                main.startColor = Color.red;
 
                 foreach (Transform child in psECMLoop.transform) {
                     if (child.gameObject.name.StartsWith("sphere")) {
@@ -100,7 +76,7 @@ namespace LowVisibility.Helper {
 
                 // AoE loop
                 ParticleSystem psECMCarrier = actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform,
-                    Vector3.zero, "vfxPrfPrtl_ECMcarrierAura_loop", true, Vector3.zero, false, -1f);
+                    Vector3.zero, ECMCarrierBaseVFX, true, Vector3.zero, false, -1f);
                 psECMCarrier.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
 
                 actor.StatCollection.AddStatistic(ModStats.ECMVFXEnabled, true);
@@ -116,10 +92,10 @@ namespace LowVisibility.Helper {
             if (actor.GameRep != null && actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
                 Mod.Log.Debug("DISABLING ECM CARRIER EFFECT");
 
-                actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform, Vector3.zero, "vfxPrfPrtl_ECMtargetRemove_burst", true, Vector3.zero, true, -1f);
-                actor.GameRep.StopManualPersistentVFX("vfxPrfPrtl_ECM_loop");
-                actor.GameRep.StopManualPersistentVFX("vfxPrfPrtl_ECM_opponent_loop");
-                actor.GameRep.StopManualPersistentVFX("vfxPrfPrtl_ECMcarrierAura_loop");
+                actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform, Vector3.zero, ECMBubbleRemovedBaseBFX, true, Vector3.zero, true, -1f);
+                actor.GameRep.StopManualPersistentVFX(ECMBubbleBaseVFX);
+                actor.GameRep.StopManualPersistentVFX(ECMBubbleOpforBaseVFX);
+                actor.GameRep.StopManualPersistentVFX(ECMCarrierBaseVFX);
 
                 actor.StatCollection.RemoveStatistic(ModStats.ECMVFXEnabled);
             }
@@ -132,19 +108,17 @@ namespace LowVisibility.Helper {
             if (!actor.StatCollection.ContainsStatistic(ModStats.StealthVFXEnabled)) {
                 Mod.Log.Debug("ENABLING SENSOR STEALTH EFFECT");
 
-                ParticleSystem ps = actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform,
-                    Vector3.zero, "vfxPrfPrtl_ECM_loop", true, Vector3.zero, false, -1f);
+                ParticleSystem ps = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform, Vector3.zero, ECMBubbleBaseVFX, StealthEffectVfxId, true, Vector3.zero, false, -1f); ;
                 ps.Stop(true);
+                Mod.Log.Debug($"Simulation speed is: {ps.main.simulationSpeed}");
 
                 foreach (Transform child in ps.transform) {
                     if (child.gameObject.name == "sphere") {
                         Mod.Log.Debug($"  - Configuring sphere");
 
-                        bool isVehicle = actor as Vehicle != null;
-                        bool isTurret = actor as Turret != null;
                         if (actor.UnitType == UnitType.Mech) {
                             // problate ellipsoid
-                            child.gameObject.transform.localScale = new Vector3(0.12f, 0.18f, 0.12f);
+                            child.gameObject.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
                         } else if (actor.UnitType == UnitType.Vehicle) {
                             // oblong ellipsoid
                             child.gameObject.transform.localScale = new Vector3(0.24f, 0.12f, 0.24f);
@@ -153,8 +127,28 @@ namespace LowVisibility.Helper {
                             child.gameObject.transform.localScale = new Vector3(0.24f, 0.24f, 0.24f);
                         }
 
+                        // Center the sphere
+                        if (actor.GameRep is MechRepresentation mr) {
+                            Mod.Log.Debug($"Parent mech y positions: head: {mr.vfxHeadTransform.position.y} / " +
+                                $"torso: {mr.vfxCenterTorsoTransform.position.y} / " +
+                                $"leg: {mr.vfxLeftLegTransform.position.y}");
+                            float headToTorso = mr.vfxHeadTransform.position.y - mr.vfxCenterTorsoTransform.position.y;
+                            float torsoToLeg = mr.vfxCenterTorsoTransform.position.y - mr.vfxLeftLegTransform.position.y;
+                            Mod.Log.Debug($"Parent mech headToTorso:{headToTorso} / torsoToLeg:{torsoToLeg}");
+
+                            child.gameObject.transform.position = mr.vfxCenterTorsoTransform.position;
+                            child.gameObject.transform.localPosition = new Vector3(0f, headToTorso * 2, 2f);
+                            Mod.Log.Debug($"Centering sphere on mech torso at position: {mr.TorsoAttach.position}");
+                        } else if (actor.GameRep is VehicleRepresentation vr) {
+                            child.gameObject.transform.position = vr.transform.position;
+                            Mod.Log.Debug($"Centering sphere on vehicle body at position: {vr.BodyAttach.position}");
+                        } else if (actor.GameRep is TurretRepresentation tr) {
+                            child.gameObject.transform.position = tr.transform.position;
+                            Mod.Log.Debug($"Centering sphere on turret body at position: {tr.BodyAttach.position}");
+                        }
+
                         ParticleSystemRenderer spherePSR = child.gameObject.transform.GetComponent<ParticleSystemRenderer>();
-                        spherePSR.material = VfxHelper.MaterialSensorStealthBubble;
+                        spherePSR.material = VfxHelper.StealthBubbleMaterial;
                     } else {
                         Mod.Log.Debug($"  - Disabling GO: {child.gameObject.name}");
                         child.gameObject.SetActive(false);
@@ -173,7 +167,7 @@ namespace LowVisibility.Helper {
             if (actor.StatCollection.ContainsStatistic(ModStats.StealthVFXEnabled)) {
                 Mod.Log.Debug("DISABLING SENSOR STEALTH EFFECT");
 
-                actor.GameRep.StopManualPersistentVFX("vfxPrfPrtl_ECM_loop");
+                actor.GameRep.StopManualPersistentVFX(StealthEffectVfxId);
 
                 actor.StatCollection.RemoveStatistic(ModStats.StealthVFXEnabled);
             }
@@ -280,6 +274,82 @@ namespace LowVisibility.Helper {
             } else {
                 return Color.gray;
             }
+        }
+
+        public static ParticleSystem PlayVFXAt(GameRepresentation gameRep, Transform parentTransform, Vector3 offset, string vfxName, string effectName, 
+            bool attached, Vector3 lookAtPos, bool oneShot, float duration) {
+
+            if (string.IsNullOrEmpty(vfxName)) {
+                return null;
+            }
+
+            GameObject gameObject = gameRep.parentCombatant.Combat.DataManager.PooledInstantiate(vfxName, BattleTechResourceType.Prefab, null, null, null);
+            if (gameObject == null) {
+                GameRepresentation.initLogger.LogError("Error instantiating VFX " + vfxName, gameRep);
+                return null;
+            }
+            ParticleSystem component = gameObject.GetComponent<ParticleSystem>();
+            component.Stop(true);
+            component.Clear(true);
+            Transform transform = gameObject.transform;
+            transform.SetParent(null);
+
+            BTWindZone componentInChildren = gameObject.GetComponentInChildren<BTWindZone>(true);
+            if (componentInChildren != null && componentInChildren.enabled) {
+                componentInChildren.ResetZero();
+            }
+
+            BTLightAnimator componentInChildren2 = gameObject.GetComponentInChildren<BTLightAnimator>(true);
+            if (attached) {
+                transform.SetParent(parentTransform, false);
+                transform.localPosition = offset;
+            } else {
+                transform.localPosition = Vector3.zero;
+                if (parentTransform != null) {
+                    transform.position = parentTransform.position;
+                }
+                transform.position += offset;
+            }
+
+            if (lookAtPos != Vector3.zero) {
+                transform.LookAt(lookAtPos);
+            } else {
+                transform.localRotation = Quaternion.identity;
+            }
+            transform.localScale = Vector3.one;
+
+            if (oneShot) {
+                AutoPoolObject autoPoolObject = gameObject.GetComponent<AutoPoolObject>();
+                if (autoPoolObject == null) {
+                    autoPoolObject = gameObject.AddComponent<AutoPoolObject>();
+                }
+                if (duration > 0f) {
+                    autoPoolObject.Init(gameRep.parentCombatant.Combat.DataManager, vfxName, duration);
+                } else {
+                    autoPoolObject.Init(gameRep.parentCombatant.Combat.DataManager, vfxName, component);
+                }
+            } else {
+                List<ParticleSystem> list = null;
+                if (gameRep.persistentVFXParticles.TryGetValue(effectName, out list)) {
+                    list.Add(component);
+                    gameRep.persistentVFXParticles[effectName] = list;
+                } else {
+                    list = new List<ParticleSystem>();
+                    list.Add(component);
+                    gameRep.persistentVFXParticles[effectName] = list;
+                }
+            }
+
+            BTCustomRenderer.SetVFXMultiplier(component);
+            component.Play(true);
+            if (componentInChildren != null) {
+                componentInChildren.PlayAnimCurve();
+            }
+            if (componentInChildren2 != null) {
+                componentInChildren2.PlayAnimation();
+            }
+
+            return component;
         }
 
     }
