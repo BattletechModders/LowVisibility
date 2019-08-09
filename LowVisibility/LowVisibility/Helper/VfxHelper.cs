@@ -11,6 +11,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using us.frostraptor.modUtils;
+using static UnityEngine.ParticleSystem;
 
 namespace LowVisibility.Helper {
     public static class VfxHelper {
@@ -118,13 +119,13 @@ namespace LowVisibility.Helper {
 
                         if (actor.UnitType == UnitType.Mech) {
                             // problate ellipsoid
-                            child.gameObject.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
+                            child.gameObject.transform.localScale = new Vector3(0.13f, 0.13f, 0.13f);
                         } else if (actor.UnitType == UnitType.Vehicle) {
                             // oblong ellipsoid
-                            child.gameObject.transform.localScale = new Vector3(0.24f, 0.12f, 0.24f);
+                            child.gameObject.transform.localScale = new Vector3(0.26f, 0.13f, 0.26f);
                         } else {
                             // Turrets and unknown get sphere
-                            child.gameObject.transform.localScale = new Vector3(0.24f, 0.24f, 0.24f);
+                            child.gameObject.transform.localScale = new Vector3(0.13f, 0.13f, 0.13f);
                         }
 
                         // Center the sphere
@@ -180,6 +181,66 @@ namespace LowVisibility.Helper {
             if (!actor.StatCollection.ContainsStatistic(ModStats.MimeticVFXEnabled)) {
                 Mod.Log.Debug("ENABLING MIMETIC EFFECT");
 
+                ParticleSystem ps = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform, Vector3.zero, ECMBubbleBaseVFX, MimeticEffectVfxId, true, Vector3.zero, false, -1f); ;
+                ps.Stop(true);
+
+                foreach (Transform child in ps.transform) {
+                    if (child.gameObject.name == "sphere rumble") {
+                        Mod.Log.Debug($"  - Configuring sphere rumble");
+
+                        if (actor.UnitType == UnitType.Mech) {
+                            // problate ellipsoid
+                            child.gameObject.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
+                        } else if (actor.UnitType == UnitType.Vehicle) {
+                            // oblong ellipsoid
+                            child.gameObject.transform.localScale = new Vector3(0.24f, 0.12f, 0.24f);
+                        } else {
+                            // Turrets and unknown get sphere
+                            child.gameObject.transform.localScale = new Vector3(0.24f, 0.24f, 0.24f);
+                        }
+
+                        // Try to manipulate the animation speed
+                        ParticleSystem[] childPS = child.gameObject.GetComponentsInChildren<ParticleSystem>();
+                        if (childPS == null || childPS.Length == 0) {
+                            Mod.Log.Debug($"  NO CHILD PS FOUND");
+                        } else {
+                            foreach (ParticleSystem cPS in childPS) {
+                                Mod.Log.Debug($"  FORCING DURATION TO 6S");
+                                var main = cPS.main;
+                                main.duration = 4f;
+                            }
+                        }
+
+
+                        // Center the sphere
+                        if (actor.GameRep is MechRepresentation mr) {
+                            Mod.Log.Debug($"Parent mech y positions: head: {mr.vfxHeadTransform.position.y} / " +
+                                $"torso: {mr.vfxCenterTorsoTransform.position.y} / " +
+                                $"leg: {mr.vfxLeftLegTransform.position.y}");
+                            float headToTorso = mr.vfxHeadTransform.position.y - mr.vfxCenterTorsoTransform.position.y;
+                            float torsoToLeg = mr.vfxCenterTorsoTransform.position.y - mr.vfxLeftLegTransform.position.y;
+                            Mod.Log.Debug($"Parent mech headToTorso:{headToTorso} / torsoToLeg:{torsoToLeg}");
+
+                            child.gameObject.transform.position = mr.vfxCenterTorsoTransform.position;
+                            child.gameObject.transform.localPosition = new Vector3(0f, headToTorso * 2, 2f);
+                            Mod.Log.Debug($"Centering sphere on mech torso at position: {mr.TorsoAttach.position}");
+                        } else if (actor.GameRep is VehicleRepresentation vr) {
+                            child.gameObject.transform.position = vr.transform.position;
+                            Mod.Log.Debug($"Centering sphere on vehicle body at position: {vr.BodyAttach.position}");
+                        } else if (actor.GameRep is TurretRepresentation tr) {
+                            child.gameObject.transform.position = tr.transform.position;
+                            Mod.Log.Debug($"Centering sphere on turret body at position: {tr.BodyAttach.position}");
+                        }
+
+                        ParticleSystemRenderer spherePSR = child.gameObject.transform.GetComponent<ParticleSystemRenderer>();
+                        spherePSR.material = VfxHelper.DistortionMaterial;
+                    } else {
+                        Mod.Log.Debug($"  - Disabling GO: {child.gameObject.name}");
+                        child.gameObject.SetActive(false);
+                    }
+                }
+                ps.Play(true);
+
                 // Disabled due to bfix removing the ghost effect
                 // TODO: FIX!
                 //PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
@@ -196,6 +257,8 @@ namespace LowVisibility.Helper {
 
             if (actor.StatCollection.ContainsStatistic(ModStats.MimeticVFXEnabled)) {
                 Mod.Log.Debug("DISABLING MIMETIC EFFECT");
+
+                actor.GameRep.StopManualPersistentVFX(MimeticEffectVfxId);
 
                 // Disabled due to bfix removing the ghost effect
                 // TODO: FIX!
