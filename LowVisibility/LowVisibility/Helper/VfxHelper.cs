@@ -141,10 +141,12 @@ namespace LowVisibility.Helper {
                             child.gameObject.transform.localPosition = new Vector3(0f, headToTorso * 2, 2f);
                             Mod.Log.Debug($"Centering sphere on mech torso at position: {mr.TorsoAttach.position}");
                         } else if (actor.GameRep is VehicleRepresentation vr) {
-                            child.gameObject.transform.position = vr.transform.position;
+                            child.gameObject.transform.position = vr.BodyAttach.position;
+                            child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
                             Mod.Log.Debug($"Centering sphere on vehicle body at position: {vr.BodyAttach.position}");
                         } else if (actor.GameRep is TurretRepresentation tr) {
-                            child.gameObject.transform.position = tr.transform.position;
+                            child.gameObject.transform.position = tr.BodyAttach.position;
+                            child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
                             Mod.Log.Debug($"Centering sphere on turret body at position: {tr.BodyAttach.position}");
                         }
 
@@ -186,7 +188,7 @@ namespace LowVisibility.Helper {
 
                 foreach (Transform child in ps.transform) {
                     if (child.gameObject.name == "sphere rumble") {
-                        Mod.Log.Debug($"  - Configuring sphere rumble");
+                        Mod.Log.Trace($"  - Configuring sphere rumble");
 
                         if (actor.UnitType == UnitType.Mech) {
                             // problate ellipsoid
@@ -201,41 +203,36 @@ namespace LowVisibility.Helper {
 
                         // Try to manipulate the animation speed
                         ParticleSystem[] childPS = child.gameObject.GetComponentsInChildren<ParticleSystem>();
-                        if (childPS == null || childPS.Length == 0) {
-                            Mod.Log.Debug($"  NO CHILD PS FOUND");
-                        } else {
+                        if (childPS != null && childPS.Length != 0) {
                             foreach (ParticleSystem cPS in childPS) {
-                                Mod.Log.Debug($"  FORCING DURATION TO 6S");
                                 var main = cPS.main;
                                 main.duration = 4f;
                             }
                         }
 
-
                         // Center the sphere
                         if (actor.GameRep is MechRepresentation mr) {
-                            Mod.Log.Debug($"Parent mech y positions: head: {mr.vfxHeadTransform.position.y} / " +
-                                $"torso: {mr.vfxCenterTorsoTransform.position.y} / " +
-                                $"leg: {mr.vfxLeftLegTransform.position.y}");
                             float headToTorso = mr.vfxHeadTransform.position.y - mr.vfxCenterTorsoTransform.position.y;
                             float torsoToLeg = mr.vfxCenterTorsoTransform.position.y - mr.vfxLeftLegTransform.position.y;
-                            Mod.Log.Debug($"Parent mech headToTorso:{headToTorso} / torsoToLeg:{torsoToLeg}");
+                            Mod.Log.Trace($"Parent mech headToTorso:{headToTorso} / torsoToLeg:{torsoToLeg}");
 
                             child.gameObject.transform.position = mr.vfxCenterTorsoTransform.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, headToTorso * 2, 2f);
                             Mod.Log.Debug($"Centering sphere on mech torso at position: {mr.TorsoAttach.position}");
                         } else if (actor.GameRep is VehicleRepresentation vr) {
-                            child.gameObject.transform.position = vr.transform.position;
+                            child.gameObject.transform.position = vr.BodyAttach.position;
+                            child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
                             Mod.Log.Debug($"Centering sphere on vehicle body at position: {vr.BodyAttach.position}");
                         } else if (actor.GameRep is TurretRepresentation tr) {
-                            child.gameObject.transform.position = tr.transform.position;
+                            child.gameObject.transform.position = tr.BodyAttach.position;
+                            child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
                             Mod.Log.Debug($"Centering sphere on turret body at position: {tr.BodyAttach.position}");
                         }
+
 
                         ParticleSystemRenderer spherePSR = child.gameObject.transform.GetComponent<ParticleSystemRenderer>();
                         spherePSR.material = VfxHelper.DistortionMaterial;
                     } else {
-                        Mod.Log.Debug($"  - Disabling GO: {child.gameObject.name}");
                         child.gameObject.SetActive(false);
                     }
                 }
@@ -256,6 +253,7 @@ namespace LowVisibility.Helper {
             if (!State.TurnDirectorStarted) { return; }
 
             if (actor.StatCollection.ContainsStatistic(ModStats.MimeticVFXEnabled)) {
+
                 Mod.Log.Debug("DISABLING MIMETIC EFFECT");
 
                 actor.GameRep.StopManualPersistentVFX(MimeticEffectVfxId);
