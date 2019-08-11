@@ -302,18 +302,6 @@ namespace LowVisibility.Helper {
             }
         }
 
-        //private static Color GetPipColor(int idx, int sensorPips, int visionPips) {
-        //    if (idx <= sensorPips && idx <= visionPips) {
-        //        return Color.green;
-        //    } else if (idx <= sensorPips && idx > visionPips) {
-        //        return Color.blue;
-        //    } else if (idx <= visionPips && idx > sensorPips) {
-        //        return Color.red;
-        //    } else {
-        //        return Color.gray;
-        //    }
-        //}
-
         public static ParticleSystem PlayVFXAt(GameRepresentation gameRep, Transform parentTransform, Vector3 offset, string vfxName, string effectName, 
             bool attached, Vector3 lookAtPos, bool oneShot, float duration) {
 
