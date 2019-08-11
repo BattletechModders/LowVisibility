@@ -158,11 +158,120 @@ The ***electronic warfare check*** also determines how many details about the ta
 
 On the very first turn of every combat, every unit (friendly, neutral, or foe) always fail their __range check__. This ensures players can move away from their deployment zone before the AI has a chance to attack them. This behavior can be disabled by setting `FirstTurnForceFailedChecks` to __false__ in `mod.json`.
 
+## Advanced Sensors
+
+The BattleTech universe includes a complex array of sensors that improve a unit's ability to find enemies in specific situations. In _LowVisibility_ all of these advanced sensor types provide a bonus to the target details check. 
+
+### Advanced Sensor Components
+
+To create an Advanced Sensors  component, define the following effects on a componentDef. 
+
+```json
+          {
+            "durationData" : {
+                "duration": -1,
+                "stackLimit": 1
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "specialRules" : "NotSet",
+                "effectTargetType" : "Creator",
+                "range" : 0.0,
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : true,
+                "showInTargetPreview" : true,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+                "Id" : "LV_Advanced_Sensors",
+                "Name" : "Advanced Sensors",
+                "Details" : "Provides detailed information on enemy units",
+                "Icon" : "uixSvgIcon_status_ECM-ghost"
+            },
+            "statisticData" : 
+            {
+                "statName" : "LV_ADVANCED_SENSORS",
+                "operation": "Int_Add",
+                "modValue": "2",
+                "modType": "System.Int32"
+            },
+            "nature" : "Buff"
+        },
+
+```
+## Active Probes
+
+Active Probes are designed to counter-act ECM, Stealth, and other forms of obfuscation. _LowVisibility_ provides two active probe effects that reduce these values one for one. The first is a passive effect that always applies to the carrier unit. The second is a intended to be used for transient effects that originate from a 'ping', as per the HBS Active Probe system. 
+
+The transient effect is stronger as it applies equally to all friendly units, while the passive effect only applies to the source unit.
+
+### Active Probe Passive Effect
+
+To create an Active Probe component that will always provide its effects passively to the source unit, define the following effects on a componentDef. This example will reduce any ECM, Stealth, or Mimetic effect by 3 points. 
+
+```json
+                  {
+            "durationData" : {
+                "duration": -1,
+                "stackLimit": 1
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "specialRules" : "NotSet",
+                "effectTargetType" : "Creator",
+                "range" : 0.0,
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : true,
+                "showInTargetPreview" : true,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+                "Id" : "LV_Probe_Carrier",
+                "Name" : "Active Probe (Passive)",
+                "Details" : "Reduces effectiveness of stealthed and ECM shielded units",
+                "Icon" : "uixSvgIcon_status_ECM-ghost"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_PROBE_CARRIER",
+				"operation": "Int_Add",
+				"modValue": "3",
+				"modType": "System.Int32"
+            },
+            "nature" : "Buff"
+        },
+```
+
+### Active Probe Transient Effect
+
+To create an Active Probe effect that results from a ping, apply the following status effect. It will reduce any Stealth, ECM, or Mimetic effects by 6.
+
+```json
+      "effectType": "StatisticEffect",
+      "Description": {
+        "Id" : "ActiveProbe_Ping",
+        "Name" : "ACTIVE PROBE PING",
+        "Details": "AP Ping reduces Stealth, ECM, and Mimetic effects by 6",
+        "Icon": "uixSvgIcon_status_sensorsImpaired"
+      },
+      "nature": "Debuff",
+      "statisticData": {
+        "statName": "LV_PROBE_PING",
+        "operation": "Int_Add",
+        "modValue": "6",
+        "modType": "System.Int32"
+      }
+```
+
 ## ECM
 
 ECM components generate an bubble of interference around the carrier unit. The carrier has an **ECM Carrier** effect, while friendly units within the bubble receives an **ECM Shield** effect. Enemy units within the bubble receive an **ECM Jamming** effect.
 
-* For each point of **ECM Carrier**, attackers gain a +1 attack penalty and -1 sensors identification check. The emitter gains a 0.05 ***increase* to their signature, making it easier for them to be located. 
+* For each point of **ECM Carrier**, attackers gain a +1 attack penalty and -1 sensors identification check. The emitter gains a 0.05 *increase* to their signature, making it easier for them to be located. 
 * For each point of **ECM Shield**, attackers gain a +1 attack penalty and -1 sensors identification check. The target gains a 0.05 *decrease* to their signature, making it harder for them to be located.
 * For each point of **ECM Jamming** on a target, the target suffers a -1 penalty to any sensors identification check they make.
 
@@ -271,21 +380,6 @@ To create an ECM  component, define the following effects on a componentDef. You
             "nature" : "Debuff"
         },
 ```
-
-## Active Probes
-
-Some components apply a modifier to the unit's _Sensors Range Check_ and _Sensors Info Check_. These generally add a bonus that increases sensors range, and improves resolution of target details.
-
-* Components with a `lv-probe_mX` apply the highest value of X as a modifier to the unit's sensor checks. Only the best value is applied, and negative values are ignored.
-* Components with a `lv-probe-boost_mX` tag sum their X values, and apply the result as a modifier to sensor checks. Negative values for X are allowed.
-
-The modifiers from the `lv-probe_mX` and `lv-probe-boost_mX` tags are additive. If a unit has both, their sensors are improved by the sum of each modifier.
-
-> Example: A unit has components with tags lv-probe_m2, lv-probe_m3, lv-probe-boost_m2, lv-probe-boost_m. The sensor check modifier is 3 (from lv-probe_m3, which causes lv-probe_m2 to be ignored), + 2 (lv-probe-boost_m2) + 1 (lv-probe-boost_m1) = 6. This unit would add +6 to any sensor range and info checks it makes.
-
-To build __Active Probes__, you should use the `lv-probe_mX` modifier to ensure only the strongest probe is used. `lv-probe-boost_mX` can be used to build equipment that reduces sensors, reflecting poor equipment.
-
-These modifiers apply to both range and info. If you only want longer ranged sensors, use the `SensorRangeMultiplier` and `SensorDistanceAbsolute` on the component instead.
 
 ## Stealth
 
@@ -474,10 +568,10 @@ To create a status effect that applies the _LowVisiblity_ narc logic, use the fo
             },
             "statisticData" : 
             {
-				"statName" : "LV_NARC",
-				"operation": "Set",
-				"modValue": "1.5_7_-2",
-				"modType": "System.String"
+                "statName" : "LV_NARC",
+                "operation": "Set",
+                "modValue": "1.5_7_-2",
+                "modType": "System.String"
             },
             "nature" : "Buff"
         },
@@ -513,10 +607,10 @@ To create a status effect that applies the _LowVisiblity_ TAG logic, use the fol
             },
             "statisticData" : 
             {
-				"statName" : "LV_TAG",
-				"operation": "Set",
-				"modValue": "4.0_8_3",
-				"modType": "System.String"
+                "statName" : "LV_TAG",
+                "operation": "Set",
+                "modValue": "4.0_8_3",
+                "modType": "System.String"
             },
             "nature" : "Buff"
         },
