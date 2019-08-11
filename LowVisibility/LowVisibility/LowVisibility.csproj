@@ -94,6 +94,7 @@
     <Compile Include="Patch\CombatPatches.cs" />
     <Compile Include="Patch\MechComponentPatches.cs" />
     <Compile Include="Patch\PilotableActorRepresentationPatches.cs" />
+    <Compile Include="Patch\SelectionStatePatches.cs" />
     <Compile Include="Patch\SerializationPatches.cs" />
     <Compile Include="Patch\TeamPatch.cs" />
     <Compile Include="Patch\ToHitPatches.cs" />
