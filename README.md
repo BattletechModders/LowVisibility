@@ -61,7 +61,7 @@ While not necessary, it's suggested that you are familiar with the information i
 Any variable name in `code syntax` is a configuration value. It can be changed by modifying the named value in **LowVisibility/mod.json**.
 
 ### Electronic Warfare Checks
-At the start of each round, every unit makes an **electronic warfare check**. A good check result represents the pilot making the best use of their equipment, while a poor one reflects them being preoccupied with other things.
+At the start of each round, every unit makes an **electronic warfare check** (EWC for short). A good check result represents the pilot making the best use of their equipment, while a poor one reflects them being preoccupied with other things.
 
 Each check is a random value between -14 to +14, assigned from a normal distribution (aka a bell curve). The distribution uses mu=-2 and a sigma=4 value, resulting in a wide curve that's centered at the -2 result.
 
@@ -84,14 +84,14 @@ The current check result is displayed in a tooltip in the status bar of each pla
 
 Every unit in the game has four related values that control whether it can be seen and targeted:
 
-* **Spotting Range** determines how far (in meters) the unit can visually locate a target. You can only draw a *line of sight* to a target closer than your spotting range.
+* **Spotting Range** determines how far away the source can visually locate a target. You can only draw a *line of sight* to a target at or within than your spotting range in meters.
 * **Visibility** is a multiplier from the target that modifies the source's *spotting range*.
-* **Sensor Range** determines how far (in meters) the unit can locate targets using sensors.
+* **Sensor Range** determines how far away the unit can locate targets using sensors. You can only have sensor lock on a target at or within your sensor range in meters.
 * **Signature** is a multiplier from the target that modifies the source's *sensor range*.
 
-For both cases the math is straightforward. If a source has a 500 meter range, and the target has visibility/signature of 0.5, the target can be detected at 250 meters or closer. If the target's visibility/signature is 1.5, it can be detected at 750 meters or closer.
+For both cases the math is straightforward. If a source has a 500 meter range, and the target has visibility/signature of 0.5, the target can be detected at 250 meters or closer. If the target's visibility/signature is 1.5, it can be detected at 750 meters or closer. 
 
-Terrain can modify visibility and signature values. Forests apply a 0.8  modifier to signature, while water applies a 1.2.
+Terrain design masks can modify visibility and signature values. Forests apply a 0.8 modifier to signature, while water applies a 1.2.
 
 ### Spotting
 
@@ -136,21 +136,9 @@ The range check result is divided by ten, then used as a multiplier against the 
 
 No matter the circumstances, sensors range cannot drop below a number of hexes equal to _SensorRangeMinimum_. This value defaults to 6 hexes (240 meters).
 
-##### Target Signature
+#### Target Details
 
-A unit's sensors define the range at which they can see a standard target in normal conditions. Equipment and environment can result in a target that's easier or harder to see, which is expressed through their __signature__ rating. This rating is typically hidden, though components in the Mechlab will indicate any increases or reductions in signature.
-
-Target signatures act as a multiplier to the sensor range. If a unit has a sensor range check that resulted in sensors range 400:
-
-  * A hard to detect target with signature 0.5 would only be detectable at 200m or closer.
-  * A standard target with signature 1.0 would be detectable at 400m or closer.
-  * An easy to detect target with signature 1.2 would be detectable at 480m.
-
-
-
-#### Sensor Info
-
-The second check (the __info check__) determines how much target information the unit will receive this round. This check is applicable for optimal conditions - enemy ECM and other effects can reduce this value on a target by target basis. The range of check results is given below:
+The ***electronic warfare check*** also determines how many details about the target a source unit has access to this round. Enemy ECM, environmental effects, and other conditions will make this detailed information level fluctuate from round to round. Because every pilot and mech is different, the currently displayed details will cycle as you go through the round. A scout unit may have many details about the target available, while an assault unit may have very few. The range of check results is given below:
 
 | Info Check | Detail Level | Details shown |
 | --| -- | -- |
@@ -172,18 +160,116 @@ On the very first turn of every combat, every unit (friendly, neutral, or foe) a
 
 ### ECM
 
-ECM components generate an aura around the carrier unit. Any friendly unit within the bubble receives an **ECM Shield** effect. Enemy units within the bubble receive an **ECM Jamming** effect. If there are multiple ECM sources a target uses the strongest modifier, +1 for each additional emitter. You can change the modifier for multiplier emitters can be modified by changing `MultipleJammerPenalty`.
+ECM components generate an bubble of interference around the carrier unit. The carrier has an **ECM Carrier** effect, while friendly units within the bubble receives an **ECM Shield** effect. Enemy units within the bubble receive an **ECM Jamming** effect.
 
-For each point of **ECM Shield** on a target, attackers gain a +1 attack penalty and -1 sensors identification check. The target gains a 0.05 increase to their signature, making it easier for them to be located.
+* For each point of **ECM Carrier**, attackers gain a +1 attack penalty and -1 sensors identification check. The emitter gains a 0.05 ***increase* to their signature, making it easier for them to be located. 
+* For each point of **ECM Shield**, attackers gain a +1 attack penalty and -1 sensors identification check. The target gains a 0.05 *decrease* to their signature, making it harder for them to be located.
+* For each point of **ECM Jamming** on a target, the target suffers a -1 penalty to any sensors identification check they make.
 
-For each point of **ECM Jamming** on a target, the target suffers a -1 penalty to any sensors identification check they make.
+Both **ECM Jamming** and **ECM Shield** modifiers apply when a jammed source attempts to locate a shielded target. If there are multiple ECM sources the strongest modifier is used, +1 for each additional source. You can change the modifier for multiplier emitters can be modified by changing `MultipleJammerPenalty`.
 
-If a source with **ECM Jamming** is attempting to identify a target protected by **ECM Shield**, both modifiers apply.
+#### ECM Components
 
-To enable ECM on a component, define the following effects on the componentDef:
+To create an ECM  component, define the following effects on a componentDef. You should change the *Description* elements to better match your mod's language and tone.
 
 ```
-
+      {
+            "durationData" : {
+                "duration": -1,
+                "stackLimit": 1
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "specialRules" : "Aura",
+                "effectTargetType" : "AlliesWithinRange",
+                "range" : 60.0,
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : false,
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : false
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+				"Id" : "LV_ECM_SHIELD_L4",
+				"Name" : "Shielded by ECM",
+				"Details" : "Applies a +4 penalty to attackers.",
+				"Icon" : "uixSvgIcon_status_ECM-missileDef"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_ECM_SHIELD",
+				"operation": "Int_Add",
+				"modValue": "4",
+				"modType": "System.Int32"
+            },
+            "nature" : "Buff"
+        },
+        {
+            "durationData" : {
+                "duration": -1,
+                "stackLimit": 1
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "specialRules" : "NotSet",
+                "effectTargetType" : "Creator",
+                "range" : 0.0,
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : true,
+                "showInTargetPreview" : true,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+                "Id" : "LV_ECM_CARRIER_L4",
+                "Name" : "ECM CARRIER",
+                "Details" : "Provides an ECM bubble that grants +4 penalty to attackers.",
+                "Icon" : "uixSvgIcon_status_ECM-ghost"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_ECM_CARRIER",
+				"operation": "Int_Add",
+				"modValue": "4",
+				"modType": "System.Int32"
+            },
+            "nature" : "Buff"
+        },
+        {
+            "durationData" : {
+                "duration": -1,
+                "stackLimit": -1,
+				"uniqueEffectIdStackLimit": 1
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "specialRules" : "Aura",
+                "effectTargetType" : "EnemiesWithinRange",
+                "range" : 100.0,
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : true,
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : false
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+				"Id" : "LV_ECM_JAM_L3",
+				"Name" : "ECM Jammer",
+				"Details" : "Reduces target details by -4.",
+				"Icon" : "uixSvgIcon_action_sensorlock"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_ECM_JAMMED",
+				"operation": "Int_Add",
+				"modValue": "3",
+				"modType": "System.Int32"
+            },
+            "nature" : "Debuff"
+        },
 ```
 
 ### Active Probes
@@ -329,53 +415,12 @@ In addition to making sensor detection difficult, stealth can make it hard to at
 
 ## WIP
 
-### 1.6 Bugs
-* Stealth textures don't always load
-* Prefix not showing for mimetic
-* ~~Vehicles need an oblate spheroid for stealth effect, not prolate.~~
-* Better VFX definition for Stealth (instead of black bubble)
-* ~~ECM/Stealth/Mimetic applies a flat hexes reduction to signature/visibility, instead of a multiplicative one?~~
-* ~~Show EYE icon on enemies and friendlys for stealth, etc~~
-* BUG: Visual penalties shouldn't be applied if firing indirectly
-
 ### WIP Features
 
-- [ ] BUG: ticket-0304 in Discord - SensorDistanceAbsolute multipliers may not be adding to the total sensor distance value.
-- [ ] BUG: Report of vehicle blips showing mech paperdoll instead of vehicle. Photo proof, so see if it can be reproduced.
-- [ ] BUG: AIM calculations aren't accurate. Likely caused by LV going after AIM in the patch order?
 - [ ] BUG: Offensive push shows damaged areas even with a crap information roll. LA suggestion: restrict offensive push to a minimum info roll.
-- [ ] BUG: Debuff icons don't update when the sensor lock check is made, they only update after movement. Force an update somehow?
-- [ ] BUG: Armor/structure exact values are being shown, not just as ??
 - [ ] FEATURE: Show 'Cannon' / 'Missile' / 'Support' instead of 'Unidentified'
 - [ ] FEATURE: Prevent called shot against blips
 - [ ] FEATURE: Per LA, nerf multi-targeting but add  an item tag that helps/hurts. One tag that adds a penalty to each target. A second 'multitracker' that grants bonus to this (reduce penalty or bonus). Third, no multitargeting stealth w/o a multitracker. Maybe make the latter that you need a positive attack modifier from FCS/etc to multi-shoot against stealth? Have to think more.
-- [ ] FEATURE: Should tactics limit equipment modifiers? I.e. tactics +2 means you can't make use of a +4 ECM gear. If you tactics equals the gear, maybe get a bonus?
-- [ ] FEATURE: Wounds detracts from your EW check each round
 - [ ] FEATURE: Show signature, visibility modifiers for target on the tooltips. Show same for player mechs.
-- [ ] FEATURE: ImplementNoSensorLockCriticalMultiPenalty = 0.0f; NoVisualLockCriticalMultiPenalty = 0.0f; (Modify called shot critical, % when making a shot w/o lock)
 - [ ] FEATURE: Implement stealth multi-target prohibition
-- [ ] FEATURE: Reduce critical % chance when sensors only/visual only (VisionOnlyCriticalPenalty/SensorsOnlyCriticalPenalty)
 
-### Possible Additions
-
-- [] Add ability for a pilot to get a bad reading / critical failure. Tie to tactics as a roll, so poor pilots have it happen more often.  In failure, show wrong name/tonnage/information to confuse the player. May need some hidden marker indicating that this is a false lead - possibly a temporarily value that can be removed once we introduce the mod.
-- [] Experiment with AllowRearArcSpotting:false in CombatGameConstants.json
-- [] SensorLock becomes passive ability that doubles your tactics, boosts sensor detect level by +1 (for 'what you know'). Eliminate it as a menu item, ensure forceVisRebuild never gets called.
-- [] Add a 'lv-vision-lowlight_rX' for low-light vision; increases visual range during a non-daylight mood
-
-### To Document
-- [x] BUG: SensorRange not respecting SensorRangeMinimum.
-- [x] BUG: Narc, Tag not cleaned up on combat end. Causes some NPEs.
-- [x] BUG: VisibilityRange not respecting VisionRangeminiumum
-- [x] BUG - When you overheat a mech, it disappears from vision
-- [x] VisionLock and VisualID ranges should be modified by equipment.
-- [x] Fix issues with VisualID - make it apply if close enough
-- [x] Hide pilot details when not DentalRecords
-- [x] BUG: vismodes should only apply to ranged attacks
-- [x] BUG: Stability & heat bars showing on vehicles & turrets for some reason.
-- [x] BUG: Ranges should be normalized to a hex instead of partial hex (Math.Ceil to hex definition)
-- [x] BUG: Enemies not following the sensor blackout on turn one; there are cases where they get to attack anyways.
-- [x] Document - FiredWeaponsSignatureEffect from CombatGameConstants.json (causes blipping effect)
-- [x] BUG: Have to select a unit after save for GameRepresentations to be rendered.
-- [x] BUG: If you have sensor lock from a position, but not LOS, doesn't display the lines showing that you can shoot from there. How to fix? Looks to be related to AIM.
-- [ ] BUG: Sensor range circle not updating onActorSelected; gives you a false sense of where you can see
