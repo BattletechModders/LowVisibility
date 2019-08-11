@@ -158,7 +158,7 @@ The ***electronic warfare check*** also determines how many details about the ta
 
 On the very first turn of every combat, every unit (friendly, neutral, or foe) always fail their __range check__. This ensures players can move away from their deployment zone before the AI has a chance to attack them. This behavior can be disabled by setting `FirstTurnForceFailedChecks` to __false__ in `mod.json`.
 
-### ECM
+## ECM
 
 ECM components generate an bubble of interference around the carrier unit. The carrier has an **ECM Carrier** effect, while friendly units within the bubble receives an **ECM Shield** effect. Enemy units within the bubble receive an **ECM Jamming** effect.
 
@@ -168,7 +168,7 @@ ECM components generate an bubble of interference around the carrier unit. The c
 
 Both **ECM Jamming** and **ECM Shield** modifiers apply when a jammed source attempts to locate a shielded target. If there are multiple ECM sources the strongest modifier is used, +1 for each additional source. You can change the modifier for multiplier emitters can be modified by changing `MultipleJammerPenalty`.
 
-#### ECM Components
+### ECM Components
 
 To create an ECM  component, define the following effects on a componentDef. You should change the *Description* elements to better match your mod's language and tone.
 
@@ -272,7 +272,7 @@ To create an ECM  component, define the following effects on a componentDef. You
         },
 ```
 
-### Active Probes
+## Active Probes
 
 Some components apply a modifier to the unit's _Sensors Range Check_ and _Sensors Info Check_. These generally add a bonus that increases sensors range, and improves resolution of target details.
 
@@ -287,11 +287,13 @@ To build __Active Probes__, you should use the `lv-probe_mX` modifier to ensure 
 
 These modifiers apply to both range and info. If you only want longer ranged sensors, use the `SensorRangeMultiplier` and `SensorDistanceAbsolute` on the component instead.
 
-### Stealth
+## Stealth
 
 Thematically Stealth components interferes with an opponent's ability to sensor lock the protected unit. Units absorb sensor waves and thus seem to disappear from the attackers screens. 
 
 Mechanically it provides a modification to the unit's signature, a modifier to detailed information, and range-based attack modifiers. Because these values aren't set you can use them in a variety of ways, including building stealth true to the table-top version.
+
+Units protected by an active stealth effect will be surrounded by a black bubble when they are visible.
 
 Stealth is defined through a single string that is a compound value:`<signature_modifier>_<details_modifier>_<mediumAttackMod>_<longAttackmod>_<extremeAttackMod>`
 
@@ -303,7 +305,7 @@ Stealth is defined through a single string that is a compound value:`<signature_
 
 Finally, units with a Stealth effect cannot be targeted as part of a multi-attack. You should not be able to select them.
 
-#### Stealth Example One - Classic Stealth
+### Stealth Example One - Classic Stealth
 
 A stealth effect with values **0.20_4_1_2_3** would have:
 
@@ -313,7 +315,7 @@ A stealth effect with values **0.20_4_1_2_3** would have:
  * Apply a +2 penalty at the attacker's medium range, making it harder to hit
  * Apply a +3 penalty at the attacker's medium range, making it harder to hit
 
-#### Stealth Example Two - Primitive Electronics
+### Stealth Example Two - Primitive Electronics
 
 Stealth values do not have to be penalties; the code will accept negative values for the effects, making it a net bonus for the attacker. A stealth effect with values **-0.10_-2_-3_-2_-1** would have:
 
@@ -323,7 +325,7 @@ Stealth values do not have to be penalties; the code will accept negative values
 - Apply a -2 bonus at the attacker's medium range, making it easier to hit
 - Apply a -1 bonus at the attacker's medium range, making it easier to hit
 
-#### Stealth Components
+### Stealth Components
 
 To create a Stealth component, define the following effects on a componentDef. You should change the *Description* elements to better match your mod's language and tone.
 
@@ -363,9 +365,80 @@ To create a Stealth component, define the following effects on a componentDef. Y
 
 ```
 
-#### Design Note
+### Design Note
 
 Stealth closely approximates the sensor and signature spectrum HBS already has in the game. _LowVisibility's_ stealth was created to be less binary than signature reductions. Signature modifiers also hide a target, by reducing the range at which the target can be detected. Sensor modifiers can increase the range, allowing a push and pull between them that mimics TT stealth. However, Stealth reduces the info level (not the range), which allows high-sensor builds to still have a chance to detect them for targeting purposes, without knowing their details.
+
+## Mimetic Armor
+
+Mimetic armor makes the target difficult to visually or impossible to identify, and approximates the chameleonic armor of many sci-fi settings. 
+
+Mechanically it provides a modification to the unit's visibilty as well as an attack modifier based upon how far the unit has moved. Units protected by an active mimetic effect will be surrounded by a shimmer effect when they are visible.
+
+Mimetic armor is defined through a single string that is a compound value:`<initialVisibility>_<initialModifier>_<stepsUntilDecay>`
+
+* `<initialVisibility>` defines the visibility modifier used when the unit has not moved
+* `<initialModifier>` defines the attack penalty applied when the unit has not moved
+* `<stepsUntilDecay>` defines the number of hexes the unit can move before the visibility and attack modifiers are reduced..
+
+Mimetic effects decay as the unit moves. For each full increment of `<stepsUntilDecay>`, the initial visibility and attack modifiers are reduced by 0.05 and -1 respectively. In game this is represented by a white eye icon over the in-game mech representation. Each time the eye icon decreases by one, the visibility and attack modifiers have been reduced.
+
+### Mimetic Example One - Classic Mimetism
+
+A mimetic effect with values **0.15_3_3** would have:
+
+ * It's visibility *reduced* by -0.15, making it harder to detect
+ * Apply a +3 penalty to an attacker
+
+These benefits would apply until the unit moved 3 hexes, after which it would only apply a -0.10 visibility and -2 attack penalty. After 6 hexes, it would apply a -0.05 visibility and -1 attack penalty. After 9 hexes there is no longer any modifiers from the effect. 
+
+### Mimetic Example Two - Flamboyant Display
+
+A mimetic effect with values **-0.15_-4_3** would have:
+
+ * It's visibility *increased* by 0.15, making it easier to detect
+ * Apply a -3 bonus to an attacker
+
+These penalties would apply until the unit moved 3 hexes, after which it would only apply a +0.10 visibility and -2 attack bonus. After 6 hexes, it would apply a 0.05 visibility and -1 attack penalty. After 9 hexes there is no longer any modifiers from the effect. 
+
+### Mimetic Armor Components
+
+To create a Mimetic component, define the following effects on a componentDef. You should change the *Description* elements to better match your mod's language and tone.
+
+```json
+         {
+            "durationData" : {
+                "duration": -1,
+                "stackLimit": 1
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "specialRules" : "NotSet",
+                "effectTargetType" : "Creator",
+                "range" : 0.0,
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : true,
+                "showInTargetPreview" : true,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+                "Id" : "LV_MIMETIC_3",
+                "Name" : "MIMETIC ARMOR",
+                "Details" : "Chameleon effect with decaying visibility and attack penalties",
+                "Icon" : "uixSvgIcon_status_ECM-ghost"
+            },
+            "statisticData" : 
+            {
+                "statName" : "LV_MIMETIC",
+                "operation" : "Set",
+                "modValue": "0.15_3_3",
+                "modType": "System.String"
+            },
+            "nature" : "Buff"
+        },      
+```
 
 ## Effects
 
@@ -469,16 +542,7 @@ Like zoom vision, detecting an opponent through thermal vision has been a stable
 
 This bonus only applies ranged attacks. This bonus does not stack with other vision bonuses. An attacker with multiple vismode components applies the highest bonus to an attack, plus +1 for each addition vismode that provides a bonus.
 
-> 
+## Miscellaneous
 
-## WIP
-
-### WIP Features
-
-- [ ] BUG: Offensive push shows damaged areas even with a crap information roll. LA suggestion: restrict offensive push to a minimum info roll.
-- [ ] FEATURE: Show 'Cannon' / 'Missile' / 'Support' instead of 'Unidentified'
-- [ ] FEATURE: Prevent called shot against blips
-- [ ] FEATURE: Per LA, nerf multi-targeting but add  an item tag that helps/hurts. One tag that adds a penalty to each target. A second 'multitracker' that grants bonus to this (reduce penalty or bonus). Third, no multitargeting stealth w/o a multitracker. Maybe make the latter that you need a positive attack modifier from FCS/etc to multi-shoot against stealth? Have to think more.
-- [ ] FEATURE: Show signature, visibility modifiers for target on the tooltips. Show same for player mechs.
-- [ ] FEATURE: Implement stealth multi-target prohibition
-
+* Units that are a blip cannot be the target of a called shot
+* Units that you have no sensor info on cannot be the target of a called shot
