@@ -289,9 +289,7 @@ These modifiers apply to both range and info. If you only want longer ranged sen
 
 ## Stealth
 
-Thematically Stealth components interferes with an opponent's ability to sensor lock the protected unit. Units absorb sensor waves and thus seem to disappear from the attackers screens. 
-
-Mechanically it provides a modification to the unit's signature, a modifier to detailed information, and range-based attack modifiers. Because these values aren't set you can use them in a variety of ways, including building stealth true to the table-top version.
+Thematically Stealth components interferes with an opponent's ability to sensor lock the protected unit. Units absorb sensor waves and thus seem to disappear from the attackers screens. Mechanically it provides a modification to the unit's signature, a modifier to detailed information, and range-based attack modifiers. Because these values aren't set you can use them in a variety of ways, including building stealth true to the table-top version.
 
 Units protected by an active stealth effect will be surrounded by a black bubble when they are visible.
 
@@ -371,15 +369,13 @@ Stealth closely approximates the sensor and signature spectrum HBS already has i
 
 ## Mimetic Armor
 
-Mimetic armor makes the target difficult to visually or impossible to identify, and approximates the chameleonic armor of many sci-fi settings. 
-
-Mechanically it provides a modification to the unit's visibilty as well as an attack modifier based upon how far the unit has moved. Units protected by an active mimetic effect will be surrounded by a shimmer effect when they are visible.
+Mimetic armor makes the target difficult to visually or impossible to identify, and approximates the chameleonic armor of many sci-fi settings. Mechanically it provides a modification to the unit's visibilty as well as an attack modifier based upon how far the unit has moved. Units protected by an active mimetic effect will be surrounded by a shimmer effect when they are visible.
 
 Mimetic armor is defined through a single string that is a compound value:`<initialVisibility>_<initialModifier>_<stepsUntilDecay>`
 
 * `<initialVisibility>` defines the visibility modifier used when the unit has not moved
 * `<initialModifier>` defines the attack penalty applied when the unit has not moved
-* `<stepsUntilDecay>` defines the number of hexes the unit can move before the visibility and attack modifiers are reduced..
+* `<stepsUntilDecay>` defines the number of hexes the unit can move before the visibility and attack modifiers are reduced.
 
 Mimetic effects decay as the unit moves. For each full increment of `<stepsUntilDecay>`, the initial visibility and attack modifiers are reduced by 0.05 and -1 respectively. In game this is represented by a white eye icon over the in-game mech representation. Each time the eye icon decreases by one, the visibility and attack modifiers have been reduced.
 
@@ -440,81 +436,92 @@ To create a Mimetic component, define the following effects on a componentDef. Y
         },      
 ```
 
-## Effects
+## Narc
 
-The sections below discuss electronic warfare effects allowed by  _LowVisibility_.
+Narc beacons launch a small transmitter that attaches to the target and broadcasts their location. Mechanically _LowVisibility_ provides a Narc effect that makes it easier to locate and target the narc'd unit.
+
+Narc effects are defined through a single string that is a compound value:`<signatureMod>_<detailsMod>_<attackMod>`
+
+* `<signatureMod>` defines the visibility modifier applied to the target
+* `<detailsMod>` defines the detailed information modifier applied to the target
+* `<attackMod>` defines the attack modifier applied to the target
+
+Narc effects are counter-acted by ECM. When a narc'd unit is within a friendly ECM bubble:
+
+* The Narc attack modifier is reduced by the ECM_SHIELD modifier
+* The Narc details modifier is reduced by the ECM_SHIELD modifier
+* The Narc signature modifier is reduced by the ECM_SHIELD modifier * 0.1
+
+> Example: A narc effect of 1.5_7_-2 would apply the following to the target:
+>
+>  * A +1.5 signature modifier, making it easier to locate
+>  * A +7 detailed information modifier, making it easier to see the internal components of the target
+>  * A -2 attack bonus, making it easier to hit the target
 
 ### Narc Effect
 
-Narc beacons launch a small transmitter that attaches to the target and broadcasts their location. _LowVisibility_ provides an effect tag that mimics this effect by providing a strong bonus to sensor detect checks for targets that have been narc'd.
+To create a status effect that applies the _LowVisiblity_ narc logic, use the following declaration:
 
-Any effect that attaches the `lv-narc-effect_mX` tag will apply X as a modifier to sensor checks against the unit under the effect. If this modifier is greater than the affected unit's ECM protection the unit will be marked as a sensor blip regardless of sensor range. Units within sensor range will apply the difference as a modifier to any _sensor info checks_.
-
-> Example: A unit has a `lv-narc-effect_m6` applied to it from a Narc beacon. The unit has ECM protection of 4, so the Narc's effect becomes 6 -4 = 2. The unit's will be visible as a blip at any range, and ay sensor info checks against the unit gain a +2.
-
-An example of attaching this tag to an effect is below:
-
+```json
+       {
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+                "Id" : "LV_NARC",
+                "Name" : "NARC TEST",
+                "Details" : "You are Narc'd and will be easier to hit and detect.",
+                "Icon" : "uixSvgIcon_status_ECM-ghost"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_NARC",
+				"operation": "Set",
+				"modValue": "1.5_7_-2",
+				"modType": "System.String"
+            },
+            "nature" : "Buff"
+        },
 ```
-"statusEffects": [{
-    ...
-    "tagData" : {
-    "tagList" : [ "lv-narc-effect_m8" ]
-  },
-}]
-```
+
+Thematically NARC effects should decay after a number of rounds. It's easy to define that with the HBS system, using `durationData` with `ticksOnEndOfRound:true`. 
+
+## TAG
+
+TAG emitters are special sensors that provide deep information on a target so long as they can be targeted with a laser-like beam. _LowVisibility_ provides a TAG effect that makes it easier to locate and target the TAG'd unit. 
+
+TAG effects are defined through a single string that is a compound value:`<signatureMod>_<detailsMod>_<attackMod>`
+
+- `<signatureMod>` defines the visibility modifier applied to the target
+- `<detailsMod>` defines the detailed information modifier applied to the target
+- `<attackMod>` defines the attack modifier applied to the target
+
+TAG effects are **not** reduced by ECM protection. 
 
 ### TAG Effect
 
-TAG emitters are special sensors that provide deep information on a target so long as they can be targeted with a laser-like beam. _LowVisibility_ mimics this effect by providing a _sensor info modifier_ that decays as the target moves. TAG effects are NOT impacted by ECM protection, which provides a way for players to fight against opponents with strong ECM.
+To create a status effect that applies the _LowVisiblity_ TAG logic, use the following declaration:
 
-Any effect that incorporates the `lv-tag-effect` provides a _sensor check_ equal to the duration of the effect. Any friendly unit applies this bonus to their _sensor info check_. This effect is intended to be placed on a status effect with durationData that uses `ticksOnMovements: true`. `ticksOnMovements` causes the effect duration to be reduced by one for each hex the unit moves, which provides the decay effect we expect.
-
-> Example: A unit has an effect with the `lv-tag-effect` applied to it, with an effect duration of 10. Sensor info checks against the target would gain a bonus of +10. If the target moves 4 hexes, the duration would reduce to 6, which also reduces the sensor info check bonus to +6. Once the target moved another 6 hexes the bonus would completely decay.
-
-An example effect that uses this tag is below:
-
+```json
+        {
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+                "Id" : "LV_TAG",
+                "Name" : "TAG_STRONG",
+                "Details" : "Target is TAG'd and easier to hit and detect. Move to break the effect.",
+                "Icon" : "uixSvgIcon_status_ECM-ghost"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_TAG",
+				"operation": "Set",
+				"modValue": "4.0_8_3",
+				"modType": "System.String"
+            },
+            "nature" : "Buff"
+        },
 ```
-"statusEffects": [{
-"durationData":{
-    "duration" : 10,
-    "ticksOnActivations" : false,
-    "useActivationsOfTarget" : true,
-    "ticksOnEndOfRound" : false,
-    "ticksOnMovements" : true,
-    "stackLimit" : 1,
-    "clearedWhenAttacked" : false
-	},
-"targetingData" : {
-    "effectTriggerType" : "OnHit",
-    "triggerLimit" : 0,
-    "extendDurationOnTrigger" : 0,
-    "specialRules" : "NotSet",
-    "effectTargetType" : "NotSet",
-    "range" : 0,
-    "forcePathRebuild" : false,
-    "forceVisRebuild" : false,
-    "showInTargetPreview" : false,
-    "showInStatusPanel" : true
-    },
-"effectType" : "TagEffect",
-"Description" : {
-    "Id" : "TAG-Effect-Vision",
-    "Name" : "TAG'd - Visibility",
-    "Details" : "This will be much easier to sensor lock until it moves.",
-    "Icon" : "uixSvgIcon_artillery"
-},
-"nature" : "Debuff",
-"statisticData" : null,
-"tagData" : {
-	"tagList" : [ "lv-tag-effect" ]
-	},
-"floatieData" : null,
-"actorBurningData" : null,
-"vfxData" : null,
-"instantModData" : null,
-"poorlyMaintainedEffectData" : null
-}]
-```
+Thematically TAG effects should decay after the target moves. It's easy to define that with the HBS system, using `durationData` with `ticksOnMovements:true`. 
 
 ## Attack Modifiers
 Once a target has been detected it can be attacked normally, though attacks may suffer penalties based upon how strong of a lock they have to the target.
