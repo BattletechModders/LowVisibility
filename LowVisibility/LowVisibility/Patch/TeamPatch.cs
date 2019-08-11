@@ -1,6 +1,5 @@
 ﻿using BattleTech;
 using Harmony;
-using LowVisibility.Helper;
 using LowVisibility.Object;
 using System.Collections.Generic;
 
@@ -24,17 +23,6 @@ namespace LowVisibility.Patch {
                 // Before recalculating visibility, add the dynamic and static states for this actor
                 EWState actorEWConfig = new EWState(unit);
                 State.EWState[unit.GUID] = actorEWConfig;
-
-                // Build their sourceLocks
-                //VisibilityHelper.UpdateDetectionForActor(unit);                
-
-                //HostilityMatrix hostilityMatrix = (HostilityMatrix)Traverse.Create(__instance).Property("HostilityMatrix").GetValue();                
-                //if (hostilityMatrix.IsLocalPlayerFriendly(__instance.GUID)) {
-                //    unit.OnPlayerVisibilityChanged(VisibilityLevel.LOSFull);
-                //}
-                //if (__instance.Combat.TurnDirector.CurrentRound > 0) {
-                //    unit.UpdateVisibilityCache(__instance.Combat.GetAllCombatants());
-                //}
             }
         }
     }
