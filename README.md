@@ -172,7 +172,7 @@ Both **ECM Jamming** and **ECM Shield** modifiers apply when a jammed source att
 
 To create an ECM  component, define the following effects on a componentDef. You should change the *Description* elements to better match your mod's language and tone.
 
-```
+```json
       {
             "durationData" : {
                 "duration": -1,
@@ -289,16 +289,83 @@ These modifiers apply to both range and info. If you only want longer ranged sen
 
 ### Stealth
 
-Stealth components reduce an opponent's ability to sensor lock the protected unit. Stealth only applied to the unit directly, and has no effect when the enemy attempts to detect other friendly units. Stealth generally applies a penalty to the opponent's check, which reduces the _Sensors Info Check_. Stealth does not impact an opponent's _Sensors Range Check_.
+Thematically Stealth components interferes with an opponent's ability to sensor lock the protected unit. Units absorb sensor waves and thus seem to disappear from the attackers screens. 
 
-* Components with a `lv-stealth_mX` apply the highest value of X to the unit's stealth modifier. Only the best value is applied, and negative values are ignored.
-* Components with a `lv-scrambler_mX` tag sum their X values, and apply the result to the unit's stealth modifier. Negative values for X are allowed.
+Mechanically it provides a modification to the unit's signature, a modifier to detailed information, and range-based attack modifiers. Because these values aren't set you can use them in a variety of ways, including building stealth true to the table-top version.
 
-The modifiers from the `lv-stealth_mX` and `lv-scrambler_mX` tags are additive. If a unit has both, their sensors are improved by the sum of each modifier.
+Stealth is defined through a single string that is a compound value:`<signature_modifier>_<details_modifier>_<mediumAttackMod>_<longAttackmod>_<extremeAttackMod>`
 
-> Example: A unit has components with tags lv-stealth_m2, lv-scrambler_m-2, lv-scrambler_m-3. The stealth modifier is 2 (from lv-stealth_m2), - 2 (lv-scrambler_m-2) - 3 (lv-scrambler_m-3) = -3. This unit would add +3 to any sensor range and info checks against it, because it's stealth modifier is negative.
+* `<signature_modifier>` modifies the unit's signature rating (see above)
+* `<details_modifier>` modifies an attacker's electronic warfare check when determining detailed information against the unit
+* `<mediumAttackMod>` modifies an attacker's weapons when they are at medium range
+* `<longAttackMod>` modifies an attacker's weapons when they are at long range
+* `<extremeAttackMod>` modifies an attacker's weapons when they are at extreme range
 
-__Design Note:__  Stealth closely approximates the sensor and signature spectrum HBS already has in the game. _LowVisibility's_ stealth was created to be less binary than signature reductions. Signature modifiers also hide a target, by reducing the range at which the target can be detected. Sensor modifiers can increase the range, allowing a push and pull between them that mimics TT stealth. However, Stealth reduces the info level (not the range), which allows high-sensor builds to still have a chance to detect them for targeting purposes, without knowing their details.
+Finally, units with a Stealth effect cannot be targeted as part of a multi-attack. You should not be able to select them.
+
+#### Stealth Example One - Classic Stealth
+
+A stealth effect with values **0.20_4_1_2_3** would have:
+
+ * It's signature value reduced by -0.20, making it harder to detect
+ * Apply a -4 penalty to any attacker's detailed information check, making less information available
+ * Apply a +1 penalty at the attacker's medium range, making it harder to hit
+ * Apply a +2 penalty at the attacker's medium range, making it harder to hit
+ * Apply a +3 penalty at the attacker's medium range, making it harder to hit
+
+#### Stealth Example Two - Primitive Electronics
+
+Stealth values do not have to be penalties; the code will accept negative values for the effects, making it a net bonus for the attacker. A stealth effect with values **-0.10_-2_-3_-2_-1** would have:
+
+- It's signature value increased by 0.10, making it easier to detect
+- Apply a +2 bonus to any attacker's detailed information check, making more information available
+- Apply a -3 bonus at the attacker's medium range, making it easier to hit
+- Apply a -2 bonus at the attacker's medium range, making it easier to hit
+- Apply a -1 bonus at the attacker's medium range, making it easier to hit
+
+#### Stealth Components
+
+To create a Stealth component, define the following effects on a componentDef. You should change the *Description* elements to better match your mod's language and tone.
+
+```json
+        {
+            "durationData" : {
+                "duration": -1,
+                "stackLimit": 1
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "specialRules" : "NotSet",
+                "effectTargetType" : "Creator",
+                "range" : 0.0,
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : true,
+                "showInTargetPreview" : true,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+                "Id" : "LV_Stealth_Armor",
+                "Name" : "STEALTH",
+                "Details" : "Makes the unit harder to detect and attack",
+                "Icon" : "uixSvgIcon_status_ECM-ghost"
+            },
+            "statisticData" : 
+            {
+                "statName" : "LV_STEALTH",
+                "operation" : "Set",
+                "modValue": "0.20_4_1_2_3",
+                "modType": "System.String"
+            },
+            "nature" : "Buff"
+        },
+
+```
+
+#### Design Note
+
+Stealth closely approximates the sensor and signature spectrum HBS already has in the game. _LowVisibility's_ stealth was created to be less binary than signature reductions. Signature modifiers also hide a target, by reducing the range at which the target can be detected. Sensor modifiers can increase the range, allowing a push and pull between them that mimics TT stealth. However, Stealth reduces the info level (not the range), which allows high-sensor builds to still have a chance to detect them for targeting purposes, without knowing their details.
 
 ## Effects
 
@@ -402,16 +469,7 @@ Like zoom vision, detecting an opponent through thermal vision has been a stable
 
 This bonus only applies ranged attacks. This bonus does not stack with other vision bonuses. An attacker with multiple vismode components applies the highest bonus to an attack, plus +1 for each addition vismode that provides a bonus.
 
-### Stealth Attack Modifiers
-
-In addition to making sensor detection difficult, stealth can make it hard to attack a target at range. To reflect that _LowVisibility_ exposes a few tags that add special case modifiers to the attack roll.
-
-* Components with the `lv-stealth-range-mod_sA_mB_lC_eD` apply a penalty to an attacker's weapons based upon their range to the target. A penalty of A is applied against targets at short range, B at medium range, C at long range, and D at extreme range.
-* Components with the `lv-stealth-move-mod_mX_sZ` tag apply a penalty that is strongest when the target doesn't move. X is the base penalty that applies to any attack against the target. This penalty decays by 1 for each Z hexes the target moves, until it the penalty is completely eliminated.
-
-> Example One: A tag of `lv-stealth-range-mod_s1_m2_l3_e4` would apply a +1 penalty at short range, +2 at medium range, +3 at long range and +4 at extreme range. This range is applied per weapon, so the attacker may experience different penalties for different weapons they fire.
-
-> Example Two: A tag of `lv-stealth-move-mod_m3_s2` applies a +3 penalty to the attacker if the target does not move. If the target moves 1 or 2 hexes, this penalty would be reduced (by -1) to +2. If the target moves 3-4 hexes, the penalty is reduced to +1, and if the unit moves 5 hexes or more the penalty is completely removed.
+> 
 
 ## WIP
 
