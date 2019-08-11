@@ -314,7 +314,7 @@ namespace LowVisibility.Object {
     $"from source:{CombatantUtils.Label(attackerState.actor)}");
             } else { return 0f; }
 
-            if (pingedByProbeMod > 0) { strength -= pingedByProbeMod; }
+            if (attackerState.PingedByProbeMod() > 0) { strength -= attackerState.PingedByProbeMod(); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
 
             strength = Math.Max(0, strength);
@@ -327,7 +327,7 @@ namespace LowVisibility.Object {
         public int ECMDetailsMod(EWState attackerState) {
             int strength = shieldedByECMMod > ecmCarrierMod ? shieldedByECMMod : ecmCarrierMod;
 
-            if (pingedByProbeMod > 0) { strength -= pingedByProbeMod; }
+            if (attackerState.PingedByProbeMod() > 0) { strength -= attackerState.PingedByProbeMod(); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
 
             strength = Math.Max(0, strength);
@@ -339,7 +339,7 @@ namespace LowVisibility.Object {
         public int ECMAttackMod(EWState attackerState) {
             int strength = shieldedByECMMod > ecmCarrierMod ? shieldedByECMMod : ecmCarrierMod;
 
-            if (pingedByProbeMod > 0) { strength -= pingedByProbeMod; }
+            if (attackerState.PingedByProbeMod() > 0) { strength -= attackerState.PingedByProbeMod(); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
 
             strength = Math.Max(0, strength);
@@ -370,7 +370,7 @@ namespace LowVisibility.Object {
         public float StealthSignatureMod(EWState attackerState) {
             float strength = this.stealth != null ? this.stealth.SignatureMulti : 0.0f;
 
-            if (pingedByProbeMod > 0) { strength -= (pingedByProbeMod * 0.05f); }
+            if (attackerState.PingedByProbeMod() > 0) { strength -= (attackerState.PingedByProbeMod() * 0.05f); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= (attackerState.ProbeCarrierMod() * 0.05f); }
 
             strength = Math.Max(0, strength);
@@ -391,7 +391,7 @@ namespace LowVisibility.Object {
                 strength = stealth.ExtremeRangeAttackMod;
             }
 
-            if (pingedByProbeMod > 0) { strength -= pingedByProbeMod; }
+            if (attackerState.PingedByProbeMod() > 0) { strength -= attackerState.PingedByProbeMod(); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
 
             strength = Math.Max(0, strength);
@@ -404,7 +404,7 @@ namespace LowVisibility.Object {
         public float MimeticVisibilityMod(EWState attackerState) {
             float strength = CurrentMimeticPips() * 0.05f;
 
-            if (pingedByProbeMod > 0) { strength -= (pingedByProbeMod * 0.05f); }
+            if (attackerState.PingedByProbeMod() > 0) { strength -= (attackerState.PingedByProbeMod() * 0.05f); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= (attackerState.ProbeCarrierMod() * 0.05f); }
 
             strength = Math.Max(0, strength);
@@ -417,7 +417,7 @@ namespace LowVisibility.Object {
 
             int strength = CurrentMimeticPips();
 
-            if (pingedByProbeMod > 0) { strength -= pingedByProbeMod; }
+            if (attackerState.PingedByProbeMod() > 0) { strength -= attackerState.PingedByProbeMod(); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
 
             strength = Math.Max(0, strength);
