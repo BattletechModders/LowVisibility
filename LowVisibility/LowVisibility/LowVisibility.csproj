@@ -100,7 +100,6 @@
     <Compile Include="Patch\ToHitPatches.cs" />
     <Compile Include="Patch\TurnDirectorPatches.cs" />
     <Compile Include="Patch\CombatHUDStatusPanelPatches.cs" />
-    <Compile Include="Patch\VisRangeIndicatorPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Mod\State.cs" />
     <Compile Include="Mod\ModConfig.cs" />

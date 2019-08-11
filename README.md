@@ -158,6 +158,11 @@ The ***electronic warfare check*** also determines how many details about the ta
 
 On the very first turn of every combat, every unit (friendly, neutral, or foe) always fail their __range check__. This ensures players can move away from their deployment zone before the AI has a chance to attack them. This behavior can be disabled by setting `FirstTurnForceFailedChecks` to __false__ in `mod.json`.
 
+
+# Component and Status Effects
+
+_LowVisibility_ is a toolkit designed to allow mod authors a great deal of flexibility. This flexibility comes at a cost, as each author has to understand how the various components work together. The mod is built from many differnet __effects__ which can be applied to components or as statuses to fit the mod needs. 
+
 ## Advanced Sensors
 
 The BattleTech universe includes a complex array of sensors that improve a unit's ability to find enemies in specific situations. In _LowVisibility_ all of these advanced sensor types provide a bonus to the target details check. 
