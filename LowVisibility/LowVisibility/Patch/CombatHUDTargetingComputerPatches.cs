@@ -143,36 +143,10 @@ namespace LowVisibility.Patch {
 
                         // Update the weapons to show only 
                         for (int i = 0; i < ___weaponNames.Count; i++) {
-
                             // Update ranged weapons
                             if (i < target.Weapons.Count) {
                                 Weapon targetWeapon = target.Weapons[i];
-
-                                string wName;
-                                switch(targetWeapon.Type) {
-                                    case WeaponType.Autocannon:
-                                    case WeaponType.Gauss:
-                                    case WeaponType.MachineGun:
-                                    case WeaponType.AMS:
-                                        wName = "Ballistic";
-                                        break;
-                                    case WeaponType.Laser:
-                                    case WeaponType.PPC:
-                                    case WeaponType.Flamer:
-                                        wName = "Energy";
-                                        break;
-                                    case WeaponType.LRM:
-                                    case WeaponType.SRM:
-                                        wName = "Missile";
-                                        break;
-                                    case WeaponType.Melee:
-                                        wName = "Physical";
-                                        break;
-                                    default:
-                                        wName = "Unidentified";
-                                        break;
-                                }
-                                ___weaponNames[i].SetText(wName);
+                                ___weaponNames[i].SetText("Unidentified");
                             } else if (!___weaponNames[i].text.Equals("XXXXXXXXXXXXXX")) {
                                 ___weaponNames[i].SetText("Unidentified");
                             }
