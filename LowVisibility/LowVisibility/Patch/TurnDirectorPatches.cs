@@ -29,10 +29,6 @@ namespace LowVisibility.Patch {
                     AbstractActor randomPlayerActor = null;
                     foreach (AbstractActor actor in __instance.Combat.AllActors) {
                         if (actor != null) {
-                            // Parse their EW config
-                            EWState actorEWConfig = new EWState(actor);
-                            State.EWState[actor.GUID] = actorEWConfig;
-
                             // Make a pre-encounter detectCheck for them
                             ActorHelper.UpdateSensorCheck(actor);
 

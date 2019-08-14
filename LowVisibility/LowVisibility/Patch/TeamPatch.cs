@@ -1,6 +1,5 @@
 ﻿using BattleTech;
 using Harmony;
-using LowVisibility.Object;
 using System.Collections.Generic;
 
 namespace LowVisibility.Patch {
@@ -19,10 +18,6 @@ namespace LowVisibility.Patch {
                 __instance.Combat.combatantAdded = true;
                 __instance.units.Add(unit);
                 unit.AddToTeam(__instance);
-
-                // Before recalculating visibility, add the dynamic and static states for this actor
-                EWState actorEWConfig = new EWState(unit);
-                State.EWState[unit.GUID] = actorEWConfig;
             }
         }
     }

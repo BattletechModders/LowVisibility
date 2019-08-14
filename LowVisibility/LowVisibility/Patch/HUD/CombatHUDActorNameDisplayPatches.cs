@@ -54,7 +54,7 @@ namespace LowVisibility.Patch {
     public static class Mech_GetActorInfoFromVisLevel {
 
         public static void Postfix(Mech __instance, ref Text __result, VisibilityLevel visLevel) {
-            if (__instance == null || State.EWState.Count == 0) { return; }
+            if (__instance == null) { return; }
 
             /*
                 Mech.UnitName = MechDef.Chassis.Description.Name -> Atlas / Trebuchet
@@ -79,7 +79,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(new Type[] { typeof(VisibilityLevel) })]
     public static class Turret_GetActorInfoFromVisLevel {
         public static void Postfix(Turret __instance, ref Text __result, VisibilityLevel visLevel) {
-            if (__instance == null || State.EWState.Count == 0) { return; }
+            if (__instance == null) { return; }
 
             /*
                 Turret.UnitName = return (this.TurretDef == null) ? "UNDEFINED" : this.TurretDef.Chassis.Description.Name ->
@@ -104,7 +104,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(new Type[] { typeof(VisibilityLevel) })]
     public static class Vehicle_GetActorInfoFromVisLevel {
         public static void Postfix(Vehicle __instance, ref Text __result, VisibilityLevel visLevel) {
-            if (__instance == null || State.EWState.Count == 0) { return; };
+            if (__instance == null) { return; };
 
             /*
                 Vehicle.UnitName = VehicleDef.Chassis.Description.Name -> 
