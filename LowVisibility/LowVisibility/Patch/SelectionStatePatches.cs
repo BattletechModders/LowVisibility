@@ -11,7 +11,7 @@ namespace LowVisibility.Patch {
     public static class SelectionStateFire_ProcessClickedCombatant {
 
         public static bool Prefix(SelectionStateFire __instance, ref bool __result, ICombatant combatant) {
-            Mod.Log.Info("SSF:PCC:PRE entered");
+            Mod.Log.Trace("SSF:PCC:PRE entered");
 
             if (__instance != null && combatant != null && combatant is AbstractActor targetActor && __instance.SelectedActor != null) {
 
