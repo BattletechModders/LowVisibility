@@ -652,3 +652,109 @@ This bonus only applies ranged attacks. This bonus does not stack with other vis
 
 * Units that are a blip cannot be the target of a called shot
 * Units that you have no sensor info on cannot be the target of a called shot
+
+# Notes for Mod Authors
+
+HBS has provided an extremely powerful platform that allows you to build complex effects from building blocks like _LowVisibility_ provides. Because this can be overwhelming, here's a few suggestions and reminders that may help when you are designing your mod.
+
+## Spotting and Sensor Ranges
+
+_LowVisibility_ doesn't interfere with the native HBS spotting and sensor range mechanics. If you want equipment to improve the spotting or sensor range, or make a target easier to detect, it's a simple as a modifying already present statistics. For any Mech, Vehicle, or Turret you can set::
+
+* `SpotterDistanceMultiplier` - to multiple any spotting modifiers 
+* `SpotterDistanceAbsolute`
+* `SpottingVisibilityMultiplier`
+* `SpottingVisibilityAbsolute`
+* `SensorDistanceMultiplier`
+* `SensorDistanceAbsolute`
+* `SensorSignatureModifier`
+
+### Sensor Lock Effect
+
+From LA:
+
+```json
+ "SensorLockSingleStepEffect": {
+      "durationData": {
+        "duration": 3,
+        "ticksOnEndOfRound": true,
+        "stackLimit": 1
+      },
+      "targetingData": {
+        "effectTargetType": "SingleTarget",
+        "forceVisRebuild": true
+      },
+      "effectType": "StatisticEffect",
+      "Description": {
+        "Id": "AbilityDefT8A",
+        "Name": "SENSOR LOCK",
+        "Details": "SENSOR LOCK",
+        "Icon": "uixSvgIcon_action_sensorlock"
+      },
+      "statisticData": {
+        "statName": "SensorSignatureModifier",
+        "operation": "Float_Add",
+        "modValue": "2.0",
+        "modType": "System.Single"
+      },
+      "nature": "Debuff"
+    },
+    "NumSensorLockImpairedEffects": 1,
+    "SensorsImpairedEffect": {
+      "durationData": {
+        "duration": 3,
+        "ticksOnActivations": true,
+        "useActivationsOfTarget": true,
+        "stackLimit": 1
+      },
+      "targetingData": {
+        "effectTargetType": "SingleTarget",
+        "showInTargetPreview": false,
+        "showInStatusPanel": false,
+        "forceVisRebuild": true
+      },
+      "effectType": "StatisticEffect",
+      "Description": {
+        "Id": "AbilityDefT8A2",
+        "Name": "SENSOR LOCK",
+        "Details": "SENSOR LOCK",
+        "Icon": "uixSvgIcon_status_sensorsImpaired"
+      },
+      "nature": "Debuff",
+      "statisticData": {
+        "statName": "SpottingVisibilityMultiplier",
+        "operation": "Float_Add",
+        "modValue": "2.0",
+        "modType": "System.Single"
+      }
+    },
+    "SensorLockAntiStealthEffect": {
+      "durationData": {
+        "duration": 1,
+        "ticksOnEndOfRound": true,
+        "stackLimit": 1
+      },
+      "targetingData": {
+        "effectTargetType": "SingleTarget",
+        "forceVisRebuild": true,
+        "showInTargetPreview": false,
+        "showInStatusPanel": false
+      },
+      "effectType": "StatisticEffect",
+      "Description": {
+        "Id": "SensorLockAntiStealthEffect",
+        "Name": "SENSOR LOCK: STEALTH SUPPRESSED",
+        "Details": "Sensor Lock suppresses Stealth on this unit for 1 Round.",
+        "Icon": "uixSvgIcon_status_sensorsImpaired"
+      },
+      "nature": "Debuff",
+      "statisticData": {
+        "statName": "LV_PROBE_PING",
+        "operation": "Int_Add",
+        "modValue": "6",
+        "modType": "System.Int32"
+      }
+    },
+```
+
+###
