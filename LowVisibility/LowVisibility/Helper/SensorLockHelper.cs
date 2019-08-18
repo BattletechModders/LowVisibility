@@ -210,7 +210,7 @@ namespace LowVisibility.Helper {
 
                  */
             } else {
-                Mod.Log.Info($"SensorLockHelper - fallthrough case we don't know how to handle. Returning NoLock!");
+                Mod.Log.Info($"SensorLockHelper - fallthrough case for target: {CombatantUtils.Label(target)}. Returning NoLock!");
                 return SensorScanType.NoInfo;
             }
         }

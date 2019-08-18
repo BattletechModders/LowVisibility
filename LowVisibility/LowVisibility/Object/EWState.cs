@@ -1,5 +1,6 @@
 ﻿using BattleTech;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using us.frostraptor.modUtils;
 
@@ -88,7 +89,7 @@ namespace LowVisibility.Object {
         private NarcEffect narcEffect = null;
         private TagEffect tagEffect = null;
 
-        private int tacticsMod = 0;
+        private int TacticsMod = 0;
 
         // Necessary for serialization
         public EWState() {}
@@ -99,10 +100,10 @@ namespace LowVisibility.Object {
 
             // Pilot effects; cache and only read once
             if (actor.StatCollection.ContainsStatistic(ModStats.TacticsMod)) {
-                tacticsMod = actor.StatCollection.GetStatistic(ModStats.TacticsMod).Value<int>();
-                if (tacticsMod == 0 && actor.GetPilot() != null) {
-                    tacticsMod = SkillUtils.GetTacticsModifier(actor.GetPilot());
-                    actor.StatCollection.Set<int>(ModStats.TacticsMod, tacticsMod);
+                TacticsMod = actor.StatCollection.GetStatistic(ModStats.TacticsMod).Value<int>();
+                if (TacticsMod == 0 && actor.GetPilot() != null) {
+                    TacticsMod = SkillUtils.GetTacticsModifier(actor.GetPilot());
+                    actor.StatCollection.Set<int>(ModStats.TacticsMod, TacticsMod);
                 }
             }
 
@@ -122,18 +123,27 @@ namespace LowVisibility.Object {
                 actor.StatCollection.GetStatistic(ecmJammedValuesStat).Value<string>() != "") {
                 string valuesStat = actor.StatCollection.GetStatistic(ecmJammedValuesStat).Value<string>();
                 string[] values = valuesStat.Split(',');
-                int count = 0;
+
+                int highCount = 0;
                 int highest = 0;
+                int lowCount = 0;
+                int lowest = 0;
                 foreach (string value in values) {
                     // value format should be like LV_ECM_SHIELD:Cicada_Kraken_42004E3F:Weapon_PPC_PPC_0-STOCK:4
                     string[] tokens = value.Split(':');
                     string valS = tokens[3];
                     int val = Int32.Parse(valS);
-                    if (val > highest) { highest = val;  }
-                    count++;
+                    if (val < 0) {
+                        if (val < lowest) { lowest = val; }
+                        lowCount++;
+                    } else {
+                        if (val > highest) { highest = val; }
+                        highCount++;
+                    }
                 }
                 //Mod.Log.Debug($"Setting ECM_JAMMED to highest:{highest} + count:{count} - 1");
-                jammedByECMMod = highest + (count - 1);
+                jammedByECMMod = (highest + (highCount - 1)) + (lowest - (lowCount - 1));
+                if (jammedByECMMod < 0) { jammedByECMMod = 0; }
             }
 
             shieldedByECMMod = actor.StatCollection.ContainsStatistic(ModStats.ShieldedByECM) ?
@@ -143,18 +153,29 @@ namespace LowVisibility.Object {
                 string valuesStat = actor.StatCollection.GetStatistic(ecmShieldValuesStat).Value<string>();
                 //Mod.Log.Debug($"Multiple values found for ECM_SHIELD: ({valuesStat})");
                 string[] values = valuesStat.Split(',');
-                int count = 0;
+
+                int highCount = 0;
                 int highest = 0;
+                int lowCount = 0;
+                int lowest = 0;
                 foreach (string value in values) {
                     // value format should be like LV_ECM_SHIELD:Cicada_Kraken_42004E3F:Weapon_PPC_PPC_0-STOCK:4
                     string[] tokens = value.Split(':');
                     string valS = tokens[3];
                     int val = Int32.Parse(valS);
-                    if (val > highest) { highest = val; }
-                    count++;
+                    if (val < 0) {
+                        if (val < lowest) { lowest = val; }
+                        lowCount++;
+                    } else {
+                        if (val > highest) { highest = val; }
+                        highCount++;
+                    }
+
+                    highCount++;
                 }
                 //Mod.Log.Debug($"Setting ECM_SHIELD to highest:{highest} + count:{count} - 1");
-                shieldedByECMMod = highest + (count - 1);
+                shieldedByECMMod = (highest + (highCount - 1)) + (lowest - (lowCount - 1));
+                if (shieldedByECMMod < 0) { shieldedByECMMod = 0; }
             }
 
             // Sensors
@@ -296,7 +317,7 @@ namespace LowVisibility.Object {
 
         }
 
-        public int GetCurrentEWCheck() { return ewCheck + tacticsMod; }
+        public int GetCurrentEWCheck() { return ewCheck + TacticsMod; }
 
         // ECM
         public int ECMJammedMod() { return jammedByECMMod;  }
@@ -349,7 +370,7 @@ namespace LowVisibility.Object {
 
         // Sensors
         public int AdvancedSensorsMod() { return advSensorsCarrierMod; }
-        public float GetSensorsRangeMulti() { return ewCheck / 20.0f + tacticsMod / 10.0f; }
+        public float GetSensorsRangeMulti() { return ewCheck / 20.0f + TacticsMod / 10.0f; }
         public float GetSensorsBaseRange() {
             if (actor.GetType() == typeof(Mech)) {
                 return Mod.Config.SensorRangeMechType * 30.0f;
@@ -538,8 +559,32 @@ namespace LowVisibility.Object {
         // Misc
         public override string ToString() { return $"sensorsCheck:{ewCheck}"; }
 
+        public void BuildCheckTooltip(List<string> details) {
+            
+            details.Add("Details Check:");
+
+            List<string> toBuild = new List<string>();
+            if (ewCheck >= 0) {
+                toBuild.Add($"<color=#00FF00>{ewCheck:+0}</color>");
+            } else {
+                toBuild.Add($"<color=#FF0000>{ewCheck:0}</color>");
+            }
+
+            toBuild.Add($" + (Tactics: <color=#00FF00>{TacticsMod:+0}</color>)");
+
+            if (AdvancedSensorsMod() != 0) {
+                if (AdvancedSensorsMod() > 0) {
+                    toBuild.Add($" + (Sensors: <color=#00FF00>{AdvancedSensorsMod():+0}</color>)");
+                } else {
+                    toBuild.Add($" + (Sensors: <color=#FF0000>{AdvancedSensorsMod():0}</color>)");
+                }
+            }
+
+            details.Add(String.Join("", toBuild.ToArray()));
+        }
+
         public string Details() {
-            return $"tacticsBonus:{tacticsMod}" +
+            return $"tacticsBonus:{TacticsMod}" +
                 //$"ecmShieldSigMod:{GetECMShieldSignatureModifier()} ecmShieldDetailsMod:{GetECMShieldDetailsModifier()} " +
                 $"ecmJammedDetailsMod:{ECMJammedMod()} " +
                 $"probeCarrier:{ProbeCarrierMod()} probeSweepTarget:{PingedByProbeMod()}";

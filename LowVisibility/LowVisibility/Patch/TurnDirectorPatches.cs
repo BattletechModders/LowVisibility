@@ -117,7 +117,7 @@ namespace LowVisibility.Patch {
             ActorSelectedMessage actorSelectedMessage = message as ActorSelectedMessage;
             AbstractActor actor = Combat.FindActorByGUID(actorSelectedMessage.affectedObjectGuid);
             if (actor.team.IsLocalPlayer) {
-                Mod.Log.Info($"Updating last activated actor to: ({actor})");
+                Mod.Log.Info($"Updating last activated actor to: ({CombatantUtils.Label(actor)})");
                 State.LastPlayerActorActivated = actor;
             }
         }

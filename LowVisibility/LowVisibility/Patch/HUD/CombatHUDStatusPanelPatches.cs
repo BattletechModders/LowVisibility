@@ -164,18 +164,10 @@ namespace LowVisibility.Patch {
             float sensorsRange = SensorLockHelper.GetSensorsRange(actor);            
             details.Add($"Visual Lock:{visualLockRange:0}m Scan:{visualScanRange}m [{State.MapConfig.UILabel()}]\n");
 
-            List<string> sensorDetails = new List<string>();
-            sensorDetails.Add(" Sensor Check:");
-            
+            // Sensor details
+            ewState.BuildCheckTooltip(details);
+
             // TODO: FIX ME!
-
-            //if (ewState.CurrentRoundEWCheck >= 0) {
-            //    sensorDetails.Add($"<color=#00FF00>{ewState.CurrentRoundEWCheck:+0}</color>");                                        
-            //} else {
-            //    sensorDetails.Add($"<color=#FF0000>{ewState.CurrentRoundEWCheck:0}</color>");
-            //}
-
-            //sensorDetails.Add($" (Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>)");
 
             //if (ewState.probeMod > 0) {
             //    sensorDetails.Add($" (Probe:<color=#00FF00>{ewState.probeMod:0}</color>)");
@@ -189,19 +181,7 @@ namespace LowVisibility.Patch {
             //    sensorDetails.Add($" = <color=#FF0000>x{rangeMulti:0.00}</color>");
             //}
 
-            //sensorDetails.Add("\n");
-
-            //// Sensor Info below
-            //int checkResult = ewState.CurrentRoundEWCheck;
-
-            //sensorDetails.Add($" Info Roll:");            
-            //if (ewState.CurrentRoundEWCheck >= 0) {
-            //    sensorDetails.Add($"<color=#00FF00>{ewState.CurrentRoundEWCheck:0}</color>");
-            //} else {
-            //    sensorDetails.Add($"<color=#FF0000>{ewState.CurrentRoundEWCheck:0}</color>");
-            //}
-            //checkResult += ewState.tacticsBonus;
-            //sensorDetails.Add($" + Tactics: <color=#00FF00>{ewState.tacticsBonus:0}</color>");                        
+            //sensorDetails.Add("\n");                 
 
             //if (ewState.probeMod > 0) {
             //    checkResult += ewState.probeMod;

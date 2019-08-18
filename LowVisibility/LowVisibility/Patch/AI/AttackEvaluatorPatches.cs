@@ -2,6 +2,7 @@
 using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
+using UnityEngine;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
@@ -24,9 +25,11 @@ namespace LowVisibility.Patch {
                     return;
                 }
 
+                float distance = Vector3.Distance(attackingUnit.CurrentPosition, targetActor.CurrentPosition);
+                bool hasVisualScan = VisualLockHelper.GetVisualScanRange(attackingUnit) >= distance;
                 SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, attackingUnit);
-                if (sensorScan < SensorScanType.SurfaceScan) {
-                    Mod.Log.Info($"Target {CombatantUtils.Label(targetActor)} sensor info {sensorScan} is less than SurfaceScan, cannot be targeted by AI called shot");
+                if (sensorScan < SensorScanType.SurfaceScan && !hasVisualScan) {
+                    Mod.Log.Info($"Target {CombatantUtils.Label(targetActor)} sensor info {sensorScan} is less than SurfaceScan and outside visualID, cannot be targeted by AI called shot");
                     __result = null;
                     return;
                 }

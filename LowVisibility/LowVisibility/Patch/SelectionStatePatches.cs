@@ -3,6 +3,7 @@ using BattleTech.UI;
 using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
+using UnityEngine;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
@@ -34,9 +35,11 @@ namespace LowVisibility.Patch {
                         return false;
                     }
 
+                    float distance = Vector3.Distance(__instance.SelectedActor.CurrentPosition, targetActor.CurrentPosition);
+                    bool hasVisualScan = VisualLockHelper.GetVisualScanRange(__instance.SelectedActor) >= distance;
                     SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, __instance.SelectedActor);
-                    if (sensorScan < SensorScanType.SurfaceScan) {
-                        Mod.Log.Info($"Target {CombatantUtils.Label(targetActor)} sensor info {sensorScan} is less than SurfaceScan, cannot be targeted by called shot");
+                    if (sensorScan < SensorScanType.SurfaceScan && !hasVisualScan) {
+                        Mod.Log.Info($"Target {CombatantUtils.Label(targetActor)} sensor info {sensorScan} is less than SurfaceScan and range:{distance} outside visualScan range, cannot be targeted by called shot");
                         __result = false;
                         return false;
                     }
