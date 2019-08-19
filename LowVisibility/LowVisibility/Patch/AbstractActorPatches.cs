@@ -1,10 +1,12 @@
 ﻿using BattleTech;
+using FogOfWar;
 using Harmony;
 using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using us.frostraptor.modUtils;
 
@@ -48,6 +50,9 @@ namespace LowVisibility.Patch {
 
             // Tag
             __instance.StatCollection.AddStatistic<string>(ModStats.TagEffect, "");
+
+            // Vision sharing
+            __instance.StatCollection.AddStatistic<bool>(ModStats.SharesVision, false);
         }
     }
 
@@ -60,12 +65,47 @@ namespace LowVisibility.Patch {
                 return;
             }
 
+            // Draw stealth if applicable
             EWState actorState = new EWState(__instance);
             if (actorState.HasStealth()) {
                 Mod.Log.Debug($"-- Sending message to update stealth");
                 StealthChangedMessage message = new StealthChangedMessage(__instance.GUID);
                 __instance.Combat.MessageCenter.PublishMessage(message);
             }
+
+            // If friendly, reset the map visibility 
+            if (__instance.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.TeamId)) {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+                Mod.Log.Info($"{CombatantUtils.Label(__instance)} is friendly, REBUILDING FOG OF WAR");
+
+                Traverse viewersT = Traverse.Create(FogOfWarSystem.Instance).Field("viewers");
+                List<AbstractActor> viewers = viewersT.GetValue<List<AbstractActor>>();
+                viewers.Clear();
+
+                // Reset FoW to been unseen
+                FogOfWarSystem.Instance.WipeToValue(FogOfWarState.Unknown);
+
+                // Add the actor as a viewer
+                FogOfWarSystem.Instance.AddViewer(__instance);
+
+                // Check lancemates; if they have vision sharing add them as well
+                foreach (string lanceGuid in __instance.lance.unitGuids) {
+                    if (!lanceGuid.Equals(__instance.GUID)) {
+                        ICombatant lanceMateC = __instance.Combat.FindCombatantByGUID(lanceGuid);
+                        if (lanceMateC is AbstractActor lanceActor) {
+                            EWState lanceState = new EWState(lanceActor);
+                            if (lanceState.SharesVision()) {
+                                FogOfWarSystem.Instance.AddViewer(lanceActor);
+                            }
+                        }
+                    }
+                }
+
+                sw.Stop();
+                Mod.Log.Info($"FOG OF WAR REBUILD TOOK: {sw.ElapsedMilliseconds}ms");
+            }
+
 
             //Mod.Log.Debug($"-- OnActivationBegin: Effects targeting actor: {CombatantUtils.Label(__instance)}");
             //List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
@@ -221,7 +261,7 @@ namespace LowVisibility.Patch {
         public static void Postfix(AbstractActor __instance, EffectData effect, Ability fromAbility, string effectId, int stackItemUID, AbstractActor creator, bool skipLogging) {
             Mod.Log.Trace("AA:CreateEffect entered");
 
-            Mod.Log.Debug($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: {CombatantUtils.Label(creator)}");
+            Mod.Log.Trace($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: {CombatantUtils.Label(creator)}");
 
             if (effect.effectType == EffectType.StatisticEffect) {
                 if (ModStats.IsStealthStat(effect.statisticData.statName)) {
@@ -248,7 +288,7 @@ namespace LowVisibility.Patch {
         public static void Postfix(AbstractActor __instance, EffectData effect, Ability fromAbility, string sourceID, int stackItemUID, Team creator, bool skipLogging) {
             Mod.Log.Trace("AA:CreateEffect entered");
 
-            Mod.Log.Debug($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from team: {creator.GUID}");
+            Mod.Log.Trace($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from team: {creator.GUID}");
 
             if (effect.effectType == EffectType.StatisticEffect) {
                 if (ModStats.IsStealthStat(effect.statisticData.statName)) {

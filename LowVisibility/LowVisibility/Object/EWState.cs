@@ -89,7 +89,9 @@ namespace LowVisibility.Object {
         private NarcEffect narcEffect = null;
         private TagEffect tagEffect = null;
 
-        private int TacticsMod = 0;
+        private int tacticsMod = 0;
+
+        private bool sharesVision = false;
 
         // Necessary for serialization
         public EWState() {}
@@ -100,10 +102,10 @@ namespace LowVisibility.Object {
 
             // Pilot effects; cache and only read once
             if (actor.StatCollection.ContainsStatistic(ModStats.TacticsMod)) {
-                TacticsMod = actor.StatCollection.GetStatistic(ModStats.TacticsMod).Value<int>();
-                if (TacticsMod == 0 && actor.GetPilot() != null) {
-                    TacticsMod = SkillUtils.GetTacticsModifier(actor.GetPilot());
-                    actor.StatCollection.Set<int>(ModStats.TacticsMod, TacticsMod);
+                tacticsMod = actor.StatCollection.GetStatistic(ModStats.TacticsMod).Value<int>();
+                if (tacticsMod == 0 && actor.GetPilot() != null) {
+                    tacticsMod = SkillUtils.GetTacticsModifier(actor.GetPilot());
+                    actor.StatCollection.Set<int>(ModStats.TacticsMod, tacticsMod);
                 }
             }
 
@@ -315,9 +317,13 @@ namespace LowVisibility.Object {
                 }
             }
 
+            if (actor.StatCollection.ContainsStatistic(ModStats.SharesVision)) {
+                sharesVision = actor.StatCollection.GetValue<bool>(ModStats.SharesVision);
+            }
+
         }
 
-        public int GetCurrentEWCheck() { return ewCheck + TacticsMod; }
+        public int GetCurrentEWCheck() { return ewCheck + tacticsMod; }
 
         // ECM
         public int ECMJammedMod() { return jammedByECMMod;  }
@@ -326,12 +332,12 @@ namespace LowVisibility.Object {
             if (ecmCarrierMod > 0) {
                 // We are a carrier - apply as a positive signature change (easier to locate)
                 strength = ecmCarrierMod + attackerState.ProbeCarrierMod();
-                Mod.Log.Debug($"Target:({CombatantUtils.Label(actor)}) has ECMCarrier:{ecmCarrierMod} - ProbeMod:{attackerState.ProbeCarrierMod()} " +
+                Mod.Log.Trace($"Target:({CombatantUtils.Label(actor)}) has ECMCarrier:{ecmCarrierMod} - ProbeMod:{attackerState.ProbeCarrierMod()} " +
     $"from source:{CombatantUtils.Label(attackerState.actor)}");
             } else if (shieldedByECMMod > 0) {
                 // We are shielded - apply as a negative signature change (harder to locate)
                 strength = ecmCarrierMod - attackerState.ProbeCarrierMod();
-                Mod.Log.Debug($"Target:({CombatantUtils.Label(actor)}) has ECMShield:{shieldedByECMMod} - ProbeMod:{attackerState.ProbeCarrierMod()} " +
+                Mod.Log.Trace($"Target:({CombatantUtils.Label(actor)}) has ECMShield:{shieldedByECMMod} - ProbeMod:{attackerState.ProbeCarrierMod()} " +
     $"from source:{CombatantUtils.Label(attackerState.actor)}");
             } else { return 0f; }
 
@@ -341,7 +347,7 @@ namespace LowVisibility.Object {
             strength = Math.Max(0, strength);
 
             float sigMod = strength * 0.1f;
-            if (sigMod != 0) { Mod.Log.Debug($"Target:({CombatantUtils.Label(actor)}) has ECMSignatureMod:{sigMod}"); }
+            if (sigMod != 0) { Mod.Log.Trace($"Target:({CombatantUtils.Label(actor)}) has ECMSignatureMod:{sigMod}"); }
 
             return sigMod;
         }
@@ -370,7 +376,7 @@ namespace LowVisibility.Object {
 
         // Sensors
         public int AdvancedSensorsMod() { return advSensorsCarrierMod; }
-        public float GetSensorsRangeMulti() { return ewCheck / 20.0f + TacticsMod / 10.0f; }
+        public float GetSensorsRangeMulti() { return ewCheck / 20.0f + tacticsMod / 10.0f; }
         public float GetSensorsBaseRange() {
             if (actor.GetType() == typeof(Mech)) {
                 return Mod.Config.SensorRangeMechType * 30.0f;
@@ -475,13 +481,13 @@ namespace LowVisibility.Object {
             if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return 0; }
 
             int hexesBetween = (int)Math.Ceiling(distance / 30f);
-            Mod.Log.Debug($"  hexesBetween: {hexesBetween} = distance: {distance} / 30");
+            Mod.Log.Trace($"  hexesBetween: {hexesBetween} = distance: {distance} / 30");
 
             int pips = zoomVision.AttackMod;
             int numDecays = (int)Math.Floor(hexesBetween / (float)zoomVision.HexesUntilDecay);
-            Mod.Log.Debug($"  -- decays = {numDecays} from currentSteps: {hexesBetween} / decayPerStep: {zoomVision.HexesUntilDecay}");
+            Mod.Log.Trace($"  -- decays = {numDecays} from currentSteps: {hexesBetween} / decayPerStep: {zoomVision.HexesUntilDecay}");
             int currentMod = Math.Max(zoomVision.AttackMod - numDecays, zoomVision.AttackCap);
-            Mod.Log.Debug($"  -- current: {currentMod} = initial: {zoomVision.AttackMod} - decays: {numDecays}");
+            Mod.Log.Trace($"  -- current: {currentMod} = initial: {zoomVision.AttackMod} - decays: {numDecays}");
 
             return currentMod;
         }
@@ -556,6 +562,8 @@ namespace LowVisibility.Object {
             return val;
         }
 
+        public bool SharesVision() { return sharesVision; }
+
         // Misc
         public override string ToString() { return $"sensorsCheck:{ewCheck}"; }
 
@@ -570,7 +578,7 @@ namespace LowVisibility.Object {
                 toBuild.Add($"<color=#FF0000>{ewCheck:0}</color>");
             }
 
-            toBuild.Add($" + (Tactics: <color=#00FF00>{TacticsMod:+0}</color>)");
+            toBuild.Add($" + (Tactics: <color=#00FF00>{tacticsMod:+0}</color>)");
 
             if (AdvancedSensorsMod() != 0) {
                 if (AdvancedSensorsMod() > 0) {
@@ -584,7 +592,7 @@ namespace LowVisibility.Object {
         }
 
         public string Details() {
-            return $"tacticsBonus:{TacticsMod}" +
+            return $"tacticsBonus:{tacticsMod}" +
                 //$"ecmShieldSigMod:{GetECMShieldSignatureModifier()} ecmShieldDetailsMod:{GetECMShieldDetailsModifier()} " +
                 $"ecmJammedDetailsMod:{ECMJammedMod()} " +
                 $"probeCarrier:{ProbeCarrierMod()} probeSweepTarget:{PingedByProbeMod()}";

@@ -1,7 +1,6 @@
 ﻿using BattleTech;
 using Harmony;
 using LowVisibility.Helper;
-using LowVisibility.Object;
 using System;
 using System.Reflection;
 using us.frostraptor.modUtils;

@@ -13,7 +13,7 @@ namespace LowVisibility.Patch {
         [HarmonyPatch(typeof(CombatHUDActorInfo), "OnStealthChanged")]
         public static class CombatHUDActorInfo_OnStealthChanged {
             public static void Postfix(CombatHUDActorInfo __instance, MessageCenterMessage message, AbstractActor ___displayedActor) {
-                Mod.Log.Debug("CHUDAI:OSC entered");
+                Mod.Log.Trace("CHUDAI:OSC entered");
 
                 StealthChangedMessage stealthChangedMessage = message as StealthChangedMessage;
                 if (___displayedActor != null && stealthChangedMessage.affectedObjectGuid == ___displayedActor.GUID && __instance.StealthDisplay != null) {

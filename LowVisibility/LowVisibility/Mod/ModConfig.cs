@@ -31,7 +31,6 @@ namespace LowVisibility {
         public const string MimeticVFXEnabled = "LV_MIMETIC_VFX_ENABLED"; // bool
         public const string MimeticCurrentSteps = "LV_MIMETIC_CURRENT_STEPS"; // Int_32
 
-
         // Vision modes
         public const string HeatVision = "LV_HEAT_VISION"; // String
         public const string ZoomVision = "LV_ZOOM_VISION"; // String
@@ -40,6 +39,9 @@ namespace LowVisibility {
         // Narc
         public const string NarcEffect = "LV_NARC"; // String
         public const string TagEffect = "LV_TAG"; // String
+
+        // Vision sharing - impacts local team only
+        public const string SharesVision = "LV_SHARES_VISION"; // bool
         
         public static bool IsStealthStat(string statName) {
             return statName != null && statName != "" && 
