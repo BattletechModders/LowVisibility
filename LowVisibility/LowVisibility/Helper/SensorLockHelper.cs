@@ -275,6 +275,12 @@ namespace LowVisibility.Helper {
                     detailsLevel += targetState.TagDetailsMod(sourceState);
                 }
 
+                // Active Probe ping acts as sensors boost as well
+                if (targetState.PingedByProbeMod() != 0) {
+                    Mod.Log.Trace($" == target is pinged by probe, detailsLevel = {detailsLevel} + {targetState.PingedByProbeMod()}");
+                    detailsLevel += targetState.PingedByProbeMod();
+                }
+
             }
 
             sensorInfo = DetectionLevelForCheck(detailsLevel);

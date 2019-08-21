@@ -1,8 +1,13 @@
 ﻿using BattleTech;
+using BattleTech.Rendering;
+using BattleTech.Rendering.Mood;
 using Harmony;
 using LowVisibility.Helper;
+using LowVisibility.Object;
 using System;
 using System.Reflection;
+using UnityEngine;
+using UnityEngine.PostProcessing;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
@@ -82,13 +87,15 @@ namespace LowVisibility.Patch {
         public static void Postfix(TurnDirector __instance) {
             Mod.Log.Debug($"TD:OCGD entered");
             // Remove all combat state
-            State.ClearStateOnCombatGameDestroyed();
             CombatHUD_SubscribeToMessages.OnCombatGameDestroyed(__instance.Combat);
 
             // Unsubscribe from actor selected messages
             SelectedActorHelper.Combat = null;
             __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorSelectedMessage, 
                 new ReceiveMessageCenterMessage(SelectedActorHelper.OnActorSelectedMessage), false);
+
+            // Reset state
+            State.Reset();
         }
     }
 
@@ -118,7 +125,19 @@ namespace LowVisibility.Patch {
             if (actor.team.IsLocalPlayer) {
                 Mod.Log.Info($"Updating last activated actor to: ({CombatantUtils.Label(actor)})");
                 State.LastPlayerActorActivated = actor;
+
+                EWState actorState = new EWState(actor);
+                if (actorState.HasNightVision() && State.GetMapConfig().isDark) {
+                    Mod.Log.Info($"Enabling night vision mode.");
+                    VfxHelper.EnableNightVisionEffect(actor);
+                } else {
+                    if (State.IsNightVisionMode) {
+                        VfxHelper.DisableNightVisionEffect();
+                    }
+                }
+                
             }
         }
     }
+
 }

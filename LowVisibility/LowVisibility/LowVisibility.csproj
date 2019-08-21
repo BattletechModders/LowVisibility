@@ -95,6 +95,7 @@
     <Compile Include="Patch\MechComponentPatches.cs" />
     <Compile Include="Patch\AI\AttackEvaluatorPatches.cs" />
     <Compile Include="Patch\AI\MultiAttackPatches.cs" />
+    <Compile Include="Patch\NightVisionPatches.cs" />
     <Compile Include="Patch\PilotableActorRepresentationPatches.cs" />
     <Compile Include="Patch\SelectionStatePatches.cs" />
     <Compile Include="Patch\SerializationPatches.cs" />

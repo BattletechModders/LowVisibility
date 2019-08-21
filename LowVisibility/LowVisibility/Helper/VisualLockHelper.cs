@@ -9,15 +9,21 @@ namespace LowVisibility.Helper {
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         public static float GetSpotterRange(AbstractActor source) {
-            return GetVisualRange(State.GetMapVisionRange(), source);
+            // FIXME: Dirty hack here. Assuming that night vision mode only comes on during a unit's turn / selection, then goes away
+            float visRange = State.IsNightVisionMode ? State.GetMapConfig().nightVisionSpotterRange : State.GetMapConfig().spotterRange;
+            return GetVisualRange(visRange, source);
         }
 
         public static float GetVisualLockRange(AbstractActor source) {
-            return GetVisualRange(State.GetMapVisionRange(), source);
+            // FIXME: Dirty hack here. Assuming that night vision mode only comes on during a unit's turn / selection, then goes away
+            float visRange = State.IsNightVisionMode ? State.GetMapConfig().nightVisionSpotterRange : State.GetMapConfig().spotterRange;
+            return GetVisualRange(visRange, source);
         }
 
         public static float GetVisualScanRange(AbstractActor source) {
-            return GetVisualRange(State.GetVisualIDRange(), source);
+            // FIXME: Dirty hack here. Assuming that night vision mode only comes on during a unit's turn / selection, then goes away
+            float visRange = State.IsNightVisionMode ? State.GetMapConfig().nightVisionVisualIDRange : State.GetMapConfig().visualIDRange;
+            return GetVisualRange(visRange, source);
         }
 
         private static float GetVisualRange(float visionRange, AbstractActor source) {

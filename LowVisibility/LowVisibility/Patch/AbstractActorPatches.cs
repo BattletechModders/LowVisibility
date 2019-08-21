@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using BattleTech.Rendering.Mood;
 using FogOfWar;
 using Harmony;
 using Localize;
@@ -53,6 +54,9 @@ namespace LowVisibility.Patch {
 
             // Vision sharing
             __instance.StatCollection.AddStatistic<bool>(ModStats.SharesVision, false);
+
+            // Night vision
+            __instance.StatCollection.AddStatistic<bool>(ModStats.NightVision, false);
         }
     }
 
@@ -101,6 +105,17 @@ namespace LowVisibility.Patch {
                         }
                     }
                 }
+
+                //MoodController mc = State.GetMoodController();
+                //// Check for low-light vision
+                //if (actorState.SharesVision()) {
+                //    Mod.Log.Info($"{CombatantUtils.Label(__instance)} has low-light, setting night vision");
+                //    Color lightVision = Color.green;
+                //    lightVision.a = 0.9f;
+                //    Shader.SetGlobalColor(Shader.PropertyToID("_BT_SunlightColor"), lightVision);
+                //} else {
+                //    Shader.SetGlobalColor(Shader.PropertyToID("_BT_SunlightColor"), mc.currentMood.sunlight.sunColor);
+                //}
 
                 sw.Stop();
                 Mod.Log.Info($"FOG OF WAR REBUILD TOOK: {sw.ElapsedMilliseconds}ms");

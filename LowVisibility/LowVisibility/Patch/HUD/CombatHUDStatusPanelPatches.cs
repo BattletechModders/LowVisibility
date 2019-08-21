@@ -162,7 +162,7 @@ namespace LowVisibility.Patch {
             float visualLockRange = VisualLockHelper.GetVisualLockRange(actor);
             float visualScanRange = VisualLockHelper.GetVisualScanRange(actor);
             float sensorsRange = SensorLockHelper.GetSensorsRange(actor);            
-            details.Add($"Visual Lock:{visualLockRange:0}m Scan:{visualScanRange}m [{State.MapConfig.UILabel()}]\n");
+            details.Add($"Visual Lock:{visualLockRange:0}m Scan:{visualScanRange}m [{State.GetMapConfig().UILabel()}]\n");
 
             // Sensor details
             ewState.BuildCheckTooltip(details);

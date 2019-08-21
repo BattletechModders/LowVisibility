@@ -2,6 +2,7 @@
 using BattleTech.Assetbundles;
 using BattleTech.Data;
 using BattleTech.Rendering;
+using BattleTech.Rendering.Mood;
 using BattleTech.UI;
 using Harmony;
 using LowVisibility.Object;
@@ -9,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.PostProcessing;
 using UnityEngine.UI;
 using us.frostraptor.modUtils;
 using static UnityEngine.ParticleSystem;
@@ -264,6 +266,74 @@ namespace LowVisibility.Helper {
 
                 actor.StatCollection.RemoveStatistic(ModStats.MimeticVFXEnabled);
             }
+        }
+
+        public static void EnableNightVisionEffect(AbstractActor source) {
+            State.IsNightVisionMode = true;
+
+            MoodController mc = State.GetMoodController();
+
+            Traverse uppT = Traverse.Create(mc).Field("unityPostProcess");
+            PostProcessingBehaviour ppb = uppT.GetValue<PostProcessingBehaviour>();
+
+            // Enable grain and set the intensity
+            Traverse grainT = Traverse.Create(ppb).Field("m_Grain");
+            GrainComponent gc = grainT.GetValue<GrainComponent>();
+            GrainModel.Settings gms = gc.model.settings;
+            gms.intensity = 0.8f;
+            gms.size = 1.0f;
+            gc.model.settings = gms;
+
+            Traverse sunlightBTT = Traverse.Create(mc).Field("sunlightBT");
+            BTSunlight sunlightBT = sunlightBTT.GetValue<BTSunlight>();
+
+            // Disable shadows from sunlight
+            //BTSunlight.SunlightSettings sunlightS = sunlightBT.sunSettings;
+            //sunlightS.castShadows = false;
+            //sunlightBT.sunSettings = sunlightS;
+            Traverse sunlightT = Traverse.Create(sunlightBT).Field("sunLight");
+            Light sunlight = sunlightT.GetValue<Light>();
+            sunlight.shadows = LightShadows.None;
+
+            // Set the sunlight color
+            Color lightVision = Color.green;
+            lightVision.a = 0.8f;
+            Shader.SetGlobalColor(Shader.PropertyToID("_BT_SunlightColor"), lightVision);
+
+            // Disable opacity from the clouds
+            Shader.SetGlobalFloat(Shader.PropertyToID("_BT_CloudOpacity"), 0f);
+
+            // Make the sunlight point straight down
+            Shader.SetGlobalVector(Shader.PropertyToID("_BT_SunlightDirection"), sunlightBT.transform.up);
+        }
+
+        public static void DisableNightVisionEffect() {
+            State.IsNightVisionMode = false;
+
+            MoodController mc = State.GetMoodController();
+
+            // Grain will disable automatically
+
+            // Re-enable shadows
+            Traverse sunlightBTT = Traverse.Create(mc).Field("sunlightBT");
+            BTSunlight sunlightBT = sunlightBTT.GetValue<BTSunlight>();
+
+            // Re-enable shadows from sunlight
+            BTSunlight.SunlightSettings sunlightS = sunlightBT.sunSettings;
+            //sunlightS.castShadows = false;
+            //sunlightBT.sunSettings = sunlightS;
+            Traverse sunlightT = Traverse.Create(sunlightBT).Field("sunLight");
+            Light sunlight = sunlightT.GetValue<Light>();
+            sunlight.shadows = (sunlightS.castShadows) ? LightShadows.None : LightShadows.Soft;
+
+            // Reset the sunlight color
+            Shader.SetGlobalColor(Shader.PropertyToID("_BT_SunlightColor"), mc.currentMood.sunlight.sunColor);
+
+            // Re-enable opacity from the clouds
+            Shader.SetGlobalFloat(Shader.PropertyToID("_BT_CloudOpacity"), mc.currentMood.sunlight.cloudOpacity);
+
+            // Point sunlight forward
+            Shader.SetGlobalVector(Shader.PropertyToID("_BT_SunlightDirection"), sunlightBT.transform.forward);
         }
 
         public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, Vector3 previewPos) {

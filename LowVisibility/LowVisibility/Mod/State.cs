@@ -1,5 +1,6 @@
 ﻿
 using BattleTech;
+using BattleTech.Rendering.Mood;
 using LowVisibility.Helper;
 using System;
 using us.frostraptor.modUtils.Redzen;
@@ -8,44 +9,37 @@ using static LowVisibility.Helper.MapHelper;
 namespace LowVisibility {
     static class State {
 
-        // -- Const and statics
-        public const string ModSaveSubdir = "LowVisibility";
-        public const string ModSavesDir = "ModSaves";
-
-        // Map data
-        public static MapConfig MapConfig;
-
-        // TODO: Do I need this anymore?
-        //public static string LastPlayerActor;
+        private static MapConfig MapConfig;
+        private static MoodController MoodController;
         public static AbstractActor LastPlayerActorActivated;
-
         public static bool TurnDirectorStarted = false;
+        public static bool IsNightVisionMode = false;
+
+        // Gaussian probabilities
         public const int ResultsToPrecalcuate = 16384;
         public static double[] CheckResults = new double[ResultsToPrecalcuate];
         public static int CheckResultIdx = 0;
 
         // --- Methods Below ---
-        public static void ClearStateOnCombatGameDestroyed() {
-            State.TurnDirectorStarted = false;
-        }
-
-        public static float GetMapVisionRange() {
+        public static MapConfig GetMapConfig() {
             if (MapConfig == null) {
-                InitMapConfig();
+                MapConfig = MapHelper.ParseCurrentMap();
             }
-            return MapConfig == null ? 0.0f : MapConfig.visionRange;
-        }
-
-        public static float GetVisualIDRange() {
-            if (MapConfig == null) {
-                InitMapConfig();
-            }
-            return MapConfig == null ? 0.0f : MapConfig.scanRange;
+            return State.MapConfig;
         }
 
         public static void InitMapConfig() {
             MapConfig = MapHelper.ParseCurrentMap();
         }
+
+        public static MoodController GetMoodController() {
+            if (MoodController == null) {
+                // This is a VERY slow call, that can add 30-40ms just to execute. Cache it!
+                State.MoodController = UnityEngine.Object.FindObjectOfType<MoodController>();
+            }
+            return State.MoodController;
+        }
+
 
         // --- Methods manipulating CheckResults
         public static void InitializeCheckResults() {
@@ -74,6 +68,18 @@ namespace LowVisibility {
             }
 
             return (int)result;
+        }
+
+        public static void Reset() {
+            // Reinitialize state
+            MapConfig = null;
+            MoodController = null;
+            LastPlayerActorActivated = null;
+            TurnDirectorStarted = false;
+            IsNightVisionMode = false;
+
+            CheckResults = new double[ResultsToPrecalcuate];
+            CheckResultIdx = 0;
         }
 
     }

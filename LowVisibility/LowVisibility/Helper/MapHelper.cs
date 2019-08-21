@@ -8,8 +8,10 @@ namespace LowVisibility.Helper {
 
         public class MapConfig {
 
-            public float visionRange = 0.0f;
-            public float scanRange = 0.0f;
+            public float spotterRange = 0.0f;
+            public float visualIDRange = 0.0f;
+            public float nightVisionSpotterRange = 0.0f;
+            public float nightVisionVisualIDRange = 0.0f;
 
             public bool isDay;
             public bool isDim;
@@ -41,21 +43,18 @@ namespace LowVisibility.Helper {
         public static MapConfig ParseCurrentMap() {
             Mod.Log.Info("MH:PCM Parsing current map.");
 
-            // This is a VERY slow call, that can add 30-40ms just to execute. Cache it!
-            MoodController moodController = UnityEngine.Object.FindObjectOfType<MoodController>();
+            MoodController moodController = State.GetMoodController();
 
             MoodSettings moodSettings = moodController?.CurrentMood;
             TagSet moodTags = moodSettings?.moodTags;
             if (moodTags == null || moodTags.IsEmpty) {
                 return new MapConfig {
-                    visionRange = Mod.Config.VisionRangeBaseDaylight,
-                    scanRange = Mod.Config.VisualScanRange
+                    spotterRange = Mod.Config.VisionRangeBaseDaylight,
+                    visualIDRange = Mod.Config.VisualScanRange
                 };
             }
 
-
             Mod.Log.Debug($"  - Parsing current map for mod config");
-
             MapConfig mapConfig = new MapConfig();
             
             String allTags = String.Join(", ", moodTags.ToArray());
@@ -126,18 +125,33 @@ namespace LowVisibility.Helper {
                         break;
                 }
             }            
+
+            // Calculate normal vision range
             float visRange = (float)Math.Ceiling(baseVision * 30f * visionMulti);
             Mod.Log.Info($"  Calculating vision range as Math.Ceil(baseVision:{baseVision} * 30.0 * visionMulti:{visionMulti}) = visRange:{visRange}.");
             if (visRange < Mod.Config.MinimumVisionRange()) {
                 visRange = Mod.Config.MinimumVisionRange();
             }
             
-            float normalizedVisionRange = HexUtils.CountHexes(visRange, false) * 30f;
-            Mod.Log.Info($"MapHelper: Vision range for map will be ==> {normalizedVisionRange}m (normalized from {visRange}m)");
-            mapConfig.visionRange = normalizedVisionRange;
-            mapConfig.scanRange = Math.Min(normalizedVisionRange, Mod.Config.VisualScanRange * 30.0f);
+            float roundedVisRange = HexUtils.CountHexes(visRange, false) * 30f;
+            Mod.Log.Info($"MapHelper: Vision range for map will be ==> {roundedVisRange}m (normalized from {visRange}m)");
+            mapConfig.spotterRange = roundedVisRange;
+            mapConfig.visualIDRange = Math.Min(roundedVisRange, Mod.Config.VisualScanRange * 30.0f);
 
-            Mod.Log.Info($"Map vision range = visual:{normalizedVisionRange} / visualScan:{mapConfig.scanRange}");
+            Mod.Log.Info($"Map vision range = visual:{roundedVisRange} / visualScan:{mapConfig.visualIDRange}");
+
+            // Calculate night vision range
+            if (mapConfig.isDark) {
+                float nightVisRange = (float)Math.Ceiling(Mod.Config.VisionRangeBaseDaylight * 30f * visionMulti);
+                if (nightVisRange < Mod.Config.MinimumVisionRange()) {
+                    nightVisRange = Mod.Config.MinimumVisionRange();
+                }
+
+                float roundedNightVisRange = HexUtils.CountHexes(nightVisRange, false) * 30f;
+                Mod.Log.Info($"MapHelper: Night vision range for map will be ==> {roundedNightVisRange}m (normalized from {nightVisRange}m)");
+                mapConfig.nightVisionSpotterRange = roundedNightVisRange;
+                mapConfig.nightVisionVisualIDRange = Math.Min(roundedNightVisRange, Mod.Config.VisualScanRange * 30.0f);
+            }
 
             return mapConfig;
         }

@@ -84,7 +84,7 @@ namespace LowVisibility.Object {
 
         private ZoomVision zoomVision = null;
         private HeatVision heatVision = null;
-        // TODO: Night vision here
+        private bool nightVision = false;
 
         private NarcEffect narcEffect = null;
         private TagEffect tagEffect = null;
@@ -317,8 +317,14 @@ namespace LowVisibility.Object {
                 }
             }
 
+            // Vision Sharing
             if (actor.StatCollection.ContainsStatistic(ModStats.SharesVision)) {
                 sharesVision = actor.StatCollection.GetValue<bool>(ModStats.SharesVision);
+            }
+
+            // Night Vision
+            if (actor.StatCollection.ContainsStatistic(ModStats.NightVision)) {
+                nightVision = actor.StatCollection.GetValue<bool>(ModStats.NightVision);
             }
 
         }
@@ -563,6 +569,8 @@ namespace LowVisibility.Object {
         }
 
         public bool SharesVision() { return sharesVision; }
+
+        public bool HasNightVision() { return nightVision; }
 
         // Misc
         public override string ToString() { return $"sensorsCheck:{ewCheck}"; }
