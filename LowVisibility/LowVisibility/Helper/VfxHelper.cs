@@ -4,10 +4,12 @@ using BattleTech.Data;
 using BattleTech.Rendering;
 using BattleTech.Rendering.Mood;
 using BattleTech.UI;
+using FogOfWar;
 using Harmony;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.PostProcessing;
@@ -334,6 +336,38 @@ namespace LowVisibility.Helper {
 
             // Point sunlight forward
             Shader.SetGlobalVector(Shader.PropertyToID("_BT_SunlightDirection"), sunlightBT.transform.forward);
+        }
+
+        public static void RedrawFogOfWar(AbstractActor activeActor) {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
+            Traverse viewersT = Traverse.Create(FogOfWarSystem.Instance).Field("viewers");
+            List<AbstractActor> viewers = viewersT.GetValue<List<AbstractActor>>();
+            viewers.Clear();
+
+            // Reset FoW to been unseen
+            FogOfWarSystem.Instance.WipeToValue(Mod.Config.ShowTerrainThroughFogOfWar ? 
+                FogOfWarState.Surveyed : FogOfWarState.Unknown);
+
+            // Add the actor as a viewer
+            FogOfWarSystem.Instance.AddViewer(activeActor);
+
+            // Check lancemates; if they have vision sharing add them as well
+            foreach (string lanceGuid in activeActor.lance.unitGuids) {
+                if (!lanceGuid.Equals(activeActor.GUID)) {
+                    ICombatant lanceMateC = activeActor.Combat.FindCombatantByGUID(lanceGuid);
+                    if (lanceMateC is AbstractActor lanceActor) {
+                        EWState lanceState = new EWState(lanceActor);
+                        if (lanceState.SharesVision()) {
+                            FogOfWarSystem.Instance.AddViewer(lanceActor);
+                        }
+                    }
+                }
+            }
+
+            sw.Stop();
+            Mod.Log.Info($"FOG OF WAR REBUILD TOOK: {sw.ElapsedMilliseconds}ms");
         }
 
         public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, Vector3 previewPos) {

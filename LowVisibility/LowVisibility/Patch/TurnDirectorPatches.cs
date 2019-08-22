@@ -135,6 +135,9 @@ namespace LowVisibility.Patch {
                         VfxHelper.DisableNightVisionEffect();
                     }
                 }
+
+                // Refresh the unit's vision
+                VfxHelper.RedrawFogOfWar(actor);
                 
             }
         }

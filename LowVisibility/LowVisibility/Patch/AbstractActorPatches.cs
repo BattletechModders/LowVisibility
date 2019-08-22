@@ -78,47 +78,20 @@ namespace LowVisibility.Patch {
             }
 
             // If friendly, reset the map visibility 
-            if (__instance.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.TeamId)) {
-                Stopwatch sw = new Stopwatch();
-                sw.Start();
-                Mod.Log.Info($"{CombatantUtils.Label(__instance)} is friendly, REBUILDING FOG OF WAR");
+            if (__instance.TeamId != __instance.Combat.LocalPlayerTeamGuid && 
+                __instance.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.TeamId)) {
+                Mod.Log.Info($"{CombatantUtils.Label(__instance)} IS FRIENDLY, REBUILDING FOG OF WAR");
 
-                Traverse viewersT = Traverse.Create(FogOfWarSystem.Instance).Field("viewers");
-                List<AbstractActor> viewers = viewersT.GetValue<List<AbstractActor>>();
-                viewers.Clear();
-
-                // Reset FoW to been unseen
-                FogOfWarSystem.Instance.WipeToValue(FogOfWarState.Unknown);
-
-                // Add the actor as a viewer
-                FogOfWarSystem.Instance.AddViewer(__instance);
-
-                // Check lancemates; if they have vision sharing add them as well
-                foreach (string lanceGuid in __instance.lance.unitGuids) {
-                    if (!lanceGuid.Equals(__instance.GUID)) {
-                        ICombatant lanceMateC = __instance.Combat.FindCombatantByGUID(lanceGuid);
-                        if (lanceMateC is AbstractActor lanceActor) {
-                            EWState lanceState = new EWState(lanceActor);
-                            if (lanceState.SharesVision()) {
-                                FogOfWarSystem.Instance.AddViewer(lanceActor);
-                            }
-                        }
+                if (actorState.HasNightVision() && State.GetMapConfig().isDark) {
+                    Mod.Log.Info($"Enabling night vision mode.");
+                    VfxHelper.EnableNightVisionEffect(__instance);
+                } else {
+                    if (State.IsNightVisionMode) {
+                        VfxHelper.DisableNightVisionEffect();
                     }
                 }
 
-                //MoodController mc = State.GetMoodController();
-                //// Check for low-light vision
-                //if (actorState.SharesVision()) {
-                //    Mod.Log.Info($"{CombatantUtils.Label(__instance)} has low-light, setting night vision");
-                //    Color lightVision = Color.green;
-                //    lightVision.a = 0.9f;
-                //    Shader.SetGlobalColor(Shader.PropertyToID("_BT_SunlightColor"), lightVision);
-                //} else {
-                //    Shader.SetGlobalColor(Shader.PropertyToID("_BT_SunlightColor"), mc.currentMood.sunlight.sunColor);
-                //}
-
-                sw.Stop();
-                Mod.Log.Info($"FOG OF WAR REBUILD TOOK: {sw.ElapsedMilliseconds}ms");
+                VfxHelper.RedrawFogOfWar(__instance);
             }
 
 

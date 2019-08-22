@@ -92,6 +92,8 @@ namespace LowVisibility {
 
         public int MultipleECMSourceModifier = 1;
 
+        public bool ShowTerrainThroughFogOfWar = true;
+
         // The maximum attack bonus for heat vision
         public int HeatVisionMaxBonus = 5;
 
