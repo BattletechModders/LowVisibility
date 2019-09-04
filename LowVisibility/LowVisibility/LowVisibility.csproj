@@ -84,6 +84,7 @@
     <Compile Include="Patch\AI\AIUtilPatches.cs" />
     <Compile Include="Patch\ArmorAndStructPatches.cs" />
     <Compile Include="Patch\AbstractActorPatches.cs" />
+    <Compile Include="Patch\FogOfWarPatches.cs" />
     <Compile Include="Patch\HUD\CombatHUDActorInfoPatches.cs" />
     <Compile Include="Patch\HUD\CombatHUDActorNameDisplayPatches.cs" />
     <Compile Include="Patch\HUD\CombatHUDPatches.cs" />
