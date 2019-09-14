@@ -1,6 +1,5 @@
 ﻿using BattleTech;
 using BattleTech.Assetbundles;
-using BattleTech.Data;
 using BattleTech.Rendering;
 using BattleTech.Rendering.Mood;
 using BattleTech.UI;
@@ -15,7 +14,6 @@ using UnityEngine;
 using UnityEngine.PostProcessing;
 using UnityEngine.UI;
 using us.frostraptor.modUtils;
-using static UnityEngine.ParticleSystem;
 
 namespace LowVisibility.Helper {
     public static class VfxHelper {
