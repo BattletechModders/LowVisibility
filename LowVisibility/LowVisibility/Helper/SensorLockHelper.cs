@@ -166,8 +166,7 @@ namespace LowVisibility.Helper {
             if ((target as Building) != null) {
                 // If the target is a building, show them so long as they are in sensor distance
                 // TODO: ADD FRIENDLY ECM CHECK HERE?
-                
-                Building targetBuilding = target as Building;
+
                 // TODO: This should be calculated more fully! Major bug here!
                 SensorScanType buildingLock = sourceState.GetCurrentEWCheck() > 0 ? SensorScanType.SurfaceScan : SensorScanType.NoInfo;
                 Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} is a building with lockState:{buildingLock}");
@@ -210,7 +209,7 @@ namespace LowVisibility.Helper {
 
                  */
             } else {
-                Mod.Log.Info($"SensorLockHelper - fallthrough case for target: {CombatantUtils.Label(target)}. Returning NoLock!");
+                Mod.Log.Info($"SensorLockHelper - fallthrough case for target: {CombatantUtils.Label(target)} with type: {target.GetType()}. Returning NoLock!");
                 return SensorScanType.NoInfo;
             }
         }
