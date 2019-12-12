@@ -5,6 +5,7 @@ using BattleTech.Rendering.Mood;
 using BattleTech.UI;
 using FogOfWar;
 using Harmony;
+using HBS;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
@@ -337,19 +338,20 @@ namespace LowVisibility.Helper {
         }
 
         public static void RedrawFogOfWar(AbstractActor activeActor) {
-            Stopwatch sw = new Stopwatch();
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
 
-            Traverse viewersT = Traverse.Create(FogOfWarSystem.Instance).Field("viewers");
+            FogOfWarSystem fowSystem = LazySingletonBehavior<FogOfWarView>.Instance.FowSystem;
+            Traverse viewersT = Traverse.Create(fowSystem).Field("viewers");
             List<AbstractActor> viewers = viewersT.GetValue<List<AbstractActor>>();
             viewers.Clear();
 
             // Reset FoW to been unseen
-            FogOfWarSystem.Instance.WipeToValue(Mod.Config.ShowTerrainThroughFogOfWar ? 
+            fowSystem.WipeToValue(Mod.Config.ShowTerrainThroughFogOfWar ? 
                 FogOfWarState.Surveyed : FogOfWarState.Unknown);
 
             // Add the actor as a viewer
-            FogOfWarSystem.Instance.AddViewer(activeActor);
+            fowSystem.AddViewer(activeActor);
 
             // Check lancemates; if they have vision sharing add them as well
             foreach (string lanceGuid in activeActor.lance.unitGuids) {
@@ -358,7 +360,7 @@ namespace LowVisibility.Helper {
                     if (lanceMateC is AbstractActor lanceActor) {
                         EWState lanceState = new EWState(lanceActor);
                         if (lanceState.SharesVision()) {
-                            FogOfWarSystem.Instance.AddViewer(lanceActor);
+                            fowSystem.AddViewer(lanceActor);
                         }
                     }
                 }
