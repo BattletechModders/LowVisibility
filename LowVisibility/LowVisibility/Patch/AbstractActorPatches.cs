@@ -2,6 +2,7 @@
 using BattleTech.Rendering.Mood;
 using FogOfWar;
 using Harmony;
+using HBS;
 using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Object;
@@ -65,7 +66,7 @@ namespace LowVisibility.Patch {
 
         public static void Prefix(AbstractActor __instance, int stackItemID) {
             if (stackItemID == -1 || __instance == null || __instance.HasBegunActivation) {
-                // For some bloody reason DoneWithActor() invokes OnActivationBegin, EVEN THOUGH IT DO ES NOTHING. GAH!
+                // For some bloody reason DoneWithActor() invokes OnActivationBegin, EVEN THOUGH IT DOES NOTHING. GAH!
                 return;
             }
 
@@ -86,62 +87,28 @@ namespace LowVisibility.Patch {
                     Mod.Log.Info($"Enabling night vision mode.");
                     VfxHelper.EnableNightVisionEffect(__instance);
                 } else {
+                    // TODO: This is likely never triggered due to the patch below... remove?
                     if (State.IsNightVisionMode) {
                         VfxHelper.DisableNightVisionEffect();
                     }
                 }
-
+                
                 VfxHelper.RedrawFogOfWar(__instance);
             }
-
-
-            //Mod.Log.Debug($"-- OnActivationBegin: Effects targeting actor: {CombatantUtils.Label(__instance)}");
-            //List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
-            //foreach (Effect effect in list) {
-            //    Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
-            //}
-
-            //foreach (AbstractActor unit in __instance.team.units) {
-            //    if (unit.GUID != __instance.GUID) {
-            //        Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
-            //        List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
-            //        foreach (Effect effect in list2) {
-            //            Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
-            //        }
-            //    }
-            //}
-
-            //Mod.Log.Debug($" Updating effects to all actors from actor: {CombatantUtils.Label(__instance)}");
-
-            //Mod.Log.Debug($"=== AbstractActor:OnActivationBegin:pre - processing {CombatantUtils.Label(__instance)}");
-            //if (__instance.team == __instance.Combat.LocalPlayerTeam) {
-            //    State.LastPlayerActor = __instance.GUID;
-            //}
         }
     }
 
+    // Disable the night vision effect when activation is complete
     [HarmonyPatch(typeof(AbstractActor), "OnActivationEnd")]
     public static class AbstractActor_OnActivationEnd {
 
         public static void Prefix(AbstractActor __instance) {
-            
-            //Mod.Log.Debug($"-- OnActivationEnd: Effects targeting actor: {CombatantUtils.Label(__instance)}");
-            //List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
-            //foreach (Effect effect in list) {
-            //    Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
-            //}
+            Mod.Log.Trace("AA:OnAEnd - entered.");
 
-            //foreach (AbstractActor unit in __instance.team.units) {
-            //    if (unit.GUID != __instance.GUID) {
-            //        Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
-            //        List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
-            //        foreach (Effect effect in list2) {
-            //            Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
-            //        }
-            //    }
-            //}
+            if (__instance != null && State.IsNightVisionMode) {
+                VfxHelper.DisableNightVisionEffect();
+            }
 
-            //Mod.Log.Debug($" Updating effects to all actors from actor: {CombatantUtils.Label(__instance)}");
         }
     }
 
@@ -215,33 +182,6 @@ namespace LowVisibility.Patch {
             //    $"from pos:{worldPos} vs. target:{CombatantUtils.Label(target)}");
         }
     }
-
-    //[HarmonyPatch(typeof(AbstractActor), "HasECMAbilityInstalled", MethodType.Getter)]
-    //public static class AbstractActor_HasECMAbilityInstalled_Getter {
-    //    public static void Postfix(AbstractActor __instance, ref bool __result) {
-    //        Mod.Log.Trace("AA:HECMAI:GET entered");
-
-    //        List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance)
-    //            .FindAll((Effect x) => x.EffectData.effectType == EffectType.StatisticEffect && 
-    //            (x.EffectData.Description.Id == "ECMStealth_GhostEffect" || x.EffectData.statisticData.statName == ModStats.ECMCarrier));
-
-    //        Mod.Log.Debug($"  Found {list.Count} effects for actor: {CombatantUtils.Label(__instance)}");
-    //        __result = list.Count > 0;
-    //    }
-    //}
-
-    // ParentECM Carrier is the unit carrying the ECM... duh
-    //[HarmonyPatch(typeof(AbstractActor), "ParentECMCarrier", MethodType.Getter)]
-    //public static class AbstractActor_ParentECMCarrier_Getter {
-    //    public static void Postfix(AbstractActor __instance, ref bool __result) {
-    //        Mod.Log.Trace("AA:PECMC:GET entered");
-
-    //        List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance)
-    //            .FindAll((Effect x) => x.EffectData.effectType == EffectType.StatisticEffect &&
-    //            (x.EffectData.Description.Id == "ECMStealth_GhostEffect" || x.EffectData.statisticData.statName == ModStats.ECMCarrier));
-    //        __result = list.Count > 0;
-    //    }
-    //}
 
     [HarmonyPatch(typeof(AbstractActor), "CreateEffect")]
     [HarmonyPatch(new Type[] { typeof(EffectData), typeof(Ability), typeof(string), typeof(int), typeof(AbstractActor), typeof(bool) })]
@@ -331,31 +271,6 @@ namespace LowVisibility.Patch {
 
         }
     }
-
-
-    //[HarmonyPatch(typeof(AbstractActor), "OnNewRound")]
-    //public static class AbstractActor_OnNewRound {
-    //    public static void Postfix(AbstractActor __instance, int round) {
-    //        Mod.Log.Debug("AA:ONR entered");
-
-    //        List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
-    //        foreach (Effect effect in list) {
-    //            Mod.Log.Debug($" Actor: ({CombatantUtils.Label(__instance)}) has effect: ({effect.EffectData.Description.Id})");
-    //        }
-
-    //    }
-    //}
-
-
-    //[HarmonyPatch(typeof(AuraCache), "GetEffectID")]
-    //public static class AuraCache_GetEffectID {
-    //    public static void Postfix(AuraCache __instance, AbstractActor fromActor, string fromEffectOwnerId, EffectData fromEffect, AbstractActor target) {
-    //        Mod.Log.Debug("AC:GEID entered");
-
-    //        Mod.Log.Debug($"  fromActor: {CombatantUtils.Label(fromActor)} has effect: {fromEffect.Description.Id} to target: {CombatantUtils.Label(target)}");
-    //    }
-    //}
-
 
     [HarmonyPatch(typeof(AbstractActor), "OnAuraAdded")]
     public static class AbstractActor_OnAuraAdded {

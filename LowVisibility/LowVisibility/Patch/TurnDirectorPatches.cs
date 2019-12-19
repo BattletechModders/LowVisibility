@@ -82,9 +82,10 @@ namespace LowVisibility.Patch {
         }
     }
 
+    // This must be called as a prefix, as TurnDirector deallocates this.Combat in 1.8
     [HarmonyPatch(typeof(TurnDirector), "OnCombatGameDestroyed")]
     public static class TurnDirector_OnCombatGameDestroyed {
-        public static void Postfix(TurnDirector __instance) {
+        public static void Prefix(TurnDirector __instance) {
             Mod.Log.Debug($"TD:OCGD entered");
             // Remove all combat state
             CombatHUD_SubscribeToMessages.OnCombatGameDestroyed(__instance.Combat);

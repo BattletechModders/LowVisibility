@@ -346,7 +346,7 @@ namespace LowVisibility.Helper {
             List<AbstractActor> viewers = viewersT.GetValue<List<AbstractActor>>();
             viewers.Clear();
 
-            // Reset FoW to been unseen
+            // Reset FoW to being unseen
             fowSystem.WipeToValue(Mod.Config.ShowTerrainThroughFogOfWar ? 
                 FogOfWarState.Surveyed : FogOfWarState.Unknown);
 

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using us.frostraptor.modUtils;
+using us.frostraptor.modUtils.math;
 
 namespace LowVisibility.Object {
 
@@ -492,7 +493,7 @@ namespace LowVisibility.Object {
             int pips = zoomVision.AttackMod;
             int numDecays = (int)Math.Floor(hexesBetween / (float)zoomVision.HexesUntilDecay);
             Mod.Log.Trace($"  -- decays = {numDecays} from currentSteps: {hexesBetween} / decayPerStep: {zoomVision.HexesUntilDecay}");
-            int currentMod = Math.Max(zoomVision.AttackMod - numDecays, zoomVision.AttackCap);
+            int currentMod = HexUtils.DecayingModifier(zoomVision.AttackMod, zoomVision.AttackCap, zoomVision.HexesUntilDecay, distance);
             Mod.Log.Trace($"  -- current: {currentMod} = initial: {zoomVision.AttackMod} - decays: {numDecays}");
 
             return currentMod;
