@@ -5,9 +5,9 @@ This mod has been designed to work with [RogueTech](http://roguetech.org). In th
 
 __WARNING: THIS MOD LIKELY BREAKS SKIRMISH MULTIPLAYER.__ It has not been tested, but all due to the way it's been implemented my guess is that it won't work. You have been warned!
 
-*REQUIRES* [IRBTModUtils](https://github.com/IceRaptor/IRBTModUtils) to compile.
-
 CAE is highly recommended. Many effects assume they aren't active at the same time (stealth/ecm, vision modes, etc.) You can enforce yourself through convention, or through CAE.
+
+This mod requires [https://github.com/iceraptor/IRBTModUtils/]. Grab the latest release of __IRBTModUtils__ and extract it in your Mods/ directory alongside of this mod.
 
 ## Summary
 

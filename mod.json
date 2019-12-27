@@ -1,13 +1,13 @@
 {
     "Name": "LowVisibility",
     "Enabled": true,
-    "Version": "0.5.0",
+    "Version": "0.6.2",
     "Description": "LowVisibility",
     "Author": "IceRaptor",
     "Website": "https://github.com/IceRaptor/LowVisibility",
     "Contact": "",
     "DLL": "LowVisibility.dll",
-    "DependsOn" : [ "AurasHelper" ],
+    "DependsOn" : [ "AurasHelper", "IRBTModUtils" ],
     "Settings": {
         "Debug" : true,
         "Trace" : false,
@@ -34,8 +34,5 @@
         "HeatVisionMaxBonus" : 5,
         "ProbabilitySigma" : 3,
         "ProbabilityMu" : -1
-    },
-    "Manifest" : [
-        { "Type" : "WeaponDef", "Path" : "weapon", "ShouldMergeJSON" : true }
-    ]
+    }
 }
