@@ -64,7 +64,7 @@ namespace LowVisibility.Patch {
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
                 string chassisName = __instance.UnitName;
                 string variantName = __instance.VariantName;
-                string fullName = __instance.Nickname;
+                string fullName = __instance.Description.UIName;
                 float tonnage = __instance.MechDef.Chassis.Tonnage;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
