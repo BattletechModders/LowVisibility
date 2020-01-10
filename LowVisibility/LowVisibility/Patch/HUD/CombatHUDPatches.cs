@@ -103,7 +103,7 @@ namespace LowVisibility.Patch {
                             AddToolTipDetailMethod.GetValue(new object[] { "ZOOM VISION", zoomVisionMod });
                         }
                         if (heatVisionMod != 0) {
-                            AddToolTipDetailMethod.GetValue(new object[] { "HEAT VISION", zoomVisionMod });
+                            AddToolTipDetailMethod.GetValue(new object[] { "HEAT VISION", heatVisionMod });
                         }
                         if (mimeticMod != 0) {
                             AddToolTipDetailMethod.GetValue(new object[] { "MIMETIC ARMOR", mimeticMod });
