@@ -67,7 +67,7 @@ namespace LowVisibility.Patch {
                     // The actual method should handle allied and friendly units fine, so we can just change it for enemies
                     if (isEnemyOrNeutral && visibilityLevel > VisibilityLevel.Blip0Minimum && ___displayedActor != null) {
 
-                        SensorScanType scanType = SensorLockHelper.CalculateSharedLock(___displayedActor, State.LastPlayerActorActivated);
+                        SensorScanType scanType = SensorLockHelper.CalculateSharedLock(___displayedActor, ModState.LastPlayerActorActivated);
 
                         // Values that are always displayed
                         setGOActiveMethod.GetValue(__instance.NameDisplay, true);
@@ -111,7 +111,7 @@ namespace LowVisibility.Patch {
 
                             setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                             setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
-                        } else if (State.LastPlayerActorActivated.VisibilityToTargetUnit(___displayedActor) == VisibilityLevel.LOSFull) {
+                        } else if (ModState.LastPlayerActorActivated.VisibilityToTargetUnit(___displayedActor) == VisibilityLevel.LOSFull) {
                             // Hide unit summary
                             setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 

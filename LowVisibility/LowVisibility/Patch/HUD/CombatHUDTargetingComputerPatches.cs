@@ -130,16 +130,16 @@ namespace LowVisibility.Patch {
                 
                 if ((__instance.ActivelyShownCombatant as AbstractActor) != null) {
                     AbstractActor target = __instance.ActivelyShownCombatant as AbstractActor;
-                    float range = Vector3.Distance(State.LastPlayerActorActivated.CurrentPosition, target.CurrentPosition);
-                    bool hasVisualScan = VisualLockHelper.GetVisualScanRange(State.LastPlayerActorActivated) >= range;
-                    SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, State.LastPlayerActorActivated);
-                    Mod.Log.Debug($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(State.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} at range: {range} has scanType:{scanType} visualScan:{hasVisualScan}");
+                    float range = Vector3.Distance(ModState.LastPlayerActorActivated.CurrentPosition, target.CurrentPosition);
+                    bool hasVisualScan = VisualLockHelper.GetVisualScanRange(ModState.LastPlayerActorActivated) >= range;
+                    SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
+                    Mod.Log.Debug($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(ModState.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} at range: {range} has scanType:{scanType} visualScan:{hasVisualScan}");
 
                     if (scanType >= SensorScanType.WeaponAnalysis) {
                         __instance.WeaponList.SetActive(true);
                         SetArmorDisplayActive(__instance, true);
                     } else if (scanType == SensorScanType.SurfaceAnalysis ||
-                        State.LastPlayerActorActivated.VisibilityToTargetUnit(target) == VisibilityLevel.LOSFull && hasVisualScan) {
+                        ModState.LastPlayerActorActivated.VisibilityToTargetUnit(target) == VisibilityLevel.LOSFull && hasVisualScan) {
 
                         SetArmorDisplayActive(__instance, true);
 

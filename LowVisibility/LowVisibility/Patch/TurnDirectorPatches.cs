@@ -22,9 +22,9 @@ namespace LowVisibility.Patch {
             Mod.Log.Trace("TD:OEB:pre entered.");
 
             // Initialize the probabilities
-            State.InitializeCheckResults();
-            State.InitMapConfig();
-            State.TurnDirectorStarted = true;
+            ModState.InitializeCheckResults();
+            ModState.InitMapConfig();
+            ModState.TurnDirectorStarted = true;
 
             // Do a pre-encounter populate 
             if (__instance != null && __instance.Combat != null && __instance.Combat.AllActors != null) {
@@ -96,7 +96,7 @@ namespace LowVisibility.Patch {
                 new ReceiveMessageCenterMessage(SelectedActorHelper.OnActorSelectedMessage), false);
 
             // Reset state
-            State.Reset();
+            ModState.Reset();
         }
     }
 
@@ -125,14 +125,14 @@ namespace LowVisibility.Patch {
             AbstractActor actor = Combat.FindActorByGUID(actorSelectedMessage.affectedObjectGuid);
             if (actor.team.IsLocalPlayer) {
                 Mod.Log.Info($"Updating last activated actor to: ({CombatantUtils.Label(actor)})");
-                State.LastPlayerActorActivated = actor;
+                ModState.LastPlayerActorActivated = actor;
 
                 EWState actorState = new EWState(actor);
-                if (actorState.HasNightVision() && State.GetMapConfig().isDark) {
+                if (actorState.HasNightVision() && ModState.GetMapConfig().isDark) {
                     Mod.Log.Info($"Enabling night vision mode.");
                     VfxHelper.EnableNightVisionEffect(actor);
                 } else {
-                    if (State.IsNightVisionMode) {
+                    if (ModState.IsNightVisionMode) {
                         VfxHelper.DisableNightVisionEffect();
                     }
                 }

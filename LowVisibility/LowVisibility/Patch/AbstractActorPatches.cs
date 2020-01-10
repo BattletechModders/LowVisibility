@@ -83,12 +83,12 @@ namespace LowVisibility.Patch {
                 __instance.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.TeamId)) {
                 Mod.Log.Info($"{CombatantUtils.Label(__instance)} IS FRIENDLY, REBUILDING FOG OF WAR");
 
-                if (actorState.HasNightVision() && State.GetMapConfig().isDark) {
+                if (actorState.HasNightVision() && ModState.GetMapConfig().isDark) {
                     Mod.Log.Info($"Enabling night vision mode.");
                     VfxHelper.EnableNightVisionEffect(__instance);
                 } else {
                     // TODO: This is likely never triggered due to the patch below... remove?
-                    if (State.IsNightVisionMode) {
+                    if (ModState.IsNightVisionMode) {
                         VfxHelper.DisableNightVisionEffect();
                     }
                 }
@@ -105,7 +105,7 @@ namespace LowVisibility.Patch {
         public static void Prefix(AbstractActor __instance) {
             Mod.Log.Trace("AA:OnAEnd - entered.");
 
-            if (__instance != null && State.IsNightVisionMode) {
+            if (__instance != null && ModState.IsNightVisionMode) {
                 VfxHelper.DisableNightVisionEffect();
             }
 
@@ -147,7 +147,7 @@ namespace LowVisibility.Patch {
     public static class AbstractActor_UpdateLOSPositions {
         public static void Prefix(AbstractActor __instance) {
             // Check for teamID; if it's not present, unit hasn't spawned yet. Defer to UnitSpawnPointGameLogic::SpawnUnit for these updates
-            if (State.TurnDirectorStarted && __instance.TeamId != null) {
+            if (ModState.TurnDirectorStarted && __instance.TeamId != null) {
                 Mod.Log.Trace($"AbstractActor_UpdateLOSPositions:pre - entered for {CombatantUtils.Label(__instance)}.");
             }
         }

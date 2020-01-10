@@ -75,7 +75,7 @@ namespace LowVisibility.Patch {
                 __result = VisibilityLevel.LOSFull;
             } else {
                 VisibilityLevel sensorsVisibility = VisibilityLevel.None;
-                if (State.TurnDirectorStarted) {
+                if (ModState.TurnDirectorStarted) {
                     SensorScanType sensorLock = SensorLockHelper.CalculateSensorLock(sourceActor, sourcePosition, target, targetPosition);
                     sensorsVisibility = sensorLock.Visibility();
                 }

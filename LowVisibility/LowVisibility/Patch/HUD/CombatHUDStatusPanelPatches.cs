@@ -30,7 +30,7 @@ namespace LowVisibility.Patch {
                 if (target != null) {
                     if (target.Combat.HostilityMatrix.IsLocalPlayerEnemy(target.team)) {
 
-                        SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, State.LastPlayerActorActivated);
+                        SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
 
                         if (scanType < SensorScanType.Vector) {
                             //// Hide the evasive indicator, hide the buffs and debuffs
@@ -162,7 +162,7 @@ namespace LowVisibility.Patch {
             float visualLockRange = VisualLockHelper.GetVisualLockRange(actor);
             float visualScanRange = VisualLockHelper.GetVisualScanRange(actor);
             float sensorsRange = SensorLockHelper.GetSensorsRange(actor);            
-            details.Add($"Visual Lock:{visualLockRange:0}m Scan:{visualScanRange}m [{State.GetMapConfig().UILabel()}]\n");
+            details.Add($"Visual Lock:{visualLockRange:0}m Scan:{visualScanRange}m [{ModState.GetMapConfig().UILabel()}]\n");
 
             // Sensor details
             ewState.BuildCheckTooltip(details);

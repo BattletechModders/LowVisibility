@@ -54,7 +54,7 @@ namespace LowVisibility.Helper {
 
         public static void EnableECMCarrierVfx(AbstractActor actor, EffectData effectData) {
 
-            if (!State.TurnDirectorStarted) { return; }
+            if (!ModState.TurnDirectorStarted) { return; }
 
             if (!actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
                 Mod.Log.Debug(" ENABLING ECM LOOP");
@@ -91,7 +91,7 @@ namespace LowVisibility.Helper {
 
         public static void DisableECMCarrierVfx(AbstractActor actor) {
 
-            if (!State.TurnDirectorStarted) { return; }
+            if (!ModState.TurnDirectorStarted) { return; }
 
             if (actor.GameRep != null && actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
                 Mod.Log.Debug("DISABLING ECM CARRIER EFFECT");
@@ -107,7 +107,7 @@ namespace LowVisibility.Helper {
 
         public static void EnableStealthVfx(AbstractActor actor) {
 
-            if (!State.TurnDirectorStarted) { return; }
+            if (!ModState.TurnDirectorStarted) { return; }
 
             if (!actor.StatCollection.ContainsStatistic(ModStats.StealthVFXEnabled)) {
                 Mod.Log.Debug("ENABLING SENSOR STEALTH EFFECT");
@@ -166,7 +166,7 @@ namespace LowVisibility.Helper {
 
         public static void DisableSensorStealthEffect(AbstractActor actor) {
 
-            if (!State.TurnDirectorStarted) { return; }
+            if (!ModState.TurnDirectorStarted) { return; }
 
             if (actor.StatCollection.ContainsStatistic(ModStats.StealthVFXEnabled)) {
                 Mod.Log.Debug("DISABLING SENSOR STEALTH EFFECT");
@@ -179,7 +179,7 @@ namespace LowVisibility.Helper {
 
         public static void EnableMimeticEffect(AbstractActor actor) {
 
-            if (!State.TurnDirectorStarted) { return; }
+            if (!ModState.TurnDirectorStarted) { return; }
 
             if (!actor.StatCollection.ContainsStatistic(ModStats.MimeticVFXEnabled)) {
                 Mod.Log.Debug("ENABLING MIMETIC EFFECT");
@@ -251,7 +251,7 @@ namespace LowVisibility.Helper {
 
         public static void DisableMimeticEffect(AbstractActor actor) {
 
-            if (!State.TurnDirectorStarted) { return; }
+            if (!ModState.TurnDirectorStarted) { return; }
 
             if (actor.StatCollection.ContainsStatistic(ModStats.MimeticVFXEnabled)) {
 
@@ -270,9 +270,9 @@ namespace LowVisibility.Helper {
         }
 
         public static void EnableNightVisionEffect(AbstractActor source) {
-            State.IsNightVisionMode = true;
+            ModState.IsNightVisionMode = true;
 
-            MoodController mc = State.GetMoodController();
+            MoodController mc = ModState.GetMoodController();
 
             Traverse uppT = Traverse.Create(mc).Field("unityPostProcess");
             PostProcessingBehaviour ppb = uppT.GetValue<PostProcessingBehaviour>();
@@ -309,9 +309,9 @@ namespace LowVisibility.Helper {
         }
 
         public static void DisableNightVisionEffect() {
-            State.IsNightVisionMode = false;
+            ModState.IsNightVisionMode = false;
 
-            MoodController mc = State.GetMoodController();
+            MoodController mc = ModState.GetMoodController();
 
             // Grain will disable automatically
 

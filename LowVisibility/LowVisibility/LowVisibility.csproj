@@ -97,7 +97,7 @@
     <Compile Include="Helper\WeaponHelper.cs" />
     <Compile Include="Object\EWState.cs" />
     <Compile Include="Helper\MapHelper.cs" />
-    <Compile Include="Mod.cs" />
+    <Compile Include="ModInit.cs" />
     <Compile Include="Object\Visibility.cs" />
     <Compile Include="Patch\AI\AIUtilPatches.cs" />
     <Compile Include="Patch\ArmorAndStructPatches.cs" />
@@ -123,8 +123,8 @@
     <Compile Include="Patch\TurnDirectorPatches.cs" />
     <Compile Include="Patch\HUD\CombatHUDStatusPanelPatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Mod\State.cs" />
-    <Compile Include="Mod\ModConfig.cs" />
+    <Compile Include="ModState.cs" />
+    <Compile Include="ModConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

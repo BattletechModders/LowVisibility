@@ -43,7 +43,7 @@ namespace LowVisibility.Helper {
         public static MapConfig ParseCurrentMap() {
             Mod.Log.Info("MH:PCM Parsing current map.");
 
-            MoodController moodController = State.GetMoodController();
+            MoodController moodController = ModState.GetMoodController();
 
             MoodSettings moodSettings = moodController?.CurrentMood;
             TagSet moodTags = moodSettings?.moodTags;

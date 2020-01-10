@@ -10,19 +10,19 @@ namespace LowVisibility.Helper {
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         public static float GetSpotterRange(AbstractActor source) {
             // FIXME: Dirty hack here. Assuming that night vision mode only comes on during a unit's turn / selection, then goes away
-            float visRange = State.IsNightVisionMode ? State.GetMapConfig().nightVisionSpotterRange : State.GetMapConfig().spotterRange;
+            float visRange = ModState.IsNightVisionMode ? ModState.GetMapConfig().nightVisionSpotterRange : ModState.GetMapConfig().spotterRange;
             return GetVisualRange(visRange, source);
         }
 
         public static float GetVisualLockRange(AbstractActor source) {
             // FIXME: Dirty hack here. Assuming that night vision mode only comes on during a unit's turn / selection, then goes away
-            float visRange = State.IsNightVisionMode ? State.GetMapConfig().nightVisionSpotterRange : State.GetMapConfig().spotterRange;
+            float visRange = ModState.IsNightVisionMode ? ModState.GetMapConfig().nightVisionSpotterRange : ModState.GetMapConfig().spotterRange;
             return GetVisualRange(visRange, source);
         }
 
         public static float GetVisualScanRange(AbstractActor source) {
             // FIXME: Dirty hack here. Assuming that night vision mode only comes on during a unit's turn / selection, then goes away
-            float visRange = State.IsNightVisionMode ? State.GetMapConfig().nightVisionVisualIDRange : State.GetMapConfig().visualIDRange;
+            float visRange = ModState.IsNightVisionMode ? ModState.GetMapConfig().nightVisionVisualIDRange : ModState.GetMapConfig().visualIDRange;
             return GetVisualRange(visRange, source);
         }
 

@@ -16,7 +16,7 @@ namespace LowVisibility.Patch {
             if (___Readout != null && ___Readout.DisplayedMech != null && ___Readout.DisplayedMech.Combat != null && ___ToolTip != null) {
                 Mech target = ___Readout.DisplayedMech;
                 if (!target.Combat.HostilityMatrix.IsLocalPlayerFriendly(target.TeamId)) {
-                    SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, State.LastPlayerActorActivated);
+                    SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
                     if (scanType < SensorScanType.DeepScan) {
                         ___ToolTip.BuffStrings.Clear();
                     }
@@ -36,7 +36,7 @@ namespace LowVisibility.Patch {
                 Vehicle target = ___Readout.DisplayedVehicle;
                 if (!target.Combat.HostilityMatrix.IsLocalPlayerFriendly(target.TeamId)) {
 
-                    SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, State.LastPlayerActorActivated);
+                    SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
                     if (scanType < SensorScanType.DeepScan) {
                         ___ToolTip.BuffStrings.Clear();
                     }
@@ -51,10 +51,10 @@ namespace LowVisibility.Patch {
     public static class CombatHUDActorNameDisplay_RefreshInfo {
 
         public static void Postfix(CombatHUDActorNameDisplay __instance, VisibilityLevel visLevel, AbstractActor ___displayedActor) {
-            if (___displayedActor != null && State.LastPlayerActorActivated != null && State.TurnDirectorStarted
+            if (___displayedActor != null && ModState.LastPlayerActorActivated != null && ModState.TurnDirectorStarted
                 && !___displayedActor.Combat.HostilityMatrix.IsLocalPlayerFriendly(___displayedActor.TeamId)) {
 
-                SensorScanType scanType = SensorLockHelper.CalculateSharedLock(___displayedActor, State.LastPlayerActorActivated);
+                SensorScanType scanType = SensorLockHelper.CalculateSharedLock(___displayedActor, ModState.LastPlayerActorActivated);
 
                 if (scanType < SensorScanType.DentalRecords) {
                     __instance.PilotNameText.SetText("Unidentified Pilot");

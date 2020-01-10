@@ -7,7 +7,7 @@ namespace LowVisibility.Patch {
     [HarmonyBefore(new string[] { "ca.gnivler.CrystalClear" })]
     public static class PatchGrainComp {
         public static bool Prefix(ref bool __result) {
-            if (State.IsNightVisionMode) {
+            if (ModState.IsNightVisionMode) {
                 __result = true;
                 return false;
             }
@@ -19,7 +19,7 @@ namespace LowVisibility.Patch {
     [HarmonyBefore(new string[] { "ca.gnivler.CrystalClear" })]
     public static class PatchBloom {
         public static bool Prefix(ref bool __result) {
-            if (State.IsNightVisionMode) {
+            if (ModState.IsNightVisionMode) {
                 __result = true;
                 return false;
             }
@@ -31,7 +31,7 @@ namespace LowVisibility.Patch {
     [HarmonyBefore(new string[] { "ca.gnivler.CrystalClear" })]
     public static class PatchVignette {
         public static bool Prefix(ref bool __result) {
-            if (State.IsNightVisionMode) {
+            if (ModState.IsNightVisionMode) {
                 __result = true;
                 return false;
             }
@@ -43,7 +43,7 @@ namespace LowVisibility.Patch {
     [HarmonyBefore(new string[] { "ca.gnivler.CrystalClear" })]
     public static class ChromaticAberration {
         public static bool Prefix(ref bool __result) {
-            if (State.IsNightVisionMode) {
+            if (ModState.IsNightVisionMode) {
                 __result = true;
                 return false;
             }

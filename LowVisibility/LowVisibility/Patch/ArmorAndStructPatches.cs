@@ -11,8 +11,12 @@ namespace LowVisibility.Patches {
 
     public static class Helper {
         public static void HideArmorAndStructure(AbstractActor target, TextMeshProUGUI armorHover, TextMeshProUGUI structHover) {
+            if (target == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - target is null!");  }
+            if (armorHover == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - armorHover is null!"); }
+            if (structHover == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - structHover is null!"); }
 
-            SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, State.LastPlayerActorActivated);
+            SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
+            if (scanType == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - scanType is null!"); }
 
             string armorText = null;
             string structText = null;
@@ -21,7 +25,8 @@ namespace LowVisibility.Patches {
                 // See all values
                 armorText = armorHover.text;
                 structText = structHover.text;
-            } else if (scanType >= SensorScanType.SurfaceScan || State.LastPlayerActorActivated.VisibilityToTargetUnit(target) == VisibilityLevel.LOSFull) {
+            } else if (scanType >= SensorScanType.SurfaceScan || 
+                ModState.LastPlayerActorActivated != null && ModState.LastPlayerActorActivated.VisibilityToTargetUnit(target) == VisibilityLevel.LOSFull) {
                 // See max armor, max struct                
                 string rawArmor = armorHover.text;
                 string maxArmor = rawArmor.Split('/')[1];

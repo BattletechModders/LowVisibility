@@ -14,7 +14,7 @@ namespace LowVisibility.Patch {
         private static void Postfix(ToHit __instance, ref float __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
 
-            Mod.Log.Trace($"Getting modifiers for attacker:{CombatantUtils.Label(attacker)} " +
+            Mod.Log.Debug($"Getting modifiers for attacker:{CombatantUtils.Label(attacker)} " +
                 $"using weapon:{weapon.Name} vs target:{CombatantUtils.Label(target)} with initial result:{__result}");
 
             AbstractActor targetActor = target as AbstractActor;
@@ -28,6 +28,7 @@ namespace LowVisibility.Patch {
                 int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, weapon);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState);
                 bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
+                Mod.Log.Debug($"  zoomVisionMod: {zoomVisionMod}  heatVisionMod: {heatVisionMod}  mimeticMod: {mimeticMod}  canSpotTarget: {canSpotTarget}");
 
                 // Sensor modifiers
                 int ecmShieldMod = targetState.ECMAttackMod(attackerState);
@@ -35,6 +36,7 @@ namespace LowVisibility.Patch {
                 int narcMod = targetState.NarcAttackMod(attackerState);
                 int tagMod = targetState.TagAttackMod(attackerState);
                 SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, attacker);
+                Mod.Log.Debug($"  ecmShieldMod: {ecmShieldMod}  stealthMod: {stealthMod}  narcMod: {narcMod}  tagMod: {tagMod}  sensorScan: {sensorScan}");
 
                 if (sensorScan == SensorScanType.NoInfo && !canSpotTarget) {
                     __result = __result + (float)Mod.Config.BlindFirePenalty;
@@ -71,7 +73,7 @@ namespace LowVisibility.Patch {
                     }
                 }
 
-                Mod.Log.Trace($" -- Final result:{__result}");
+                Mod.Log.Debug($" -- Final result:{__result}");
 
             }
         }

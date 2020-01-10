@@ -14,7 +14,7 @@ namespace LowVisibility.Helper {
         public static int UpdateSensorCheck(AbstractActor actor) {
 
             EWState actorState = new EWState(actor);
-            int checkResult = State.GetCheckResult();
+            int checkResult = ModState.GetCheckResult();
             actor.StatCollection.Set<int>(ModStats.CurrentRoundEWCheck, checkResult);
 
             Mod.Log.Debug($"Actor:{CombatantUtils.Label(actor)} has raw EW Check: {checkResult}");
