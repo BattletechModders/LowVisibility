@@ -7,7 +7,7 @@ using us.frostraptor.modUtils.Redzen;
 using static LowVisibility.Helper.MapHelper;
 
 namespace LowVisibility {
-    static class State {
+    static class ModState {
 
         private static MapConfig MapConfig;
         private static MoodController MoodController;
@@ -25,7 +25,7 @@ namespace LowVisibility {
             if (MapConfig == null) {
                 MapConfig = MapHelper.ParseCurrentMap();
             }
-            return State.MapConfig;
+            return ModState.MapConfig;
         }
 
         public static void InitMapConfig() {
@@ -35,9 +35,9 @@ namespace LowVisibility {
         public static MoodController GetMoodController() {
             if (MoodController == null) {
                 // This is a VERY slow call, that can add 30-40ms just to execute. Cache it!
-                State.MoodController = UnityEngine.Object.FindObjectOfType<MoodController>();
+                ModState.MoodController = UnityEngine.Object.FindObjectOfType<MoodController>();
             }
-            return State.MoodController;
+            return ModState.MoodController;
         }
 
 
