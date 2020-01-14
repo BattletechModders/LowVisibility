@@ -26,8 +26,10 @@ namespace LowVisibility.Patch {
 
             // ECM
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMCarrier, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.ShieldedByECM, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.JammedByECM, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.ECMShield, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.ECMShieldEmitterCount, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.ECMJamming, 0);
+            __instance.StatCollection.AddStatistic<int>(ModStats.ECMJammingEmitterCount, 0);
 
             // Sensors
             __instance.StatCollection.AddStatistic<int>(ModStats.AdvancedSensors, 0);
@@ -186,7 +188,8 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(AbstractActor), "CreateEffect")]
     [HarmonyPatch(new Type[] { typeof(EffectData), typeof(Ability), typeof(string), typeof(int), typeof(AbstractActor), typeof(bool) })]
     public static class AbstractActor_CreateEffect_AbstractActor {
-        public static void Postfix(AbstractActor __instance, EffectData effect, Ability fromAbility, string effectId, int stackItemUID, AbstractActor creator, bool skipLogging) {
+        public static void Postfix(AbstractActor __instance, EffectData effect, Ability fromAbility, string effectId, 
+            int stackItemUID, AbstractActor creator, bool skipLogging) {
             Mod.Log.Trace("AA:CreateEffect entered");
 
             Mod.Log.Trace($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: {CombatantUtils.Label(creator)}");
@@ -198,7 +201,7 @@ namespace LowVisibility.Patch {
                     __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
                 }
 
-                if (ModStats.ShieldedByECM.Equals(effect.statisticData.statName) && creator.GUID == __instance.GUID) {
+                if (ModStats.ECMShield.Equals(effect.statisticData.statName) && creator.GUID == __instance.GUID) {
                     EWState sourceState = new EWState(__instance);
                     if (sourceState.IsECMCarrier()) {
                         Mod.Log.Debug("  - ECM carrier found, starting effect");
@@ -225,7 +228,7 @@ namespace LowVisibility.Patch {
                     __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
                 }
 
-                if (ModStats.ShieldedByECM.Equals(effect.statisticData.statName) && creator.GUID == __instance.GUID) {
+                if (ModStats.ECMShield.Equals(effect.statisticData.statName) && creator.GUID == __instance.GUID) {
                     EWState sourceState = new EWState(__instance);
                     if (sourceState.IsECMCarrier()) {
                         Mod.Log.Debug("  - ECM carrier found, starting effect");
@@ -237,14 +240,15 @@ namespace LowVisibility.Patch {
     }
 
     [HarmonyPatch(typeof(AbstractActor), "CancelEffect")]
-        public static class AbstractActor_CancelEffect {
-        public static void Postfix(AbstractActor __instance, EffectData effect) {
+    public static class AbstractActor_CancelEffect {
+        public static void Postfix(AbstractActor __instance, Effect effect) {
             Mod.Log.Trace("AA:CancelEffect entered");
 
-            Mod.Log.Debug($" Cancelling effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: ");
+            if (effect.EffectData.effectType == EffectType.StatisticEffect) {
+                Mod.Log.Debug($" Cancelling effectId: '{effect.EffectData.Description.Id}'  effectName: '{effect.EffectData.Description.Name}'  " +
+                    $"on actor: '{CombatantUtils.Label(__instance)}'  from creator: {effect.creatorID}");
 
-            if (effect.effectType == EffectType.StatisticEffect) {
-                if (effect.effectType == EffectType.StatisticEffect && ModStats.IsStealthStat(effect.statisticData.statName)) {
+                if (effect.EffectData.effectType == EffectType.StatisticEffect && ModStats.IsStealthStat(effect.EffectData.statisticData.statName)) {
                     Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
                     List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
                     __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
@@ -252,23 +256,22 @@ namespace LowVisibility.Patch {
                     // TODO: Set current stealth pips?
                 }
 
-                if (ModStats.ShieldedByECM.Equals(effect.statisticData.statName)) {
+                if (ModStats.ECMShield.Equals(effect.EffectData.statisticData.statName)) {
                     EWState sourceState = new EWState(__instance);
                     if (!sourceState.IsECMCarrier()) {
                         Mod.Log.Debug("  - ECM carrier NOT found, disabling effect");
                         VfxHelper.DisableECMCarrierVfx(__instance);
                     }
                 }
+
+                if (ModStats.IsStealthStat(effect.EffectData.statisticData.statName)) {
+                    Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
+                    List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
+                    __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
+
+                    // TODO: Set current stealth pips?
+                }
             }
-
-            if (effect.effectType == EffectType.StatisticEffect && ModStats.IsStealthStat(effect.statisticData.statName)) {
-                Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
-                List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
-                __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
-
-                // TODO: Set current stealth pips?
-            }
-
         }
     }
 
@@ -280,7 +283,7 @@ namespace LowVisibility.Patch {
             AuraAddedMessage auraAddedMessage = message as AuraAddedMessage;
             Mod.Log.Debug($" Adding aura: {auraAddedMessage.effectData.Description.Id} to target: {auraAddedMessage.targetID}");
             if (auraAddedMessage.targetID == __instance.GUID) {
-                if (auraAddedMessage.effectData.statisticData.statName == ModStats.ShieldedByECM) {
+                if (auraAddedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
                     if (__instance.Combat.TurnDirector.IsInterleaved) {
                         __instance.Combat.MessageCenter.PublishMessage(
                             new FloatieMessage(auraAddedMessage.creatorID, auraAddedMessage.targetID,
@@ -304,7 +307,7 @@ namespace LowVisibility.Patch {
             AbstractActor creator = __instance.Combat.FindActorByGUID(auraRemovedMessage.creatorID);
             Mod.Log.Debug($" Removing aura: {auraRemovedMessage.effectData.Description.Id} from target: {CombatantUtils.Label(__instance)} created by: {CombatantUtils.Label(creator)}");
             if (auraRemovedMessage.targetID == __instance.GUID) {
-                if (auraRemovedMessage.effectData.statisticData.statName == ModStats.ShieldedByECM) {
+                if (auraRemovedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
                     EWState actorState = new EWState(__instance);
                     if (actorState.IsECMCarrier()) {
                         VfxHelper.DisableECMCarrierVfx(__instance);
@@ -320,14 +323,15 @@ namespace LowVisibility.Patch {
         public static void Prefix(AbstractActor __instance) {
 
             EWState actorState = new EWState(__instance);
-            if (actorState.HasStealth()) {
-
-            }
-
             Mod.Log.Debug($" OnMoveComplete: Effects targeting actor: {CombatantUtils.Label(__instance)}");
             List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
             foreach (Effect effect in list) {
-                Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+                if (effect.EffectData.statisticData != null) {
+                    Mod.Log.Debug($"   -- EffectID: '{effect.EffectData.Description.Id}'  Name: '{effect.EffectData.Description.Name}'  " +
+                        $"StatName:'{effect.EffectData.statisticData.statName}'  StatValue:{effect.EffectData.statisticData.modValue}");
+                } else {
+                    Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}  Name: {effect.EffectData.Description.Name}");
+                }
             }
 
             foreach(AbstractActor unit in __instance.team.units) {
@@ -335,7 +339,12 @@ namespace LowVisibility.Patch {
                     Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
                     List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
                     foreach (Effect effect in list2) {
-                        Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}");
+                        if (effect.EffectData.statisticData != null) {
+                            Mod.Log.Debug($"   -- EffectID: '{effect.EffectData.Description.Id}'  Name: '{effect.EffectData.Description.Name}'  " +
+                                $"StatName:'{effect.EffectData.statisticData.statName}'  StatValue:{effect.EffectData.statisticData.modValue}");
+                        } else {
+                            Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}  Name: {effect.EffectData.Description.Name}");
+                        }
                     }
                 }
             }

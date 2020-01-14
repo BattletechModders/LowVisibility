@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using us.frostraptor.modUtils;
 using us.frostraptor.modUtils.math;
@@ -85,13 +86,13 @@ namespace LowVisibility.Object {
 
         private ZoomVision zoomVision = null;
         private HeatVision heatVision = null;
-        private bool nightVision = false;
 
         private NarcEffect narcEffect = null;
         private TagEffect tagEffect = null;
 
         private int tacticsMod = 0;
 
+        private bool nightVision = false;
         private bool sharesVision = false;
 
         // Necessary for serialization
@@ -119,67 +120,18 @@ namespace LowVisibility.Object {
                 actor.StatCollection.GetStatistic(ModStats.ECMCarrier).Value<int>() : 0;
 
             // Possible overlapping values
-            jammedByECMMod = actor.StatCollection.ContainsStatistic(ModStats.JammedByECM) ?
-                actor.StatCollection.GetStatistic(ModStats.JammedByECM).Value<int>() : 0;
-            string ecmJammedValuesStat = ModStats.JammedByECM + "_AH_VALUES";
-            if (actor.StatCollection.ContainsStatistic(ecmJammedValuesStat) && 
-                actor.StatCollection.GetStatistic(ecmJammedValuesStat).Value<string>() != "") {
-                string valuesStat = actor.StatCollection.GetStatistic(ecmJammedValuesStat).Value<string>();
-                string[] values = valuesStat.Split(',');
+            // TODO: Possibly reduce this average and add the count of ECM emitters
+            int jammingValue = actor.StatCollection.ContainsStatistic(ModStats.ECMJamming) ?
+                actor.StatCollection.GetStatistic(ModStats.ECMJamming).Value<int>() : 0;
+            int jammingEmitters = actor.StatCollection.ContainsStatistic(ModStats.ECMJammingEmitterCount) ?
+                actor.StatCollection.GetStatistic(ModStats.ECMJammingEmitterCount).Value<int>() : 0;
+            jammedByECMMod = jammingEmitters > 0 ? (int)Math.Ceiling((float)jammingValue / jammingEmitters) : 0;
 
-                int highCount = 0;
-                int highest = 0;
-                int lowCount = 0;
-                int lowest = 0;
-                foreach (string value in values) {
-                    // value format should be like LV_ECM_SHIELD:Cicada_Kraken_42004E3F:Weapon_PPC_PPC_0-STOCK:4
-                    string[] tokens = value.Split(':');
-                    string valS = tokens[3];
-                    int val = Int32.Parse(valS);
-                    if (val < 0) {
-                        if (val < lowest) { lowest = val; }
-                        lowCount++;
-                    } else {
-                        if (val > highest) { highest = val; }
-                        highCount++;
-                    }
-                }
-                //Mod.Log.Debug($"Setting ECM_JAMMED to highest:{highest} + count:{count} - 1");
-                jammedByECMMod = (highest + (highCount - 1)) + (lowest - (lowCount - 1));
-                if (jammedByECMMod < 0) { jammedByECMMod = 0; }
-            }
-
-            shieldedByECMMod = actor.StatCollection.ContainsStatistic(ModStats.ShieldedByECM) ?
-                actor.StatCollection.GetStatistic(ModStats.ShieldedByECM).Value<int>() : 0;
-            string ecmShieldValuesStat = ModStats.ShieldedByECM + "_AH_VALUES";
-            if (actor.StatCollection.ContainsStatistic(ecmShieldValuesStat)) {
-                string valuesStat = actor.StatCollection.GetStatistic(ecmShieldValuesStat).Value<string>();
-                //Mod.Log.Debug($"Multiple values found for ECM_SHIELD: ({valuesStat})");
-                string[] values = valuesStat.Split(',');
-
-                int highCount = 0;
-                int highest = 0;
-                int lowCount = 0;
-                int lowest = 0;
-                foreach (string value in values) {
-                    // value format should be like LV_ECM_SHIELD:Cicada_Kraken_42004E3F:Weapon_PPC_PPC_0-STOCK:4
-                    string[] tokens = value.Split(':');
-                    string valS = tokens[3];
-                    int val = Int32.Parse(valS);
-                    if (val < 0) {
-                        if (val < lowest) { lowest = val; }
-                        lowCount++;
-                    } else {
-                        if (val > highest) { highest = val; }
-                        highCount++;
-                    }
-
-                    highCount++;
-                }
-                //Mod.Log.Debug($"Setting ECM_SHIELD to highest:{highest} + count:{count} - 1");
-                shieldedByECMMod = (highest + (highCount - 1)) + (lowest - (lowCount - 1));
-                if (shieldedByECMMod < 0) { shieldedByECMMod = 0; }
-            }
+            int shieldValue = actor.StatCollection.ContainsStatistic(ModStats.ECMShield) ?
+                actor.StatCollection.GetStatistic(ModStats.ECMShield).Value<int>() : 0;
+            int shieldEmitters = actor.StatCollection.ContainsStatistic(ModStats.ECMShieldEmitterCount) ?
+                actor.StatCollection.GetStatistic(ModStats.ECMShieldEmitterCount).Value<int>() : 0;
+            shieldedByECMMod = shieldEmitters > 0 ? (int)Math.Ceiling((float)shieldValue / shieldEmitters) : 0;
 
             // Sensors
             advSensorsCarrierMod = actor.StatCollection.ContainsStatistic(ModStats.AdvancedSensors) ?
@@ -574,7 +526,16 @@ namespace LowVisibility.Object {
         public bool HasNightVision() { return nightVision; }
 
         // Misc
-        public override string ToString() { return $"sensorsCheck:{ewCheck}"; }
+        public override string ToString() {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"Raw check: {ewCheck}  tacticsMod: {tacticsMod}");
+            sb.Append($"  ecmCarrier: {ecmCarrierMod}  ecmShieldMod: {shieldedByECMMod}  ecmJammedMod: {jammedByECMMod}");
+            sb.Append($"  advSensors: {advSensorsCarrierMod}  probeCarrier: {probeCarrierMod}  stealth: {stealth}  mimetic: {mimetic}");
+            sb.Append($"  zoomVision: {zoomVision}  heatVision: {heatVision}  nightVision: {nightVision}  sharesVision: {sharesVision}");
+            sb.Append($"  pingedByProbe: {pingedByProbeMod}  narcEffect: {narcEffect}  tagEffect: {tagEffect}");
+
+            return sb.ToString(); 
+        }
 
         public void BuildCheckTooltip(List<string> details) {
             

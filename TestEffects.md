@@ -3,13 +3,64 @@ This document maintains a library of test effects that are useful when developin
 
 
 
+## Advanced Sensors
+
+Advanced sensors increase the detail level on the target.
+
+```json
+{
+    "statusEffects" : [
+            {
+            "durationData" : {
+                "duration" : -1,
+                "ticksOnActivations" : false,
+                "useActivationsOfTarget" : false,
+                "ticksOnEndOfRound" : false,
+                "ticksOnMovements" : false,
+                "stackLimit" : 1,
+                "clearedWhenAttacked" : false
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "effectTargetType" : "Creator",
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : false,
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+				"Id" : "LV_ADV_SEN_6",
+				"Name" : "Advanced Sensors - 6",
+				"Details" : "Advanced sensors - gives more detailed information on detected ones.",
+				"Icon" : "uixSvgIcon_status_ECM-missileDef"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_ADVANCED_SENSORS",
+				"operation": "Int_Add",
+				"modValue": "6",
+				"modType": "System.Int32"
+            },
+            "nature" : "Buff"
+        },
+    ],
+}
+
+```
+
+
+
+
+
 ## ECM Emitter
 
 An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and applies ECM Jamming to enemies. There are two auras, each with two effects, and a component-level status effect:
 
 * Gear_LV_Test_ECM_Shield has an effect that applies the 
 
-```
+```json
 "Auras": [
     {
       "Id": "Gear_LV_Test_ECM_Shield",
@@ -123,7 +174,7 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
         {
             "durationData" : {
                 "duration": -1,
-                "stackLimit": 1,
+                "stackLimit": -1,
                 "uniqueEffectIdStackLimit": 1
             },
             "targetingData" : {
@@ -139,7 +190,7 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
             "effectType" : "StatisticEffect",
             "Description" :
             {
-                "Id" : "LV_ECM_JAMMED_1",
+                "Id" : "LV_ECM_JAMMED",
                 "Name" : "ECM Jammer",
                 "Details" : "Jamming ECM, reduces sensor checks for enemies in field",
                 "Icon" : "uixSvgIcon_action_sensorlock"
@@ -226,9 +277,9 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
 
 
 
+## Mimetic Carrier
 
-
-## ECM Shield
+Mimetic carriers are harder to detect visually, as well as attack.
 
 ```json
 {
@@ -254,21 +305,35 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
             "effectType" : "StatisticEffect",
             "Description" :
             {
-				"Id" : "LV_ECM_Carrier_Test_2",
-				"Name" : "ECM Carrier",
-				"Details" : "ECM Carrier - you emit an ECM field. You are easier to detect with sensors, but harder to hit. Friendly units in range are harder to hit and detect with sensors.",
+				"Id" : "LV_MIMETIC_3",
+				"Name" : "Mimetic",
+				"Details" : "Mimetic system - while active you are harder to detect visually and attack.",
 				"Icon" : "uixSvgIcon_status_ECM-missileDef"
             },
             "statisticData" : 
             {
-				"statName" : "LV_ECM_CARRIER",
+				"statName" : "LV_MIMETIC",
 				"operation": "Int_Add",
-				"modValue": "2",
+				"modValue": "3",
 				"modType": "System.Int32"
             },
             "nature" : "Buff"
         },
-        {
+    ],
+}
+
+```
+
+
+
+## Probe Carrier
+
+Probe carriers have powerful sensors that make it easier to detect other units, and provides more information on those units.
+
+```
+{
+    "statusEffects" : [
+            {
             "durationData" : {
                 "duration" : -1,
                 "ticksOnActivations" : false,
@@ -289,16 +354,16 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
             "effectType" : "StatisticEffect",
             "Description" :
             {
-				"Id" : "LV_ECM_SHIELD",
-				"Name" : "ECM Shield",
-				"Details" : "ECM Shielding - you are protected by another unit's ECM effect. You are harder to hit and detect with sensors.",
+				"Id" : "LV_PROBE_CARRIER_3",
+				"Name" : "Probe Carrier - 3",
+				"Details" : "Probe carrier - makes enemy units easier to detect, and provides more information on them.",
 				"Icon" : "uixSvgIcon_status_ECM-missileDef"
             },
             "statisticData" : 
             {
-				"statName" : "LV_ECM_SHIELD",
+				"statName" : "LV_PROBE_CARRIER",
 				"operation": "Int_Add",
-				"modValue": "2",
+				"modValue": "3",
 				"modType": "System.Int32"
             },
             "nature" : "Buff"
@@ -308,3 +373,283 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
 
 ```
 
+
+
+
+
+## Stealth Carrier
+
+Stealth carriers are harder to detect with sensors, as well as attack.
+
+```json
+{
+    "statusEffects" : [
+            {
+            "durationData" : {
+                "duration" : -1,
+                "ticksOnActivations" : false,
+                "useActivationsOfTarget" : false,
+                "ticksOnEndOfRound" : false,
+                "ticksOnMovements" : false,
+                "stackLimit" : 1,
+                "clearedWhenAttacked" : false
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "effectTargetType" : "Creator",
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : false,
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+				"Id" : "LV_Stealth_4",
+				"Name" : "Stealth",
+				"Details" : "Stealth system - while active you are harder to detect with a sensors and  attack.",
+				"Icon" : "uixSvgIcon_status_ECM-missileDef"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_STEALTH",
+				"operation": "Int_Add",
+				"modValue": "4",
+				"modType": "System.Int32"
+            },
+            "nature" : "Buff"
+        },
+    ],
+}
+
+```
+
+
+
+# Vision Attack Effects
+
+These effects provide attack bonuses based upon detection range.
+
+## Heat Vision
+
+This effect provides an attack bonus based upon the target's heat.
+
+```json
+{
+    "statusEffects" : [
+            {
+            "durationData" : {
+                "duration" : -1,
+                "ticksOnActivations" : false,
+                "useActivationsOfTarget" : false,
+                "ticksOnEndOfRound" : false,
+                "ticksOnMovements" : false,
+                "stackLimit" : 1,
+                "clearedWhenAttacked" : false
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "effectTargetType" : "Creator",
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : false,
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+				"Id" : "LV_HEAT_VISION",
+				"Name" : "Heat Vision",
+				"Details" : "Provides attack bonuses based upon the target's heat.",
+				"Icon" : "uixSvgIcon_status_ECM-missileDef"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_HEAT_VISION",
+				"operation": "Set",
+				"modValue": "true",
+				"modType": "System.String"
+            },
+            "nature" : "Buff"
+        },
+    ],
+}
+
+```
+
+
+
+
+
+## Zoom Vision
+
+This effect provides an attack bonus based upon distance to the target.
+
+```
+{
+    "statusEffects" : [
+            {
+            "durationData" : {
+                "duration" : -1,
+                "ticksOnActivations" : false,
+                "useActivationsOfTarget" : false,
+                "ticksOnEndOfRound" : false,
+                "ticksOnMovements" : false,
+                "stackLimit" : 1,
+                "clearedWhenAttacked" : false
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "effectTargetType" : "Creator",
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : false,
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+				"Id" : "LV_NIGHT_VISION",
+				"Name" : "Night Vision",
+				"Details" : "Provides extended vision range at night.",
+				"Icon" : "uixSvgIcon_status_ECM-missileDef"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_NIGHT_VISION",
+				"operation": "Set",
+				"modValue": "true",
+				"modType": "System.Boolean"
+            },
+            "nature" : "Buff"
+        },
+    ],
+}
+
+```
+
+
+
+
+
+# Vision Effects
+
+These effects provide certain visual changes to the battlefield.
+
+## Low Light Vision
+
+Units with low light vision have extended vision range at night, but it will be shown with a green effect.
+
+```json
+{
+    "statusEffects" : [
+            {
+            "durationData" : {
+                "duration" : -1,
+                "ticksOnActivations" : false,
+                "useActivationsOfTarget" : false,
+                "ticksOnEndOfRound" : false,
+                "ticksOnMovements" : false,
+                "stackLimit" : 1,
+                "clearedWhenAttacked" : false
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "effectTargetType" : "Creator",
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : false,
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+				"Id" : "LV_NIGHT_VISION",
+				"Name" : "Night Vision",
+				"Details" : "Provides extended vision range at night.",
+				"Icon" : "uixSvgIcon_status_ECM-missileDef"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_NIGHT_VISION",
+				"operation": "Set",
+				"modValue": "true",
+				"modType": "System.Boolean"
+            },
+            "nature" : "Buff"
+        },
+    ],
+}
+
+```
+
+
+
+
+
+## Vision Sharing
+
+Units with vision sharing will combine their visual detection range, allowing them to see units within their range.
+
+````json
+{
+    "statusEffects" : [
+            {
+            "durationData" : {
+                "duration" : -1,
+                "ticksOnActivations" : false,
+                "useActivationsOfTarget" : false,
+                "ticksOnEndOfRound" : false,
+                "ticksOnMovements" : false,
+                "stackLimit" : 1,
+                "clearedWhenAttacked" : false
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "effectTargetType" : "Creator",
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : false,
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+				"Id" : "LV_SHARES_VISION",
+				"Name" : "Vision Sharing",
+				"Details" : "Shares vision with other units in the lance, allowing them to see what you see.",
+				"Icon" : "uixSvgIcon_status_ECM-missileDef"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_SHARES_VISION",
+				"operation": "Set",
+				"modValue": "true",
+				"modType": "System.Boolean"
+            },
+            "nature" : "Buff"
+        },
+    ],
+}
+
+````
+
+
+
+# Active Effects
+
+Some effects should not be applied via auras or passive effects, but rather from active effects.
+
+
+
+## Probe Ping Effect
+
+Loreum ipsum
+
+## Narc Effect
+
+Loreum ipsum
+
+## Tag Effect
+
+Loreum ipsum

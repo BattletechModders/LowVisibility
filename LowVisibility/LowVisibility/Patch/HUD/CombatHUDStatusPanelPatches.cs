@@ -156,13 +156,16 @@ namespace LowVisibility.Patch {
 
         private static string BuildToolTip(AbstractActor actor) {
             EWState ewState = new EWState(actor);
-            Mod.Log.Debug($"EW State for actor:{CombatantUtils.Label(actor)} = {ewState}");
+            //Mod.Log.Debug($"EW State for actor:{CombatantUtils.Label(actor)} = {ewState}");
 
             List<string> details = new List<string>();
+
             float visualLockRange = VisualLockHelper.GetVisualLockRange(actor);
             float visualScanRange = VisualLockHelper.GetVisualScanRange(actor);
-            float sensorsRange = SensorLockHelper.GetSensorsRange(actor);            
-            details.Add($"Visual Lock:{visualLockRange:0}m Scan:{visualScanRange}m [{ModState.GetMapConfig().UILabel()}]\n");
+            details.Add($"Visual - Lock Range:{visualLockRange:0}m Scan Range:{visualScanRange}m [{ModState.GetMapConfig().UILabel()}]\n");
+
+            float sensorsRange = SensorLockHelper.GetSensorsRange(actor);
+            details.Add($"Sensor - Lock Range:{sensorsRange:0}m \n");
 
             // Sensor details
             ewState.BuildCheckTooltip(details);

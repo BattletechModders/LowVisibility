@@ -1,6 +1,5 @@
 ﻿using BattleTech;
 using LowVisibility.Object;
-using System.Collections.Generic;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Helper {

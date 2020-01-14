@@ -11,9 +11,11 @@ namespace LowVisibility {
 
         // ECM 
         public const string ECMCarrier = "LV_ECM_CARRIER"; // Int_32
+        public const string ECMShield = "LV_ECM_SHIELD"; // Int_32
+        public const string ECMShieldEmitterCount = "LV_ECM_SHIELD_EMITTER_COUNT"; // Int_32
+        public const string ECMJamming = "LV_ECM_JAMMED"; // Int_32
+        public const string ECMJammingEmitterCount = "LV_ECM_JAM_EMITTER_COUNT"; // Int_32
         public const string ECMVFXEnabled = "LV_ECM_VFX_ENABLED"; // Boolean
-        public const string ShieldedByECM = "LV_ECM_SHIELD"; // Int_32
-        public const string JammedByECM = "LV_ECM_JAMMED"; // Int_32
 
         // Sensors
         public const string AdvancedSensors = "LV_ADVANCED_SENSORS";
@@ -34,13 +36,13 @@ namespace LowVisibility {
         // Vision modes
         public const string HeatVision = "LV_HEAT_VISION"; // String
         public const string ZoomVision = "LV_ZOOM_VISION"; // String
-        public const string NightVision = "LV_NIGHT_VISION"; // TODO
 
         // Narc
         public const string NarcEffect = "LV_NARC"; // String
         public const string TagEffect = "LV_TAG"; // String
 
-        // Vision sharing - impacts local team only
+        // Vision Modes - impacts player team only
+        public const string NightVision = "LV_NIGHT_VISION"; // bool
         public const string SharesVision = "LV_SHARES_VISION"; // bool
         
         public static bool IsStealthStat(string statName) {

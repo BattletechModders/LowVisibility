@@ -109,6 +109,7 @@
     <Compile Include="Patch\HUD\CombatHUDStealthBarPipsPatches.cs" />
     <Compile Include="Patch\HUD\CombatHUDTargetingComputerPatches.cs" />
     <Compile Include="Patch\ComponentPatches.cs" />
+    <Compile Include="Patch\HUD\CombatHUDWeaponSlotPatches.cs" />
     <Compile Include="Patch\LineOfSightPatches.cs" />
     <Compile Include="Patch\CombatPatches.cs" />
     <Compile Include="Patch\MechComponentPatches.cs" />
