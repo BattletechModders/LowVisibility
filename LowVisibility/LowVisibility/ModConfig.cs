@@ -173,7 +173,7 @@ namespace LowVisibility {
             { LT_MAP_RAIN, "Rain" },
 
             // Status Panel
-            { LT_PANEL_SENSOR_RANGE, "Sensors - Detect:<color=#{0}>{1:0}m</> Multi:<color=#{2}> x{3}</color> [{4}]\n" },
+            { LT_PANEL_SENSOR_RANGE, "Sensors - Detect:<color=#{0}>{1:0}m</color> Multi:<color=#{2}> x{3}</color> [{4}]\n" },
             { LT_PANEL_VISUAL_RANGE, "Visuals - Lock:{0:0}m Scan :{1}m [{2}]\n" },
 
             // Sensor Details Level

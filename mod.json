@@ -52,8 +52,8 @@
             "MAP_SNOW" : "Snow",
             "MAP_RAIN" : "Rain",
 
-            "PANEL_SENSOR_RANGE" : "Sensors: Detect Range:<color=#{0}>{1:0}m</> Multi:<color=#{0}> x{2}</color> Detail Level: [{3}]\n",
-            "PANEL_VISUAL_RANGE" : "Visuals: Lock Range:{0:0}m Scan Range:{1}m Weather: [{2}]\n",
+            "PANEL_SENSOR_RANGE" : "Sensors - Detect:<color=#{0}>{1:0}m</color> Multi:<color=#{2}> x{3}</color> [{4}]\n",
+            "PANEL_VISUAL_RANGE" : "Visuals - Lock:{0:0}m Scan :{1}m [{2}]\n",
 
             "DETAILS_NONE" : "No Info",
             "DETAILS_LOCATION" : "Location",
