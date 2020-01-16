@@ -312,10 +312,10 @@ Mimetic carriers are harder to detect visually, as well as attack.
             },
             "statisticData" : 
             {
-				"statName" : "LV_MIMETIC",
-				"operation": "Int_Add",
-				"modValue": "3",
-				"modType": "System.Int32"
+                "statName" : "LV_MIMETIC",
+                "operation" : "Set",
+                "modValue": "0.15_3_3",
+                "modType": "System.String"
             },
             "nature" : "Buff"
         },
@@ -413,9 +413,9 @@ Stealth carriers are harder to detect with sensors, as well as attack.
             "statisticData" : 
             {
 				"statName" : "LV_STEALTH",
-				"operation": "Int_Add",
-				"modValue": "4",
-				"modType": "System.Int32"
+				"operation": "Set",
+				"modValue": "0.20_4_1_2_3",
+				"modType": "System.String"
             },
             "nature" : "Buff"
         },
