@@ -27,9 +27,9 @@ namespace LowVisibility.Helper {
             float sensorsRange = ewState.GetSensorsBaseRange() * rangeMulti + rangeMod;
             Mod.Log.Trace($"    sensorsRange: { sensorsRange} = baseRange: {ewState.GetSensorsBaseRange()} * rangeMult: {rangeMulti} + rangeMod: {rangeMod}");
 
-            if (sensorsRange < Mod.Config.MinimumSensorRange() ||
-                source.Combat.TurnDirector.CurrentRound <= 1 && Mod.Config.FirstTurnForceFailedChecks) {
-                sensorsRange = Mod.Config.MinimumSensorRange();
+            if (sensorsRange < Mod.Config.Sensors.MinimumSensorRange() ||
+                source.Combat.TurnDirector.CurrentRound <= 1 && Mod.Config.Sensors.FirstTurnForceFailedChecks) {
+                sensorsRange = Mod.Config.Sensors.MinimumSensorRange();
             }
 
             return sensorsRange;

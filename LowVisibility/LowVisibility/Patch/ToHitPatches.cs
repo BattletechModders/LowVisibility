@@ -39,10 +39,10 @@ namespace LowVisibility.Patch {
                 //Mod.Log.Debug($"  ecmShieldMod: {ecmShieldMod}  stealthMod: {stealthMod}  narcMod: {narcMod}  tagMod: {tagMod}  sensorScan: {sensorScan}");
 
                 if (sensorScan == SensorScanType.NoInfo && !canSpotTarget) {
-                    __result = __result + (float)Mod.Config.BlindFirePenalty;
+                    __result = __result + (float)Mod.Config.Attack.BlindFirePenalty;
                 } else {
                     if (!canSpotTarget) {
-                        __result = __result + (float)Mod.Config.NoVisualsPenalty;
+                        __result = __result + (float)Mod.Config.Attack.NoVisualsPenalty;
                     } else {
                         if (zoomVisionMod != 0) {
                             __result = __result + (float)zoomVisionMod;
@@ -56,7 +56,7 @@ namespace LowVisibility.Patch {
                     }
 
                     if (sensorScan == SensorScanType.NoInfo) {
-                        __result = __result + (float)Mod.Config.NoSensorInfoPenalty;
+                        __result = __result + (float)Mod.Config.Attack.NoSensorInfoPenalty;
                     } else {
                         if (ecmShieldMod != 0) {
                             __result = __result + (float)ecmShieldMod;
@@ -110,36 +110,46 @@ namespace LowVisibility.Patch {
                 SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, attacker);
 
                 if (sensorScan == SensorScanType.NoInfo && !canSpotTarget) {
-                    __result = string.Format("{0}FIRING BLIND {1:+#;-#}; ", __result, Mod.Config.BlindFirePenalty);
+                    string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_FIRING_BLIND]).ToString();
+                    __result = string.Format("{0}{1} {2:+#;-#}; ", __result, localText, Mod.Config.Attack.BlindFirePenalty);
                 } else {
                     if (!canSpotTarget) {
-                        __result = string.Format("{0}NO VISUALS {1:+#;-#}; ", __result, Mod.Config.NoVisualsPenalty);
+                        string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_NO_VISUALS]).ToString();
+                        __result = string.Format("{0}{1} {2:+#;-#}; ", __result, localText, Mod.Config.Attack.NoVisualsPenalty);
                     } else {
                         if (zoomVisionMod != 0) {
-                            __result = string.Format("{0}ZOOM VISION {1:+#;-#}; ", __result, zoomVisionMod);
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_ZOOM_VISION]).ToString();
+                            __result = string.Format("{0}{1} {2:+#;-#}; ", __result, localText, zoomVisionMod);
                         }
                         if (heatVisionMod != 0) {
-                            __result = string.Format("{0}HEAT VISION {1:+#;-#}; ", __result, heatVisionMod);
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_HEAT_VISION]).ToString();
+                            __result = string.Format("{0}{1} {2:+#;-#}; ", __result, localText, heatVisionMod);
                         }
                         if (mimeticMod != 0) {
-                            __result = string.Format("{0}MIMETIC ARMOR {1:+#;-#}; ", __result, mimeticMod);
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_MIMETIC]).ToString();
+                            __result = string.Format("{0}{1} {2:+#;-#}; ", __result, localText, mimeticMod);
                         }
                     }
 
                     if (sensorScan == SensorScanType.NoInfo) {
-                        __result = string.Format("{0}NO SENSOR INFO {1:+#;-#}; ", __result, Mod.Config.NoSensorInfoPenalty);
+                        string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_NO_SENSORS]).ToString();
+                        __result = string.Format("{0}{1} {2:+#;-#}; ", __result, localText, Mod.Config.Attack.NoSensorInfoPenalty);
                     } else {
                         if (ecmShieldMod != 0) {
-                            __result = string.Format("{0}ECM SHIELD {1:+#;-#}; ", __result, ecmShieldMod);
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_ECM_SHEILD]).ToString();
+                            __result = string.Format("{0}{1} {2:+#;-#}; ", __result, localText, ecmShieldMod);
                         }
                         if (stealthMod != 0) {
-                            __result = string.Format("{0}STEALTH {1:+#;-#}; ", __result, stealthMod);
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_STEALTH]).ToString();
+                            __result = string.Format("{0}{1} {2:+#;-#}; ", __result, localText, stealthMod);
                         }
                         if (ecmShieldMod != 0) {
-                            __result = string.Format("{0}NARCED {1:+#;-#}; ", __result, narcMod);
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_NARCED]).ToString();
+                            __result = string.Format("{0}{1} {2:+#;-#}; ", __result, localText, narcMod);
                         }
                         if (stealthMod != 0) {
-                            __result = string.Format("{0}TAGGED {1:+#;-#}; ", __result, tagMod);
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_TAGGED]).ToString();
+                            __result = string.Format("{0}{1} {2:+#;-#}; ", __result, localText, tagMod);
                         }
                     }
                 }

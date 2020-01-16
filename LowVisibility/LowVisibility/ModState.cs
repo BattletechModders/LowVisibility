@@ -46,8 +46,8 @@ namespace LowVisibility {
             Mod.Log.Info($"Initializing a new random buffer of size:{ResultsToPrecalcuate}");
             Xoshiro256PlusRandomBuilder builder = new Xoshiro256PlusRandomBuilder();
             IRandomSource rng = builder.Create();
-            double mean = Mod.Config.ProbabilityMu;
-            double stdDev = Mod.Config.ProbabilitySigma;
+            double mean = Mod.Config.Probability.Mu;
+            double stdDev = Mod.Config.Probability.Sigma;
             ZigguratGaussian.Sample(rng, mean, stdDev, CheckResults);
             CheckResultIdx = 0;
         }

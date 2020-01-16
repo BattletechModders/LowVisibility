@@ -41,8 +41,8 @@ namespace LowVisibility.Helper {
                     $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
             }
 
-            if (visualRange < Mod.Config.MinimumVisionRange()) {
-                visualRange = Mod.Config.MinimumVisionRange();
+            if (visualRange < Mod.Config.Vision.MinimumVisionRange()) {
+                visualRange = Mod.Config.Vision.MinimumVisionRange();
             }
 
             // Round up to the nearest full hex
@@ -65,8 +65,8 @@ namespace LowVisibility.Helper {
             float spotterRange = VisualLockHelper.GetSpotterRange(source);
 
             float modifiedRange = spotterRange * targetVisibility;
-            if (modifiedRange < Mod.Config.MinimumVisionRange()) {
-                modifiedRange = Mod.Config.MinimumVisionRange();
+            if (modifiedRange < Mod.Config.Vision.MinimumVisionRange()) {
+                modifiedRange = Mod.Config.Vision.MinimumVisionRange();
             }
 
             // Round up to the nearest full hex

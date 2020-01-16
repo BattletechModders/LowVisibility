@@ -338,13 +338,13 @@ namespace LowVisibility.Object {
         public float GetSensorsRangeMulti() { return ewCheck / 20.0f + tacticsMod / 10.0f; }
         public float GetSensorsBaseRange() {
             if (actor.GetType() == typeof(Mech)) {
-                return Mod.Config.SensorRangeMechType * 30.0f;
+                return Mod.Config.Sensors.MechTypeRange * 30.0f;
             } else if (actor.GetType() == typeof(Vehicle)) {
-                return Mod.Config.SensorRangeVehicleType * 30.0f;
+                return Mod.Config.Sensors.VehicleTypeRange * 30.0f;
             } else if (actor.GetType() == typeof(Turret)) {
-                return Mod.Config.SensorRangeTurretType * 30.0f;
+                return Mod.Config.Sensors.TurretTypeRange * 30.0f;
             } else {
-                return Mod.Config.SensorRangeUnknownType * 30.0f;
+                return Mod.Config.Sensors.UnknownTypeRange * 30.0f;
             }
         }
 

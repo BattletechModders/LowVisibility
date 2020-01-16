@@ -347,7 +347,7 @@ namespace LowVisibility.Helper {
             viewers.Clear();
 
             // Reset FoW to being unseen
-            fowSystem.WipeToValue(Mod.Config.ShowTerrainThroughFogOfWar ? 
+            fowSystem.WipeToValue(Mod.Config.Vision.ShowTerrainThroughFogOfWar ? 
                 FogOfWarState.Surveyed : FogOfWarState.Unknown);
 
             // Add the actor as a viewer

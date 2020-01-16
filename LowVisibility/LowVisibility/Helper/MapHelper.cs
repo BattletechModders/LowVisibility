@@ -51,8 +51,8 @@ namespace LowVisibility.Helper {
             TagSet moodTags = moodSettings?.moodTags;
             if (moodTags == null || moodTags.IsEmpty) {
                 return new MapConfig {
-                    spotterRange = Mod.Config.VisionRangeBaseDaylight,
-                    visualIDRange = Mod.Config.VisualScanRange
+                    spotterRange = Mod.Config.Vision.BaseRangeBright,
+                    visualIDRange = Mod.Config.Vision.ScanRangeHexes
                 };
             }
 
@@ -62,7 +62,7 @@ namespace LowVisibility.Helper {
             String allTags = String.Join(", ", moodTags.ToArray());
             Mod.Log.Debug($"  - All mood tags are: {allTags}");
 
-            float baseVision = Mod.Config.VisionRangeBaseDaylight;
+            float baseVision = Mod.Config.Vision.BaseRangeBright;
             float visionMulti = 1.0f;
             foreach (string tag in moodTags) {
                 switch (tag) {
@@ -79,8 +79,8 @@ namespace LowVisibility.Helper {
                     case "mood_timeSunset":
                     case "mood_timeTwilight":
                         Mod.Log.Debug($"  - {tag}");
-                        if (baseVision > Mod.Config.VisionRangeBaseDimlight) {
-                            baseVision = Mod.Config.VisionRangeBaseDimlight;
+                        if (baseVision > Mod.Config.Vision.BaseRangeDim) {
+                            baseVision = Mod.Config.Vision.BaseRangeDim;
                             mapConfig.isDay = false;
                             mapConfig.isDim = true;
                             mapConfig.isDark = false;
@@ -88,8 +88,8 @@ namespace LowVisibility.Helper {
                         break;
                     case "mood_timeNight":
                         Mod.Log.Debug($"  - {tag}");
-                        if (baseVision > Mod.Config.VisionRangeBaseNight) {
-                            baseVision = Mod.Config.VisionRangeBaseNight;
+                        if (baseVision > Mod.Config.Vision.BaseRangeDark) {
+                            baseVision = Mod.Config.Vision.BaseRangeDark;
                             mapConfig.isDay = false;
                             mapConfig.isDim = false;
                             mapConfig.isDark = true;
@@ -97,29 +97,29 @@ namespace LowVisibility.Helper {
                         break;
                     case "mood_weatherRain":
                         Mod.Log.Debug($"  - {tag}");
-                        if (visionMulti > Mod.Config.VisionRangeMultiRainSnow) {
-                            visionMulti = Mod.Config.VisionRangeMultiRainSnow;
+                        if (visionMulti > Mod.Config.Vision.RangeMultiRainSnow) {
+                            visionMulti = Mod.Config.Vision.RangeMultiRainSnow;
                             mapConfig.hasRain = true;
                         }
                         break;
                     case "mood_weatherSnow":
                         Mod.Log.Debug($"  - {tag}");
-                        if (visionMulti > Mod.Config.VisionRangeMultiRainSnow) {
-                            visionMulti = Mod.Config.VisionRangeMultiRainSnow;
+                        if (visionMulti > Mod.Config.Vision.RangeMultiRainSnow) {
+                            visionMulti = Mod.Config.Vision.RangeMultiRainSnow;
                             mapConfig.hasSnow = true;
                         }
                         break;
                     case "mood_fogLight":
                         Mod.Log.Debug($"  - {tag}");
-                        if (visionMulti > Mod.Config.VisionRangeMultiLightFog) {
-                            visionMulti = Mod.Config.VisionRangeMultiLightFog;
+                        if (visionMulti > Mod.Config.Vision.RangeMultiLightFog) {
+                            visionMulti = Mod.Config.Vision.RangeMultiLightFog;
                             mapConfig.hasLightFog = true;
                         }
                         break;
                     case "mood_fogHeavy":
                         Mod.Log.Debug($"  - {tag}");
-                        if (visionMulti > Mod.Config.VisionRangeMultiHeavyFog) {
-                            visionMulti = Mod.Config.VisionRangeMultiHeavyFog;
+                        if (visionMulti > Mod.Config.Vision.RangeMultiHeavyFog) {
+                            visionMulti = Mod.Config.Vision.RangeMultiHeavyFog;
                             mapConfig.hasHeavyFog = true;
                         }
                         break;
@@ -131,28 +131,28 @@ namespace LowVisibility.Helper {
             // Calculate normal vision range
             float visRange = (float)Math.Ceiling(baseVision * 30f * visionMulti);
             Mod.Log.Info($"  Calculating vision range as Math.Ceil(baseVision:{baseVision} * 30.0 * visionMulti:{visionMulti}) = visRange:{visRange}.");
-            if (visRange < Mod.Config.MinimumVisionRange()) {
-                visRange = Mod.Config.MinimumVisionRange();
+            if (visRange < Mod.Config.Vision.MinimumVisionRange()) {
+                visRange = Mod.Config.Vision.MinimumVisionRange();
             }
             
             float roundedVisRange = HexUtils.CountHexes(visRange, false) * 30f;
             Mod.Log.Info($"MapHelper: Vision range for map will be ==> {roundedVisRange}m (normalized from {visRange}m)");
             mapConfig.spotterRange = roundedVisRange;
-            mapConfig.visualIDRange = Math.Min(roundedVisRange, Mod.Config.VisualScanRange * 30.0f);
+            mapConfig.visualIDRange = Math.Min(roundedVisRange, Mod.Config.Vision.ScanRangeHexes * 30.0f);
 
             Mod.Log.Info($"Map vision range = visual:{roundedVisRange} / visualScan:{mapConfig.visualIDRange}");
 
             // Calculate night vision range
             if (mapConfig.isDark) {
-                float nightVisRange = (float)Math.Ceiling(Mod.Config.VisionRangeBaseDaylight * 30f * visionMulti);
-                if (nightVisRange < Mod.Config.MinimumVisionRange()) {
-                    nightVisRange = Mod.Config.MinimumVisionRange();
+                float nightVisRange = (float)Math.Ceiling(Mod.Config.Vision.BaseRangeBright * 30f * visionMulti);
+                if (nightVisRange < Mod.Config.Vision.MinimumVisionRange()) {
+                    nightVisRange = Mod.Config.Vision.MinimumVisionRange();
                 }
 
                 float roundedNightVisRange = HexUtils.CountHexes(nightVisRange, false) * 30f;
                 Mod.Log.Info($"MapHelper: Night vision range for map will be ==> {roundedNightVisRange}m (normalized from {nightVisRange}m)");
                 mapConfig.nightVisionSpotterRange = roundedNightVisRange;
-                mapConfig.nightVisionVisualIDRange = Math.Min(roundedNightVisRange, Mod.Config.VisualScanRange * 30.0f);
+                mapConfig.nightVisionVisualIDRange = Math.Min(roundedNightVisRange, Mod.Config.Vision.ScanRangeHexes * 30.0f);
             }
 
             return mapConfig;

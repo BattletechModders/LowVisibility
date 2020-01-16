@@ -149,6 +149,18 @@ namespace LowVisibility {
         public const string LT_DETAILS_PILOT = "DETAILS_PILOT";
         public const string LT_DETAILS_UNKNOWN = "DETAILS_UNKNOWN";
 
+        // Attack Tooltip
+        public const string LT_ATTACK_FIRING_BLIND = "ATTACK_FIRE_BLIND";
+        public const string LT_ATTACK_NO_VISUALS = "ATTACK_NO_VISUALS";
+        public const string LT_ATTACK_ZOOM_VISION = "ZOOM_VISION";
+        public const string LT_ATTACK_HEAT_VISION = "HEAT_VISION";
+        public const string LT_ATTACK_MIMETIC = "MIMETIC_ARMOR";
+        public const string LT_ATTACK_NO_SENSORS = "ATTACK_NO_SENSORS";
+        public const string LT_ATTACK_ECM_SHEILD = "ATTACK_ECM_SHIELD";
+        public const string LT_ATTACK_STEALTH = "ATTACK_STEALTH";
+        public const string LT_ATTACK_NARCED = "ATTACK_NARCED";
+        public const string LT_ATTACK_TAGGED = "ATTACK_TAGGED";
+
         public Dictionary<string, string> LocalizedText = new Dictionary<string, string>() {
 
             // Map effects
@@ -177,6 +189,18 @@ namespace LowVisibility {
             { LT_DETAILS_DEEP_SCAN, "Complete" },
             { LT_DETAILS_PILOT, "Pilot" },
             { LT_DETAILS_UNKNOWN, "Unknown" },
+
+            // Attack Tooltip
+            { LT_ATTACK_FIRING_BLIND, "FIRING BLIND" },
+            { LT_ATTACK_NO_SENSORS, "NO VISUALS" },
+            { LT_ATTACK_NO_VISUALS, "NO VISUALS" },
+            { LT_ATTACK_ZOOM_VISION, "FIRING BLIND" },
+            { LT_ATTACK_HEAT_VISION, "NO VISUALS" },
+            { LT_ATTACK_MIMETIC, "FIRING BLIND" },
+            { LT_ATTACK_STEALTH, "NO VISUALS" },
+            { LT_ATTACK_ECM_SHEILD, "FIRING BLIND" },
+            { LT_ATTACK_NARCED, "FIRING BLIND" },
+            { LT_ATTACK_TAGGED, "NO VISUALS" },
         };
 
         public void LogConfig() {

@@ -94,10 +94,10 @@ namespace LowVisibility.Patch {
                 SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, actor);
                  
                 if (sensorScan == SensorScanType.NoInfo && !canSpotTarget) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "FIRING BLIND", Mod.Config.BlindFirePenalty });
+                    AddToolTipDetailMethod.GetValue(new object[] { "FIRING BLIND", Mod.Config.Attack.BlindFirePenalty });
                 } else {
                     if (!canSpotTarget) {
-                        AddToolTipDetailMethod.GetValue(new object[] { "NO VISUALS", Mod.Config.NoVisualsPenalty });
+                        AddToolTipDetailMethod.GetValue(new object[] { "NO VISUALS", Mod.Config.Attack.NoVisualsPenalty });
                     } else {
                         if (zoomVisionMod != 0) {
                             AddToolTipDetailMethod.GetValue(new object[] { "ZOOM VISION", zoomVisionMod });
@@ -111,7 +111,7 @@ namespace LowVisibility.Patch {
                     }
 
                     if (sensorScan == SensorScanType.NoInfo) {
-                        AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR INFO", Mod.Config.NoSensorInfoPenalty });
+                        AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR INFO", Mod.Config.Attack.NoSensorInfoPenalty });
                     } else {
                         if (ecmShieldMod != 0) {
                             AddToolTipDetailMethod.GetValue(new object[] { "ECM SHIELD", targetState.ECMAttackMod(attackerState) });
