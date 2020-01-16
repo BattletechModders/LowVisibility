@@ -174,7 +174,7 @@ namespace LowVisibility.Patch {
             float sensorsRange = SensorLockHelper.GetSensorsRange(actor);
             string sensorColor = ewState.GetCurrentEWCheck() >= 0 ? "00FF00" : "FF0000";
             details.Add(
-                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_SENSOR_RANGE], new object[] { sensorColor, sensorsRange, ewState.GetSensorsRangeMulti() })
+                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_SENSOR_RANGE], new object[] { sensorColor, sensorsRange, sensorColor, ewState.GetSensorsRangeMulti(), checkLevel.Label() })
                     .ToString()
                 );
 

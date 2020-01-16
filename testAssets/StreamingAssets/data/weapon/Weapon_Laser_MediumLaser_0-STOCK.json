@@ -1,0 +1,71 @@
+{
+    "statusEffects" : [
+             {
+            "durationData" : {
+                "duration" : -1,
+                "ticksOnActivations" : false,
+                "useActivationsOfTarget" : false,
+                "ticksOnEndOfRound" : false,
+                "ticksOnMovements" : false,
+                "stackLimit" : 1,
+                "clearedWhenAttacked" : false
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "effectTargetType" : "Creator",
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : false,
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+				"Id" : "LV_ADV_SEN_6",
+				"Name" : "Advanced Sensors - 6",
+				"Details" : "Advanced sensors - gives more detailed information on detected ones.",
+				"Icon" : "uixSvgIcon_status_ECM-missileDef"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_ADVANCED_SENSORS",
+				"operation": "Int_Add",
+				"modValue": "6",
+				"modType": "System.Int32"
+            },
+            "nature" : "Buff"
+        },
+        {
+            "durationData" : {
+                "duration": -1,
+                "stackLimit": 1
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "specialRules" : "NotSet",
+                "effectTargetType" : "Creator",
+                "range" : 0.0,
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : true,
+                "showInTargetPreview" : true,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+                "Id" : "LV_Advanced_Sensors",
+                "Name" : "Advanced Sensors",
+                "Details" : "Provides detailed information on enemy units",
+                "Icon" : "uixSvgIcon_status_ECM-ghost"
+            },
+            "statisticData" : 
+            {
+                "statName" : "LV_ADVANCED_SENSORS",
+                "operation": "Int_Add",
+                "modValue": "2",
+                "modType": "System.Int32"
+            },
+            "nature" : "Buff"
+        },
+    ],
+}

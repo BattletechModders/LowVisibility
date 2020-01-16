@@ -1,0 +1,74 @@
+{
+    "statusEffects" : [
+        {
+            "durationData" : {
+                "duration" : -1,
+                "ticksOnActivations" : false,
+                "useActivationsOfTarget" : false,
+                "ticksOnEndOfRound" : false,
+                "ticksOnMovements" : false,
+                "stackLimit" : 1,
+                "clearedWhenAttacked" : false
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "effectTargetType" : "Creator",
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : false,
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+				"Id" : "LV_Stealth_4",
+				"Name" : "Stealth",
+				"Details" : "Stealth system - while active you are harder to detect with a sensors and  attack.",
+				"Icon" : "uixSvgIcon_status_ECM-missileDef"
+            },
+            "statisticData" : 
+            {
+				"statName" : "LV_STEALTH",
+				"operation": "Set",
+				"modValue": "0.20_4_1_2_3",
+				"modType": "System.String"
+            },
+            "nature" : "Buff"
+        },
+        {
+            "durationData" : {
+                "duration" : -1,
+                "ticksOnActivations" : false,
+                "useActivationsOfTarget" : false,
+                "ticksOnEndOfRound" : false,
+                "ticksOnMovements" : false,
+                "stackLimit" : 1,
+                "clearedWhenAttacked" : false
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "effectTargetType" : "Creator",
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : false,
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+				"Id" : "LV_MIMETIC_3",
+				"Name" : "Mimetic",
+				"Details" : "Mimetic system - while active you are harder to detect visually and attack.",
+				"Icon" : "uixSvgIcon_status_ECM-missileDef"
+            },
+            "statisticData" : 
+            {
+                "statName" : "LV_MIMETIC",
+                "operation" : "Set",
+                "modValue": "0.15_3_3",
+                "modType": "System.String"
+            },
+            "nature" : "Buff"
+        }
+    ],
+}

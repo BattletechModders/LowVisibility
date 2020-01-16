@@ -152,9 +152,9 @@ namespace LowVisibility {
         // Attack Tooltip
         public const string LT_ATTACK_FIRING_BLIND = "ATTACK_FIRE_BLIND";
         public const string LT_ATTACK_NO_VISUALS = "ATTACK_NO_VISUALS";
-        public const string LT_ATTACK_ZOOM_VISION = "ZOOM_VISION";
-        public const string LT_ATTACK_HEAT_VISION = "HEAT_VISION";
-        public const string LT_ATTACK_MIMETIC = "MIMETIC_ARMOR";
+        public const string LT_ATTACK_ZOOM_VISION = "ATTACK_ZOOM_VISION";
+        public const string LT_ATTACK_HEAT_VISION = "ATTACK_HEAT_VISION";
+        public const string LT_ATTACK_MIMETIC = "ATTACK_MIMETIC_ARMOR";
         public const string LT_ATTACK_NO_SENSORS = "ATTACK_NO_SENSORS";
         public const string LT_ATTACK_ECM_SHEILD = "ATTACK_ECM_SHIELD";
         public const string LT_ATTACK_STEALTH = "ATTACK_STEALTH";
@@ -173,8 +173,8 @@ namespace LowVisibility {
             { LT_MAP_RAIN, "Rain" },
 
             // Status Panel
-            { LT_PANEL_SENSOR_RANGE, "Sensors: Detect Range:<color=#{0}>{1:0}m</> Multi:<color=#{0}> x{2}</color> Detail Level: [{3}]\n" },
-            { LT_PANEL_VISUAL_RANGE, "Visuals: Lock Range:{0:0}m Scan Range:{1}m Weather: [{2}]\n" },
+            { LT_PANEL_SENSOR_RANGE, "Sensors - Detect:<color=#{0}>{1:0}m</> Multi:<color=#{2}> x{3}</color> [{4}]\n" },
+            { LT_PANEL_VISUAL_RANGE, "Visuals - Lock:{0:0}m Scan :{1}m [{2}]\n" },
 
             // Sensor Details Level
             { LT_DETAILS_NONE, "No Info" },
@@ -192,15 +192,15 @@ namespace LowVisibility {
 
             // Attack Tooltip
             { LT_ATTACK_FIRING_BLIND, "FIRING BLIND" },
-            { LT_ATTACK_NO_SENSORS, "NO VISUALS" },
+            { LT_ATTACK_NO_SENSORS, "NO SENSORS" },
             { LT_ATTACK_NO_VISUALS, "NO VISUALS" },
-            { LT_ATTACK_ZOOM_VISION, "FIRING BLIND" },
-            { LT_ATTACK_HEAT_VISION, "NO VISUALS" },
-            { LT_ATTACK_MIMETIC, "FIRING BLIND" },
-            { LT_ATTACK_STEALTH, "NO VISUALS" },
-            { LT_ATTACK_ECM_SHEILD, "FIRING BLIND" },
-            { LT_ATTACK_NARCED, "FIRING BLIND" },
-            { LT_ATTACK_TAGGED, "NO VISUALS" },
+            { LT_ATTACK_ZOOM_VISION, "ZOOM VISION" },
+            { LT_ATTACK_HEAT_VISION, "HEAT VISION" },
+            { LT_ATTACK_MIMETIC, "MIMETIC ARMOR" },
+            { LT_ATTACK_STEALTH, "STEALTH" },
+            { LT_ATTACK_ECM_SHEILD, "ECM SHIELD" },
+            { LT_ATTACK_NARCED, "NARCED" },
+            { LT_ATTACK_TAGGED, "TAGGED" },
         };
 
         public void LogConfig() {
