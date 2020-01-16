@@ -530,9 +530,15 @@ namespace LowVisibility.Object {
             StringBuilder sb = new StringBuilder();
             sb.Append($"Raw check: {ewCheck}  tacticsMod: {tacticsMod}");
             sb.Append($"  ecmCarrier: {ecmCarrierMod}  ecmShieldMod: {shieldedByECMMod}  ecmJammedMod: {jammedByECMMod}");
-            sb.Append($"  advSensors: {advSensorsCarrierMod}  probeCarrier: {probeCarrierMod}  stealth: {stealth}  mimetic: {mimetic}");
-            sb.Append($"  zoomVision: {zoomVision}  heatVision: {heatVision}  nightVision: {nightVision}  sharesVision: {sharesVision}");
-            sb.Append($"  pingedByProbe: {pingedByProbeMod}  narcEffect: {narcEffect}  tagEffect: {tagEffect}");
+            sb.Append($"  advSensors: {advSensorsCarrierMod}  probeCarrier: {probeCarrierMod}");
+            sb.Append($"  stealth (detailsMod: {stealth?.DetailsMod} sigMulti: {stealth?.SignatureMulti} attack: {stealth?.MediumRangeAttackMod} / {stealth?.LongRangeAttackMod} / {stealth?.ExtremeRangeAttackMod})");
+            sb.Append($"  mimetic: (visibilityMulti: {mimetic?.VisibilityMulti}  attackMod: {mimetic?.AttackMod} hexesToDecay: {mimetic?.HexesUntilDecay})");
+            sb.Append($"  zoomVision: (attackMod: {zoomVision?.AttackMod} hexesToDecay: {zoomVision?.HexesUntilDecay} attackCap: {zoomVision?.AttackCap})");
+            sb.Append($"  heatVision: (attackMod: {heatVision?.AttackMod} heatDivisor: {heatVision?.HeatDivisor})");
+            sb.Append($"  nightVision: {nightVision}  sharesVision: {sharesVision}");
+            sb.Append($"  pingedByProbe: {pingedByProbeMod}");
+            sb.Append($"  narcEffect: (detailsMod: {narcEffect?.DetailsMod} sigMod: {narcEffect?.SignatureMod} attackMod: {narcEffect?.AttackMod})");
+            sb.Append($"  tagEffect: (detailsMod: {tagEffect?.DetailsMod} sigMod: {tagEffect?.SignatureMod} attackMod: {tagEffect?.AttackMod})");
 
             return sb.ToString(); 
         }
@@ -547,7 +553,6 @@ namespace LowVisibility.Object {
             } else {
                 toBuild.Add($"<color=#FF0000>{ewCheck:0}</color>");
             }
-
             toBuild.Add($" + (Tactics: <color=#00FF00>{tacticsMod:+0}</color>)");
 
             if (AdvancedSensorsMod() != 0) {
