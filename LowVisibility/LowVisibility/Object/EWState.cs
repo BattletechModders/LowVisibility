@@ -566,20 +566,6 @@ namespace LowVisibility.Object {
             details.Add(String.Join("", toBuild.ToArray()));
         }
 
-        public string Details() {
-            return $"tacticsBonus:{tacticsMod}" +
-                //$"ecmShieldSigMod:{GetECMShieldSignatureModifier()} ecmShieldDetailsMod:{GetECMShieldDetailsModifier()} " +
-                $"ecmJammedDetailsMod:{ECMJammedMod()} " +
-                $"probeCarrier:{ProbeCarrierMod()} probeSweepTarget:{PingedByProbeMod()}";
-                // TODO: FIXME!
-                //$"staticSensorStealth:{StaticSensorStealth} decayingSensorStealth - {(DecayingSensorStealth != null ? DecayingSensorStealth.ToString() : "")} " +
-                //$"sensorStealthAttackMulti:{(SensorStealthAttackMulti != null ? SensorStealthAttackMulti.ToString() : "1")} " +
-                //$"staticVisionStealth:{StaticVisionStealth} decayingVisionStealth- {(DecayingVisionStealth != null ? DecayingVisionStealth.ToString() : "")} " +
-                //$"visionStealthAttackMulti:{(VisionStealthAttackMulti != null ? VisionStealthAttackMulti.ToString() : "1")} " +
-                //$"vismodeZoomMod:{vismodeZoomMod} vismodeZoomCap:{vismodeZoomCap} vismodeZoomStep:{vismodeZoomStep} " +
-                //$"vismodeHeatMod:{vismodeHeatMod} vismodeHeatDiv:{vismodeHeatDivisor} " +
-        }
-
     };
   
 }

@@ -23,20 +23,22 @@ namespace LowVisibility.Helper {
             public bool hasRain;
 
             public string UILabel() {
-                string label;
-
                 // Parse light
-                if (isDay) { label = "Day";  }
-                else if (isDim) { label = "Dim"; }
-                else { label = "Dark";  }
+                string lightLabel;
+                if (isDay) { lightLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_LIGHT_BRIGHT]; }
+                else if (isDim) { lightLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_LIGHT_DIM]; }
+                else { lightLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_LIGHT_DARK]; }
+                lightLabel = new Localize.Text(lightLabel).ToString();
 
                 // Parse weather
-                if (hasHeavyFog) { label += ", Dense Fog"; }
-                else if (hasLightFog) { label += ", Fog"; }
-                else if (hasSnow) { label += ", Snow"; }
-                else if (hasRain) { label += ", Rain"; }
+                string weatherLabel = null;
+                if (hasHeavyFog) { weatherLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_FOG_HEAVY]; }
+                else if (hasLightFog) { weatherLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_FOG_LIGHT]; }
+                else if (hasSnow) { weatherLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_SNOW]; }
+                else if (hasRain) { weatherLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_RAIN]; }
+                if (weatherLabel != null) { weatherLabel = new Localize.Text(weatherLabel).ToString(); }
 
-                return label;
+                return weatherLabel == null ? lightLabel : lightLabel + ", " + weatherLabel;
             }
         }
 

@@ -16,7 +16,7 @@ namespace LowVisibility.Patches {
             if (structHover == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - structHover is null!"); }
 
             SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
-            if (scanType == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - scanType is null!"); }
+            //if (scanType == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - scanType is null!"); }
 
             string armorText = null;
             string structText = null;

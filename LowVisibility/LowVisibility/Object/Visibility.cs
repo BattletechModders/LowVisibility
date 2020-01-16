@@ -74,29 +74,29 @@ namespace LowVisibility.Object {
         public static string Label(this SensorScanType level) {
             switch (level) {
                 case SensorScanType.NoInfo:
-                    return "No Info";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_NONE]).ToString();
                 case SensorScanType.Location:
-                    return "Location";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_LOCATION]).ToString();
                 case SensorScanType.Type:
-                    return "Type";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_TYPE]).ToString();
                 case SensorScanType.Silhouette:
-                    return "Silhouettte";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_SILHOUETTE]).ToString();
                 case SensorScanType.Vector:
-                    return "Vector";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_VECTOR]).ToString();
                 case SensorScanType.SurfaceScan:
-                    return "SurfaceScan";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_SURFACE_SCAN]).ToString();
                 case SensorScanType.SurfaceAnalysis:
-                    return "SurfaceAnalysis";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_SURFACE_ANALYZE]).ToString();
                 case SensorScanType.WeaponAnalysis:
-                    return "WeaponsAnalysis";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_WEAPON_ANALYZE]).ToString();
                 case SensorScanType.StructureAnalysis:
-                    return "StructureAnalysis";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_STRUCTURE_ANALYZE]).ToString();
                 case SensorScanType.DeepScan:
-                    return "DeepScan";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_DEEP_SCAN]).ToString();
                 case SensorScanType.DentalRecords:
-                    return "DentalRecords";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_PILOT]).ToString();
                 default:
-                    return "Unknown";
+                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_UNKNOWN]).ToString();
             }
         }
 

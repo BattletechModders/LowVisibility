@@ -162,10 +162,21 @@ namespace LowVisibility.Patch {
 
             float visualLockRange = VisualLockHelper.GetVisualLockRange(actor);
             float visualScanRange = VisualLockHelper.GetVisualScanRange(actor);
-            details.Add($"Visual - Lock Range:{visualLockRange:0}m Scan Range:{visualScanRange}m [{ModState.GetMapConfig().UILabel()}]\n");
-
+            details.Add(
+                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_VISUAL_RANGE], new object[] { visualLockRange, visualScanRange, ModState.GetMapConfig().UILabel() })
+                    .ToString()
+                );
+            
+            SensorScanType checkLevel;
+            if (ewState.GetCurrentEWCheck() > (int)SensorScanType.DentalRecords) { checkLevel = SensorScanType.DentalRecords; } 
+            else if (ewState.GetCurrentEWCheck() < (int)SensorScanType.NoInfo) { checkLevel = SensorScanType.NoInfo; } 
+            else { checkLevel = (SensorScanType)ewState.GetCurrentEWCheck(); }
             float sensorsRange = SensorLockHelper.GetSensorsRange(actor);
-            details.Add($"Sensor - Lock Range:{sensorsRange:0}m \n");
+            string sensorColor = ewState.GetCurrentEWCheck() >= 0 ? "00FF00" : "FF0000";
+            details.Add(
+                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_SENSOR_RANGE], new object[] { sensorColor, sensorsRange, ewState.GetSensorsRangeMulti() })
+                    .ToString()
+                );
 
             // Sensor details
             ewState.BuildCheckTooltip(details);
