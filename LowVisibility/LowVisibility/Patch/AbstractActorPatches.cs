@@ -25,11 +25,9 @@ namespace LowVisibility.Patch {
             __instance.StatCollection.AddStatistic<int>(ModStats.CurrentRoundEWCheck, 0);
 
             // ECM
-            __instance.StatCollection.AddStatistic<int>(ModStats.ECMCarrier, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMShield, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.ECMShieldEmitterCount, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMJamming, 0);
-            __instance.StatCollection.AddStatistic<int>(ModStats.ECMJammingEmitterCount, 0);
+            __instance.StatCollection.AddStatistic<bool>(ModStats.ECMCarrier, false);
 
             // Sensors
             __instance.StatCollection.AddStatistic<int>(ModStats.AdvancedSensors, 0);

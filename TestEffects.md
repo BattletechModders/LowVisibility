@@ -69,7 +69,7 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
       "Range": 240,
       "RemoveOnSensorLock": false,
       "State": "Persistent",
-      "ApplySelf": false,
+      "ApplySelf": true,
       "AllyStealthAffection": "None",
       "EnemyStealthAffection": "None",
       "IsPositiveToAlly": true,
@@ -95,8 +95,8 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
                     "range" : 0.0,
                     "forcePathRebuild" : false,
                     "forceVisRebuild" : false,
-                    "showInTargetPreview" : false,
-                    "showInStatusPanel" : false
+                    "showInTargetPreview" : true,
+                    "showInStatusPanel" : true
                 },
                 "effectType" : "StatisticEffect",
                 "Description" :
@@ -110,39 +110,7 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
                 {
                     "statName" : "LV_ECM_SHIELD",
                     "operation": "Int_Add",
-                    "modValue": "1",
-                    "modType": "System.Int32"
-                },
-                "nature" : "Buff"
-            },
-            {
-                "durationData" : {
-                    "duration": -1,
-                    "stackLimit": -1
-                },
-                "targetingData" : {
-                    "effectTriggerType" : "Passive",
-                    "specialRules" : "NotSet",
-                    "effectTargetType" : "AlliesWithinRange",
-                    "range" : 0.0,
-                    "forcePathRebuild" : false,
-                    "forceVisRebuild" : false,
-                    "showInTargetPreview" : false,
-                    "showInStatusPanel" : false
-                },
-                "effectType" : "StatisticEffect",
-                "Description" :
-                {
-                    "Id" : "LV_ECM_SHIELD_EMITTER_COUNT",
-                    "Name" : "ECM Shield Emitter Count",
-                    "Details" : "Counter for the number of ECM emitters currently affecting an actor with shielding.",
-                    "Icon" : "uixSvgIcon_status_ECM-missileDef"
-                },
-                "statisticData" : 
-                {
-                    "statName" : "LV_ECM_SHIELD_EMITTER_COUNT",
-                    "operation": "Int_Add",
-                    "modValue": "1",
+                    "modValue": "2",
                     "modType": "System.Int32"
                 },
                 "nature" : "Buff"
@@ -184,8 +152,8 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
                 "range" : 0.0,
                 "forcePathRebuild" : false,
                 "forceVisRebuild" : false,
-                "showInTargetPreview" : false,
-                "showInStatusPanel" : false
+                "showInTargetPreview" : true,
+                "showInStatusPanel" : true
             },
             "effectType" : "StatisticEffect",
             "Description" :
@@ -199,43 +167,11 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
             {
                 "statName" : "LV_ECM_JAMMED",
                 "operation": "Int_Add",
-                "modValue": "1",
+                "modValue": "2",
                 "modType": "System.Int32"
             },
             "nature" : "Debuff"
-        },
-        {
-                "durationData" : {
-                    "duration": -1,
-                    "stackLimit": -1
-                },
-                "targetingData" : {
-                    "effectTriggerType" : "Passive",
-                    "specialRules" : "NotSet",
-                    "effectTargetType" : "EnemiesWithinRange",
-                    "range" : 0.0,
-                    "forcePathRebuild" : false,
-                    "forceVisRebuild" : false,
-                    "showInTargetPreview" : false,
-                    "showInStatusPanel" : false
-                },
-                "effectType" : "StatisticEffect",
-                "Description" :
-                {
-                    "Id" : "LV_ECM_JAM_EMITTER_COUNT",
-                    "Name" : "ECM Jamming Emitter Count",
-                    "Details" : "Counter for the number of ECM emitters currently affecting an actor with jamming.",
-                    "Icon" : "uixSvgIcon_status_ECM-missileDef"
-                },
-                "statisticData" : 
-                {
-                    "statName" : "LV_ECM_JAM_EMITTER_COUNT",
-                    "operation": "Int_Add",
-                    "modValue": "1",
-                    "modType": "System.Int32"
-                },
-                "nature" : "Debuff"
-            }
+        }
       ]
     }
 ],
@@ -251,14 +187,14 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
             "effectTargetType" : "Creator",
             "range" : 0.0,
             "forcePathRebuild" : false,
-            "forceVisRebuild" : true,
+            "forceVisRebuild" : false,
             "showInTargetPreview" : false,
             "showInStatusPanel" : false
         },
         "effectType" : "StatisticEffect",
         "Description" :
         {
-            "Id" : "LV_ECM_Carrier_Test_2",
+            "Id" : "LV_ECM_CARRIER",
             "Name" : "ECM Carrier",
             "Details" : "You emit an ECM field that makes you easier to detect with sensors, but harder to hit.",
             "Icon" : "uixSvgIcon_status_ECM-missileDef"
@@ -267,11 +203,43 @@ An ECM emitter applies ECM Shield to allies, has an ECM Carrier value, and appli
         {
             "statName" : "LV_ECM_CARRIER",
             "operation": "Set",
-            "modValue": "2",
-            "modType": "System.Int32"
+            "modValue": "true",
+            "modType": "System.Boolean"
         },
         "nature" : "Buff"
-    }
+    },
+    {
+        "durationData" : {
+            "duration": -1,
+            "stackLimit": -1
+        },
+        "targetingData" : {
+            "effectTriggerType" : "Passive",
+            "specialRules" : "NotSet",
+            "effectTargetType" : "Creator",
+            "range" : 0.0,
+            "forcePathRebuild" : false,
+            "forceVisRebuild" : false,
+            "showInTargetPreview" : false,
+            "showInStatusPanel" : false
+        },
+        "effectType" : "StatisticEffect",
+        "Description" :
+        {
+            "Id" : "LV_ECM_CARRIER_SIGNATURE",
+            "Name" : "ECM Carrier Signature Penalty",
+            "Details" : "Your ECM field makes you easier to detect",
+            "Icon" : "uixSvgIcon_status_ECM-missileDef"
+        },
+        "statisticData" : 
+        {
+            "statName" : "Signature",
+            "operation": "Float_Add",
+            "modValue": "0.3",
+            "modType": "System.Single"
+        },
+        "nature" : "Buff"
+    }    
 ]
 ```
 
@@ -467,7 +435,7 @@ This effect provides an attack bonus based upon the target's heat.
             {
 				"statName" : "LV_HEAT_VISION",
 				"operation": "Set",
-				"modValue": "true",
+				"modValue": "-1_20_300",
 				"modType": "System.String"
             },
             "nature" : "Buff"
@@ -509,17 +477,17 @@ This effect provides an attack bonus based upon distance to the target.
             "effectType" : "StatisticEffect",
             "Description" :
             {
-				"Id" : "LV_NIGHT_VISION",
+				"Id" : "LV_ZOOM_VISION",
 				"Name" : "Night Vision",
 				"Details" : "Provides extended vision range at night.",
 				"Icon" : "uixSvgIcon_status_ECM-missileDef"
             },
             "statisticData" : 
             {
-				"statName" : "LV_NIGHT_VISION",
+				"statName" : "LV_ZOOM_VISION",
 				"operation": "Set",
-				"modValue": "true",
-				"modType": "System.Boolean"
+				"modValue": "0_-5_4",
+				"modType": "System.String"
             },
             "nature" : "Buff"
         },

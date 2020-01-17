@@ -25,7 +25,7 @@ namespace LowVisibility.Patch {
 
                 // Vision modifiers
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(weapon, distance);
-                int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, weapon);
+                int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, distance, weapon);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState);
                 bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
                 //Mod.Log.Debug($"  zoomVisionMod: {zoomVisionMod}  heatVisionMod: {heatVisionMod}  mimeticMod: {mimeticMod}  canSpotTarget: {canSpotTarget}");
@@ -98,16 +98,17 @@ namespace LowVisibility.Patch {
 
                 // Vision modifiers
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(weapon, distance);
-                int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, weapon);
+                int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, distance, weapon);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState);
                 bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
 
                 // Sensor modifiers
+                SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, attacker);
                 int ecmShieldMod = targetState.ECMAttackMod(attackerState);
                 int stealthMod = targetState.StealthAttackMod(attackerState, weapon, distance);
                 int narcMod = targetState.NarcAttackMod(attackerState);
                 int tagMod = targetState.TagAttackMod(attackerState);
-                SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, attacker);
+                if (Mod.Config.Attack.NoSensorInfoPenalty > (ecmShieldMod + stealthMod + narcMod + tagMod)) { sensorScan = SensorScanType.NoInfo; }
 
                 if (sensorScan == SensorScanType.NoInfo && !canSpotTarget) {
                     string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_FIRING_BLIND]).ToString();

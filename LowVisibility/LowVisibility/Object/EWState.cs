@@ -42,13 +42,14 @@ namespace LowVisibility.Object {
         }
     }
 
-    // <initialAttackModifier>_<heatDivisorForStep>
+    // <initialAttackModifier>_<heatDivisorForStep>_<hexesUntilDecay>
     class HeatVision {
         public int AttackMod = 0;
         public float HeatDivisor = 1f;
+        public int HexesUntilDecay = 0;
 
         public override string ToString() {
-            return $"attackMod:{AttackMod} heatDivisor:{HeatDivisor}";
+            return $"attackMod:{AttackMod} heatDivisor:{HeatDivisor} hexesUntilDecay:{HexesUntilDecay}";
         }
     }
 
@@ -72,9 +73,9 @@ namespace LowVisibility.Object {
 
         private int ewCheck = 0; // Raw value before any manipulation
 
-        private int ecmCarrierMod = 0;
         private int shieldedByECMMod = 0;
         private int jammedByECMMod = 0;
+        private bool ecmCarrier = false;
 
         private int advSensorsCarrierMod = 0;
 
@@ -116,22 +117,12 @@ namespace LowVisibility.Object {
                 actor.StatCollection.GetStatistic(ModStats.CurrentRoundEWCheck).Value<int>() : 0;
 
             // ECM
-            ecmCarrierMod = actor.StatCollection.ContainsStatistic(ModStats.ECMCarrier) ?
-                actor.StatCollection.GetStatistic(ModStats.ECMCarrier).Value<int>() : 0;
-
-            // Possible overlapping values
-            // TODO: Possibly reduce this average and add the count of ECM emitters
-            int jammingValue = actor.StatCollection.ContainsStatistic(ModStats.ECMJamming) ?
+            jammedByECMMod = actor.StatCollection.ContainsStatistic(ModStats.ECMJamming) ?
                 actor.StatCollection.GetStatistic(ModStats.ECMJamming).Value<int>() : 0;
-            int jammingEmitters = actor.StatCollection.ContainsStatistic(ModStats.ECMJammingEmitterCount) ?
-                actor.StatCollection.GetStatistic(ModStats.ECMJammingEmitterCount).Value<int>() : 0;
-            jammedByECMMod = jammingEmitters > 0 ? (int)Math.Ceiling((float)jammingValue / jammingEmitters) : 0;
-
-            int shieldValue = actor.StatCollection.ContainsStatistic(ModStats.ECMShield) ?
+            shieldedByECMMod = actor.StatCollection.ContainsStatistic(ModStats.ECMShield) ?
                 actor.StatCollection.GetStatistic(ModStats.ECMShield).Value<int>() : 0;
-            int shieldEmitters = actor.StatCollection.ContainsStatistic(ModStats.ECMShieldEmitterCount) ?
-                actor.StatCollection.GetStatistic(ModStats.ECMShieldEmitterCount).Value<int>() : 0;
-            shieldedByECMMod = shieldEmitters > 0 ? (int)Math.Ceiling((float)shieldValue / shieldEmitters) : 0;
+            ecmCarrier = actor.StatCollection.ContainsStatistic(ModStats.ECMCarrier) ?
+                actor.StatCollection.GetStatistic(ModStats.ECMCarrier).Value<bool>() : false;
 
             // Sensors
             advSensorsCarrierMod = actor.StatCollection.ContainsStatistic(ModStats.AdvancedSensors) ?
@@ -208,20 +199,21 @@ namespace LowVisibility.Object {
                 }
             }
 
-            // HeatVision - <initialAttackModifier>_<heatDivisorForStep>
+            // HeatVision - <initialAttackModifier>_<heatDivisorForStep>__<hexesUntilDecay>
             if (actor.StatCollection.ContainsStatistic(ModStats.HeatVision) &&
                 actor.StatCollection.GetStatistic(ModStats.HeatVision).Value<string>() != "") {
                 string rawValue = actor.StatCollection.GetStatistic(ModStats.HeatVision).Value<string>();
                 string[] tokens = rawValue.Split('_');
-                if (tokens.Length == 2) {
+                if (tokens.Length == 3) {
                     try {
                         heatVision = new HeatVision {
                             AttackMod = Int32.Parse(tokens[0]),
                             HeatDivisor = float.Parse(tokens[1]),
-                    };
+                            HexesUntilDecay = Int32.Parse(tokens[2])
+                        };
                     } catch (Exception) {
                         Mod.Log.Info($"Failed to tokenize HeatVision value: ({rawValue}). Discarding!");
-                        mimetic = null;
+                        heatVision = null;
                     }
                 } else {
                     Mod.Log.Info($"WARNING: Invalid HeatVision value: ({rawValue}) found. Discarding!");
@@ -287,22 +279,14 @@ namespace LowVisibility.Object {
         // ECM
         public int ECMJammedMod() { return jammedByECMMod;  }
         public float ECMSignatureMod(EWState attackerState) {
-            int strength = 0;
-            if (ecmCarrierMod > 0) {
-                // We are a carrier - apply as a positive signature change (easier to locate)
-                strength = ecmCarrierMod + attackerState.ProbeCarrierMod();
-                Mod.Log.Trace($"Target:({CombatantUtils.Label(actor)}) has ECMCarrier:{ecmCarrierMod} - ProbeMod:{attackerState.ProbeCarrierMod()} " +
-    $"from source:{CombatantUtils.Label(attackerState.actor)}");
-            } else if (shieldedByECMMod > 0) {
-                // We are shielded - apply as a negative signature change (harder to locate)
-                strength = ecmCarrierMod - attackerState.ProbeCarrierMod();
-                Mod.Log.Trace($"Target:({CombatantUtils.Label(actor)}) has ECMShield:{shieldedByECMMod} - ProbeMod:{attackerState.ProbeCarrierMod()} " +
-    $"from source:{CombatantUtils.Label(attackerState.actor)}");
-            } else { return 0f; }
+            
+            if (shieldedByECMMod <= 0) { return 0f; }
 
+            int strength = shieldedByECMMod - attackerState.ProbeCarrierMod();
             if (attackerState.PingedByProbeMod() > 0) { strength -= attackerState.PingedByProbeMod(); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
 
+            // Probe can reduce you to zero, but not further.
             strength = Math.Max(0, strength);
 
             float sigMod = strength * 0.1f;
@@ -311,8 +295,10 @@ namespace LowVisibility.Object {
             return sigMod;
         }
         public int ECMDetailsMod(EWState attackerState) {
-            int strength = shieldedByECMMod > ecmCarrierMod ? shieldedByECMMod : ecmCarrierMod;
 
+            if (shieldedByECMMod <= 0) { return 0; }
+
+            int strength = shieldedByECMMod;
             if (attackerState.PingedByProbeMod() > 0) { strength -= attackerState.PingedByProbeMod(); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
 
@@ -320,11 +306,15 @@ namespace LowVisibility.Object {
 
             return strength;
         }
-        public bool IsECMCarrier() { return ecmCarrierMod > 0; }
+
+        public bool IsECMCarrier() { return ecmCarrier; }
+
         // Defender modifier
         public int ECMAttackMod(EWState attackerState) {
-            int strength = shieldedByECMMod > ecmCarrierMod ? shieldedByECMMod : ecmCarrierMod;
 
+            if (shieldedByECMMod <= 0) { return 0; }
+
+            int strength = shieldedByECMMod;
             if (attackerState.PingedByProbeMod() > 0) { strength -= attackerState.PingedByProbeMod(); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
 
@@ -452,18 +442,22 @@ namespace LowVisibility.Object {
         }
 
         // HeatVision - Attacker
-        public int GetHeatVisionAttackMod(AbstractActor target, Weapon weapon) {
+        public int GetHeatVisionAttackMod(AbstractActor target, float magnitude, Weapon weapon) {
             if (heatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return 0; }
+
+            // Check range 
+            if (magnitude > heatVision.HexesUntilDecay) { return 0; }
 
             int currentMod = 0;
             if (target is Mech targetMech) {
                 double targetHeat = targetMech != null ? (double)targetMech.CurrentHeat : 0.0;
-                int numDecays = (int)Math.Floor(targetHeat / heatVision.HeatDivisor);
-                Mod.Log.Debug($"  numDecays: {numDecays} = targetHeat: {targetHeat} / divisor: {heatVision.HeatDivisor}");
+                int numSteps = (int)Math.Floor(targetHeat / heatVision.HeatDivisor);
+                Mod.Log.Debug($"  numDecays: {numSteps} = targetHeat: {targetHeat} / divisor: {heatVision.HeatDivisor}");
 
-                currentMod = Math.Max(heatVision.AttackMod - numDecays, 0);
-                Mod.Log.Debug($"  -- current: {currentMod} = initial: {heatVision.AttackMod} - decays: {numDecays}");
-
+                // remember: Negative is better
+                currentMod = Math.Max(heatVision.AttackMod - numSteps, 0);
+                if (currentMod > Mod.Config.Attack.MaxHeatVisionBonus) { currentMod = Mod.Config.Attack.MaxHeatVisionBonus; }
+                Mod.Log.Debug($"  -- current: {currentMod} = initial: {heatVision.AttackMod} - decays: {numSteps}");
             }
 
             return currentMod;
@@ -529,7 +523,7 @@ namespace LowVisibility.Object {
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
             sb.Append($"Raw check: {ewCheck}  tacticsMod: {tacticsMod}");
-            sb.Append($"  ecmCarrier: {ecmCarrierMod}  ecmShieldMod: {shieldedByECMMod}  ecmJammedMod: {jammedByECMMod}");
+            sb.Append($"  ecmShieldMod: {shieldedByECMMod}  ecmJammedMod: {jammedByECMMod}");
             sb.Append($"  advSensors: {advSensorsCarrierMod}  probeCarrier: {probeCarrierMod}");
             sb.Append($"  stealth (detailsMod: {stealth?.DetailsMod} sigMulti: {stealth?.SignatureMulti} attack: {stealth?.MediumRangeAttackMod} / {stealth?.LongRangeAttackMod} / {stealth?.ExtremeRangeAttackMod})");
             sb.Append($"  mimetic: (visibilityMulti: {mimetic?.VisibilityMulti}  attackMod: {mimetic?.AttackMod} hexesToDecay: {mimetic?.HexesUntilDecay})");

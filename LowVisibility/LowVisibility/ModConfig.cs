@@ -12,11 +12,9 @@ namespace LowVisibility {
         public const string CurrentRoundEWCheck = "LV_CURRENT_ROUND_EW_CHECK"; // Int_32
 
         // ECM 
-        public const string ECMCarrier = "LV_ECM_CARRIER"; // Int_32
         public const string ECMShield = "LV_ECM_SHIELD"; // Int_32
-        public const string ECMShieldEmitterCount = "LV_ECM_SHIELD_EMITTER_COUNT"; // Int_32
         public const string ECMJamming = "LV_ECM_JAMMED"; // Int_32
-        public const string ECMJammingEmitterCount = "LV_ECM_JAM_EMITTER_COUNT"; // Int_32
+        public const string ECMCarrier = "LV_ECM_CARRIER"; // Boolean
         public const string ECMVFXEnabled = "LV_ECM_VFX_ENABLED"; // Boolean
 
         // Sensors

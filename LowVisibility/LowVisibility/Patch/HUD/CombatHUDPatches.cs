@@ -82,7 +82,7 @@ namespace LowVisibility.Patch {
 
                 // Vision modifiers
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(__instance.DisplayedWeapon, magnitude);
-                int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, __instance.DisplayedWeapon);
+                int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, magnitude, __instance.DisplayedWeapon);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState);
                 bool canSpotTarget = VisualLockHelper.CanSpotTarget(actor, actor.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, actor.Combat.LOS);
 
