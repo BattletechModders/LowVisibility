@@ -20,60 +20,49 @@ namespace LowVisibility.Patch {
             AbstractActor targetActor = target as AbstractActor;
             if (__instance != null && attacker != null && targetActor != null) {
                 float distance = Vector3.Distance(attackPosition, targetPosition);
+                
+                // Cache these
                 EWState attackerState = new EWState(attacker);
                 EWState targetState = new EWState(targetActor);
 
-                // Vision modifiers
+                // Visual attack bucket
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(weapon, distance);
-                int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, distance, weapon);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState);
                 bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
-                //Mod.Log.Debug($"  zoomVisionMod: {zoomVisionMod}  heatVisionMod: {heatVisionMod}  mimeticMod: {mimeticMod}  canSpotTarget: {canSpotTarget}");
 
-                // Sensor modifiers
-                int ecmShieldMod = targetState.ECMAttackMod(attackerState);
-                int stealthMod = targetState.StealthAttackMod(attackerState, weapon, distance);
-                int narcMod = targetState.NarcAttackMod(attackerState);
-                int tagMod = targetState.TagAttackMod(attackerState);
-                SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, attacker);
-                //Mod.Log.Debug($"  ecmShieldMod: {ecmShieldMod}  stealthMod: {stealthMod}  narcMod: {narcMod}  tagMod: {tagMod}  sensorScan: {sensorScan}");
-
-                if (sensorScan == SensorScanType.NoInfo && !canSpotTarget) {
-                    __result = __result + (float)Mod.Config.Attack.BlindFirePenalty;
-                } else {
-                    if (!canSpotTarget) {
-                        __result = __result + (float)Mod.Config.Attack.NoVisualsPenalty;
-                    } else {
-                        if (zoomVisionMod != 0) {
-                            __result = __result + (float)zoomVisionMod;
-                        }
-                        if (heatVisionMod != 0) {
-                            __result = __result + (float)heatVisionMod;
-                        }
-                        if (mimeticMod != 0) {
-                            __result = __result + (float)mimeticMod;
-                        }
-                    }
-
-                    if (sensorScan == SensorScanType.NoInfo) {
-                        __result = __result + (float)Mod.Config.Attack.NoSensorInfoPenalty;
-                    } else {
-                        if (ecmShieldMod != 0) {
-                            __result = __result + (float)ecmShieldMod;
-                        }
-                        if (stealthMod != 0) {
-                            __result = __result + (float)stealthMod;
-                        }
-                        if (narcMod != 0) {
-                            __result = __result + (float)narcMod;
-                        }
-                        if (tagMod != 0) {
-                            __result = __result + (float)tagMod;
-                        }
-                    }
+                int visualAttackMod = Mod.Config.Attack.MaxVisualAttackMod;
+                if (canSpotTarget || attackerState.HasZoomVisionToTarget(weapon, distance)) {
+                    visualAttackMod = Mod.Config.Attack.VisualAttackMod + zoomVisionMod + mimeticMod;
                 }
 
-                //Mod.Log.Debug($" -- Final result:{__result}");
+                // Thermal attack bucket
+                int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, distance, weapon);
+                int stealthMod = targetState.StealthAttackMod(attackerState, weapon, distance);
+                int thermalAttackMod = Mod.Config.Attack.MaxThermalAttackMod;
+                if (attackerState.HasHeatVisionToTarget(weapon, distance)) {
+                    thermalAttackMod = Mod.Config.Attack.ThermalAttackMod + heatVisionMod + stealthMod;
+                }
+
+                // Sensor attack bucket.  Sensors always fallback, so roll everything up and cap
+                int sensorsAttackMod = Mod.Config.Attack.SensorAttackMod;
+                if (SensorLockHelper.CalculateSharedLock(targetActor, attacker) <= SensorScanType.Location) {
+                    sensorsAttackMod += Mod.Config.Attack.SensorBlipPenalty;
+                }
+                sensorsAttackMod += targetState.ECMAttackMod(attackerState);
+                sensorsAttackMod += targetState.NarcAttackMod(attackerState);
+                sensorsAttackMod += targetState.TagAttackMod(attackerState);
+                if (sensorsAttackMod > Mod.Config.Attack.MaxSensorAttackMod) {
+                    sensorsAttackMod = Mod.Config.Attack.MaxSensorAttackMod;
+                }
+
+                // Rembmer, lower is better. Test visual, then thermal, then sensors.
+                if (visualAttackMod <= thermalAttackMod && visualAttackMod <= sensorsAttackMod) {
+                    __result = __result + visualAttackMod;
+                } else if (thermalAttackMod <= sensorsAttackMod) {
+                    __result = __result + thermalAttackMod;
+                } else {
+                    __result = __result + sensorsAttackMod;
+                }
 
             }
         }

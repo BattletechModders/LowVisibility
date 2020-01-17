@@ -36,9 +36,17 @@ namespace LowVisibility.Object {
         public int AttackMod = 0;
         public int AttackCap = 0;
         public int HexesUntilDecay = 0;
+        public readonly int MaximumRange = 0;
+
+        public ZoomVision(int mod, int cap, int decay) {
+            this.AttackMod = mod;
+            this.AttackCap = cap;
+            this.HexesUntilDecay = decay;
+            this.MaximumRange = HexUtils.HexesInRange(mod, cap, decay) * 30;
+        }
 
         public override string ToString() {
-            return $"attackMod:{AttackMod} attackCap:{AttackCap} hexesUntilDecay:{HexesUntilDecay}";
+            return $"attackMod:{AttackMod} attackCap:{AttackCap} hexesUntilDecay:{HexesUntilDecay} maximumRange: {MaximumRange}";
         }
     }
 
@@ -46,10 +54,10 @@ namespace LowVisibility.Object {
     class HeatVision {
         public int AttackMod = 0;
         public float HeatDivisor = 1f;
-        public int HexesUntilDecay = 0;
+        public int MaximumRange = 0;
 
         public override string ToString() {
-            return $"attackMod:{AttackMod} heatDivisor:{HeatDivisor} hexesUntilDecay:{HexesUntilDecay}";
+            return $"attackMod:{AttackMod} heatDivisor:{HeatDivisor} maximumRange: {MaximumRange}";
         }
     }
 
@@ -185,11 +193,7 @@ namespace LowVisibility.Object {
                 string[] tokens = rawValue.Split('_');
                 if (tokens.Length == 3) {
                     try {
-                        zoomVision = new ZoomVision {
-                            AttackMod = Int32.Parse(tokens[0]),
-                            AttackCap = Int32.Parse(tokens[1]),
-                            HexesUntilDecay = Int32.Parse(tokens[2])
-                        };
+                        zoomVision = new ZoomVision(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2]));
                     } catch (Exception) {
                         Mod.Log.Info($"Failed to tokenize ZoomVision value: ({rawValue}). Discarding!");
                         mimetic = null;
@@ -199,7 +203,7 @@ namespace LowVisibility.Object {
                 }
             }
 
-            // HeatVision - <initialAttackModifier>_<heatDivisorForStep>__<hexesUntilDecay>
+            // HeatVision - <initialAttackModifier>_<heatDivisorForStep>__<maximumRange>
             if (actor.StatCollection.ContainsStatistic(ModStats.HeatVision) &&
                 actor.StatCollection.GetStatistic(ModStats.HeatVision).Value<string>() != "") {
                 string rawValue = actor.StatCollection.GetStatistic(ModStats.HeatVision).Value<string>();
@@ -209,7 +213,7 @@ namespace LowVisibility.Object {
                         heatVision = new HeatVision {
                             AttackMod = Int32.Parse(tokens[0]),
                             HeatDivisor = float.Parse(tokens[1]),
-                            HexesUntilDecay = Int32.Parse(tokens[2])
+                            MaximumRange = Int32.Parse(tokens[2])
                         };
                     } catch (Exception) {
                         Mod.Log.Info($"Failed to tokenize HeatVision value: ({rawValue}). Discarding!");
@@ -441,12 +445,17 @@ namespace LowVisibility.Object {
             return currentMod;
         }
 
+        public bool HasZoomVisionToTarget(Weapon weapon, float distance) {
+            if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return false; }
+            return distance < zoomVision.MaximumRange;
+        }
+
         // HeatVision - Attacker
         public int GetHeatVisionAttackMod(AbstractActor target, float magnitude, Weapon weapon) {
             if (heatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return 0; }
 
             // Check range 
-            if (magnitude > heatVision.HexesUntilDecay) { return 0; }
+            if (magnitude > heatVision.MaximumRange) { return 0; }
 
             int currentMod = 0;
             if (target is Mech targetMech) {
@@ -455,12 +464,16 @@ namespace LowVisibility.Object {
                 Mod.Log.Debug($"  numDecays: {numSteps} = targetHeat: {targetHeat} / divisor: {heatVision.HeatDivisor}");
 
                 // remember: Negative is better
-                currentMod = Math.Max(heatVision.AttackMod - numSteps, 0);
-                if (currentMod > Mod.Config.Attack.MaxHeatVisionBonus) { currentMod = Mod.Config.Attack.MaxHeatVisionBonus; }
+                currentMod = Math.Max(heatVision.AttackMod - numSteps, 0);                
                 Mod.Log.Debug($"  -- current: {currentMod} = initial: {heatVision.AttackMod} - decays: {numSteps}");
             }
 
             return currentMod;
+        }
+
+        public bool HasHeatVisionToTarget(Weapon weapon, float distance) {
+            if (heatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return false; }
+            return distance < heatVision.MaximumRange;
         }
 
         // NARC effects

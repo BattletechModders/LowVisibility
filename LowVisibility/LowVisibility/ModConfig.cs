@@ -98,15 +98,15 @@ namespace LowVisibility {
         public VisionRangeOpts Vision = new VisionRangeOpts();
 
         public class AttackOpts {
-            public int NoSensorInfoPenalty = 5; // Applied when the attacker cannot detect the target
-            public int NoVisualsPenalty = 5; // Applied when the attacker cannot spot the target
-            public int BlindFirePenalty = 13; // Applied if both of the above are true
+            public int VisualAttackMod = -1;
+            public int MaxVisualAttackMod = 9;
 
-            public float NoSensorsCriticalPenalty = 0.0f;
-            public float NoVisualsCriticalPenalty = 0.0f;
+            public int ThermalAttackMod = 0;
+            public int MaxThermalAttackMod = 0;
 
-            // The maximum attack bonus for heat vision
-            public int MaxHeatVisionBonus = 5;
+            public int SensorAttackMod = 1;
+            public int MaxSensorAttackMod = 0;
+            public int SensorBlipPenalty = 9;
         }
         public AttackOpts Attack = new AttackOpts();
 
@@ -219,9 +219,9 @@ namespace LowVisibility {
             Mod.Log.Info($"ShowTerrainThroughFogOfWar: {Vision.ShowTerrainThroughFogOfWar}");
 
             Mod.Log.Info($"  == Attacking ==");
-            Mod.Log.Info($"Penalties - NoSensors:{Attack.NoSensorInfoPenalty} NoVisuals:{Attack.NoVisualsPenalty} BlindFire:{Attack.BlindFirePenalty}");
-            Mod.Log.Info($"Criticals Penalty - NoSensors:{Attack.NoSensorsCriticalPenalty} NoVisuals:{Attack.NoVisualsCriticalPenalty}");
-            Mod.Log.Info($"HeatVisionMaxBonus: {Attack.MaxHeatVisionBonus}");
+            //Mod.Log.Info($"Penalties - NoSensors:{Attack.NoSensorInfoPenalty} NoVisuals:{Attack.NoVisualsPenalty} BlindFire:{Attack.BlindFirePenalty}");
+            //Mod.Log.Info($"Criticals Penalty - NoSensors:{Attack.NoSensorsCriticalPenalty} NoVisuals:{Attack.NoVisualsCriticalPenalty}");
+            //Mod.Log.Info($"HeatVisionMaxBonus: {Attack.MaxHeatVisionBonus}");
 
             Mod.Log.Info("=== MOD CONFIG END ===");
         }
