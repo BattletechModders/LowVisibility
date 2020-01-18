@@ -72,58 +72,93 @@ namespace LowVisibility.Patch {
             if (__instance == null || target == null) { return;  }
             Mod.Log.Trace("CHUDWS:SHC - entered.");
 
-            AbstractActor actor = __instance.DisplayedWeapon.parent;
+            AbstractActor attacker = __instance.DisplayedWeapon.parent;
             Traverse AddToolTipDetailMethod = Traverse.Create(__instance).Method("AddToolTipDetail", new Type[] { typeof(string), typeof(int) });
 
             if (target is AbstractActor targetActor && __instance.DisplayedWeapon != null) {
-                float magnitude = (actor.CurrentPosition - target.CurrentPosition).magnitude;
-                EWState attackerState = new EWState(actor);
+                float magnitude = (attacker.CurrentPosition - target.CurrentPosition).magnitude;
+                EWState attackerState = new EWState(attacker);
                 EWState targetState = new EWState(targetActor);
 
-                // Vision modifiers
-                int zoomVisionMod = attackerState.GetZoomVisionAttackMod(__instance.DisplayedWeapon, magnitude);
-                int heatVisionMod = attackerState.GetHeatVisionAttackMod(targetActor, magnitude, __instance.DisplayedWeapon);
+                // If we can't see the target, apply the No Visuals penalty
+                bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
                 int mimeticMod = targetState.MimeticAttackMod(attackerState);
-                bool canSpotTarget = VisualLockHelper.CanSpotTarget(actor, actor.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, actor.Combat.LOS);
+                int eyeballAttackMod = canSpotTarget ? mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
 
-                // Sensor modifiers
-                int ecmShieldMod = targetState.ECMAttackMod(attackerState);
-                int stealthMod = targetState.StealthAttackMod(attackerState, __instance.DisplayedWeapon, magnitude);
-                int narcMod = targetState.NarcAttackMod(attackerState);
-                int tagMod = targetState.TagAttackMod(attackerState);
-                SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, actor);
-                 
-                if (sensorScan == SensorScanType.NoInfo && !canSpotTarget) {
-                    AddToolTipDetailMethod.GetValue(new object[] { "FIRING BLIND", Mod.Config.Attack.BlindFirePenalty });
+                // Zoom applies independently of visibility (request from Harkonnen)
+                int zoomVisionMod = attackerState.GetZoomVisionAttackMod(__instance.DisplayedWeapon, magnitude);
+                int zoomAttackMod = attackerState.HasZoomVisionToTarget(__instance.DisplayedWeapon, magnitude) ? zoomVisionMod - mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
+
+                bool hasVisualAttack = (eyeballAttackMod < Mod.Config.Attack.NoVisualsPenalty || zoomAttackMod < Mod.Config.Attack.NoVisualsPenalty);
+
+                // Sensor attack bucket.  Sensors always fallback, so roll everything up and cap
+                int narcAttackMod = targetState.NarcAttackMod(attackerState);
+                int tagAttackMod = targetState.TagAttackMod(attackerState);
+                int ecmShieldAttackMod = targetState.ECMAttackMod(attackerState);
+                int stealthAttackMod = targetState.StealthAttackMod(attackerState, __instance.DisplayedWeapon, magnitude);
+
+                bool hasSensorAttack = SensorLockHelper.CalculateSharedLock(targetActor, attacker) <= SensorScanType.NoInfo;
+                int sensorsAttackMod = Mod.Config.Attack.NoSensorsPenalty;
+                if (hasSensorAttack) {
+                    sensorsAttackMod = 0;
+                    sensorsAttackMod -= narcAttackMod;
+                    sensorsAttackMod -= tagAttackMod;
+                    sensorsAttackMod += ecmShieldAttackMod;
+                    sensorsAttackMod += stealthAttackMod;
+                }
+                if (sensorsAttackMod > Mod.Config.Attack.NoSensorsPenalty) {
+                    sensorsAttackMod = Mod.Config.Attack.NoSensorsPenalty;
+                    hasSensorAttack = false;
+                }
+
+                // Check firing blind
+                if (!hasVisualAttack && !hasSensorAttack) {
+                    string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_FIRING_BLIND]).ToString();
+                    AddToolTipDetailMethod.GetValue(new object[] { localText, Mod.Config.Attack.FiringBlindPenalty });
                 } else {
-                    if (!canSpotTarget) {
-                        AddToolTipDetailMethod.GetValue(new object[] { "NO VISUALS", Mod.Config.Attack.NoVisualsPenalty });
+                    // Visual attacks
+                    if (!hasVisualAttack) {
+                        string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_NO_VISUALS]).ToString();
+                        AddToolTipDetailMethod.GetValue(new object[] { localText, Mod.Config.Attack.NoVisualsPenalty });
                     } else {
-                        if (zoomVisionMod != 0) {
-                            AddToolTipDetailMethod.GetValue(new object[] { "ZOOM VISION", zoomVisionMod });
+                        // If the zoom + mimetic is better than eyeball, use that. Otherwise, we're using the good ol mk.1 eyeball
+                        if (zoomAttackMod > eyeballAttackMod) {
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_ZOOM_VISION]).ToString();
+                            AddToolTipDetailMethod.GetValue(new object[] { localText, zoomVisionMod });
                         }
-                        if (heatVisionMod != 0) {
-                            AddToolTipDetailMethod.GetValue(new object[] { "HEAT VISION", heatVisionMod });
-                        }
+
                         if (mimeticMod != 0) {
-                            AddToolTipDetailMethod.GetValue(new object[] { "MIMETIC ARMOR", mimeticMod });
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_MIMETIC]).ToString();
+                            AddToolTipDetailMethod.GetValue(new object[] { localText, mimeticMod });
                         }
                     }
 
-                    if (sensorScan == SensorScanType.NoInfo) {
-                        AddToolTipDetailMethod.GetValue(new object[] { "NO SENSOR INFO", Mod.Config.Attack.NoSensorInfoPenalty });
+                    if (attackerState.HasHeatVisionToTarget(__instance.DisplayedWeapon, magnitude)) {
+                        int heatAttackMod = attackerState.GetHeatVisionAttackMod(targetActor, magnitude, __instance.DisplayedWeapon);
+                        string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_HEAT_VISION]).ToString();
+                        AddToolTipDetailMethod.GetValue(new object[] { localText, mimeticMod });
+                    }
+
+                    if (!hasSensorAttack) {
+                        string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_NO_SENSORS]).ToString();
+                        AddToolTipDetailMethod.GetValue(new object[] { localText, Mod.Config.Attack.NoSensorsPenalty });
                     } else {
-                        if (ecmShieldMod != 0) {
-                            AddToolTipDetailMethod.GetValue(new object[] { "ECM SHIELD", targetState.ECMAttackMod(attackerState) });
+
+                        if (targetState.TagAttackMod(attackerState) != 0) {
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_ECM_SHEILD]).ToString();
+                            AddToolTipDetailMethod.GetValue(new object[] { localText, ecmShieldAttackMod * -1 });
                         }
-                        if (stealthMod != 0) {
-                            AddToolTipDetailMethod.GetValue(new object[] { "STEALTH", stealthMod });
+                        if (targetState.ECMAttackMod(attackerState) != 0) {
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_STEALTH]).ToString();
+                            AddToolTipDetailMethod.GetValue(new object[] { localText, stealthAttackMod * -1 });
                         }
-                        if (stealthMod != 0) {
-                            AddToolTipDetailMethod.GetValue(new object[] { "TARGET NARCED", narcMod });
+                        if (targetState.NarcAttackMod(attackerState) != 0) {
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_NARCED ]).ToString();
+                            AddToolTipDetailMethod.GetValue(new object[] { localText, narcAttackMod });
                         }
-                        if (stealthMod != 0) {
-                            AddToolTipDetailMethod.GetValue(new object[] { "TARGET TAGGED", tagMod });
+                        if (targetState.StealthAttackMod(attackerState, __instance.DisplayedWeapon, magnitude) != 0) {
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_TAGGED]).ToString();
+                            AddToolTipDetailMethod.GetValue(new object[] { localText, tagAttackMod });
                         }
                     }
                 }

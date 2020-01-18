@@ -98,15 +98,9 @@ namespace LowVisibility {
         public VisionRangeOpts Vision = new VisionRangeOpts();
 
         public class AttackOpts {
-            public int VisualAttackMod = -1;
-            public int MaxVisualAttackMod = 9;
-
-            public int ThermalAttackMod = 0;
-            public int MaxThermalAttackMod = 0;
-
-            public int SensorAttackMod = 1;
-            public int MaxSensorAttackMod = 0;
-            public int SensorBlipPenalty = 9;
+            public int NoVisualsPenalty = 5;
+            public int NoSensorsPenalty = 5;
+            public int FiringBlindPenalty = 13;
         }
         public AttackOpts Attack = new AttackOpts();
 
