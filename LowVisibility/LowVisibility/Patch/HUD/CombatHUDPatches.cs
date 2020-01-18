@@ -146,11 +146,11 @@ namespace LowVisibility.Patch {
 
                         if (targetState.TagAttackMod(attackerState) != 0) {
                             string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_ECM_SHEILD]).ToString();
-                            AddToolTipDetailMethod.GetValue(new object[] { localText, ecmShieldAttackMod * -1 });
+                            AddToolTipDetailMethod.GetValue(new object[] { localText, ecmShieldAttackMod});
                         }
                         if (targetState.ECMAttackMod(attackerState) != 0) {
                             string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_STEALTH]).ToString();
-                            AddToolTipDetailMethod.GetValue(new object[] { localText, stealthAttackMod * -1 });
+                            AddToolTipDetailMethod.GetValue(new object[] { localText, stealthAttackMod});
                         }
                         if (targetState.NarcAttackMod(attackerState) != 0) {
                             string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_NARCED ]).ToString();

@@ -459,13 +459,15 @@ namespace LowVisibility.Object {
 
             int currentMod = 0;
             if (target is Mech targetMech) {
+                if (targetMech.CurrentHeat == 0) { return 0; }
+
                 double targetHeat = targetMech != null ? (double)targetMech.CurrentHeat : 0.0;
                 int numSteps = (int)Math.Floor(targetHeat / heatVision.HeatDivisor);
-                Mod.Log.Debug($"  numDecays: {numSteps} = targetHeat: {targetHeat} / divisor: {heatVision.HeatDivisor}");
+                //Mod.Log.Debug($"  numDecays: {numSteps} = targetHeat: {targetHeat} / divisor: {heatVision.HeatDivisor}");
 
                 // remember: Negative is better
                 currentMod = Math.Max(heatVision.AttackMod - numSteps, 0);                
-                Mod.Log.Debug($"  -- current: {currentMod} = initial: {heatVision.AttackMod} - decays: {numSteps}");
+                //Mod.Log.Debug($"  -- current: {currentMod} = initial: {heatVision.AttackMod} - decays: {numSteps}");
             }
 
             return currentMod;
@@ -485,7 +487,7 @@ namespace LowVisibility.Object {
             if (narcEffect != null) {
                 val = Math.Max(0, narcEffect.AttackMod - ECMAttackMod(attackerState));
             }
-            return val;
+            return val * -1;
         }
         public int NarcDetailsMod(EWState attackerState) {
             int val = 0;
@@ -511,7 +513,7 @@ namespace LowVisibility.Object {
             if (tagEffect != null) {
                 val = Math.Max(0, tagEffect.AttackMod - MimeticAttackMod(attackerState));
             }
-            return val;
+            return val * -1;
         }
         public int TagDetailsMod(EWState attackerState) {
             int val = 0;
