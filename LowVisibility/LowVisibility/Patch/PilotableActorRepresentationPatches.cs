@@ -36,6 +36,11 @@ namespace LowVisibility.Patch {
                 } else {
                     VfxHelper.DisableMimeticEffect(parentActor);
                 }
+
+                if (parentState.IsECMCarrier()) {
+                    VfxHelper.EnableECMCarrierVfx(parentActor, parentState.ECMCarrierRange());
+                }
+
             } else if (newLevel >= VisibilityLevel.Blip0Minimum) {
                 Mod.Log.Debug($"Actor: {CombatantUtils.Label(parentActor)} has changed visibility to: {newLevel}");
 

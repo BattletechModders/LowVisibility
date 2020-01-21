@@ -52,38 +52,41 @@ namespace LowVisibility.Helper {
             // vfxMatPrtl_ECMdistortionWeak or vfxMatPrtl_ECMdistortionStrong
         }
 
-        public static void EnableECMCarrierVfx(AbstractActor actor, EffectData effectData) {
+        public static void EnableECMCarrierVfx(AbstractActor actor, float carrierRange) {
 
-            if (!ModState.TurnDirectorStarted) { return; }
+            if (!ModState.TurnDirectorStarted || actor == null || actor.GameRep == null) { return; }
 
             if (!actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
-                Mod.Log.Debug(" ENABLING ECM LOOP");
+                Mod.Log.Debug($" ENABLING ECM LOOP ON ACTOR: {CombatantUtils.Label(actor)}");
                 
                 // Calculate the range factor
-                float vfxScaleFactor = effectData.targetingData.range / 100f;
+                float vfxScaleFactor = carrierRange / 100f;
                 Mod.Log.Debug($" VFX scaling factor {vfxScaleFactor}");
 
                 // Bubble
-                ParticleSystem psECMLoop = actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform,
-                    Vector3.zero, ECMBubbleBaseVFX, true, Vector3.zero, false, -1f);
+                ParticleSystem psECMLoop = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
+                    Vector3.zero, ECMBubbleBaseVFX, "LV_ECM_CARRIER_VFX", true, Vector3.zero, false, -1f);
                 psECMLoop.Stop(true);
-                ParticleSystem.MainModule main = psECMLoop.main;
+                //ParticleSystem.MainModule main = psECMLoop.main;
 
-                foreach (Transform child in psECMLoop.transform) {
-                    if (child.gameObject.name.StartsWith("sphere")) {
-                        child.gameObject.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
-                    } else {
-                        child.gameObject.SetActive(false);
-                    }
-                }
+                //foreach (Transform child in psECMLoop.transform) {
+                //    if (child.gameObject.name.StartsWith("sphere")) {
+                //        child.gameObject.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
+                //    } else {
+                //        child.gameObject.SetActive(false);
+                //    }
+                //}
                 psECMLoop.Play(true);
 
                 // AoE loop
-                ParticleSystem psECMCarrier = actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform,
-                    Vector3.zero, ECMCarrierBaseVFX, true, Vector3.zero, false, -1f);
+                ParticleSystem psECMCarrier = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
+                    Vector3.zero, ECMCarrierBaseVFX, "LV_ECM_LOOP_VFX", true, Vector3.zero, false, -1f);
+
                 psECMCarrier.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
 
                 actor.StatCollection.AddStatistic(ModStats.ECMVFXEnabled, true);
+
+                Mod.Log.Debug(" DONE ENABLING ECM LOOP");
             } else {
                 Mod.Log.Debug(" ECM LOOP ALREADY ENABLED, SKIPPING");
             }

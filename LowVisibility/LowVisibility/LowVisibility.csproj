@@ -92,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helper\ActorHelper.cs" />
+    <Compile Include="Helper\SelectedActorHelper.cs" />
     <Compile Include="Helper\SensorLockHelper.cs" />
     <Compile Include="Helper\VfxHelper.cs" />
     <Compile Include="Helper\VisualLockHelper.cs" />
