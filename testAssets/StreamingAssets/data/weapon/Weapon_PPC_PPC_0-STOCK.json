@@ -7,7 +7,7 @@
       "Range": 240,
       "RemoveOnSensorLock": false,
       "State": "Persistent",
-      "ApplySelf": false,
+      "ApplySelf": true,
       "AllyStealthAffection": "None",
       "EnemyStealthAffection": "None",
       "IsPositiveToAlly": true,
@@ -24,7 +24,7 @@
             {
                 "durationData" : {
                     "duration": -1,
-                    "stackLimit": -1
+                    "stackLimit": 2
                 },
                 "targetingData" : {
                     "effectTriggerType" : "Passive",
@@ -33,7 +33,7 @@
                     "range" : 0.0,
                     "forcePathRebuild" : false,
                     "forceVisRebuild" : false,
-                    "showInTargetPreview" : false,
+                    "showInTargetPreview" : true,
                     "showInStatusPanel" : true
                 },
                 "effectType" : "StatisticEffect",
@@ -47,38 +47,6 @@
                 "statisticData" : 
                 {
                     "statName" : "LV_ECM_SHIELD",
-                    "operation": "Int_Add",
-                    "modValue": "1",
-                    "modType": "System.Int32"
-                },
-                "nature" : "Buff"
-            },
-            {
-                "durationData" : {
-                    "duration": -1,
-                    "stackLimit": -1
-                },
-                "targetingData" : {
-                    "effectTriggerType" : "Passive",
-                    "specialRules" : "NotSet",
-                    "effectTargetType" : "AlliesWithinRange",
-                    "range" : 0.0,
-                    "forcePathRebuild" : false,
-                    "forceVisRebuild" : false,
-                    "showInTargetPreview" : false,
-                    "showInStatusPanel" : false
-                },
-                "effectType" : "StatisticEffect",
-                "Description" :
-                {
-                    "Id" : "LV_ECM_SHIELD_EMITTER_COUNT",
-                    "Name" : "ECM Shield Emitter Count",
-                    "Details" : "Counter for the number of ECM emitters currently affecting an actor with shielding.",
-                    "Icon" : "uixSvgIcon_status_ECM-missileDef"
-                },
-                "statisticData" : 
-                {
-                    "statName" : "LV_ECM_SHIELD_EMITTER_COUNT",
                     "operation": "Int_Add",
                     "modValue": "1",
                     "modType": "System.Int32"
@@ -112,7 +80,7 @@
         {
             "durationData" : {
                 "duration": -1,
-                "stackLimit": -1,
+                "stackLimit": 2,
                 "uniqueEffectIdStackLimit": 1
             },
             "targetingData" : {
@@ -122,7 +90,7 @@
                 "range" : 0.0,
                 "forcePathRebuild" : false,
                 "forceVisRebuild" : false,
-                "showInTargetPreview" : false,
+                "showInTargetPreview" : true,
                 "showInStatusPanel" : true
             },
             "effectType" : "StatisticEffect",
@@ -141,39 +109,7 @@
                 "modType": "System.Int32"
             },
             "nature" : "Debuff"
-        },
-        {
-                "durationData" : {
-                    "duration": -1,
-                    "stackLimit": -1
-                },
-                "targetingData" : {
-                    "effectTriggerType" : "Passive",
-                    "specialRules" : "NotSet",
-                    "effectTargetType" : "EnemiesWithinRange",
-                    "range" : 0.0,
-                    "forcePathRebuild" : false,
-                    "forceVisRebuild" : false,
-                    "showInTargetPreview" : false,
-                    "showInStatusPanel" : false
-                },
-                "effectType" : "StatisticEffect",
-                "Description" :
-                {
-                    "Id" : "LV_ECM_JAM_EMITTER_COUNT",
-                    "Name" : "ECM Jamming Emitter Count",
-                    "Details" : "Counter for the number of ECM emitters currently affecting an actor with jamming.",
-                    "Icon" : "uixSvgIcon_status_ECM-missileDef"
-                },
-                "statisticData" : 
-                {
-                    "statName" : "LV_ECM_JAM_EMITTER_COUNT",
-                    "operation": "Int_Add",
-                    "modValue": "1",
-                    "modType": "System.Int32"
-                },
-                "nature" : "Debuff"
-            }
+        }
       ]
     }
 ],
@@ -189,14 +125,14 @@
             "effectTargetType" : "Creator",
             "range" : 0.0,
             "forcePathRebuild" : false,
-            "forceVisRebuild" : true,
+            "forceVisRebuild" : false,
             "showInTargetPreview" : false,
-            "showInStatusPanel" : true
+            "showInStatusPanel" : false
         },
         "effectType" : "StatisticEffect",
         "Description" :
         {
-            "Id" : "LV_ECM_Carrier_Test_2",
+            "Id" : "LV_ECM_CARRIER",
             "Name" : "ECM Carrier",
             "Details" : "You emit an ECM field that makes you easier to detect with sensors, but harder to hit.",
             "Icon" : "uixSvgIcon_status_ECM-missileDef"
@@ -205,10 +141,42 @@
         {
             "statName" : "LV_ECM_CARRIER",
             "operation": "Set",
-            "modValue": "2",
-            "modType": "System.Int32"
+            "modValue": "240",
+            "modType": "System.Single"
         },
         "nature" : "Buff"
-    }
+    },
+    {
+        "durationData" : {
+            "duration": -1,
+            "stackLimit": -1
+        },
+        "targetingData" : {
+            "effectTriggerType" : "Passive",
+            "specialRules" : "NotSet",
+            "effectTargetType" : "Creator",
+            "range" : 0.0,
+            "forcePathRebuild" : false,
+            "forceVisRebuild" : false,
+            "showInTargetPreview" : false,
+            "showInStatusPanel" : false
+        },
+        "effectType" : "StatisticEffect",
+        "Description" :
+        {
+            "Id" : "LV_ECM_CARRIER_SIGNATURE",
+            "Name" : "ECM Carrier Signature Penalty",
+            "Details" : "Your ECM field makes you easier to detect",
+            "Icon" : "uixSvgIcon_status_ECM-missileDef"
+        },
+        "statisticData" : 
+        {
+            "statName" : "Signature",
+            "operation": "Float_Add",
+            "modValue": "0.3",
+            "modType": "System.Single"
+        },
+        "nature" : "Buff"
+    }    
 ]
 }
