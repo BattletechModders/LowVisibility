@@ -1,13 +1,8 @@
 ﻿using BattleTech;
-using BattleTech.Rendering;
-using BattleTech.Rendering.Mood;
 using Harmony;
 using LowVisibility.Helper;
-using LowVisibility.Object;
 using System;
 using System.Reflection;
-using UnityEngine;
-using UnityEngine.PostProcessing;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
@@ -57,6 +52,10 @@ namespace LowVisibility.Patch {
             SelectedActorHelper.Combat = __instance.Combat;
             __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorSelectedMessage, 
                 new ReceiveMessageCenterMessage(SelectedActorHelper.OnActorSelectedMessage), true);
+            __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.OnAuraAdded,
+                new ReceiveMessageCenterMessage(SelectedActorHelper.OnAuraAddedMessage), true);
+            __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.OnAuraRemoved,
+                new ReceiveMessageCenterMessage(SelectedActorHelper.OnAuraRemovedMessage), true);
         }
 
     }
@@ -91,9 +90,13 @@ namespace LowVisibility.Patch {
             CombatHUD_SubscribeToMessages.OnCombatGameDestroyed(__instance.Combat);
 
             // Unsubscribe from actor selected messages
-            SelectedActorHelper.Combat = null;
             __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorSelectedMessage, 
                 new ReceiveMessageCenterMessage(SelectedActorHelper.OnActorSelectedMessage), false);
+            __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.OnAuraAdded,
+                new ReceiveMessageCenterMessage(SelectedActorHelper.OnAuraAddedMessage), false);
+            __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.OnAuraRemoved,
+                new ReceiveMessageCenterMessage(SelectedActorHelper.OnAuraRemovedMessage), false);
+            SelectedActorHelper.Combat = null;
 
             // Reset state
             ModState.Reset();
@@ -112,35 +115,6 @@ namespace LowVisibility.Patch {
             Mod.Log.Trace($"TD:IFSPT entered");
 
             TurnDirector_OnEncounterBegin.IsFromSave = true;
-        }
-    }
-
-    // Helper that coordinates state changes to allow id of the last player unit a player selected
-    public static class SelectedActorHelper {
-
-        public static CombatGameState Combat = null;
-
-        public static void OnActorSelectedMessage(MessageCenterMessage message) {
-            ActorSelectedMessage actorSelectedMessage = message as ActorSelectedMessage;
-            AbstractActor actor = Combat.FindActorByGUID(actorSelectedMessage.affectedObjectGuid);
-            if (actor.team.IsLocalPlayer) {
-                Mod.Log.Info($"Updating last activated actor to: ({CombatantUtils.Label(actor)})");
-                ModState.LastPlayerActorActivated = actor;
-
-                EWState actorState = new EWState(actor);
-                if (actorState.HasNightVision() && ModState.GetMapConfig().isDark) {
-                    Mod.Log.Info($"Enabling night vision mode.");
-                    VfxHelper.EnableNightVisionEffect(actor);
-                } else {
-                    if (ModState.IsNightVisionMode) {
-                        VfxHelper.DisableNightVisionEffect();
-                    }
-                }
-
-                // Refresh the unit's vision
-                VfxHelper.RedrawFogOfWar(actor);
-                
-            }
         }
     }
 
