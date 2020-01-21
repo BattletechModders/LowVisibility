@@ -27,7 +27,7 @@ namespace LowVisibility.Patch {
             // ECM
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMShield, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMJamming, 0);
-            __instance.StatCollection.AddStatistic<bool>(ModStats.ECMCarrier, false);
+            __instance.StatCollection.AddStatistic<float>(ModStats.ECMCarrier, 0f);
 
             // Sensors
             __instance.StatCollection.AddStatistic<int>(ModStats.AdvancedSensors, 0);
@@ -186,11 +186,10 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(AbstractActor), "CreateEffect")]
     [HarmonyPatch(new Type[] { typeof(EffectData), typeof(Ability), typeof(string), typeof(int), typeof(AbstractActor), typeof(bool) })]
     public static class AbstractActor_CreateEffect_AbstractActor {
-        public static void Postfix(AbstractActor __instance, EffectData effect, Ability fromAbility, string effectId, 
-            int stackItemUID, AbstractActor creator, bool skipLogging) {
-            Mod.Log.Trace("AA:CreateEffect entered");
+        public static void Postfix(AbstractActor __instance, EffectData effect, AbstractActor creator) {
+            Mod.Log.Debug("AA:CreateEffect entered");
 
-            Mod.Log.Trace($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: {CombatantUtils.Label(creator)}");
+            Mod.Log.Debug($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: {CombatantUtils.Label(creator)}");
 
             if (effect.effectType == EffectType.StatisticEffect) {
                 if (ModStats.IsStealthStat(effect.statisticData.statName)) {
@@ -199,25 +198,22 @@ namespace LowVisibility.Patch {
                     __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
                 }
 
-                if (ModStats.ECMShield.Equals(effect.statisticData.statName) && creator.GUID == __instance.GUID) {
-                    EWState sourceState = new EWState(__instance);
-                    if (sourceState.IsECMCarrier()) {
-                        Mod.Log.Debug("  - ECM carrier found, starting effect");
-                        VfxHelper.EnableECMCarrierVfx(__instance, effect);
-                    }
-                }
+                //EWState sourceState = new EWState(__instance);
+                //if (sourceState.IsECMCarrier()) {
+                //    Mod.Log.Debug("  - ECM carrier found, starting effect");
+                //    VfxHelper.EnableECMCarrierVfx(__instance, effect);
+                //}
             }
-
         }
     }
 
     [HarmonyPatch(typeof(AbstractActor), "CreateEffect")]
     [HarmonyPatch(new Type[] { typeof(EffectData), typeof(Ability), typeof(string), typeof(int), typeof(Team), typeof(bool) })]
     public static class AbstractActor_CreateEffect_Team {
-        public static void Postfix(AbstractActor __instance, EffectData effect, Ability fromAbility, string sourceID, int stackItemUID, Team creator, bool skipLogging) {
-            Mod.Log.Trace("AA:CreateEffect entered");
+        public static void Postfix(AbstractActor __instance, EffectData effect, Team creator) {
+            Mod.Log.Debug("AA:CreateEffect entered");
 
-            Mod.Log.Trace($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from team: {creator.GUID}");
+            Mod.Log.Debug($" Creating team effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from team: {creator.GUID}");
 
             if (effect.effectType == EffectType.StatisticEffect) {
                 if (ModStats.IsStealthStat(effect.statisticData.statName)) {
@@ -226,13 +222,19 @@ namespace LowVisibility.Patch {
                     __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
                 }
 
-                if (ModStats.ECMShield.Equals(effect.statisticData.statName) && creator.GUID == __instance.GUID) {
-                    EWState sourceState = new EWState(__instance);
-                    if (sourceState.IsECMCarrier()) {
-                        Mod.Log.Debug("  - ECM carrier found, starting effect");
-                        VfxHelper.EnableECMCarrierVfx(__instance, effect);
-                    }
-                }
+                //EWState sourceState = new EWState(__instance);
+                //if (sourceState.IsECMCarrier()) {
+                //    Mod.Log.Debug("  - ECM carrier found, starting effect");
+                //    VfxHelper.EnableECMCarrierVfx(__instance, effect);
+                //}
+
+                //if (ModStats.ECMShield.Equals(effect.statisticData.statName) && creator.GUID == __instance.GUID) {
+                //    EWState sourceState = new EWState(__instance);
+                //    if (sourceState.IsECMCarrier()) {
+                //        Mod.Log.Debug("  - ECM carrier found, starting effect");
+                //        VfxHelper.EnableECMCarrierVfx(__instance, effect);
+                //    }
+                //}
             }
         }
     }
@@ -254,13 +256,13 @@ namespace LowVisibility.Patch {
                     // TODO: Set current stealth pips?
                 }
 
-                if (ModStats.ECMShield.Equals(effect.EffectData.statisticData.statName)) {
-                    EWState sourceState = new EWState(__instance);
-                    if (!sourceState.IsECMCarrier()) {
-                        Mod.Log.Debug("  - ECM carrier NOT found, disabling effect");
-                        VfxHelper.DisableECMCarrierVfx(__instance);
-                    }
-                }
+                //if (ModStats.ECMShield.Equals(effect.EffectData.statisticData.statName)) {
+                //    EWState sourceState = new EWState(__instance);
+                //    if (!sourceState.IsECMCarrier()) {
+                //        Mod.Log.Debug("  - ECM carrier NOT found, disabling effect");
+                //        VfxHelper.DisableECMCarrierVfx(__instance);
+                //    }
+                //}
 
                 if (ModStats.IsStealthStat(effect.EffectData.statisticData.statName)) {
                     Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
@@ -279,7 +281,7 @@ namespace LowVisibility.Patch {
             //Mod.Log.Debug("AA:OAA entered");
 
             AuraAddedMessage auraAddedMessage = message as AuraAddedMessage;
-            Mod.Log.Debug($" Adding aura: {auraAddedMessage.effectData.Description.Id} to target: {auraAddedMessage.targetID}");
+            Mod.Log.Debug($" Adding aura: {auraAddedMessage.effectData.Description.Id} to target: {auraAddedMessage.targetID} from creator: {auraAddedMessage.creatorID}");
             if (auraAddedMessage.targetID == __instance.GUID) {
                 if (auraAddedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
                     if (__instance.Combat.TurnDirector.IsInterleaved) {
@@ -288,32 +290,35 @@ namespace LowVisibility.Patch {
                                 new Text("ECM PROTECTED", new object[0]), FloatieMessage.MessageNature.Buff));
                     }
 
-                    EWState actorState = new EWState(__instance);
-                    if (actorState.IsECMCarrier()) {
-                        VfxHelper.EnableECMCarrierVfx(__instance, auraAddedMessage.effectData);
-                    }
+                    // TODO: What about jamming?
+                    // TODO: Localize
+
+                    //EWState actorState = new EWState(__instance);
+                    //if (actorState.IsECMCarrier()) {
+                    //    VfxHelper.EnableECMCarrierVfx(__instance, auraAddedMessage.effectData);
+                    //}
                 }
 
             }// TODO: Add else if conditional?
         }
     }
 
-    [HarmonyPatch(typeof(AbstractActor), "OnAuraRemoved")]
-    public static class AbstractActor_OnAuraRemoved {
-        public static void Postfix(AbstractActor __instance, MessageCenterMessage message) {
-            AuraRemovedMessage auraRemovedMessage = message as AuraRemovedMessage;
-            AbstractActor creator = __instance.Combat.FindActorByGUID(auraRemovedMessage.creatorID);
-            Mod.Log.Debug($" Removing aura: {auraRemovedMessage.effectData.Description.Id} from target: {CombatantUtils.Label(__instance)} created by: {CombatantUtils.Label(creator)}");
-            if (auraRemovedMessage.targetID == __instance.GUID) {
-                if (auraRemovedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
-                    EWState actorState = new EWState(__instance);
-                    if (actorState.IsECMCarrier()) {
-                        VfxHelper.DisableECMCarrierVfx(__instance);
-                    }
-                }
-            }
-        }
-    }
+    //[HarmonyPatch(typeof(AbstractActor), "OnAuraRemoved")]
+    //public static class AbstractActor_OnAuraRemoved {
+    //    public static void Postfix(AbstractActor __instance, MessageCenterMessage message) {
+    //        AuraRemovedMessage auraRemovedMessage = message as AuraRemovedMessage;
+    //        AbstractActor creator = __instance.Combat.FindActorByGUID(auraRemovedMessage.creatorID);
+    //        Mod.Log.Debug($" Removing aura: {auraRemovedMessage.effectData.Description.Id} from target: {CombatantUtils.Label(__instance)} created by: {CombatantUtils.Label(creator)}");
+    //        if (auraRemovedMessage.targetID == __instance.GUID) {
+    //            if (auraRemovedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
+    //                EWState actorState = new EWState(__instance);
+    //                if (actorState.IsECMCarrier()) {
+    //                    VfxHelper.DisableECMCarrierVfx(__instance);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
     [HarmonyPatch(typeof(AbstractActor), "OnMoveComplete")]
     public static class AbstractActor_OnMoveComplete {
