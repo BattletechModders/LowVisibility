@@ -112,6 +112,9 @@ namespace LowVisibility.Patch {
 
                 bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 if (isPlayer) {
+                    Mod.Log.Debug("ATTEMPING TO LOAD CUSTOM ICON");
+                    //CustomComponents.IconController.Get("@cyber-eye");
+
                     showBuffIconMethod.GetValue(new object[] {
                             LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon,
                             new Text("VISION AND SENSORS", new object[0]),
@@ -163,7 +166,8 @@ namespace LowVisibility.Patch {
             float visualLockRange = VisualLockHelper.GetVisualLockRange(actor);
             float visualScanRange = VisualLockHelper.GetVisualScanRange(actor);
             details.Add(
-                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_VISUAL_RANGE], new object[] { visualLockRange, visualScanRange, ModState.GetMapConfig().UILabel() })
+                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_VISUAL_RANGE], 
+                    new object[] { visualLockRange, visualScanRange, ModState.GetMapConfig().UILabel() })
                     .ToString()
                 );
             
@@ -174,7 +178,8 @@ namespace LowVisibility.Patch {
             float sensorsRange = SensorLockHelper.GetSensorsRange(actor);
             string sensorColor = ewState.GetCurrentEWCheck() >= 0 ? "00FF00" : "FF0000";
             details.Add(
-                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_SENSOR_RANGE], new object[] { sensorColor, sensorsRange, sensorColor, ewState.GetSensorsRangeMulti(), checkLevel.Label() })
+                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_SENSOR_RANGE], 
+                    new object[] { sensorColor, sensorsRange, sensorColor, ewState.GetSensorsRangeMulti(), checkLevel.Label() })
                     .ToString()
                 );
 
@@ -185,17 +190,7 @@ namespace LowVisibility.Patch {
 
             //if (ewState.probeMod > 0) {
             //    sensorDetails.Add($" (Probe:<color=#00FF00>{ewState.probeMod:0}</color>)");
-            //}
-
-            //// TODO: Should include equipment bonuses, etc
-            //float rangeMulti = (1f + ewState.SensorCheckRangeMultiplier());
-            //if (rangeMulti >= 1.0) {
-            //    sensorDetails.Add($" = <color=#00FF00>x{rangeMulti:0.00}</color>");
-            //} else {
-            //    sensorDetails.Add($" = <color=#FF0000>x{rangeMulti:0.00}</color>");
-            //}
-
-            //sensorDetails.Add("\n");                 
+            //}              
 
             //if (ewState.probeMod > 0) {
             //    checkResult += ewState.probeMod;
@@ -206,26 +201,6 @@ namespace LowVisibility.Patch {
             //    checkResult -= State.ECMJamming(actor);
             //    sensorDetails.Add($" + Jammed: <color=#FF0000>{State.ECMJamming(actor):-0}</color>");
             //}
-
-            //sensorDetails.Add(" = Result: ");
-            //if (checkResult >= 0) {
-            //    sensorDetails.Add($"<color=#00FF00>{checkResult:0}</color>");
-            //} else {
-            //    sensorDetails.Add($"<color=#FF0000>{checkResult:0}</color>");
-            //}
-            //sensorDetails.Add("\n");
-
-            //// Sensor range
-            //SensorScanType checkLevel = SensorScanType.NoInfo;
-            //if (checkLevel > SensorScanType.DentalRecords) {
-            //    checkLevel = SensorScanType.DentalRecords;
-            //} else if (checkLevel < SensorScanType.NoInfo) {
-            //    checkLevel = SensorScanType.NoInfo;
-            //} else {
-            //    checkLevel = (SensorScanType)checkResult;
-            //}
-            //details.Add($"Sensors Lock:{sensorsRange:0}m Info:[{checkLevel.Label()}]\n");
-            //details.AddRange(sensorDetails);
 
             //// Sensor check:(+/-0) SensorScanLevel:
             //if (ewState.ecmMod != 0) {

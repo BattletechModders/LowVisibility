@@ -196,7 +196,7 @@ namespace LowVisibility.Object {
                         zoomVision = new ZoomVision(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2]));
                     } catch (Exception) {
                         Mod.Log.Info($"Failed to tokenize ZoomVision value: ({rawValue}). Discarding!");
-                        mimetic = null;
+                        zoomVision = null;
                     }
                 } else {
                     Mod.Log.Info($"WARNING: Invalid ZoomVision value: ({rawValue}) found. Discarding!");
