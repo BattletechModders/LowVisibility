@@ -42,7 +42,7 @@ namespace LowVisibility.Patch {
                 int ecmShieldAttackMod = targetState.ECMAttackMod(attackerState);
                 int stealthAttackMod = targetState.StealthAttackMod(attackerState, weapon, distance);
 
-                bool hasSensorAttack = SensorLockHelper.CalculateSharedLock(targetActor, attacker) <= SensorScanType.NoInfo;
+                bool hasSensorAttack = SensorLockHelper.CalculateSharedLock(targetActor, attacker) > SensorScanType.NoInfo;
                 int sensorsAttackMod = Mod.Config.Attack.NoSensorsPenalty;
                 if (hasSensorAttack) {
                     sensorsAttackMod = 0;
