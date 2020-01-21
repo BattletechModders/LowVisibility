@@ -1,0 +1,68 @@
+{
+    "statusEffects" : [
+         {
+            "durationData" : {
+                "duration": -1,
+                "stackLimit": 1
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "specialRules" : "NotSet",
+                "effectTargetType" : "Creator",
+                "range" : 0.0,
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : true,
+                "showInTargetPreview" : true,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+                "Id" : "LV_NARC",
+                "Name" : "NARC TEST",
+                "Details" : "You are Narc'd and will be easier to hit and detect.",
+                "Icon" : "uixSvgIcon_status_ECM-ghost"
+            },
+            "statisticData" : 
+            {
+                "statName" : "LV_NARC",
+                "operation": "Set",
+                "modValue": "1.5_7_-2",
+                "modType": "System.String"
+            },
+            "nature" : "Debuff"
+        },
+          {
+            "durationData" : {
+                "duration": -1,
+                "stackLimit": 1
+            },
+            "targetingData" : {
+                "effectTriggerType" : "Passive",
+                "specialRules" : "NotSet",
+                "effectTargetType" : "Creator",
+                "range" : 0.0,
+                "forcePathRebuild" : false,
+                "forceVisRebuild" : true,
+                "showInTargetPreview" : true,
+                "showInStatusPanel" : true
+            },
+            "effectType" : "StatisticEffect",
+            "Description" :
+            {
+                "Id" : "LV_TAG",
+                "Name" : "TAG_STRONG",
+                "Details" : "Target is TAG'd and easier to hit and detect. Move to break the effect.",
+                "Icon" : "uixSvgIcon_status_ECM-ghost"
+            },
+            "statisticData" : 
+            {
+                "statName" : "LV_TAG",
+                "operation": "Set",
+                "modValue": "4.0_8_3",
+                "modType": "System.String"
+            },
+            "nature" : "Debuff"
+        },
+    ],
+}
