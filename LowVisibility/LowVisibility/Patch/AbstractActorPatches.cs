@@ -27,7 +27,6 @@ namespace LowVisibility.Patch {
             // ECM
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMShield, 0);
             __instance.StatCollection.AddStatistic<int>(ModStats.ECMJamming, 0);
-            __instance.StatCollection.AddStatistic<float>(ModStats.ECMCarrier, 0f);
 
             // Sensors
             __instance.StatCollection.AddStatistic<int>(ModStats.AdvancedSensors, 0);
@@ -112,47 +111,6 @@ namespace LowVisibility.Patch {
         }
     }
 
-    [HarmonyPatch(typeof(AbstractActor), "OnPositionUpdate")]
-    public static class AbstractActor_OnPositionUpdate  {
-
-        public static void Prefix(AbstractActor __instance, Vector3 position) {
-            Mod.Log.Trace($"AA:OPU entered");
-             
-        }
-
-    }
-
-    [HarmonyPatch(typeof(Mech), "InitGameRep")]
-    public static class Mech_InitGameRep {
-        public static void Postfix(Mech __instance, Transform parentTransform) {
-
-        }
-    }
-
-    [HarmonyPatch(typeof(Vehicle), "InitGameRep")]
-    public static class Vehicle_InitGameRep {
-        public static void Postfix(Vehicle __instance, Transform parentTransform) {
-
-        }
-    }
-
-    [HarmonyPatch(typeof(Turret), "InitGameRep")]
-    public static class Turret_InitGameRep {
-        public static void Postfix(Turret __instance, Transform parentTransform) {
-
-        }
-    }
-
-    [HarmonyPatch(typeof(AbstractActor), "UpdateLOSPositions")]
-    public static class AbstractActor_UpdateLOSPositions {
-        public static void Prefix(AbstractActor __instance) {
-            // Check for teamID; if it's not present, unit hasn't spawned yet. Defer to UnitSpawnPointGameLogic::SpawnUnit for these updates
-            if (ModState.TurnDirectorStarted && __instance.TeamId != null) {
-                Mod.Log.Trace($"AbstractActor_UpdateLOSPositions:pre - entered for {CombatantUtils.Label(__instance)}.");
-            }
-        }
-    }
-
     [HarmonyPatch(typeof(AbstractActor), "HasLOSToTargetUnit")]
     public static class AbstractActor_HasLOSToTargetUnit {
         public static void Postfix(AbstractActor __instance, ref bool __result, ICombatant targetUnit) {
@@ -163,23 +121,6 @@ namespace LowVisibility.Patch {
             Mod.Log.Trace($"Actor{CombatantUtils.Label(__instance)} has LOSToTargetUnit? {__result} " +
                 $"to target:{CombatantUtils.Label(targetUnit as AbstractActor)}");
             //LowVisibility.Logger.Trace($"Called from:{new StackTrace(true)}");
-        }
-    }
-
-
-    [HarmonyPatch(typeof(AbstractActor), "CanDetectPositionNonCached")]
-    public static class AbstractActor_CanDetectPositionNonCached {
-        public static void Postfix(AbstractActor __instance, bool __result, Vector3 worldPos, AbstractActor target) {
-            //LowVisibility.Logger.Debug($"AA_CDPNC: source{CombatantUtils.Label(__instance)} checking detection " +
-            //    $"from pos:{worldPos} vs. target:{CombatantUtils.Label(target)}");
-        }
-    }
-
-    [HarmonyPatch(typeof(AbstractActor), "CanSeeTargetAtPositionNonCached")]
-    public static class AbstractActor_CanSeeTargetAtPositionNonCached {
-        public static void Postfix(AbstractActor __instance, bool __result, Vector3 worldPos, AbstractActor target) {
-            //LowVisibility.Logger.Debug($"AA_CSTAPNC: source{__instance} checking vision" +
-            //    $"from pos:{worldPos} vs. target:{CombatantUtils.Label(target)}");
         }
     }
 
@@ -197,12 +138,6 @@ namespace LowVisibility.Patch {
                     List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
                     __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
                 }
-
-                //EWState sourceState = new EWState(__instance);
-                //if (sourceState.IsECMCarrier()) {
-                //    Mod.Log.Debug("  - ECM carrier found, starting effect");
-                //    VfxHelper.EnableECMCarrierVfx(__instance, effect);
-                //}
             }
         }
     }
@@ -222,19 +157,6 @@ namespace LowVisibility.Patch {
                     __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
                 }
 
-                //EWState sourceState = new EWState(__instance);
-                //if (sourceState.IsECMCarrier()) {
-                //    Mod.Log.Debug("  - ECM carrier found, starting effect");
-                //    VfxHelper.EnableECMCarrierVfx(__instance, effect);
-                //}
-
-                //if (ModStats.ECMShield.Equals(effect.statisticData.statName) && creator.GUID == __instance.GUID) {
-                //    EWState sourceState = new EWState(__instance);
-                //    if (sourceState.IsECMCarrier()) {
-                //        Mod.Log.Debug("  - ECM carrier found, starting effect");
-                //        VfxHelper.EnableECMCarrierVfx(__instance, effect);
-                //    }
-                //}
             }
         }
     }
@@ -256,14 +178,6 @@ namespace LowVisibility.Patch {
                     // TODO: Set current stealth pips?
                 }
 
-                //if (ModStats.ECMShield.Equals(effect.EffectData.statisticData.statName)) {
-                //    EWState sourceState = new EWState(__instance);
-                //    if (!sourceState.IsECMCarrier()) {
-                //        Mod.Log.Debug("  - ECM carrier NOT found, disabling effect");
-                //        VfxHelper.DisableECMCarrierVfx(__instance);
-                //    }
-                //}
-
                 if (ModStats.IsStealthStat(effect.EffectData.statisticData.statName)) {
                     Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
                     List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
@@ -282,46 +196,28 @@ namespace LowVisibility.Patch {
 
             AuraAddedMessage auraAddedMessage = message as AuraAddedMessage;
             Mod.Log.Debug($" Adding aura: {auraAddedMessage.effectData.Description.Id} to target: {auraAddedMessage.targetID} from creator: {auraAddedMessage.creatorID}");
-            if (auraAddedMessage.targetID == __instance.GUID) {
+            if (auraAddedMessage.targetID == __instance.GUID && __instance.Combat.TurnDirector.IsInterleaved) {
+
                 if (auraAddedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
-                    if (__instance.Combat.TurnDirector.IsInterleaved) {
-                        __instance.Combat.MessageCenter.PublishMessage(
-                            new FloatieMessage(auraAddedMessage.creatorID, auraAddedMessage.targetID,
-                                new Text("ECM PROTECTED", new object[0]), FloatieMessage.MessageNature.Buff));
-                    }
-
-                    // TODO: What about jamming?
-                    // TODO: Localize
-
-                    //EWState actorState = new EWState(__instance);
-                    //if (actorState.IsECMCarrier()) {
-                    //    VfxHelper.EnableECMCarrierVfx(__instance, auraAddedMessage.effectData);
-                    //}
+                    string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_FLOATIE_ECM_JAMMED]).ToString();
+                    __instance.Combat.MessageCenter.PublishMessage(
+                           new FloatieMessage(auraAddedMessage.creatorID, auraAddedMessage.targetID, localText, FloatieMessage.MessageNature.Buff));
                 }
 
-            }// TODO: Add else if conditional?
+                if (auraAddedMessage.effectData.statisticData.statName == ModStats.ECMJamming) {
+                    string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_FLOATIE_ECM_JAMMED]).ToString();
+                    __instance.Combat.MessageCenter.PublishMessage(
+                           new FloatieMessage(auraAddedMessage.creatorID, auraAddedMessage.targetID, localText, FloatieMessage.MessageNature.Debuff));
+                }
+
+            }
         }
     }
 
-    //[HarmonyPatch(typeof(AbstractActor), "OnAuraRemoved")]
-    //public static class AbstractActor_OnAuraRemoved {
-    //    public static void Postfix(AbstractActor __instance, MessageCenterMessage message) {
-    //        AuraRemovedMessage auraRemovedMessage = message as AuraRemovedMessage;
-    //        AbstractActor creator = __instance.Combat.FindActorByGUID(auraRemovedMessage.creatorID);
-    //        Mod.Log.Debug($" Removing aura: {auraRemovedMessage.effectData.Description.Id} from target: {CombatantUtils.Label(__instance)} created by: {CombatantUtils.Label(creator)}");
-    //        if (auraRemovedMessage.targetID == __instance.GUID) {
-    //            if (auraRemovedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
-    //                EWState actorState = new EWState(__instance);
-    //                if (actorState.IsECMCarrier()) {
-    //                    VfxHelper.DisableECMCarrierVfx(__instance);
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
-
     [HarmonyPatch(typeof(AbstractActor), "OnMoveComplete")]
     public static class AbstractActor_OnMoveComplete {
+
+        public static bool Prepare() { return Mod.Config.Toggles.LogEffectsOnMove;  }
 
         public static void Prefix(AbstractActor __instance) {
 
