@@ -129,7 +129,7 @@ namespace LowVisibility.Patch.HUD {
                         AddToolTipDetailMethod.GetValue(new object[] { localText, Mod.Config.Attack.NoVisualsPenalty });
                     } else {
                         // If the zoom + mimetic is better than eyeball, use that. Otherwise, we're using the good ol mk.1 eyeball
-                        if (zoomAttackMod > eyeballAttackMod) {
+                        if (zoomAttackMod < eyeballAttackMod) {
                             string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_ZOOM_VISION]).ToString();
                             AddToolTipDetailMethod.GetValue(new object[] { localText, zoomVisionMod });
                         }
@@ -151,21 +151,21 @@ namespace LowVisibility.Patch.HUD {
                         AddToolTipDetailMethod.GetValue(new object[] { localText, Mod.Config.Attack.NoSensorsPenalty });
                     } else {
 
-                        if (targetState.TagAttackMod(attackerState) != 0) {
+                        if (ecmShieldAttackMod != 0) {
                             string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_ECM_SHEILD]).ToString();
                             AddToolTipDetailMethod.GetValue(new object[] { localText, ecmShieldAttackMod });
                         }
-                        if (targetState.ECMAttackMod(attackerState) != 0) {
-                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_STEALTH]).ToString();
-                            AddToolTipDetailMethod.GetValue(new object[] { localText, stealthAttackMod });
-                        }
-                        if (targetState.NarcAttackMod(attackerState) != 0) {
+                        if (narcAttackMod != 0) {
                             string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_NARCED]).ToString();
                             AddToolTipDetailMethod.GetValue(new object[] { localText, narcAttackMod });
                         }
-                        if (targetState.StealthAttackMod(attackerState, __instance.DisplayedWeapon, magnitude) != 0) {
+                        if (tagAttackMod != 0) {
                             string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_TAGGED]).ToString();
                             AddToolTipDetailMethod.GetValue(new object[] { localText, tagAttackMod });
+                        }
+                        if (stealthAttackMod != 0) {
+                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_STEALTH]).ToString();
+                            AddToolTipDetailMethod.GetValue(new object[] { localText, stealthAttackMod });
                         }
                     }
                 }
