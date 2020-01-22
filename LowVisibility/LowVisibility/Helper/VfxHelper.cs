@@ -64,9 +64,9 @@ namespace LowVisibility.Helper {
                 Mod.Log.Debug($" VFX scaling factor {vfxScaleFactor}");
 
                 // Bubble
-                ParticleSystem psECMLoop = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
-                    Vector3.zero, ECMBubbleBaseVFX, "LV_ECM_CARRIER_VFX", true, Vector3.zero, false, -1f);
-                psECMLoop.Stop(true);
+                //ParticleSystem psECMLoop = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
+                //    Vector3.zero, ECMBubbleBaseVFX, "LV_ECM_CARRIER_VFX", true, Vector3.zero, false, -1f);
+                //psECMLoop.Stop(true);
                 //ParticleSystem.MainModule main = psECMLoop.main;
 
                 //foreach (Transform child in psECMLoop.transform) {
@@ -76,13 +76,13 @@ namespace LowVisibility.Helper {
                 //        child.gameObject.SetActive(false);
                 //    }
                 //}
-                psECMLoop.Play(true);
+                //psECMLoop.Play(true);
 
                 // AoE loop
-                ParticleSystem psECMCarrier = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
-                    Vector3.zero, ECMCarrierBaseVFX, "LV_ECM_LOOP_VFX", true, Vector3.zero, false, -1f);
+                //ParticleSystem psECMCarrier = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
+                //    Vector3.zero, ECMCarrierBaseVFX, "LV_ECM_LOOP_VFX", true, Vector3.zero, false, -1f);
 
-                psECMCarrier.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
+                //psECMCarrier.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
 
                 actor.StatCollection.AddStatistic(ModStats.ECMVFXEnabled, true);
 
@@ -99,10 +99,10 @@ namespace LowVisibility.Helper {
             if (actor.GameRep != null && actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
                 Mod.Log.Debug("DISABLING ECM CARRIER EFFECT");
 
-                actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform, Vector3.zero, ECMBubbleRemovedBaseBFX, true, Vector3.zero, true, -1f);
-                actor.GameRep.StopManualPersistentVFX(ECMBubbleBaseVFX);
-                actor.GameRep.StopManualPersistentVFX(ECMBubbleOpforBaseVFX);
-                actor.GameRep.StopManualPersistentVFX(ECMCarrierBaseVFX);
+                //actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform, Vector3.zero, ECMBubbleRemovedBaseBFX, true, Vector3.zero, true, -1f);
+                //actor.GameRep.StopManualPersistentVFX(ECMBubbleBaseVFX);
+                //actor.GameRep.StopManualPersistentVFX(ECMBubbleOpforBaseVFX);
+                //actor.GameRep.StopManualPersistentVFX(ECMCarrierBaseVFX);
 
                 actor.StatCollection.RemoveStatistic(ModStats.ECMVFXEnabled);
             }
