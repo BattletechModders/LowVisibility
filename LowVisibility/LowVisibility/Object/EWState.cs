@@ -83,7 +83,6 @@ namespace LowVisibility.Object {
 
         private int shieldedByECMMod = 0;
         private int jammedByECMMod = 0;
-        private float ecmCarrier = 0f;
 
         private int advSensorsCarrierMod = 0;
 
@@ -129,8 +128,6 @@ namespace LowVisibility.Object {
                 actor.StatCollection.GetStatistic(ModStats.ECMJamming).Value<int>() : 0;
             shieldedByECMMod = actor.StatCollection.ContainsStatistic(ModStats.ECMShield) ?
                 actor.StatCollection.GetStatistic(ModStats.ECMShield).Value<int>() : 0;
-            ecmCarrier = actor.StatCollection.ContainsStatistic(ModStats.ECMCarrier) ?
-                actor.StatCollection.GetStatistic(ModStats.ECMCarrier).Value<float>() : 0f;
 
             // Sensors
             advSensorsCarrierMod = actor.StatCollection.ContainsStatistic(ModStats.AdvancedSensors) ?
@@ -310,9 +307,6 @@ namespace LowVisibility.Object {
 
             return strength;
         }
-
-        public bool IsECMCarrier() { return ecmCarrier != 0f; }
-        public float ECMCarrierRange() { return ecmCarrier; }
 
         // Defender modifier
         public int ECMAttackMod(EWState attackerState) {
@@ -539,7 +533,7 @@ namespace LowVisibility.Object {
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
             sb.Append($"Raw check: {ewCheck}  tacticsMod: {tacticsMod}");
-            sb.Append($"  isECMCarrier: {ecmCarrier} ecmShieldMod: {shieldedByECMMod}  ecmJammedMod: {jammedByECMMod}");
+            sb.Append($"  ecmShieldMod: {shieldedByECMMod}  ecmJammedMod: {jammedByECMMod}");
             sb.Append($"  advSensors: {advSensorsCarrierMod}  probeCarrier: {probeCarrierMod}");
             sb.Append($"  stealth (detailsMod: {stealth?.DetailsMod} sigMulti: {stealth?.SignatureMulti} attack: {stealth?.MediumRangeAttackMod} / {stealth?.LongRangeAttackMod} / {stealth?.ExtremeRangeAttackMod})");
             sb.Append($"  mimetic: (visibilityMulti: {mimetic?.VisibilityMulti}  attackMod: {mimetic?.AttackMod} hexesToDecay: {mimetic?.HexesUntilDecay})");
