@@ -177,12 +177,12 @@ namespace LowVisibility.Patch {
                                     wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_PHYSICAL]).ToString();
                                     break;
                                 default:
-                                    wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_UNKNOWN]).ToString();
+                                    wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_UNIDENTIFIED]).ToString();
                                     break;
                             }
                             ___weaponNames[i].SetText(wName);
                         } else if (!___weaponNames[i].text.Equals("XXXXXXXXXXXXXX")) {
-                            ___weaponNames[i].SetText(new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_UNKNOWN]).ToString());
+                            ___weaponNames[i].SetText(new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_UNIDENTIFIED]).ToString());
                         }
                     }                       
 
@@ -191,7 +191,7 @@ namespace LowVisibility.Patch {
                     Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
                     GameObject weaponsLabel = weaponListT.gameObject;
                     TextMeshProUGUI labelText = weaponsLabel.GetComponent<TextMeshProUGUI>();
-                    labelText.SetText("Unidentified");
+                    labelText.SetText(new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_UNIDENTIFIED]).ToString());
                 } else {
 
                     SetArmorDisplayActive(__instance, false);
