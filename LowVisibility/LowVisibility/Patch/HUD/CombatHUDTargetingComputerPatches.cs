@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using BattleTech.UI;
 using Harmony;
+using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
@@ -137,7 +138,8 @@ namespace LowVisibility.Patch {
                 float range = Vector3.Distance(ModState.LastPlayerActorActivated.CurrentPosition, target.CurrentPosition);
                 bool hasVisualScan = VisualLockHelper.GetVisualScanRange(ModState.LastPlayerActorActivated) >= range;
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
-                Mod.Log.Debug($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(ModState.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} at range: {range} has scanType:{scanType} visualScan:{hasVisualScan}");
+                Mod.Log.Debug($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(ModState.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} " +
+                    $"at range: {range} has scanType:{scanType} visualScan:{hasVisualScan}");
 
                 if (scanType >= SensorScanType.WeaponAnalysis) {
                     __instance.WeaponList.SetActive(true);
@@ -160,27 +162,27 @@ namespace LowVisibility.Patch {
                                 case WeaponType.Gauss:
                                 case WeaponType.MachineGun:
                                 case WeaponType.AMS:
-                                    wName = "Ballistic";
+                                    wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_BALLISTIC]).ToString();
                                     break;
                                 case WeaponType.Laser:
                                 case WeaponType.PPC:
                                 case WeaponType.Flamer:
-                                    wName = "Energy";
+                                    wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_ENERGY]).ToString();
                                     break;
                                 case WeaponType.LRM:
                                 case WeaponType.SRM:
-                                    wName = "Missile";
+                                    wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_MISSILE]).ToString();
                                     break;
                                 case WeaponType.Melee:
-                                    wName = "Physical";
+                                    wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_PHYSICAL]).ToString();
                                     break;
                                 default:
-                                    wName = "Unidentified";
+                                    wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_UNKNOWN]).ToString();
                                     break;
                             }
                             ___weaponNames[i].SetText(wName);
                         } else if (!___weaponNames[i].text.Equals("XXXXXXXXXXXXXX")) {
-                            ___weaponNames[i].SetText("Unidentified");
+                            ___weaponNames[i].SetText(new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_UNKNOWN]).ToString());
                         }
                     }                       
 
@@ -200,7 +202,6 @@ namespace LowVisibility.Patch {
                     weaponsLabel.SetActive(false);
                 }
             } else if ((__instance.ActivelyShownCombatant as Building) != null) {
-                Building target = __instance.ActivelyShownCombatant as Building;
                 Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy building");
 
                 SetArmorDisplayActive(__instance, true);
