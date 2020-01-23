@@ -52,61 +52,61 @@ namespace LowVisibility.Helper {
             // vfxMatPrtl_ECMdistortionWeak or vfxMatPrtl_ECMdistortionStrong
         }
 
-        public static void EnableECMCarrierVfx(AbstractActor actor, float carrierRange) {
+        //public static void EnableECMCarrierVfx(AbstractActor actor, float carrierRange) {
 
-            if (!ModState.TurnDirectorStarted || actor == null || actor.GameRep == null) { return; }
+        //    if (!ModState.TurnDirectorStarted || actor == null || actor.GameRep == null) { return; }
 
-            if (!actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
-                Mod.Log.Debug($" ENABLING ECM LOOP ON ACTOR: {CombatantUtils.Label(actor)}");
+        //    if (!actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
+        //        Mod.Log.Debug($" ENABLING ECM LOOP ON ACTOR: {CombatantUtils.Label(actor)}");
                 
-                // Calculate the range factor
-                float vfxScaleFactor = carrierRange / 100f;
-                Mod.Log.Debug($" VFX scaling factor {vfxScaleFactor}");
+        //        // Calculate the range factor
+        //        float vfxScaleFactor = carrierRange / 100f;
+        //        Mod.Log.Debug($" VFX scaling factor {vfxScaleFactor}");
 
-                // Bubble
-                //ParticleSystem psECMLoop = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
-                //    Vector3.zero, ECMBubbleBaseVFX, "LV_ECM_CARRIER_VFX", true, Vector3.zero, false, -1f);
-                //psECMLoop.Stop(true);
-                //ParticleSystem.MainModule main = psECMLoop.main;
+        //       // Bubble
+        //       ParticleSystem psECMLoop = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
+        //           Vector3.zero, ECMBubbleBaseVFX, "LV_ECM_CARRIER_VFX", true, Vector3.zero, false, -1f);
+        //        psECMLoop.Stop(true);
+        //        ParticleSystem.MainModule main = psECMLoop.main;
 
-                //foreach (Transform child in psECMLoop.transform) {
-                //    if (child.gameObject.name.StartsWith("sphere")) {
-                //        child.gameObject.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
-                //    } else {
-                //        child.gameObject.SetActive(false);
-                //    }
-                //}
-                //psECMLoop.Play(true);
+        //        foreach (Transform child in psECMLoop.transform) {
+        //            if (child.gameObject.name.StartsWith("sphere")) {
+        //                child.gameObject.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
+        //            } else {
+        //                child.gameObject.SetActive(false);
+        //            }
+        //        }
+        //        psECMLoop.Play(true);
 
-                // AoE loop
-                //ParticleSystem psECMCarrier = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
-                //    Vector3.zero, ECMCarrierBaseVFX, "LV_ECM_LOOP_VFX", true, Vector3.zero, false, -1f);
+        //        // AoE loop
+        //        ParticleSystem psECMCarrier = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
+        //            Vector3.zero, ECMCarrierBaseVFX, "LV_ECM_LOOP_VFX", true, Vector3.zero, false, -1f);
 
-                //psECMCarrier.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
+        //        psECMCarrier.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
 
-                actor.StatCollection.AddStatistic(ModStats.ECMVFXEnabled, true);
+        //        actor.StatCollection.AddStatistic(ModStats.ECMVFXEnabled, true);
 
-                Mod.Log.Debug(" DONE ENABLING ECM LOOP");
-            } else {
-                Mod.Log.Debug(" ECM LOOP ALREADY ENABLED, SKIPPING");
-            }
-        }
+        //        Mod.Log.Debug(" DONE ENABLING ECM LOOP");
+        //    } else {
+        //        Mod.Log.Debug(" ECM LOOP ALREADY ENABLED, SKIPPING");
+        //    }
+        //}
 
-        public static void DisableECMCarrierVfx(AbstractActor actor) {
+        //public static void DisableECMCarrierVfx(AbstractActor actor) {
 
-            if (!ModState.TurnDirectorStarted) { return; }
+        //    if (!ModState.TurnDirectorStarted) { return; }
 
-            if (actor.GameRep != null && actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
-                Mod.Log.Debug("DISABLING ECM CARRIER EFFECT");
+        //    if (actor.GameRep != null && actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
+        //        Mod.Log.Debug("DISABLING ECM CARRIER EFFECT");
 
-                //actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform, Vector3.zero, ECMBubbleRemovedBaseBFX, true, Vector3.zero, true, -1f);
-                //actor.GameRep.StopManualPersistentVFX(ECMBubbleBaseVFX);
-                //actor.GameRep.StopManualPersistentVFX(ECMBubbleOpforBaseVFX);
-                //actor.GameRep.StopManualPersistentVFX(ECMCarrierBaseVFX);
+        //        actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform, Vector3.zero, ECMBubbleRemovedBaseBFX, true, Vector3.zero, true, -1f);
+        //        actor.GameRep.StopManualPersistentVFX(ECMBubbleBaseVFX);
+        //        actor.GameRep.StopManualPersistentVFX(ECMBubbleOpforBaseVFX);
+        //        actor.GameRep.StopManualPersistentVFX(ECMCarrierBaseVFX);
 
-                actor.StatCollection.RemoveStatistic(ModStats.ECMVFXEnabled);
-            }
-        }
+        //        actor.StatCollection.RemoveStatistic(ModStats.ECMVFXEnabled);
+        //    }
+        //}
 
         public static void EnableStealthVfx(AbstractActor actor) {
 
@@ -242,11 +242,12 @@ namespace LowVisibility.Helper {
                 }
                 ps.Play(true);
 
-                // Disabled due to bfix removing the ghost effect
-                // TODO: FIX!
-                //PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
-                //par.BlipObjectGhostStrong.SetActive(false);
-                //par.BlipObjectGhostWeak.SetActive(true);
+                if (Mod.Config.Toggles.MimeticUsesGhost) {
+                    Mod.Log.Debug($"Enabling GhostWeak VFX on actor: {CombatantUtils.Label(actor)}");
+                    PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
+                    par.BlipObjectGhostStrong.SetActive(false);
+                    par.BlipObjectGhostWeak.SetActive(true);
+                }
 
                 actor.StatCollection.AddStatistic(ModStats.MimeticVFXEnabled, true);
             }
@@ -262,17 +263,21 @@ namespace LowVisibility.Helper {
 
                 actor.GameRep.StopManualPersistentVFX(MimeticEffectVfxId);
 
-                // Disabled due to bfix removing the ghost effect
-                // TODO: FIX!
-                //PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
-                //par.BlipObjectGhostStrong.SetActive(false);
-                //par.BlipObjectGhostWeak.SetActive(false);
+                if (Mod.Config.Toggles.MimeticUsesGhost) {
+                    Mod.Log.Debug($"Disabling GhostWeak VFX on actor: {CombatantUtils.Label(actor)}");
+                    PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
+                    par.BlipObjectGhostStrong.SetActive(false);
+                    par.BlipObjectGhostWeak.SetActive(false);
+                }
 
                 actor.StatCollection.RemoveStatistic(ModStats.MimeticVFXEnabled);
             }
         }
 
         public static void EnableNightVisionEffect(AbstractActor source) {
+            // Skip if the green effect is disabled
+            if (!Mod.Config.Toggles.ShowNightVision) { return;  }
+            
             ModState.IsNightVisionMode = true;
 
             MoodController mc = ModState.GetMoodController();
@@ -312,6 +317,9 @@ namespace LowVisibility.Helper {
         }
 
         public static void DisableNightVisionEffect() {
+            // Skip if the green effect is disabled
+            if (!Mod.Config.Toggles.ShowNightVision) { return; }
+
             ModState.IsNightVisionMode = false;
 
             MoodController mc = ModState.GetMoodController();
