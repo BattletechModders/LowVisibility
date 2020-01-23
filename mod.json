@@ -1,16 +1,30 @@
 {
     "Name": "LowVisibility",
     "Enabled": true,
-    "Version": "0.6.3",
+    "Version": "0.6.8",
     "Description": "Implements double-blind semantics and more complex electronic warfare",
     "Author": "IceRaptor",
     "Website": "https://github.com/IceRaptor/LowVisibility",
     "Contact": "",
     "DLL": "LowVisibility.dll",
     "DependsOn" : [ "IRBTModUtils", "CustomActivatableEquipment" ],
+	"CustomResourceTypes": [ "CustomSVGIcon" ],
+    "Manifest": [
+        {
+            "Type": "CustomSVGIcon",
+            "Path": "icons/",
+            "ShouldMergeJSON": false
+        }
+    ],
     "Settings": {
         "Debug" : true,
         "Trace" : false,
+
+        "Toggles" : 
+            "LogEffectsOnMove" : false,
+            "ShowNightVision" : true,
+            "MimeticUsesGhost" : true
+        },
         "Sensors" : {
             "MechTypeRange" : 12,
             "VehicleTypeRange" : 9,
@@ -35,14 +49,10 @@
             "Mu" : -1
         },
         "Attack" : {
-            "NoSensorInfoPenalty" : 5,
+            "NoSensorsPenalty" : 7,
             "NoVisualsPenalty" : 5, 
-            "BlindFirePenalty" : 13,
-            "NoSensorsCriticalPenalty" : 0.0,
-            "NoVisualsCriticalPenalty" : 0.0,
-            "MaxHeatVisionBonus" : 5
+            "FiringBlindPenalty" : 13,
         },
-
         "LocalizedText" : {
             "MAP_LIGHT_BRIGHT" : "Bright",
             "MAP_LIGHT_DIM" : "Dim",
@@ -52,8 +62,8 @@
             "MAP_SNOW" : "Snow",
             "MAP_RAIN" : "Rain",
 
-            "PANEL_SENSOR_RANGE" : "Sensors - Detect:<color=#{0}>{1:0}m</color> Multi:<color=#{2}> x{3}</color> [{4}]\n",
-            "PANEL_VISUAL_RANGE" : "Visuals - Lock:{0:0}m Scan :{1}m [{2}]\n",
+            "PANEL_SENSOR_RANGE" : "<b>Sensors</b> Detect:<color=#{0}>{1:#.00}m</color> Multi:<color=#{2}> x{3}</color> [{4}]\n",
+            "PANEL_VISUAL_RANGE" : "<b>Visuals</b> Lock:{0:0}m Scan:{1}m [{2}]\n",
 
             "DETAILS_NONE" : "No Info",
             "DETAILS_LOCATION" : "Location",
@@ -78,6 +88,15 @@
             "ATTACK_STEALTH" : "STEALTH",
             "ATTACK_NARCED" : "NARCED",
             "ATTACK_TAGGED" : "TAGGED",
+
+            "FLOATIE_ECM_SHIELDED" : "ECM JAMMING",
+            "FLOATIE_ECM_JAMMED" : "ECM JAMMING",
+
+            "TARG_COMP_BALLISTIC" : "Ballistic",
+            "TARG_COMP_ENERGY" : "Energy",
+            "TARG_COMP_MISSILE" : "Missile",
+            "TARG_COMP_PHYSICAL" : "Physical",
+            "TARG_COMP_UNIDENTIFIED" : "Unidentified"
         }
 
     }

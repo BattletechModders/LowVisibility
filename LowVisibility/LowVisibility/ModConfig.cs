@@ -14,8 +14,6 @@ namespace LowVisibility {
         // ECM 
         public const string ECMShield = "LV_ECM_SHIELD"; // Int_32
         public const string ECMJamming = "LV_ECM_JAMMED"; // Int_32
-        public const string ECMCarrier = "LV_ECM_CARRIER"; // Boolean
-        public const string ECMVFXEnabled = "LV_ECM_VFX_ENABLED"; // Boolean
 
         // Sensors
         public const string AdvancedSensors = "LV_ADVANCED_SENSORS";
@@ -44,7 +42,10 @@ namespace LowVisibility {
         // Vision Modes - impacts player team only
         public const string NightVision = "LV_NIGHT_VISION"; // bool
         public const string SharesVision = "LV_SHARES_VISION"; // bool
-        
+
+        // CAE Stats - write carefully!
+        public const string CAESensorsRange = "CAE_SENSORS_RANGE";
+
         public static bool IsStealthStat(string statName) {
             return statName != null && statName != "" && 
                 (statName.Equals(ModStats.StealthEffect) || statName.Equals(ModStats.MimeticEffect));
@@ -55,6 +56,13 @@ namespace LowVisibility {
         // If true, extra logging will be used
         public bool Debug = false;
         public bool Trace = false;
+        
+        public class ToggleOpts {
+            public bool LogEffectsOnMove = false;
+            public bool ShowNightVision = true;
+            public bool MimeticUsesGhost = true;
+        }
+        public ToggleOpts Toggles = new ToggleOpts();
 
         // The base range (in hexes) for a unit's sensors
         public class SensorRangeOpts {
@@ -153,6 +161,17 @@ namespace LowVisibility {
         public const string LT_ATTACK_NARCED = "ATTACK_NARCED";
         public const string LT_ATTACK_TAGGED = "ATTACK_TAGGED";
 
+        // Floatie texts
+        public const string LT_FLOATIE_ECM_SHIELD = "FLOATIE_ECM_SHIELDED";
+        public const string LT_FLOATIE_ECM_JAMMED = "FLOATIE_ECM_JAMMED";
+
+        // Targeting computer 
+        public const string LT_TARG_COMP_BALLISTIC = "TARG_COMP_BALLISTIC";
+        public const string LT_TARG_COMP_ENERGY = "TARG_COMP_ENERGY";
+        public const string LT_TARG_COMP_MISSILE = "TARG_COMP_MISSILE";
+        public const string LT_TARG_COMP_PHYSICAL = "TARG_COMP_PHYSICAL";
+        public const string LT_TARG_COMP_UNIDENTIFIED = "TARG_COMP_UNIDENTIFIED";
+
         public Dictionary<string, string> LocalizedText = new Dictionary<string, string>() {
 
             // Map effects
@@ -165,8 +184,8 @@ namespace LowVisibility {
             { LT_MAP_RAIN, "Rain" },
 
             // Status Panel
-            { LT_PANEL_SENSOR_RANGE, "Sensors - Detect:<color=#{0}>{1:#.00}m</color> Multi:<color=#{2}> x{3}</color> [{4}]\n" },
-            { LT_PANEL_VISUAL_RANGE, "Visuals - Lock:{0:0}m Scan :{1}m [{2}]\n" },
+            { LT_PANEL_SENSOR_RANGE, "<b>Sensors</b> Detect:<color=#{0}>{1:#.00}m</color> Multi:<color=#{2}> x{3}</color> [{4}]\n" },
+            { LT_PANEL_VISUAL_RANGE, "<b>Visuals</b> Lock:{0:0}m Scan :{1}m [{2}]\n" },
 
             // Sensor Details Level
             { LT_DETAILS_NONE, "No Info" },
@@ -193,6 +212,15 @@ namespace LowVisibility {
             { LT_ATTACK_ECM_SHEILD, "ECM SHIELD" },
             { LT_ATTACK_NARCED, "NARCED" },
             { LT_ATTACK_TAGGED, "TAGGED" },
+
+            { LT_FLOATIE_ECM_JAMMED, "ECM JAMMING" },
+            { LT_FLOATIE_ECM_SHIELD, "ECM SHIELDING" },
+
+            { LT_TARG_COMP_BALLISTIC, "Ballistic" },
+            { LT_TARG_COMP_ENERGY, "Energy" },
+            { LT_TARG_COMP_MISSILE, "Missile" },
+            { LT_TARG_COMP_PHYSICAL, "Physical" },
+            { LT_TARG_COMP_UNIDENTIFIED, "Unidentified" }
         };
 
         public void LogConfig() {
