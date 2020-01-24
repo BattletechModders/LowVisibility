@@ -9,6 +9,7 @@ using SVGImporter;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 using UnityEngine;
 using us.frostraptor.modUtils;
 
@@ -127,50 +128,108 @@ namespace LowVisibility.Patch {
                     }
                 }
 
-                if (actorState.HasECMShield()) {
-                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.ECMShielded });
-                    Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_ECM_SHIELD]);
-                    Text text = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_ECM_SHIELD]);
-                    showBuffIconMethod.GetValue(new object[] { icon, title, text, __instance.effectIconScale, false });
+                if (actorState.GetRawECMShield() != 0|| actorState.GetRawECMJammed() != 0 || actorState.ProbeCarrierMod() != 0 || actorState.PingedByProbeMod() != 0 ||
+                    actorState.GetRawStealth() != null || actorState.GetRawMimetic() != null || actorState.GetRawNarcEffect() != null || actorState.GetRawTagEffect() != null) {
+                    // Build out the detailed string
+                    StringBuilder sb = new StringBuilder();
+
+                    if (actorState.GetRawECMShield() != 0) {
+                        // A positive is good, a negative is bad
+                        string color = actorState.GetRawECMShield() >= 0 ? "00FF00" : "FF0000";
+                        string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_ECM_SHIELD], 
+                            new object[] { color, actorState.GetRawECMShield() }
+                            ).ToString();
+                        sb.Append(localText);
+                    }
+
+                    if (actorState.GetRawECMJammed() != 0) {
+                        // A positive is good, a negative is bad
+                        string color = actorState.GetRawECMJammed() >= 0 ? "00FF00" : "FF0000";
+                        string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_ECM_JAMMING],
+                            new object[] { color, actorState.GetRawECMJammed() }
+                            ).ToString();
+                        sb.Append(localText);
+                    }
+
+                    if (actorState.ProbeCarrierMod() != 0) {
+                        // A positive is good, a negative is bad
+                        string color = actorState.ProbeCarrierMod() >= 0 ? "00FF00" : "FF0000";
+                        string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_PROBE_CARRIER],
+                            new object[] { color, -1 * actorState.ProbeCarrierMod() }
+                            ).ToString();
+                        sb.Append(localText);
+                    }
+
+                    // Armor
+                    if (actorState.GetRawStealth() != null) {
+                        string color = "00FF00";
+                        string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_STEALTH],
+                            new object[] { color, actorState.GetRawStealth().MediumRangeAttackMod, actorState.GetRawStealth().LongRangeAttackMod, actorState.GetRawStealth().ExtremeRangeAttackMod, }
+                            ).ToString();
+                        sb.Append(localText);
+                    }
+
+                    if (actorState.GetRawMimetic() != null) {
+                        // A positive is good (harder to hit), should be no negative?
+                        string color = "00FF00";
+                        string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_MIMETIC],
+                            new object[] { color, actorState.CurrentMimeticPips() }
+                            ).ToString();
+                        sb.Append(localText);
+                    }
+
+                    // Transient effects
+                    if (actorState.PingedByProbeMod() != 0) {
+                        // A positive is good, a negative is bad
+                        string color = -1 * actorState.PingedByProbeMod() >= 0 ? "00FF00" : "FF0000";
+                        string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_PROBE_EFFECT],
+                            new object[] { color, -1 * actorState.PingedByProbeMod() }
+                            ).ToString();
+                        sb.Append(localText);
+                    }
+
+                    if (actorState.GetRawNarcEffect() != null) {
+                        // A positive is good, a negative is bad
+                        string color = -1 * actorState.GetRawNarcEffect().AttackMod >= 0 ? "00FF00" : "FF0000";
+                        string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_NARC_EFFECT],
+                            new object[] { color, -1 * actorState.GetRawNarcEffect().AttackMod }
+                            ).ToString();
+                        sb.Append(localText);
+                    }
+
+                    if (actorState.GetRawTagEffect() != null) {
+                        // A positive is good, a negative is bad
+                        string color = -1 * actorState.GetRawTagEffect().AttackMod >= 0 ? "00FF00" : "FF0000";
+                        string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_TAG_EFFECT],
+                            new object[] { color, -1 * actorState.GetRawTagEffect().AttackMod }
+                            ).ToString();
+                        sb.Append(localText);
+                    }
+
+                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.ElectronicWarfare });
+                    Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_EW]);
+                    showBuffIconMethod.GetValue(new object[] { icon, title, new Text(sb.ToString()), __instance.effectIconScale, false });
                 }
 
-                if (actorState.ECMJammedMod() != 0) {
-                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.ECMJammed });
-                    Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_ECM_JAMMING]);
-                    Text text = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_ECM_JAMMING]);
-                    showDebuffIconMethod.GetValue(new object[] { icon, title, text, __instance.effectIconScale, false });
-                }
-
-                if (actorState.HasStealth()) {
-                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.Stealth });
-                    Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_STEALTH]);
-                    Text text = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_STEALTH]);
-                    showBuffIconMethod.GetValue(new object[] { icon, title, text, __instance.effectIconScale, false });
-                }
-
-                if (actorState.HasMimetic()) {
-                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.Mimetic });
-                    Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_MIMETIC]);
-                    Text text = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_MIMETIC]);
-                    showBuffIconMethod.GetValue(new object[] { icon, title, text, __instance.effectIconScale, false });
-                }
             }
         }
 
         private static string BuildToolTip(AbstractActor actor) {
-            EWState ewState = new EWState(actor);
             //Mod.Log.Debug($"EW State for actor:{CombatantUtils.Label(actor)} = {ewState}");
 
             List<string> details = new List<string>();
 
+            // Visuals check
             float visualLockRange = VisualLockHelper.GetVisualLockRange(actor);
             float visualScanRange = VisualLockHelper.GetVisualScanRange(actor);
             details.Add(
-                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_VISUAL_RANGE], 
+                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_VISUALS], 
                     new object[] { visualLockRange, visualScanRange, ModState.GetMapConfig().UILabel() })
                     .ToString()
                 );
-            
+
+            // Sensors check
+            EWState ewState = new EWState(actor);
             SensorScanType checkLevel;
             if (ewState.GetCurrentEWCheck() > (int)SensorScanType.DentalRecords) { checkLevel = SensorScanType.DentalRecords; } 
             else if (ewState.GetCurrentEWCheck() < (int)SensorScanType.NoInfo) { checkLevel = SensorScanType.NoInfo; } 
@@ -178,34 +237,47 @@ namespace LowVisibility.Patch {
             float sensorsRange = SensorLockHelper.GetSensorsRange(actor);
             string sensorColor = ewState.GetCurrentEWCheck() >= 0 ? "00FF00" : "FF0000";
             details.Add(
-                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_SENSOR_RANGE], 
+                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_SENSORS], 
                     new object[] { sensorColor, sensorsRange, sensorColor, ewState.GetSensorsRangeMulti(), checkLevel.Label() })
                     .ToString()
                 );
 
-            // Sensor details
-            ewState.BuildCheckTooltip(details);
+            // Details
+            //{ LT_PANEL_DETAILS, "  Total:{0}<size=90%> Roll:<color=#{1}>{2}</color> Tactics:<color=#00FF00>{3+0;-#}</color> AdvSen:<color=#{4}>{5+0;-#}</color>\n" },
+            string checkColor = ewState.GetRawCheck() >= 0 ? "00FF00" : "FF0000";
+            string advSenColor = ewState.AdvancedSensorsMod() >= 0 ? "00FF00" : "FF0000";
+            details.Add(
+                new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_DETAILS],
+                    new object[] { ewState.GetCurrentEWCheck(), checkColor, ewState.GetRawCheck(), ewState.GetRawTactics(), advSenColor, ewState.AdvancedSensorsMod() })
+                    .ToString()
+                );
 
-            // TODO: FIX ME!
+            //  Heat Vision
+            if (ewState.GetRawHeatVision() != null) {
+                // { LT_PANEL_HEAT, "<b>Thermals</b><size=90%> Mod:<color=#{0}>{1:+0;-#}</color> / {2} heat Range:{3}m\n" },
+                HeatVision heatVis = ewState.GetRawHeatVision();
+                // Positive is bad, negative is good
+                string modColor = heatVis.AttackMod >= 0 ? "FF0000" : "00FF00";
+                details.Add(
+                    new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_HEAT],
+                        new object[] { modColor, heatVis.AttackMod, heatVis.HeatDivisor, heatVis.MaximumRange })
+                        .ToString()
+                    );
+            }
 
-            //if (ewState.probeMod > 0) {
-            //    sensorDetails.Add($" (Probe:<color=#00FF00>{ewState.probeMod:0}</color>)");
-            //}              
-
-            //if (ewState.probeMod > 0) {
-            //    checkResult += ewState.probeMod;
-            //    sensorDetails.Add($" + Probe: <color=#00FF00>{ewState.probeMod:0}</color>");
-            //}
-
-            //if (State.ECMJamming(actor) != 0) {
-            //    checkResult -= State.ECMJamming(actor);
-            //    sensorDetails.Add($" + Jammed: <color=#FF0000>{State.ECMJamming(actor):-0}</color>");
-            //}
-
-            //// Sensor check:(+/-0) SensorScanLevel:
-            //if (ewState.ecmMod != 0) {
-            //    details.Add($"ECM => Enemy Modifier:<color=#FF0000>{ewState.ecmMod:-0}</color>");
-            //}
+            //  Zoom Vision
+            if (ewState.GetRawZoomVision() != null) {
+                // { LT_PANEL_ZOOM, "<b>Zoom</b><size=90%> Mod:<color=#{0}>{1:+0;-#}</color? Cap:<color=#{2}>{3:+0;-#}</color> Range:{4}m\n" },
+                ZoomVision zoomVis = ewState.GetRawZoomVision();
+                // Positive is bad, negative is good
+                string modColor = zoomVis.AttackMod >= 0 ? "FF0000" : "00FF00";
+                string capColor = zoomVis.AttackCap >= 0 ? "FF0000" : "00FF00";
+                details.Add(
+                    new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_ZOOM],
+                        new object[] { modColor, zoomVis.AttackMod, capColor, zoomVis.AttackCap, zoomVis.MaximumRange })
+                        .ToString()
+                    );
+            }
 
             string tooltipText = String.Join("", details.ToArray());
             return tooltipText;

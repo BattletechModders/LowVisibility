@@ -6,10 +6,17 @@ namespace LowVisibility {
     public class ModIcons {
         public const string VisionAndSensors = "@lv_cyber-eye";
         public const string SensorsDisabled = "@lv_sight-disabled";
-        public const string ECMShielded = "@lv_armor-upgrade";
-        public const string ECMJammed = "@lv_armor-downgrade";
-        public const string Mimetic = "@lv_eye-shield";
-        public const string Stealth = "@lv_double-face-mask";
+        public const string ElectronicWarfare = "@lv_eye-shield";
+
+        //public const string ECMShielded = "@lv_armor-upgrade";
+        //public const string ECMJammed = "@lv_armor-downgrade";
+        //public const string Mimetic = "@lv_eye-shield";
+        //public const string Stealth = "@lv_double-face-mask";
+        //public const string Tagged = "@lv_sinusoidal-beam";
+        //public const string Narced = "@lv_aerial-signal";
+        //public const string ProbeCarrier = "@lv_movement-sensor";
+        //public const string ProbePinged = "@lv_radar-sweep";
+
     }
 
     public class ModStats {
@@ -56,7 +63,7 @@ namespace LowVisibility {
         public const string CAESensorsRange = "CAE_SENSORS_RANGE";
 
         public static bool IsStealthStat(string statName) {
-            return statName != null && statName != "" && 
+            return statName != null && statName != "" &&
                 (statName.Equals(ModStats.StealthEffect) || statName.Equals(ModStats.MimeticEffect));
         }
     }
@@ -65,7 +72,7 @@ namespace LowVisibility {
         // If true, extra logging will be used
         public bool Debug = false;
         public bool Trace = false;
-        
+
         public class ToggleOpts {
             public bool LogEffectsOnMove = false;
             public bool ShowNightVision = true;
@@ -141,8 +148,11 @@ namespace LowVisibility {
         public const string LT_MAP_RAIN = "MAP_RAIN";
 
         // Status Panel
-        public const string LT_PANEL_SENSOR_RANGE = "PANEL_SENSOR_RANGE";
-        public const string LT_PANEL_VISUAL_RANGE = "PANEL_VISUAL_RANGE";
+        public const string LT_PANEL_SENSORS = "PANEL_SENSORS";
+        public const string LT_PANEL_VISUALS = "PANEL_VISUALS";
+        public const string LT_PANEL_DETAILS = "PANEL_DETAILS";
+        public const string LT_PANEL_HEAT = "PANEL_HEAT_VISION";
+        public const string LT_PANEL_ZOOM = "PANEL_ZOOM_VISION";
 
         // Sensor details keys
         public const string LT_DETAILS_NONE = "DETAILS_NONE";
@@ -183,16 +193,17 @@ namespace LowVisibility {
 
         // HUD ToolTips
         public const string LT_TT_TITLE_VISION_AND_SENSORS = "TOOLTIP_TITLE_VISION_AND_SENSORS";
-        public const string LT_TT_TITLE_ECM_JAMMING = "TOOLTIP_TITLE_ECM_JAMMER";
-        public const string LT_TT_TEXT_ECM_JAMMING = "TOOLTIP_TEXT_ECM_JAMMER";
-        public const string LT_TT_TITLE_ECM_SHIELD = "TOOLTIP_TITLE_ECM_SHIELD";
-        public const string LT_TT_TEXT_ECM_SHIELD = "TOOLTIP_TEXT_ECM_SHIELD";
         public const string LT_TT_TITLE_SENSORS_DISABLED = "TOOLTIP_TITLE_SENSORS_DISABLED";
         public const string LT_TT_TEXT_SENSORS_DISABLED = "TOOLTIP_TEXT_SENSORS_DISABLED";
-        public const string LT_TT_TITLE_STEALTH = "TOOLTIP_TITLE_STEALTH";
-        public const string LT_TT_TEXT_STEALTH = "TOOLTIP_TEXT_STEALTH";
-        public const string LT_TT_TITLE_MIMETIC = "TOOLTIP_TITLE_MIMETIC";
-        public const string LT_TT_TEXT_MIMETIC = "TOOLTIP_TEXT_MIMETIC";
+        public const string LT_TT_TITLE_EW = "TOOLTIP_TITLE_EW";
+        public const string LT_TT_TEXT_EW_ECM_SHIELD = "TOOLTIP_LABEL_EW_ECM_SHIELD";
+        public const string LT_TT_TEXT_EW_ECM_JAMMING = "TOOLTIP_LABEL_EW_ECM_JAMMING";
+        public const string LT_TT_TEXT_EW_PROBE_CARRIER = "TOOLTIP_LABEL_EW_PROBE_CARRIER";
+        public const string LT_TT_TEXT_EW_MIMETIC = "TOOLTIP_LABEL_EW_MIMETIC";
+        public const string LT_TT_TEXT_EW_STEALTH = "TOOLTIP_LABEL_EW_STEALTH";
+        public const string LT_TT_TEXT_EW_NARC_EFFECT = "TOOLTIP_LABEL_EW_NARC_EFFECT";
+        public const string LT_TT_TEXT_EW_PROBE_EFFECT = "TOOLTIP_LABEL_EW_PROBE_EFFECT";
+        public const string LT_TT_TEXT_EW_TAG_EFFECT = "TOOLTIP_LABEL_EW_TAG_EFFECT";
 
         public Dictionary<string, string> LocalizedText = new Dictionary<string, string>() {
 
@@ -206,8 +217,11 @@ namespace LowVisibility {
             { LT_MAP_RAIN, "Rain" },
 
             // Status Panel
-            { LT_PANEL_SENSOR_RANGE, "<b>Sensors</b> Detect:<color=#{0}>{1:#.00}m</color> Multi:<color=#{2}> x{3}</color> [{4}]\n" },
-            { LT_PANEL_VISUAL_RANGE, "<b>Visuals</b> Lock:{0:0}m Scan:{1}m [{2}]\n" },
+            { LT_PANEL_SENSORS, "<b>Sensors</b><size=90%> <color=#{0}>{1:#.00}m</color> Multi:<color=#{2}> x{3}</color> [{4}]\n" },
+            { LT_PANEL_VISUALS, "<b>Visuals</b><size=90%> <color=#00FF00>{0:0}m</color> Scan:{1}m [{2}]\n" },
+            { LT_PANEL_DETAILS, "  Total:{0}<size=90%> Roll:<color=#{1}>{2}</color> Tactics:<color=#00FF00>{3:+0;-#}</color> AdvSen:<color=#{4}>{5:+0;-#}</color>\n" },
+            { LT_PANEL_HEAT, "<b>Thermals</b><size=90%> Mod: <color=#{0}>{1:+0;-#}</color> / {2} heat Range: {3}m\n" },
+            { LT_PANEL_ZOOM, "<b>Zoom</b><size=90%> Mod: <color=#{0}>{1:+0;-#}</color> Cap: <color=#{2}>{3:+0;-#}</color> Range: {4}m\n" },
 
             // Sensor Details Level
             { LT_DETAILS_NONE, "No Info" },
@@ -248,17 +262,21 @@ namespace LowVisibility {
 
             // HUD Tooltips
             { LT_TT_TITLE_VISION_AND_SENSORS, "VISION AND SENSORS" },
-            { LT_TT_TITLE_ECM_JAMMING, "ECM JAMMING" },
-            { LT_TT_TEXT_ECM_JAMMING, "Unit is jammed by enemy ECM which makes enemy units harder to detect." },
-            { LT_TT_TITLE_ECM_SHIELD, "ECM SHIELD" },
-            { LT_TT_TEXT_ECM_SHIELD, "Unit is protected by friendly ECM and will be harder to detect by enemy units." },
             { LT_TT_TITLE_SENSORS_DISABLED, "SENSORS OFFLINE" },
             { LT_TT_TEXT_SENSORS_DISABLED, "Sensors offline during the first round of the battle." },
-            { LT_TT_TITLE_STEALTH, "STEALTH" },
-            { LT_TT_TEXT_STEALTH, "Unit is protected by Stealth and will be harder to detect and attack." },
-            { LT_TT_TITLE_MIMETIC, "MIMETIC" },
-            { LT_TT_TEXT_MIMETIC, "Unit is protected by a Mimetic Shield and will be harder to see and attack." }
-        };
+            
+            // Electronic Warfare options
+            { LT_TT_TITLE_EW, "ELECTRONIC WARFARE" },
+            { LT_TT_TEXT_EW_ECM_SHIELD, "<size=90%><b>ECM SHIELD</b>: <color=#{0}>{1:+0;-#}</color> to detect or attack.\n" },
+            { LT_TT_TEXT_EW_ECM_JAMMING, "<size=90%><b>ECM JAMMING</b>: <color=#{0}>{1:+0;-#} sensor details.</color>\n" },
+            { LT_TT_TEXT_EW_PROBE_CARRIER, "<size=90%><b>ACTIVE PROBE</b>: <color=#{0}>{1:+0;-#}</color> to enemy ECM, Stealth, Mimetic\n" },
+            { LT_TT_TEXT_EW_NARC_EFFECT, "<size=90%><b>NARCED</b>: <color=#{0}>{1:+0;-#}</color> to attack and detect.\n" },
+            { LT_TT_TEXT_EW_PROBE_EFFECT, "<size=90%><b>PROBE PINGED</b>: <color=#{0}>{1:+0;-#}</color> to detect.\n" },
+            { LT_TT_TEXT_EW_TAG_EFFECT, "<size=90%><b>TAGGED</b>: <color=#{0}>{1:+0;-#}</color> attack and detection modifier.\n" },
+            { LT_TT_TEXT_EW_MIMETIC, "<size=90%><b>MIMETIC</b>: <color=#{0}>{1:+0;-#}</color> attack modifier.\n" },
+            { LT_TT_TEXT_EW_STEALTH, "<size=90%><b>STEALTH</b>: med. <color=#{0}>{1:+0;-#}</color> / long <color=#{0}>{2:+0;-#}</color> / ext. <color=#{0}>{3:+0;-#}</color> attack modifier\n" }
+
+    };
 
         public void LogConfig() {
             Mod.Log.Info("=== MOD CONFIG BEGIN ===");

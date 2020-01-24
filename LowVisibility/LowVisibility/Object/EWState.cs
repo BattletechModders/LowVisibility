@@ -9,7 +9,7 @@ using us.frostraptor.modUtils.math;
 namespace LowVisibility.Object {
 
     // <signature_modifier>_<details_modifier> _<mediumAttackMod>_<longAttackmod> _<extremeAttackMod>
-    class Stealth {
+    public class Stealth {
         public float SignatureMulti = 0.0f;
         public int DetailsMod = 0;
         public int MediumRangeAttackMod = 0;
@@ -21,7 +21,7 @@ namespace LowVisibility.Object {
     }
 
     // <initialVisibility>_<initialModifier>_<stepsUntilDecay>
-    class Mimetic {
+    public class Mimetic {
         public float VisibilityMulti = 0.0f;
         public int AttackMod = 0;
         public int HexesUntilDecay = 0;
@@ -32,7 +32,7 @@ namespace LowVisibility.Object {
     }
 
     // <initialAttackModifier>_<attackModifierCap>_<hexesUntilDecay>
-    class ZoomVision {
+    public class ZoomVision {
         public int AttackMod = 0;
         public int AttackCap = 0;
         public int HexesUntilDecay = 0;
@@ -51,7 +51,7 @@ namespace LowVisibility.Object {
     }
 
     // <initialAttackModifier>_<heatDivisorForStep>_<hexesUntilDecay>
-    class HeatVision {
+    public class HeatVision {
         public int AttackMod = 0;
         public float HeatDivisor = 1f;
         public int MaximumRange = 0;
@@ -62,14 +62,14 @@ namespace LowVisibility.Object {
     }
 
     // <signatureMod>_<detailsMod>_<attackMod>
-    class NarcEffect {
+    public class NarcEffect {
         public int AttackMod = 0;
         public float SignatureMod = 0.0f;
         public int DetailsMod = 0;
     }
 
     // <signatureMod>_<detailsMod>_<attackMod>
-    class TagEffect {
+    public class TagEffect {
         public int AttackMod = 0;
         public float SignatureMod = 0.0f;
         public int DetailsMod = 0;
@@ -276,9 +276,12 @@ namespace LowVisibility.Object {
         }
 
         public int GetCurrentEWCheck() { return ewCheck + tacticsMod; }
+        public int GetRawCheck() { return ewCheck; }
+        public int GetRawTactics() { return tacticsMod; }
 
         // ECM
-        public int ECMJammedMod() { return jammedByECMMod;  }
+        public int GetRawECMJammed() { return jammedByECMMod;  }
+
         public float ECMSignatureMod(EWState attackerState) {
             
             if (shieldedByECMMod <= 0) { return 0f; }
@@ -321,8 +324,7 @@ namespace LowVisibility.Object {
             
             return strength;
         }
-
-        public bool HasECMShield() { return shieldedByECMMod != 0;  }
+        public int GetRawECMShield() { return shieldedByECMMod; }
 
         // Sensors
         public int AdvancedSensorsMod() { return advSensorsCarrierMod; }
@@ -376,6 +378,7 @@ namespace LowVisibility.Object {
             return strength;
         }
         public bool HasStealth() { return stealth != null; }
+        public Stealth GetRawStealth() { return stealth; }
 
         // Mimetic
         public float MimeticVisibilityMod(EWState attackerState) {
@@ -425,6 +428,7 @@ namespace LowVisibility.Object {
 
             return currentMod;
         }
+        public Mimetic GetRawMimetic() { return mimetic; }
 
         // ZoomVision - Attacker
         public int GetZoomVisionAttackMod(Weapon weapon, float distance) {
@@ -446,6 +450,7 @@ namespace LowVisibility.Object {
             if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return false; }
             return distance < zoomVision.MaximumRange;
         }
+        public ZoomVision GetRawZoomVision() { return zoomVision; }
 
         // HeatVision - Attacker
         public int GetHeatVisionAttackMod(AbstractActor target, float magnitude, Weapon weapon) {
@@ -474,6 +479,7 @@ namespace LowVisibility.Object {
             if (heatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return false; }
             return distance < heatVision.MaximumRange;
         }
+        public HeatVision GetRawHeatVision() { return heatVision; }
 
         // NARC effects
         public bool IsNarced(EWState attackerState) {
@@ -500,6 +506,7 @@ namespace LowVisibility.Object {
             }
             return val;
         }
+        public NarcEffect GetRawNarcEffect() { return narcEffect; }
 
         // TAG effects
         public bool IsTagged(EWState attackerState) {
@@ -526,6 +533,7 @@ namespace LowVisibility.Object {
             }
             return val;
         }
+        public TagEffect GetRawTagEffect() { return tagEffect; }
 
         public bool SharesVision() { return sharesVision; }
 
@@ -547,29 +555,6 @@ namespace LowVisibility.Object {
             sb.Append($"  tagEffect: (detailsMod: {tagEffect?.DetailsMod} sigMod: {tagEffect?.SignatureMod} attackMod: {tagEffect?.AttackMod})");
 
             return sb.ToString(); 
-        }
-
-        public void BuildCheckTooltip(List<string> details) {
-            
-            details.Add("Details Check:");
-
-            List<string> toBuild = new List<string>();
-            if (ewCheck >= 0) {
-                toBuild.Add($"<color=#00FF00>{ewCheck:+0}</color>");
-            } else {
-                toBuild.Add($"<color=#FF0000>{ewCheck:0}</color>");
-            }
-            toBuild.Add($" + (Tactics: <color=#00FF00>{tacticsMod:+0}</color>)");
-
-            if (AdvancedSensorsMod() != 0) {
-                if (AdvancedSensorsMod() > 0) {
-                    toBuild.Add($" + (Sensors: <color=#00FF00>{AdvancedSensorsMod():+0}</color>)");
-                } else {
-                    toBuild.Add($" + (Sensors: <color=#FF0000>{AdvancedSensorsMod():0}</color>)");
-                }
-            }
-
-            details.Add(String.Join("", toBuild.ToArray()));
         }
 
     };

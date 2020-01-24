@@ -1,15 +1,10 @@
 ﻿using BattleTech;
-using BattleTech.Rendering.Mood;
-using FogOfWar;
 using Harmony;
-using HBS;
 using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using UnityEngine;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {

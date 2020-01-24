@@ -238,9 +238,9 @@ namespace LowVisibility.Helper {
             }
 
             // --- Source: ECM Jamming
-            if (sourceState.ECMJammedMod() > 0) {
-                Mod.Log.Trace($" == source is jammed by ECM, detailsLevel = {detailsLevel} - {sourceState.ECMJammedMod()}");
-                detailsLevel -= sourceState.ECMJammedMod();
+            if (sourceState.GetRawECMJammed() > 0) {
+                Mod.Log.Trace($" == source is jammed by ECM, detailsLevel = {detailsLevel} - {sourceState.GetRawECMJammed()}");
+                detailsLevel -= sourceState.GetRawECMJammed();
             }
 
             // --- Target: Stealth, Narc, Tag
