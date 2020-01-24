@@ -29,7 +29,7 @@ namespace LowVisibility.Patch {
                     foreach (AbstractActor actor in __instance.Combat.AllActors) {
                         if (actor != null) {
                             // Make a pre-encounter detectCheck for them
-                            ActorHelper.UpdateSensorCheck(actor);
+                            ActorHelper.UpdateSensorCheck(actor, false);
 
                             bool isPlayer = actor.TeamId == __instance.Combat.LocalPlayerTeamGuid;
                             if (isPlayer && randomPlayerActor == null) {
@@ -75,7 +75,7 @@ namespace LowVisibility.Patch {
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
-                ActorHelper.UpdateSensorCheck(actor);
+                ActorHelper.UpdateSensorCheck(actor, true);
             }
 
         }
