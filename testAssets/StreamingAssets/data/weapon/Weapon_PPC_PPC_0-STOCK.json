@@ -33,8 +33,8 @@
                     "range" : 0.0,
                     "forcePathRebuild" : false,
                     "forceVisRebuild" : false,
-                    "showInTargetPreview" : true,
-                    "showInStatusPanel" : true
+                    "showInTargetPreview" : false,
+                    "showInStatusPanel" : false
                 },
                 "effectType" : "StatisticEffect",
                 "Description" :
@@ -90,8 +90,8 @@
                 "range" : 0.0,
                 "forcePathRebuild" : false,
                 "forceVisRebuild" : false,
-                "showInTargetPreview" : true,
-                "showInStatusPanel" : true
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : false
             },
             "effectType" : "StatisticEffect",
             "Description" :
@@ -132,38 +132,6 @@
         "effectType" : "StatisticEffect",
         "Description" :
         {
-            "Id" : "LV_ECM_CARRIER",
-            "Name" : "ECM Carrier",
-            "Details" : "You emit an ECM field that makes you easier to detect with sensors, but harder to hit.",
-            "Icon" : "uixSvgIcon_status_ECM-missileDef"
-        },
-        "statisticData" : 
-        {
-            "statName" : "LV_ECM_CARRIER",
-            "operation": "Set",
-            "modValue": "240",
-            "modType": "System.Single"
-        },
-        "nature" : "Buff"
-    },
-    {
-        "durationData" : {
-            "duration": -1,
-            "stackLimit": -1
-        },
-        "targetingData" : {
-            "effectTriggerType" : "Passive",
-            "specialRules" : "NotSet",
-            "effectTargetType" : "Creator",
-            "range" : 0.0,
-            "forcePathRebuild" : false,
-            "forceVisRebuild" : false,
-            "showInTargetPreview" : false,
-            "showInStatusPanel" : false
-        },
-        "effectType" : "StatisticEffect",
-        "Description" :
-        {
             "Id" : "LV_ECM_CARRIER_SIGNATURE",
             "Name" : "ECM Carrier Signature Penalty",
             "Details" : "Your ECM field makes you easier to detect",
@@ -178,5 +146,5 @@
         },
         "nature" : "Buff"
     }    
-]
+    ]
 }
