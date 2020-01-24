@@ -322,6 +322,8 @@ namespace LowVisibility.Object {
             return strength;
         }
 
+        public bool HasECMShield() { return shieldedByECMMod != 0;  }
+
         // Sensors
         public int AdvancedSensorsMod() { return advSensorsCarrierMod; }
         public float GetSensorsRangeMulti() { return ewCheck / 20.0f + tacticsMod / 10.0f; }

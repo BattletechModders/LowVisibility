@@ -103,56 +103,56 @@ namespace LowVisibility.Patch {
                 Traverse showDebuffIconMethod = Traverse.Create(__instance).Method("ShowDebuff", iconMethodParams);
                 Traverse showBuffIconMethod = Traverse.Create(__instance).Method("ShowBuff", iconMethodParams);
 
-                Type[] stringMethodParams = new Type[] { typeof(string), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) };
-                Traverse showDebuffStringMethod = Traverse.Create(__instance).Method("ShowDebuff", stringMethodParams);
-                Traverse showBuffStringMethod = Traverse.Create(__instance).Method("ShowBuff", stringMethodParams);
-
                 AbstractActor actor = __instance.DisplayedCombatant as AbstractActor;
                 EWState actorState = new EWState(actor);
 
+                Traverse svgAssetT = Traverse.Create(__instance.DisplayedCombatant.Combat.DataManager).Property("SVGCache");
+                object svgCache = svgAssetT.GetValue();
+                Traverse svgCacheT = Traverse.Create(svgCache).Method("GetAsset", new Type[] { typeof(string) });
+
                 bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 if (isPlayer) {
-                    Mod.Log.Debug("ATTEMPING TO LOAD CUSTOM ICON");
-                    //CustomComponents.IconController.Get("@cyber-eye");
 
-                    showBuffIconMethod.GetValue(new object[] {
-                            LazySingletonBehavior<UIManager>.Instance.UILookAndColorConstants.StatusSensorLockIcon,
-                            new Text("VISION AND SENSORS", new object[0]),
-                            new Text(BuildToolTip(actor)),
-                            __instance.effectIconScale,
-                            false
-                        });
+                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.VisionAndSensors });
+                    Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_VISION_AND_SENSORS]);
+                    showBuffIconMethod.GetValue(new object[] { icon, title, new Text(BuildToolTip(actor)), __instance.effectIconScale, false });
 
+                    // Disable the sensors
                     if (actor.Combat.TurnDirector.CurrentRound == 1) {
-                        showDebuffStringMethod.GetValue(new object[] {
-                            "uixSvgIcon_status_sensorsImpaired",
-                            new Text("SENSORS OFFLINE", new object[0]),
-                            new Text($"Sensors offline during the first round of the battle.", new object[0]),
-                            __instance.effectIconScale,
-                            false
-                        });
+                        SVGAsset sensorsDisabledIcon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.SensorsDisabled });
+                        Text sensorsDisabledTitle = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_SENSORS_DISABLED]);
+                        Text sensorsDisabledText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_SENSORS_DISABLED]);
+                        showDebuffIconMethod.GetValue(new object[] { 
+                            sensorsDisabledIcon, sensorsDisabledTitle, sensorsDisabledText, __instance.effectIconScale, false });
                     }
                 }
 
-                // TODO: FIXME
-                //if (actorState.ECMAttackMod() != 0) {
-                //    showDebuffStringMethod.GetValue(new object[] {
-                //        "uixSvgIcon_status_sensorsImpaired",
-                //        new Text("ECM PROTECTION", new object[0]),
-                //        new Text($"Unit is protected by friendly ECM and will be harder to detect by enemy units."),
-                //        __instance.effectIconScale,
-                //        false
-                //    });
-                //}
+                if (actorState.HasECMShield()) {
+                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.ECMShielded });
+                    Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_ECM_SHIELD]);
+                    Text text = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_ECM_SHIELD]);
+                    showBuffIconMethod.GetValue(new object[] { icon, title, text, __instance.effectIconScale, false });
+                }
 
                 if (actorState.ECMJammedMod() != 0) {
-                    showDebuffStringMethod.GetValue(new object[] {
-                        "uixSvgIcon_status_sensorsImpaired",
-                        new Text("ECM JAMMING", new object[0]),
-                        new Text($"Unit is jammed by enemy ECM which makes enemy units harder to detect."),
-                        __instance.effectIconScale,
-                        false
-                    });
+                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.ECMJammed });
+                    Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_ECM_JAMMING]);
+                    Text text = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_ECM_JAMMING]);
+                    showDebuffIconMethod.GetValue(new object[] { icon, title, text, __instance.effectIconScale, false });
+                }
+
+                if (actorState.HasStealth()) {
+                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.Stealth });
+                    Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_STEALTH]);
+                    Text text = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_STEALTH]);
+                    showBuffIconMethod.GetValue(new object[] { icon, title, text, __instance.effectIconScale, false });
+                }
+
+                if (actorState.HasMimetic()) {
+                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.Mimetic });
+                    Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_MIMETIC]);
+                    Text text = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_MIMETIC]);
+                    showBuffIconMethod.GetValue(new object[] { icon, title, text, __instance.effectIconScale, false });
                 }
             }
         }
