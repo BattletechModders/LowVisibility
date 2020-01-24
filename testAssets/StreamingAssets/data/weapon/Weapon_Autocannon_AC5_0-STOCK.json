@@ -12,8 +12,8 @@
                 "range" : 0.0,
                 "forcePathRebuild" : false,
                 "forceVisRebuild" : true,
-                "showInTargetPreview" : true,
-                "showInStatusPanel" : true
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : false
             },
             "effectType" : "StatisticEffect",
             "Description" :
@@ -27,7 +27,7 @@
             {
                 "statName" : "LV_NARC",
                 "operation": "Set",
-                "modValue": "1.5_7_-2",
+                "modValue": "1.5_7_2",
                 "modType": "System.String"
             },
             "nature" : "Debuff"
@@ -44,8 +44,8 @@
                 "range" : 0.0,
                 "forcePathRebuild" : false,
                 "forceVisRebuild" : true,
-                "showInTargetPreview" : true,
-                "showInStatusPanel" : true
+                "showInTargetPreview" : false,
+                "showInStatusPanel" : false
             },
             "effectType" : "StatisticEffect",
             "Description" :

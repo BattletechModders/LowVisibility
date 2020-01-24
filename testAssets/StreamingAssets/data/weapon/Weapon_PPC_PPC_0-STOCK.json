@@ -72,10 +72,10 @@
       "targetVFX": [ ],
       "removeOwnerVFX": [ ],
       "removeTargetVFX": [ ],
-      "ownerSFX": [ "AudioEventList_ecm_ecm_enter", "AudioEventList_ui_ui_ecm_start" ],
-      "targetSFX": [ "AudioEventList_ecm_ecm_enter" ],
-      "removeOwnerSFX": [ "AudioEventList_ecm_ecm_exit", "AudioEventList_ui_ui_ecm_stop" ],
-      "removeTargetSFX": [ "AudioEventList_ecm_ecm_exit" ],
+      "ownerSFX": [  ],
+      "targetSFX": [  ],
+      "removeOwnerSFX": [ ],
+      "removeTargetSFX": [ ],
       "statusEffects": [
         {
             "durationData" : {
