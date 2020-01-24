@@ -3,6 +3,15 @@ using System.Collections.Generic;
 
 namespace LowVisibility {
 
+    public class ModIcons {
+        public const string VisionAndSensors = "@lv_cyber-eye";
+        public const string SensorsDisabled = "@lv_sight-disabled";
+        public const string ECMShielded = "@lv_armor-upgrade";
+        public const string ECMJammed = "@lv_armor-downgrade";
+        public const string Mimetic = "@lv_eye-shield";
+        public const string Stealth = "@lv_double-face-mask";
+    }
+
     public class ModStats {
         // WARNING: HBS Code upper-cases all stat names; if you try to comparison match in a case-sensitive fashion
         //  it will fail. Better to uppercase everthing.
@@ -172,6 +181,19 @@ namespace LowVisibility {
         public const string LT_TARG_COMP_PHYSICAL = "TARG_COMP_PHYSICAL";
         public const string LT_TARG_COMP_UNIDENTIFIED = "TARG_COMP_UNIDENTIFIED";
 
+        // HUD ToolTips
+        public const string LT_TT_TITLE_VISION_AND_SENSORS = "TOOLTIP_TITLE_VISION_AND_SENSORS";
+        public const string LT_TT_TITLE_ECM_JAMMING = "TOOLTIP_TITLE_ECM_JAMMER";
+        public const string LT_TT_TEXT_ECM_JAMMING = "TOOLTIP_TEXT_ECM_JAMMER";
+        public const string LT_TT_TITLE_ECM_SHIELD = "TOOLTIP_TITLE_ECM_SHIELD";
+        public const string LT_TT_TEXT_ECM_SHIELD = "TOOLTIP_TEXT_ECM_SHIELD";
+        public const string LT_TT_TITLE_SENSORS_DISABLED = "TOOLTIP_TITLE_SENSORS_DISABLED";
+        public const string LT_TT_TEXT_SENSORS_DISABLED = "TOOLTIP_TEXT_SENSORS_DISABLED";
+        public const string LT_TT_TITLE_STEALTH = "TOOLTIP_TITLE_STEALTH";
+        public const string LT_TT_TEXT_STEALTH = "TOOLTIP_TEXT_STEALTH";
+        public const string LT_TT_TITLE_MIMETIC = "TOOLTIP_TITLE_MIMETIC";
+        public const string LT_TT_TEXT_MIMETIC = "TOOLTIP_TEXT_MIMETIC";
+
         public Dictionary<string, string> LocalizedText = new Dictionary<string, string>() {
 
             // Map effects
@@ -185,7 +207,7 @@ namespace LowVisibility {
 
             // Status Panel
             { LT_PANEL_SENSOR_RANGE, "<b>Sensors</b> Detect:<color=#{0}>{1:#.00}m</color> Multi:<color=#{2}> x{3}</color> [{4}]\n" },
-            { LT_PANEL_VISUAL_RANGE, "<b>Visuals</b> Lock:{0:0}m Scan :{1}m [{2}]\n" },
+            { LT_PANEL_VISUAL_RANGE, "<b>Visuals</b> Lock:{0:0}m Scan:{1}m [{2}]\n" },
 
             // Sensor Details Level
             { LT_DETAILS_NONE, "No Info" },
@@ -213,14 +235,29 @@ namespace LowVisibility {
             { LT_ATTACK_NARCED, "NARCED" },
             { LT_ATTACK_TAGGED, "TAGGED" },
 
+            // Floatie text
             { LT_FLOATIE_ECM_JAMMED, "ECM JAMMING" },
             { LT_FLOATIE_ECM_SHIELD, "ECM SHIELDING" },
 
+            // Targeting computer text
             { LT_TARG_COMP_BALLISTIC, "Ballistic" },
             { LT_TARG_COMP_ENERGY, "Energy" },
             { LT_TARG_COMP_MISSILE, "Missile" },
             { LT_TARG_COMP_PHYSICAL, "Physical" },
-            { LT_TARG_COMP_UNIDENTIFIED, "Unidentified" }
+            { LT_TARG_COMP_UNIDENTIFIED, "Unidentified" },
+
+            // HUD Tooltips
+            { LT_TT_TITLE_VISION_AND_SENSORS, "VISION AND SENSORS" },
+            { LT_TT_TITLE_ECM_JAMMING, "ECM JAMMING" },
+            { LT_TT_TEXT_ECM_JAMMING, "Unit is jammed by enemy ECM which makes enemy units harder to detect." },
+            { LT_TT_TITLE_ECM_SHIELD, "ECM SHIELD" },
+            { LT_TT_TEXT_ECM_SHIELD, "Unit is protected by friendly ECM and will be harder to detect by enemy units." },
+            { LT_TT_TITLE_SENSORS_DISABLED, "SENSORS OFFLINE" },
+            { LT_TT_TEXT_SENSORS_DISABLED, "Sensors offline during the first round of the battle." },
+            { LT_TT_TITLE_STEALTH, "STEALTH" },
+            { LT_TT_TEXT_STEALTH, "Unit is protected by Stealth and will be harder to detect and attack." },
+            { LT_TT_TITLE_MIMETIC, "MIMETIC" },
+            { LT_TT_TEXT_MIMETIC, "Unit is protected by a Mimetic Shield and will be harder to see and attack." }
         };
 
         public void LogConfig() {

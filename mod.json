@@ -20,7 +20,7 @@
         "Debug" : true,
         "Trace" : false,
 
-        "Toggles" : 
+        "Toggles" : {
             "LogEffectsOnMove" : false,
             "ShowNightVision" : true,
             "MimeticUsesGhost" : true
@@ -96,7 +96,19 @@
             "TARG_COMP_ENERGY" : "Energy",
             "TARG_COMP_MISSILE" : "Missile",
             "TARG_COMP_PHYSICAL" : "Physical",
-            "TARG_COMP_UNIDENTIFIED" : "Unidentified"
+            "TARG_COMP_UNIDENTIFIED" : "Unidentified",
+
+            "TOOLTIP_TITLE_VISION_AND_SENSORS" : "VISION AND SENSORS",
+            "TOOLTIP_TITLE_ECM_JAMMER" : "ECM JAMMING",
+            "TOOLTIP_TEXT_ECM_JAMMER" : "Unit is jammed by enemy ECM which makes enemy units harder to detect.",
+            "TOOLTIP_TITLE_ECM_SHIELD" : "ECM SHIELD",
+            "TOOLTIP_TEXT_ECM_SHIELD" : "Unit is protected by friendly ECM and will be harder to detect by enemy units.",
+            "TOOLTIP_TITLE_SENSORS_DISABLED" : "SENSORS OFFLINE",
+            "TOOLTIP_TEXT_SENSORS_DISABLED" : "Sensors offline during the first round of the battle.",
+            "TOOLTIP_TITLE_STEALTH" : "STEALTH",
+            "TOOLTIP_TEXT_STEALTH" : "Unit is protected by Stealth and will be harder to detect and attack.",
+            "TOOLTIP_TITLE_MIMETIC" : "MIMETIC",
+            "TOOLTIP_TEXT_MIMETIC" : "Unit is protected by a Mimetic Shield and will be harder to see and attack."
         }
 
     }
