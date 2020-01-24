@@ -9,6 +9,8 @@ CAE is highly recommended. Many effects assume they aren't active at the same ti
 
 This mod requires [https://github.com/iceraptor/IRBTModUtils/]. Grab the latest release of __IRBTModUtils__ and extract it in your Mods/ directory alongside of this mod.
 
+This mod uses assets from [https://game-icons.net/], which are licensed through a CC BY 3.0 license. I've modified these icons by making them transparent, or changing the color of the icon, but otherwise they are unmodified. 
+
 ## Summary
 
 This mod is comprehensive, but a short summary of changes in the mod include:
