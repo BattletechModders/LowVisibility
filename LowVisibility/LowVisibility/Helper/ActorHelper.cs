@@ -22,7 +22,7 @@ namespace LowVisibility.Helper {
                 actor.StatCollection.Set<float>(ModStats.CAESensorsRange, sensorsRange);
 
                 // TODO: Re-enable once KMission has researched
-                //actor.UpdateAuras(false);
+                actor.UpdateAuras(false);
             }
 
             return checkResult;
