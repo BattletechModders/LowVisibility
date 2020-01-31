@@ -231,9 +231,10 @@ namespace LowVisibility.Patch {
             // Sensors check
             EWState ewState = new EWState(actor);
             SensorScanType checkLevel;
-            if (ewState.GetCurrentEWCheck() > (int)SensorScanType.DentalRecords) { checkLevel = SensorScanType.DentalRecords; } 
-            else if (ewState.GetCurrentEWCheck() < (int)SensorScanType.NoInfo) { checkLevel = SensorScanType.NoInfo; } 
-            else { checkLevel = (SensorScanType)ewState.GetCurrentEWCheck(); }
+            int totalDetails = ewState.GetCurrentEWCheck() + ewState.AdvancedSensorsMod();
+            if (totalDetails > (int)SensorScanType.DentalRecords) { checkLevel = SensorScanType.DentalRecords; } 
+            else if (totalDetails < (int)SensorScanType.NoInfo) { checkLevel = SensorScanType.NoInfo; } 
+            else { checkLevel = (SensorScanType)totalDetails; }
             float sensorsRange = SensorLockHelper.GetSensorsRange(actor);
             string sensorColor = ewState.GetCurrentEWCheck() >= 0 ? "00FF00" : "FF0000";
             details.Add(
@@ -248,7 +249,7 @@ namespace LowVisibility.Patch {
             string advSenColor = ewState.AdvancedSensorsMod() >= 0 ? "00FF00" : "FF0000";
             details.Add(
                 new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_DETAILS],
-                    new object[] { ewState.GetCurrentEWCheck(), checkColor, ewState.GetRawCheck(), ewState.GetRawTactics(), advSenColor, ewState.AdvancedSensorsMod() })
+                    new object[] { totalDetails, checkColor, ewState.GetRawCheck(), ewState.GetRawTactics(), advSenColor, ewState.AdvancedSensorsMod() })
                     .ToString()
                 );
 
