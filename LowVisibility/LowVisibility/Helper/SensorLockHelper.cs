@@ -223,24 +223,28 @@ namespace LowVisibility.Helper {
         }
 
         private static SensorScanType CalculateSensorInfoLevel(AbstractActor source, ICombatant target) {
-            SensorScanType sensorInfo = SensorScanType.NoInfo;
             Mod.Log.Trace($"Calculating SensorInfo from source: ({CombatantUtils.Label(source)}) to target: ({CombatantUtils.Label(target)})");
 
             // Determine modified check against target
             EWState sourceState = new EWState(source);
-            int detailsLevel = sourceState.GetCurrentEWCheck();
-            Mod.Log.Trace($" == detailsLevel from EW check = {detailsLevel}");
+
+            int positiveMods = 0;
+            int negativeMods = 0;
+            int ecmNegativeMods = 0;
+
+            positiveMods += sourceState.GetCurrentEWCheck(); 
+            Mod.Log.Trace($" == detailsLevel from EW check = {positiveMods}");
 
             // --- Source: Advanced Sensors
             if (sourceState.AdvancedSensorsMod() > 0) {
-                Mod.Log.Trace($" == source has advanced sensors, detailsLevel = {detailsLevel} + {sourceState.AdvancedSensorsMod()}");
-                detailsLevel += sourceState.AdvancedSensorsMod();
+                Mod.Log.Trace($" == source has advanced sensors, detailsLevel = {positiveMods} + {sourceState.AdvancedSensorsMod()}");
+                positiveMods += sourceState.AdvancedSensorsMod();
             }
 
             // --- Source: ECM Jamming
             if (sourceState.GetRawECMJammed() > 0) {
-                Mod.Log.Trace($" == source is jammed by ECM, detailsLevel = {detailsLevel} - {sourceState.GetRawECMJammed()}");
-                detailsLevel -= sourceState.GetRawECMJammed();
+                Mod.Log.Trace($" == source is jammed by ECM, detailsLevel = {ecmNegativeMods} - {sourceState.GetRawECMJammed()}");
+                ecmNegativeMods -= sourceState.GetRawECMJammed();
             }
 
             // --- Target: Stealth, Narc, Tag
@@ -250,39 +254,47 @@ namespace LowVisibility.Helper {
 
                 // ECM Shield reduces sensor info
                 if (targetState.ECMDetailsMod(sourceState) > 0) {
-                    Mod.Log.Trace($" == target is shielded by ECM, detailsLevel = {detailsLevel} - {targetState.ECMDetailsMod(sourceState)}");
-                    detailsLevel -= targetState.ECMDetailsMod(sourceState);
+                    Mod.Log.Trace($" == target is shielded by ECM, detailsLevel = {ecmNegativeMods} - {targetState.ECMDetailsMod(sourceState)}");
+                    ecmNegativeMods -= targetState.ECMDetailsMod(sourceState);
                 }
 
                 // Stealth reduces sensor info
                 if (targetState.HasStealth()) {
-                    Mod.Log.Trace($" == target has stealth, detailsLevel = {detailsLevel} - {targetState.StealthDetailsMod()}");
-                    detailsLevel -= targetState.StealthDetailsMod();
+                    Mod.Log.Trace($" == target has stealth, detailsLevel = {negativeMods} - {targetState.StealthDetailsMod()}");
+                    negativeMods -= targetState.StealthDetailsMod();
                 }
 
                 // A Narc effect increases sensor info
                 // TODO: Narc should effect buildings
                 if (targetState.IsNarced(sourceState)) {
-                    Mod.Log.Trace($" == target is NARC'd, detailsLevel = {detailsLevel} + {targetState.NarcDetailsMod(sourceState)}");
-                    detailsLevel += targetState.NarcDetailsMod(sourceState);
+                    Mod.Log.Trace($" == target is NARC'd, detailsLevel = {positiveMods} + {targetState.NarcDetailsMod(sourceState)}");
+                    positiveMods += targetState.NarcDetailsMod(sourceState);
                 }
 
                 // A TAG effect increases sensor info
                 // TODO: TAG should effect buildings
                 if (targetState.IsTagged(sourceState)) {
-                    Mod.Log.Trace($" == target is tagged, detailsLevel = {detailsLevel} + {targetState.TagDetailsMod(sourceState)}");
-                    detailsLevel += targetState.TagDetailsMod(sourceState);
+                    Mod.Log.Trace($" == target is tagged, detailsLevel = {positiveMods} + {targetState.TagDetailsMod(sourceState)}");
+                    positiveMods += targetState.TagDetailsMod(sourceState);
                 }
 
                 // Active Probe ping acts as sensors boost as well
                 if (targetState.PingedByProbeMod() != 0) {
-                    Mod.Log.Trace($" == target is pinged by probe, detailsLevel = {detailsLevel} + {targetState.PingedByProbeMod()}");
-                    detailsLevel += targetState.PingedByProbeMod();
+                    Mod.Log.Trace($" == target is pinged by probe, detailsLevel = {positiveMods} + {targetState.PingedByProbeMod()}");
+                    positiveMods += targetState.PingedByProbeMod();
                 }
 
             }
 
-            sensorInfo = DetectionLevelForCheck(detailsLevel);
+            if (ecmNegativeMods < Mod.Config.Sensors.MaxECMDetailsPenalty) {
+                Mod.Log.Trace($"  == negatives exceed cap, setting negative penalty to Sensors.MaxECMDetailsPenalty: {Mod.Config.Sensors.MaxECMDetailsPenalty }");
+                ecmNegativeMods = Mod.Config.Sensors.MaxECMDetailsPenalty; 
+            }
+
+            int detailLevel = positiveMods + negativeMods + ecmNegativeMods;
+            Mod.Log.Trace($"  == detailsTotal: {detailLevel} = positiveMods: {positiveMods} + negativeMods: {negativeMods}");
+
+            SensorScanType sensorInfo = DetectionLevelForCheck(detailLevel);
             Mod.Log.Trace($" == Calculated sensorInfo as: ({sensorInfo})");
 
             return sensorInfo;
