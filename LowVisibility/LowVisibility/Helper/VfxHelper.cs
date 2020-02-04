@@ -378,7 +378,7 @@ namespace LowVisibility.Helper {
             }
 
             sw.Stop();
-            Mod.Log.Info($"FOG OF WAR REBUILD TOOK: {sw.ElapsedMilliseconds}ms");
+            Mod.Log.Trace($"FOG OF WAR REBUILD TOOK: {sw.ElapsedMilliseconds}ms");
         }
 
         public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, Vector3 previewPos) {
