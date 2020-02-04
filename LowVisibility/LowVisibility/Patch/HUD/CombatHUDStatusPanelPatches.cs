@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using BattleTech.Data;
 using BattleTech.UI;
 using Harmony;
 using HBS;
@@ -34,9 +35,7 @@ namespace LowVisibility.Patch {
                         SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
 
                         if (scanType < SensorScanType.Vector) {
-                            //// Hide the evasive indicator, hide the buffs and debuffs
-                            //Traverse hideEvasionIndicatorMethod = Traverse.Create(__instance).Method("HideEvasiveIndicator", new object[] { });
-                            //hideEvasionIndicatorMethod.GetValue();
+                            //// Hide the buffs and debuffs
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
                         } else if (scanType < SensorScanType.StructureAnalysis) {
@@ -107,20 +106,18 @@ namespace LowVisibility.Patch {
                 AbstractActor actor = __instance.DisplayedCombatant as AbstractActor;
                 EWState actorState = new EWState(actor);
 
-                Traverse svgAssetT = Traverse.Create(__instance.DisplayedCombatant.Combat.DataManager).Property("SVGCache");
-                object svgCache = svgAssetT.GetValue();
-                Traverse svgCacheT = Traverse.Create(svgCache).Method("GetAsset", new Type[] { typeof(string) });
+                DataManager dm = __instance.DisplayedCombatant.Combat.DataManager;
 
                 bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
                 if (isPlayer) {
 
-                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.VisionAndSensors });
+                    SVGAsset icon = dm.GetObjectOfType<SVGAsset>(Mod.Config.Icons.VisionAndSensors, BattleTechResourceType.SVGAsset);
                     Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_VISION_AND_SENSORS]);
                     showBuffIconMethod.GetValue(new object[] { icon, title, new Text(BuildToolTip(actor)), __instance.effectIconScale, false });
 
                     // Disable the sensors
                     if (actor.Combat.TurnDirector.CurrentRound == 1) {
-                        SVGAsset sensorsDisabledIcon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.SensorsDisabled });
+                        SVGAsset sensorsDisabledIcon = dm.GetObjectOfType<SVGAsset>(Mod.Config.Icons.SensorsDisabled, BattleTechResourceType.SVGAsset);
                         Text sensorsDisabledTitle = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_SENSORS_DISABLED]);
                         Text sensorsDisabledText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_SENSORS_DISABLED]);
                         showDebuffIconMethod.GetValue(new object[] { 
@@ -143,10 +140,10 @@ namespace LowVisibility.Patch {
                     }
 
                     if (actorState.GetRawECMJammed() != 0) {
-                        // A positive is good, a negative is bad
-                        string color = actorState.GetRawECMJammed() >= 0 ? "00FF00" : "FF0000";
+                        // A positive (after normalization) is good, a negative is bad
+                        string color = -1 * actorState.GetRawECMJammed() >= 0 ? "00FF00" : "FF0000";
                         string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_ECM_JAMMING],
-                            new object[] { color, actorState.GetRawECMJammed() }
+                            new object[] { color, -1 * actorState.GetRawECMJammed() }
                             ).ToString();
                         sb.Append(localText);
                     }
@@ -180,7 +177,7 @@ namespace LowVisibility.Patch {
 
                     // Transient effects
                     if (actorState.PingedByProbeMod() != 0) {
-                        // A positive is good, a negative is bad
+                        // A positive (after normalization) is good, a negative is bad
                         string color = -1 * actorState.PingedByProbeMod() >= 0 ? "00FF00" : "FF0000";
                         string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_PROBE_EFFECT],
                             new object[] { color, -1 * actorState.PingedByProbeMod() }
@@ -189,7 +186,7 @@ namespace LowVisibility.Patch {
                     }
 
                     if (actorState.GetRawNarcEffect() != null) {
-                        // A positive is good, a negative is bad
+                        // A positive (after normalization) is good, a negative is bad
                         string color = -1 * actorState.GetRawNarcEffect().AttackMod >= 0 ? "00FF00" : "FF0000";
                         string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_NARC_EFFECT],
                             new object[] { color, -1 * actorState.GetRawNarcEffect().AttackMod }
@@ -198,7 +195,7 @@ namespace LowVisibility.Patch {
                     }
 
                     if (actorState.GetRawTagEffect() != null) {
-                        // A positive is good, a negative is bad
+                        // A positive (after normalization) is good, a negative is bad
                         string color = -1 * actorState.GetRawTagEffect().AttackMod >= 0 ? "00FF00" : "FF0000";
                         string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TEXT_EW_TAG_EFFECT],
                             new object[] { color, -1 * actorState.GetRawTagEffect().AttackMod }
@@ -206,7 +203,7 @@ namespace LowVisibility.Patch {
                         sb.Append(localText);
                     }
 
-                    SVGAsset icon = svgCacheT.GetValue<SVGAsset>(new object[] { ModIcons.ElectronicWarfare });
+                    SVGAsset icon = dm.GetObjectOfType<SVGAsset>(Mod.Config.Icons.ElectronicWarfare, BattleTechResourceType.SVGAsset);
                     Text title = new Text(Mod.Config.LocalizedText[ModConfig.LT_TT_TITLE_EW]);
                     showBuffIconMethod.GetValue(new object[] { icon, title, new Text(sb.ToString()), __instance.effectIconScale, false });
                 }
@@ -244,12 +241,13 @@ namespace LowVisibility.Patch {
                 );
 
             // Details
-            //{ LT_PANEL_DETAILS, "  Total:{0}<size=90%> Roll:<color=#{1}>{2}</color> Tactics:<color=#00FF00>{3+0;-#}</color> AdvSen:<color=#{4}>{5+0;-#}</color>\n" },
+            //{ LT_PANEL_DETAILS, "  Total: <color=#{0}>{1:+0;-#}</color><size=90%> Roll: <color=#{2}>{3:+0;-#}</color> Tactics: <color=#00FF00>{4:+0;-#}</color> AdvSen: <color=#{5}>{6:+0;-#}</color>\n"
+            string totalColor = totalDetails >= 0 ? "00FF00" : "FF0000";
             string checkColor = ewState.GetRawCheck() >= 0 ? "00FF00" : "FF0000";
             string advSenColor = ewState.AdvancedSensorsMod() >= 0 ? "00FF00" : "FF0000";
             details.Add(
                 new Text(Mod.Config.LocalizedText[ModConfig.LT_PANEL_DETAILS],
-                    new object[] { totalDetails, checkColor, ewState.GetRawCheck(), ewState.GetRawTactics(), advSenColor, ewState.AdvancedSensorsMod() })
+                    new object[] { totalColor, totalDetails, checkColor, ewState.GetRawCheck(), ewState.GetRawTactics(), advSenColor, ewState.AdvancedSensorsMod() })
                     .ToString()
                 );
 

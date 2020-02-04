@@ -3,22 +3,6 @@ using System.Collections.Generic;
 
 namespace LowVisibility {
 
-    public class ModIcons {
-        public const string VisionAndSensors = "@lv_cyber-eye";
-        public const string SensorsDisabled = "@lv_sight-disabled";
-        public const string ElectronicWarfare = "@lv_eye-shield";
-
-        //public const string ECMShielded = "@lv_armor-upgrade";
-        //public const string ECMJammed = "@lv_armor-downgrade";
-        //public const string Mimetic = "@lv_eye-shield";
-        //public const string Stealth = "@lv_double-face-mask";
-        //public const string Tagged = "@lv_sinusoidal-beam";
-        //public const string Narced = "@lv_aerial-signal";
-        //public const string ProbeCarrier = "@lv_movement-sensor";
-        //public const string ProbePinged = "@lv_radar-sweep";
-
-    }
-
     public class ModStats {
         // WARNING: HBS Code upper-cases all stat names; if you try to comparison match in a case-sensitive fashion
         //  it will fail. Better to uppercase everthing.
@@ -73,6 +57,13 @@ namespace LowVisibility {
         public bool Debug = false;
         public bool Trace = false;
 
+        public class IconOpts {
+            public string VisionAndSensors = "lv_cyber-eye";
+            public string SensorsDisabled = "lv_sight-disabled";
+            public string ElectronicWarfare = "lv_eye-shield";
+        }
+        public IconOpts Icons = new IconOpts();
+
         public class ToggleOpts {
             public bool LogEffectsOnMove = false;
             public bool ShowNightVision = true;
@@ -87,11 +78,14 @@ namespace LowVisibility {
             public int TurretTypeRange = 15;
             public int UnknownTypeRange = 6;
 
-            // The minium range for sensors, no matter the circumstances
+            // The minimum range for sensors, no matter the circumstances
             public int MinimumRangeHexes = 8;
 
             // If true, sensor checks always fail on the first turn of the game
             public bool FirstTurnForceFailedChecks = true;
+
+            // The maximum penalty that ECM Shield + ECM Jamming should apply TO SENSOR DETAILS ONLY
+            public int MaxECMDetailsPenalty = -8;
 
             public float MinimumSensorRange() { return this.MinimumRangeHexes * 30.0f; }
         }
@@ -219,7 +213,7 @@ namespace LowVisibility {
             // Status Panel
             { LT_PANEL_SENSORS, "<b>Sensors</b><size=90%> <color=#{0}>{1:#.00}m</color> Multi:<color=#{2}> x{3}</color> [{4}]\n" },
             { LT_PANEL_VISUALS, "<b>Visuals</b><size=90%> <color=#00FF00>{0:0}m</color> Scan:{1}m [{2}]\n" },
-            { LT_PANEL_DETAILS, "  Total:{0}<size=90%> Roll:<color=#{1}>{2}</color> Tactics:<color=#00FF00>{3:+0;-#}</color> AdvSen:<color=#{4}>{5:+0;-#}</color>\n" },
+            { LT_PANEL_DETAILS, "  Total: <color=#{0}>{1:+0;-#}</color><size=90%> Roll: <color=#{2}>{3:+0;-#}</color> Tactics: <color=#00FF00>{4:+0;-#}</color> AdvSen: <color=#{5}>{6:+0;-#}</color>\n" },
             { LT_PANEL_HEAT, "<b>Thermals</b><size=90%> Mod: <color=#{0}>{1:+0;-#}</color> / {2} heat Range: {3}m\n" },
             { LT_PANEL_ZOOM, "<b>Zoom</b><size=90%> Mod: <color=#{0}>{1:+0;-#}</color> Cap: <color=#{2}>{3:+0;-#}</color> Range: {4}m\n" },
 
@@ -287,7 +281,7 @@ namespace LowVisibility {
             
             Mod.Log.Info($"  == Sensors ==");
             Mod.Log.Info($"Type Ranges - Mech: {Sensors.MechTypeRange} Vehicle: {Sensors.VehicleTypeRange} Turret: {Sensors.TurretTypeRange} UnknownType: {Sensors.UnknownTypeRange}");
-            Mod.Log.Info($"MinimumRange: {Sensors.MinimumRangeHexes}  FirstTurnForceFailedChecks: {Sensors.FirstTurnForceFailedChecks} ");
+            Mod.Log.Info($"MinimumRange: {Sensors.MinimumRangeHexes}  FirstTurnForceFailedChecks: {Sensors.FirstTurnForceFailedChecks}  MaxECMDetailsPenalty: {Sensors.MaxECMDetailsPenalty}");
 
             Mod.Log.Info($"  == Vision ==");
             Mod.Log.Info($"Vision Ranges - Bright: {Vision.BaseRangeBright} Dim:{Vision.BaseRangeDim} Dark:{Vision.BaseRangeDark}");
