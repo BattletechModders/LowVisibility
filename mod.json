@@ -8,7 +8,6 @@
     "Contact": "",
     "DLL": "LowVisibility.dll",
     "DependsOn" : [ "IRBTModUtils", "CustomActivatableEquipment" ],
-	"CustomResourceTypes": [ "CustomSVGIcon" ],
     "Manifest": [ { "Type": "SVGAsset", "Path": "icons/",} ],
     "Settings": {
         "Debug" : true,
