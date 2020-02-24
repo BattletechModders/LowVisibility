@@ -1,19 +1,21 @@
 {
     "Name": "LowVisibility",
     "Enabled": true,
-    "Version": "0.6.11",
+	"Hidden": true,
+    "Version": "0.7.0",
     "Description": "Implements double-blind semantics and more complex electronic warfare",
     "Author": "IceRaptor",
     "Website": "https://github.com/IceRaptor/LowVisibility",
     "Contact": "",
     "DLL": "LowVisibility.dll",
     "DependsOn" : [ "IRBTModUtils", "CustomActivatableEquipment" ],
-    "Manifest": [ { "Type": "SVGAsset", "Path": "icons/",} ],
+	"CustomResourceTypes": [ "CustomSVGIcon" ],
+    "Manifest": [ { "Type": "SVGAsset", "Path": "icons/"} ],
     "Settings": {
-        "Debug" : true,
+        "Debug" : false,
         "Trace" : false,
         "Icons" : {
-            "ElectronicWarfare" : "lv_eye-shield",
+            "ElectronicWarfare" : "ECMGear",
             "SensorsDisabled" : "lv_sight-disabled",
             "VisionAndSensors" : "lv_cyber-eye"
         },
@@ -29,15 +31,15 @@
             "UnknownTypeRange" : 6,
             "MinimumRangeHexes" : 8,
             "FirstTurnForceFailedChecks" : true,
-            "MaxECMDetailsPenalty" : -8,
+            "MaxECMDetailsPenalty" : -11
         },
         "Vision" : {
             "BaseRangeBright" : 15,
             "BaseRangeDim" : 11,
             "BaseRangeDark" : 7,
             "RangeMultiRainSnow" : 0.8,
-            "RangeMultiLightFog" : 0.66,
-            "RangeMultiHeavyFog" : 0.33,
+            "RangeMultiLightFog" : 0.6,
+            "RangeMultiHeavyFog" : 0.4,
             "MinimumRangeHexes" : 3,
             "ScanRangeHexes" : 7,
             "ShowTerrainThroughFogOfWar" : true
@@ -48,8 +50,8 @@
         },
         "Attack" : {
             "NoSensorsPenalty" : 7,
-            "NoVisualsPenalty" : 5, 
-            "FiringBlindPenalty" : 13,
+            "NoVisualsPenalty" : 5,
+            "FiringBlindPenalty" : 13
         },
         "LocalizedText" : {
             "MAP_LIGHT_BRIGHT" : "Bright",
@@ -110,7 +112,7 @@
             "TOOLTIP_LABEL_EW_PROBE_EFFECT" : "<size=90%><b>PROBE PINGED</b>: <color=#{0}>{1:+0;-#}</color> to detect.\n",
             "TOOLTIP_LABEL_EW_TAG_EFFECT" : "<size=90%><b>TAGGED</b>: <color=#{0}>{1:+0;-#}</color> attack and detection modifier.\n",
             "TOOLTIP_LABEL_EW_MIMETIC" : "<size=90%><b>MIMETIC</b>: <color=#{0}>{1:+0;-#}</color> attack modifier.\n",
-            "TOOLTIP_LABEL_EW_STEALTH" : "<size=90%><b>STEALTH</b>: med. <color=#{0}>{1:+0;-#}</color> / long <color=#{0}>{2:+0;-#}</color> / ext. <color=#{0}>{3:+0;-#}</color> attack modifier\n",
+            "TOOLTIP_LABEL_EW_STEALTH" : "<size=90%><b>STEALTH</b>: med. <color=#{0}>{1:+0;-#}</color> / long <color=#{0}>{2:+0;-#}</color> / ext. <color=#{0}>{3:+0;-#}</color> attack modifier\n"
         }
 
     }
