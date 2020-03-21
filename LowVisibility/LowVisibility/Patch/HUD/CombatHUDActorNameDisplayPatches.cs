@@ -11,12 +11,13 @@ namespace LowVisibility.Patch {
     static class CombatNameHelper {
 
         /*
-            chassisName -> Mech.UnitName = MechDef.Chassis.Description.Name -> Atlas / Trebuchet
-            variantName -> Mech.VariantName = MechDef.Chassis.VariantName -> AS7-D / TBT-5N
-            fullname -> Mech.NickName = MechDef.Description.Name -> Atlas II AS7-D-HT or Atlas AS7-D / Trebuchet
+           Helper method used to find the label text for any enemy vehicles and turrets based on the visiblity and senors levels.
+          
+            chassisName -> ICombatant.UnitName = (Vehicle/Turret)Def.Chassis.Description.Name -> Carrier / Vargr APC / ArrowIV Chassis
+            fullname -> ICombatant.NickName = (Vehicle/Turret)Def.Description.Name -> AC/2 Carrier / Vargr APC / Arrow IV Turret
         */
-        public static Text GetDetectionLabel(ICombatant target, VisibilityLevel visLevel, SensorScanType sensorScanType,
-            string fullName, string variantName, string chassisName, string type, float tonnage) {
+        public static Text GetTurretOrVehicleDetectionLabel(ICombatant target, VisibilityLevel visLevel, SensorScanType sensorScanType,
+            string fullName, string chassisName, string type, float tonnage) {
 
             Text label = new Text("?");
 
@@ -25,15 +26,15 @@ namespace LowVisibility.Patch {
                 if (sensorScanType >= SensorScanType.DeepScan) {
                     label = new Text($"{fullName}");
                 } else if (sensorScanType >= SensorScanType.SurfaceAnalysis) {
-                    label = new Text($"{chassisName} {variantName}");
+                    label = new Text($"{chassisName} ({tonnage}t)");
                 } else {
                     // Silhouette or better
-                    label = new Text($"{chassisName} ({tonnage}t)");
+                    label = new Text($"{chassisName}");
                 }
             } else if (visLevel == VisibilityLevel.Blip4Maximum) {
                 label = new Text($"{fullName}");
             } else if (visLevel == VisibilityLevel.Blip1Type) {
-                label = new Text($"{chassisName} {variantName} ({tonnage}t)");
+                label = new Text($"{chassisName} ({tonnage}t)");
             } else if (visLevel == VisibilityLevel.Blip0Minimum) {
                 label = new Text($"{chassisName}");
             } else if (visLevel == VisibilityLevel.BlobSmall) {
@@ -42,8 +43,87 @@ namespace LowVisibility.Patch {
                 label = new Text($"?");
             }
 
-            Mod.Log.Debug($"GetDetectionLabel - label:({label}) for visLevel:{visLevel} " +
-                $"chassisName:({chassisName}) variantName:({variantName}) fullName:({fullName}) type:({type}) tonnage:{tonnage}t");
+            Mod.Log.Debug($"GetTurretOrVehicleDetectionLabel - label:({label}) for visLevel:{visLevel} " +
+                $"chassisName:({chassisName}) fullName:({fullName}) type:({type}) tonnage:{tonnage}t");
+            return label;
+        }
+
+
+        /*
+           Helper method used to find the label text for any enemy mechs based on the visiblity and senors levels.
+         
+           Parameters:
+            chassisName -> Mech.UnitName = MechDef.Chassis.Description.Name -> Shadow Hawk / Atlas / Marauder
+               - The name of the base chassis, even if customized chassis (such as RogueOmnis)
+            partialName -> Mech.NickName = MechDef.Description.Name -> Shadow Hawk SHD-2D / Atlas AS7-D / Marauder ANU-O
+               - Partial name, most cases chassis and variant name combined, but for some elite mechs can be "less precise" to trick the player which mech it is
+            fullname -> Mech.NickName = MechDef.Description.UIName -> Shadow Hawk SHD-2D / Atlas AS7-D Danielle / Anand ANU-O
+               - Full name, will almost always display the full actual name, and if a hero/elite mech the chassis name is replaced by its custom name. ONly exception is LA's hidden nasty surprises, such as Nuke mechs
+        */
+        public static Text GetEnemyMechDetectionLabel(ICombatant target, VisibilityLevel visLevel, SensorScanType sensorScanType,
+            string fullName, string partialName, string chassisName, float tonnage)
+        {
+
+            Text label = new Text("?");
+
+            if (visLevel == VisibilityLevel.LOSFull)
+            {
+
+                if (sensorScanType >= SensorScanType.DeepScan)
+                {
+                    label = new Text($"{fullName}");
+                }
+                else if (sensorScanType >= SensorScanType.SurfaceAnalysis)
+                {
+                    label = new Text($"{partialName}");
+                }
+                else
+                {
+                    // Silhouette or better
+                    label = new Text($"{chassisName} ({tonnage}t)");
+                }
+            }
+            else if (visLevel == VisibilityLevel.Blip4Maximum)
+            {
+                label = new Text($"{fullName}");
+            }
+            else if (visLevel == VisibilityLevel.Blip1Type)
+            {
+                label = new Text($"{partialName}");
+            }
+            else if (visLevel == VisibilityLevel.Blip0Minimum)
+            {
+                label = new Text($"{chassisName}");
+            }
+            else if (visLevel == VisibilityLevel.BlobSmall)
+            {
+                label = new Text($"MECH");
+            }
+            else
+            {
+                label = new Text($"?");
+            }
+
+            Mod.Log.Debug($"GetMechDetectionLabel - label:({label}) for visLevel:{visLevel} " +
+                $"chassisName:({chassisName}) partialName:({partialName}) fullName:({fullName}) type:(MECH) tonnage:{tonnage}t");
+            return label;
+        }
+
+        /*
+           Helper method used to find the label text for any non-hostile mechs
+          
+            chassisName -> Mech.UnitName = MechDef.Chassis.Description.Name -> Shadow Hawk / Atlas / Marauder
+               - The name of the base chassis, even if customized chassis (such as RogueOmnis)
+            partialName -> Mech.NickName = MechDef.Description.Name -> Shadow Hawk SHD-2D / Atlas AS7-D / Marauder ANU-O
+               - Partial name, most cases chassis and variant name combined, but for some elite mechs can be "less precise" to trick the player which mech it is
+            fullname -> Mech.NickName = MechDef.Description.UIName -> Shadow Hawk SHD-2D / Atlas AS7-D Danielle / Anand ANU-O
+               - Full name, will almost always display the full actual name, and if a hero/elite mech the chassis name is replaced by its custom name. ONly exception is LA's hidden nasty surprises, such as Nuke mechs
+        */
+        public static Text GetNonHostileMechDetectionLabel(ICombatant target, string fullName)
+        {
+
+            Text label = new Text($"{fullName}");
+            Mod.Log.Debug($"GetNonHostileMechDetectionLabel - label:({label}) fullName:({fullName})");
             return label;
         }
     }
@@ -57,19 +137,25 @@ namespace LowVisibility.Patch {
             if (__instance == null) { return; }
 
             /*
-                Mech.UnitName = MechDef.Chassis.Description.Name -> Atlas / Trebuchet
-                Mech.VariantName = MechDef.Chassis.VariantName -> AS7-D / TBT-5N
-                Mech.NickName = MechDef.Description.Name -> Atlas II AS7-D-HT or Atlas AS7-D / Trebuchet
+                Mech.UnitName = MechDef.Chassis.Description.Name -> Shadow Hawk / Atlas / Marauder
+                Mech.Nickname = Mech.Description.Name -> Shadow Hawk SHD-2D / Atlas AS7-D / Marauder ANU-O
+                Mech.Description.UIName -> Shadow Hawk SHD-2D / Atlas AS7-D Danielle / Anand ANU-O
             */
+            string fullName = __instance.Description.UIName;
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
                 string chassisName = __instance.UnitName;
-                string variantName = __instance.VariantName;
-                string fullName = __instance.Description.UIName;
+                string partialName = __instance.Nickname;
                 float tonnage = __instance.MechDef.Chassis.Tonnage;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
-                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel, scanType, 
-                    fullName, variantName, chassisName, "MECH", tonnage);
+                Text response = CombatNameHelper.GetEnemyMechDetectionLabel(__instance, visLevel, scanType, 
+                    fullName, partialName, chassisName, tonnage);
+                __result = response;
+            }
+            else
+            {
+                SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
+                Text response = CombatNameHelper.GetNonHostileMechDetectionLabel(__instance, fullName);
                 __result = response;
             }
         }
@@ -83,18 +169,16 @@ namespace LowVisibility.Patch {
 
             /*
                 Turret.UnitName = return (this.TurretDef == null) ? "UNDEFINED" : this.TurretDef.Chassis.Description.Name ->
-                Turret.VariantName = string.Empty -> ""
                 Turret.NickName = (this.TurretDef == null) ? "UNDEFINED" : this.TurretDef.Description.Name ->
             */
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
                 string chassisName = __instance.UnitName;
-                string variantName = __instance.VariantName;
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.TurretDef.Chassis.Tonnage;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
-                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel, scanType, 
-                    fullName, variantName, chassisName, "TURRET", tonnage);
+                Text response = CombatNameHelper.GetTurretOrVehicleDetectionLabel(__instance, visLevel, scanType, 
+                    fullName, chassisName, "TURRET", tonnage);
                 __result = response;
             }
         }
@@ -109,7 +193,6 @@ namespace LowVisibility.Patch {
             /*
                 Vehicle.UnitName = VehicleDef.Chassis.Description.Name -> 
                     Alacorn Mk.VI-P / vehicledef_ARES_CLAN / Demolisher II / Galleon GAL-102
-                Vehicle.VariantName = string.Empty -> ""
                 Vehicle.NickName = VehicleDef.Description.Name -> 
                     Pirate Alacorn Gauss Carrier / Ares / Demolisher II`
                     VehicleDef.Description.Id ->
@@ -117,13 +200,12 @@ namespace LowVisibility.Patch {
             */
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
                 string chassisName = __instance.UnitName;
-                string variantName = __instance.VariantName;
                 string fullName = __instance.Nickname;
                 float tonnage = __instance.VehicleDef.Chassis.Tonnage;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
-                Text response = CombatNameHelper.GetDetectionLabel(__instance, visLevel, scanType,
-                    fullName, variantName, chassisName, "VEHICLE", tonnage);
+                Text response = CombatNameHelper.GetTurretOrVehicleDetectionLabel(__instance, visLevel, scanType,
+                    fullName, chassisName, "VEHICLE", tonnage);
                 __result = response;
             }
         }
