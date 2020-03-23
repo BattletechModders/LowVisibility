@@ -4,7 +4,6 @@ using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
-using System.Collections.Generic;
 
 namespace LowVisibility.Patch {
 
@@ -21,30 +20,30 @@ namespace LowVisibility.Patch {
 
             Text label = new Text("?");
 
-            if (visLevel == VisibilityLevel.LOSFull) {
-                
-                if (sensorScanType >= SensorScanType.DeepScan) {
-                    label = new Text($"{fullName}");
-                } else if (sensorScanType >= SensorScanType.SurfaceAnalysis) {
-                    label = new Text($"{chassisName} ({tonnage}t)");
-                } else {
-                    // Silhouette or better
-                    label = new Text($"{chassisName}");
-                }
-            } else if (visLevel == VisibilityLevel.Blip4Maximum) {
-                label = new Text($"{fullName}");
-            } else if (visLevel == VisibilityLevel.Blip1Type) {
-                label = new Text($"{chassisName} ({tonnage}t)");
-            } else if (visLevel == VisibilityLevel.Blip0Minimum) {
-                label = new Text($"{chassisName}");
-            } else if (visLevel == VisibilityLevel.BlobSmall) {
-                label = new Text($"{type}");
-            } else {
-                label = new Text($"?");
-            }
 
-            Mod.Log.Debug($"GetTurretOrVehicleDetectionLabel - label:({label}) for visLevel:{visLevel} " +
-                $"chassisName:({chassisName}) fullName:({fullName}) type:({type}) tonnage:{tonnage}t");
+            int visScore = GetVisibilityLevelScore(visLevel);
+            int senScore = GetSensorScanTypeScore(sensorScanType);
+            CombatHUDLabelLevel labelLevel = GetCombatHUDLabelLevel(visScore, senScore);
+
+            switch (labelLevel)
+            {
+                case CombatHUDLabelLevel.Type:
+                    label = new Text($"{type}");
+                    break;
+                case CombatHUDLabelLevel.Chassis:
+                    label = new Text($"{chassisName}");
+                    break;
+                case CombatHUDLabelLevel.Weight:
+                    label = new Text($"{chassisName} ({tonnage}t)");
+                    break;
+                case CombatHUDLabelLevel.Partial:
+                case CombatHUDLabelLevel.Full:
+                    label = new Text($"{fullName}");
+                    break;
+            }
+            Mod.Log.Debug($"GetMechDetectionLabel - label:({label}) for type:({type}) " +
+                $"visLevel/visScore:{visLevel}/{visScore} sensorScanType/secScore:{sensorScanType}/{senScore} MechLabelLevel:{labelLevel}" +
+                $"chassisName:({chassisName}) fullName:({fullName}) type:(MECH) tonnage:{tonnage}t");
             return label;
         }
 
@@ -53,12 +52,14 @@ namespace LowVisibility.Patch {
            Helper method used to find the label text for any enemy mechs based on the visiblity and senors levels.
          
            Parameters:
-            chassisName -> Mech.UnitName = MechDef.Chassis.Description.Name -> Shadow Hawk / Atlas / Marauder
-               - The name of the base chassis, even if customized chassis (such as RogueOmnis)
-            partialName -> Mech.NickName = MechDef.Description.Name -> Shadow Hawk SHD-2D / Atlas AS7-D / Marauder ANU-O
-               - Partial name, most cases chassis and variant name combined, but for some elite mechs can be "less precise" to trick the player which mech it is
+            chassisName -> Mech.UnitName = MechDef.Chassis.Description.Name -> Shadow Hawk / Atlas / Marauder                 
+                    (The name of the base chassis, even if customized chassis (such as RogueOmnis))
+
+            partialName -> Mech.NickName = MechDef.Description.Name -> Shadow Hawk SHD-2D / Atlas AS7-D / Marauder ANU-O      
+                    (Partial name, most cases chassis and variant name combined, but for some elite mechs can be "less precise" to trick the player which mech it is)
+
             fullname -> Mech.NickName = MechDef.Description.UIName -> Shadow Hawk SHD-2D / Atlas AS7-D Danielle / Anand ANU-O
-               - Full name, will almost always display the full actual name, and if a hero/elite mech the chassis name is replaced by its custom name. ONly exception is LA's hidden nasty surprises, such as Nuke mechs
+                    (Full name, will almost always display the full actual name, and if a hero/elite mech the chassis name is replaced by its custom name. ONly exception is LA's hidden nasty surprises, such as Nuke mechs)
         */
         public static Text GetEnemyMechDetectionLabel(ICombatant target, VisibilityLevel visLevel, SensorScanType sensorScanType,
             string fullName, string partialName, string chassisName, float tonnage)
@@ -66,65 +67,181 @@ namespace LowVisibility.Patch {
 
             Text label = new Text("?");
 
-            if (visLevel == VisibilityLevel.LOSFull)
-            {
+            int visScore = GetVisibilityLevelScore(visLevel);
+            int senScore = GetSensorScanTypeScore(sensorScanType);
+            CombatHUDLabelLevel labelLevel = GetCombatHUDLabelLevel(visScore, senScore);
 
-                if (sensorScanType >= SensorScanType.DeepScan)
-                {
-                    label = new Text($"{fullName}");
-                }
-                else if (sensorScanType >= SensorScanType.SurfaceAnalysis)
-                {
-                    label = new Text($"{partialName}");
-                }
-                else
-                {
-                    // Silhouette or better
+            switch (labelLevel)
+            {
+                case CombatHUDLabelLevel.Type:
+                    label = new Text($"MECH");
+                    break;
+                case CombatHUDLabelLevel.Chassis:
+                    label = new Text($"{chassisName}");
+                    break;
+                case CombatHUDLabelLevel.Weight:
                     label = new Text($"{chassisName} ({tonnage}t)");
-                }
-            }
-            else if (visLevel == VisibilityLevel.Blip4Maximum)
-            {
-                label = new Text($"{fullName}");
-            }
-            else if (visLevel == VisibilityLevel.Blip1Type)
-            {
-                label = new Text($"{partialName}");
-            }
-            else if (visLevel == VisibilityLevel.Blip0Minimum)
-            {
-                label = new Text($"{chassisName}");
-            }
-            else if (visLevel == VisibilityLevel.BlobSmall)
-            {
-                label = new Text($"MECH");
-            }
-            else
-            {
-                label = new Text($"?");
+                    break;
+                case CombatHUDLabelLevel.Partial:
+                    label = new Text($"{partialName}");
+                    break;
+                case CombatHUDLabelLevel.Full:
+                    label = new Text($"{fullName}");
+                    break;
             }
 
-            Mod.Log.Debug($"GetMechDetectionLabel - label:({label}) for visLevel:{visLevel} " +
+            Mod.Log.Debug($"GetMechDetectionLabel - label:({label}) for " +
+                $"visLevel/visScore:{visLevel}/{visScore} sensorScanType/secScore:{sensorScanType}/{senScore} MechLabelLevel:{labelLevel}" +
                 $"chassisName:({chassisName}) partialName:({partialName}) fullName:({fullName}) type:(MECH) tonnage:{tonnage}t");
             return label;
         }
 
         /*
-           Helper method used to find the label text for any non-hostile mechs
-          
-            chassisName -> Mech.UnitName = MechDef.Chassis.Description.Name -> Shadow Hawk / Atlas / Marauder
-               - The name of the base chassis, even if customized chassis (such as RogueOmnis)
-            partialName -> Mech.NickName = MechDef.Description.Name -> Shadow Hawk SHD-2D / Atlas AS7-D / Marauder ANU-O
-               - Partial name, most cases chassis and variant name combined, but for some elite mechs can be "less precise" to trick the player which mech it is
-            fullname -> Mech.NickName = MechDef.Description.UIName -> Shadow Hawk SHD-2D / Atlas AS7-D Danielle / Anand ANU-O
-               - Full name, will almost always display the full actual name, and if a hero/elite mech the chassis name is replaced by its custom name. ONly exception is LA's hidden nasty surprises, such as Nuke mechs
-        */
-        public static Text GetNonHostileMechDetectionLabel(ICombatant target, string fullName)
-        {
+            Calculate the MechLabelLevel for the mech based on the VisibilityLevel and SensorScanType, with more weight put on the SensorScanType.
 
-            Text label = new Text($"{fullName}");
+            Formula: ( VisibilityLevelScore + 2 x SensorScanTypeScore )
+
+            Results:
+            0-2   - None, no information can be deduced                        = No label
+            2-5   - Type, basic shape can be detected                          = Mech
+            5-10   - Chassis, chassis particularities noticeable               = Atlas
+            10-15  - Weight, rough estimate of total weight can be calculated  = Atlas (100t)
+            15-21 - Partial, most structure information detectable             = Atlas AS7-D
+            21-   - Full, all information available                            = Atlas AS7-D Danielle
+
+         */
+        private static CombatHUDLabelLevel GetCombatHUDLabelLevel(decimal visScore, decimal senScore)
+        {
+            int labelScore = (int) Math.Round((visScore + 2 * senScore) / 2);
+
+            if (labelScore < 2)
+            {
+                return CombatHUDLabelLevel.None;
+            }
+            if (labelScore < 5)
+            {
+                return CombatHUDLabelLevel.Type;
+            }
+            if (labelScore < 10)
+            {
+                return CombatHUDLabelLevel.Chassis;
+            }
+            if (labelScore < 15)
+            {
+                return CombatHUDLabelLevel.Weight;
+            }
+            if (labelScore < 21)
+            {
+                return CombatHUDLabelLevel.Partial;
+            }
+            return CombatHUDLabelLevel.Full;
+        }
+
+        /*
+          Find the label score value from the visibility level. Range from 0 to 7, if unknown defaults to 0.
+
+            0 - No visibility
+            1 - Minimal visiblity
+            2 - Limited visibility
+            3 - Some visibility
+            5 - Partial visibility
+            6 - Full visibility 
+
+        */
+        private static int GetVisibilityLevelScore(VisibilityLevel visLevel)
+        {
+            switch (visLevel)
+            {
+                case VisibilityLevel.BlobSmall:
+                    return 1;
+                case VisibilityLevel.Blip0Minimum:
+                    return 2;
+                case VisibilityLevel.Blip1Type:
+                case VisibilityLevel.BlipGhost:
+                    return 3;
+                case VisibilityLevel.Blip4Maximum:
+                    return 5;
+                case VisibilityLevel.LOSFull:
+                    return 6;
+                default:
+                    return 0;
+            }
+        }       
+
+        /*
+          Find the label score value from the sensor scan type. Range from 0 to 30, if unknown defaults 0.
+
+            0  - No sensor information
+            2  - Type
+            4  - Silhouette
+            7  - Vector
+            9  - Surface Scan
+            12 - Surface Analysis
+            14 - Weapon Analysis
+            16 - Structure Analysis
+            22 - Deep Scan
+            30 - Dental Records
+
+        */
+        private static int GetSensorScanTypeScore(SensorScanType scanType)
+        {
+            switch (scanType)
+            {
+                case SensorScanType.Type:
+                    return 2;
+                case SensorScanType.Silhouette:
+                    return 4;
+                case SensorScanType.Vector:
+                    return 7;
+                case SensorScanType.SurfaceScan:
+                    return 9;
+                case SensorScanType.SurfaceAnalysis:
+                    return 12;
+                case SensorScanType.WeaponAnalysis:
+                    return 14;
+                case SensorScanType.StructureAnalysis:
+                    return 16;
+                case SensorScanType.DeepScan:
+                    return 22;
+                case SensorScanType.DentalRecords:
+                    return 30;
+                default:
+                    return 0;
+            }
+        }
+
+        /*
+           Helper method used to find the label text for any non-hostile mechs. 
+           If a custom name has been set by player, the fullName will be null and displayName used instead.
+
+            displayName -> Mech.DisplayName -> Custom name of the mech
+          
+            fullName -> Mech.NickName = MechDef.Description.UIName -> Shadow Hawk SHD-2D / Atlas AS7-D Danielle / Anand ANU-O
+                    (Full name, will almost always display the full actual name, and if a hero/elite mech the chassis name is replaced by its custom name. ONly exception is LA's hidden nasty surprises, such as Nuke mechs)
+        */
+        public static Text GetNonHostileMechDetectionLabel(ICombatant target, string fullName, string displayName)
+        {
+            Text label;
+            if (string.IsNullOrEmpty(fullName))
+            {
+                label = new Text($"{displayName}");
+            }
+            else
+            {
+                label = new Text($"{fullName}");
+            }
             Mod.Log.Debug($"GetNonHostileMechDetectionLabel - label:({label}) fullName:({fullName})");
             return label;
+        }
+
+        private enum CombatHUDLabelLevel
+        {
+            None,          // ?
+            Type,          // MECH
+            Chassis,       // Atlas
+            Weight,        // Atlas (100t)
+            Partial,       // Atlas AS7-D
+            Full           // Atlas AS7-D Danielle
         }
     }
 
@@ -142,21 +259,21 @@ namespace LowVisibility.Patch {
                 Mech.Description.UIName -> Shadow Hawk SHD-2D / Atlas AS7-D Danielle / Anand ANU-O
             */
             string fullName = __instance.Description.UIName;
-            if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
+            if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID))
+            {
                 string chassisName = __instance.UnitName;
                 string partialName = __instance.Nickname;
                 float tonnage = __instance.MechDef.Chassis.Tonnage;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
-                Text response = CombatNameHelper.GetEnemyMechDetectionLabel(__instance, visLevel, scanType, 
+                __result = CombatNameHelper.GetEnemyMechDetectionLabel(__instance, visLevel, scanType,
                     fullName, partialName, chassisName, tonnage);
-                __result = response;
             }
             else
             {
-                SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
-                Text response = CombatNameHelper.GetNonHostileMechDetectionLabel(__instance, fullName);
-                __result = response;
+                string displayName = __instance.DisplayName;
+
+               __result = CombatNameHelper.GetNonHostileMechDetectionLabel(__instance, fullName, displayName);
             }
         }
     }
