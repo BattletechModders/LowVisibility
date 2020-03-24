@@ -2,6 +2,7 @@
 using BattleTech.UI;
 using Harmony;
 using System;
+using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
 
@@ -45,21 +46,31 @@ namespace LowVisibility.Patch {
         }
 
         public static void OnActorTargeted(MessageCenterMessage message) {
-            //LowVisibility.Logger.Debug("CombatHUD:SubscribeToMessages:OnActorTargeted - entered.");
+            Mod.Log.Trace("CHUD:STM:OAT - entered.");
+
             ActorTargetedMessage actorTargetedMessage = message as ActorTargetedMessage;
             ICombatant combatant = Combat.FindActorByGUID(actorTargetedMessage.affectedObjectGuid);
             if (combatant == null) { combatant = Combat.FindCombatantByGUID(actorTargetedMessage.affectedObjectGuid); }
-
-            if (Combat.LocalPlayerTeam.VisibilityToTarget(combatant) >= VisibilityLevel.Blip0Minimum) {
-                Mod.Log.Trace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
-                if (ShowTargetMethod != null) {
-                    ShowTargetMethod.GetValue(combatant);
+            
+            try {
+                if (Combat.LocalPlayerTeam.VisibilityToTarget(combatant) >= VisibilityLevel.Blip0Minimum) {
+                    Mod.Log.Trace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
+                    if (ShowTargetMethod != null) {
+                        ShowTargetMethod.GetValue(combatant);
+                    } else {
+                        Mod.Log.Info("WARNING: CHUD:STM caled with a null traverse!");
+                    }
                 } else {
-                    Mod.Log.Info("WARNING: CHUD:STM caled with a null traverse!");
+                    Mod.Log.Trace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
                 }
-            } else {
-                Mod.Log.Trace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
+            } catch (Exception e) {
+                Mod.Log.Error($"Failed to display HUD target: {CombatantUtils.Label(combatant)}!");
+                Mod.Log.Error(e);
             }
+
+            
+
+            
         }
     }
     
