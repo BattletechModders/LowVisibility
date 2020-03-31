@@ -11,6 +11,9 @@ namespace LowVisibility {
 
         public const string HarmonyPackage = "us.frostraptor.LowVisibility";
 
+        public const string LogFilename = "low_visibility";
+        public const string LogLabel = "LOWVIS";
+
         public static IntraModLogger Log;
         public static string ModDir;
         public static ModConfig Config;
@@ -30,7 +33,7 @@ namespace LowVisibility {
                 Mod.Config = new ModConfig();
             }
 
-            Log = new IntraModLogger(modDirectory, "low_visibility", Config.Debug, Config.Trace);
+            Log = new IntraModLogger(modDirectory, LogFilename, LogLabel, Config.Debug, Config.Trace);
 
             Assembly asm = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(asm.Location);
