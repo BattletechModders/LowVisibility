@@ -257,6 +257,12 @@ namespace LowVisibility.Patch {
                 float tonnage = __instance.MechDef.Chassis.Tonnage;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
+                if (scanType < SensorScanType.ArmorAndWeaponType)
+                {
+                    bool hasVisualScan = VisualLockHelper.CanSpotTargetUsingCurrentPositions(ModState.LastPlayerActorActivated, __instance);
+                    if (hasVisualScan) scanType = SensorScanType.ArmorAndWeaponType;
+                }
+
                 __result = CombatNameHelper.GetEnemyMechDetectionLabel(__instance, visLevel, scanType,
                     fullName, partialName, chassisName, tonnage);
             }
@@ -285,6 +291,12 @@ namespace LowVisibility.Patch {
                 float tonnage = __instance.TurretDef.Chassis.Tonnage;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
+                if (scanType < SensorScanType.ArmorAndWeaponType)
+                {
+                    bool hasVisualScan = VisualLockHelper.CanSpotTargetUsingCurrentPositions(ModState.LastPlayerActorActivated, __instance);
+                    if (hasVisualScan) scanType = SensorScanType.ArmorAndWeaponType;
+                }
+
                 Text response = CombatNameHelper.GetTurretOrVehicleDetectionLabel(__instance, visLevel, scanType, 
                     fullName, chassisName, "TURRET", tonnage);
                 __result = response;
@@ -312,6 +324,12 @@ namespace LowVisibility.Patch {
                 float tonnage = __instance.VehicleDef.Chassis.Tonnage;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
+                if (scanType < SensorScanType.ArmorAndWeaponType)
+                {
+                    bool hasVisualScan = VisualLockHelper.CanSpotTargetUsingCurrentPositions(ModState.LastPlayerActorActivated, __instance);
+                    if (hasVisualScan) scanType = SensorScanType.ArmorAndWeaponType;
+                }
+
                 Text response = CombatNameHelper.GetTurretOrVehicleDetectionLabel(__instance, visLevel, scanType,
                     fullName, chassisName, "VEHICLE", tonnage);
                 __result = response;

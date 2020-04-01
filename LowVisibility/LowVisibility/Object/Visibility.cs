@@ -85,13 +85,13 @@ namespace LowVisibility.Object {
 
         public static VisibilityLevel Visibility(this SensorScanType level) {
             switch (level) {
-                case SensorScanType.LocationAndType:
-                    return VisibilityLevel.Blip0Minimum;
+                case SensorScanType.AllInformation:
+                case SensorScanType.StructAndWeaponID:
+                    return VisibilityLevel.Blip4Maximum;
                 case SensorScanType.ArmorAndWeaponType:
                     return VisibilityLevel.Blip1Type;
-                case SensorScanType.StructAndWeaponID:
-                case SensorScanType.AllInformation:
-                    return VisibilityLevel.Blip4Maximum;
+                case SensorScanType.LocationAndType:
+                    return VisibilityLevel.Blip0Minimum;
                 case SensorScanType.NoInfo:
                 default:
                     return VisibilityLevel.None;
