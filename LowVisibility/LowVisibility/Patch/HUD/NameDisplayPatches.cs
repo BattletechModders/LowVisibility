@@ -20,31 +20,40 @@ namespace LowVisibility.Patch {
             string fullName, string chassisName, string type, float tonnage) {
 
             Text label = new Text("?");
+            
+            //int visScore = GetVisibilityLevelScore(visLevel);
+            //int senScore = GetSensorScanTypeScore(sensorScanType);
+            //CombatHUDLabelLevel labelLevel = GetCombatHUDLabelLevel(visScore, senScore);
 
+            //switch (labelLevel)
+            //{
+            //    case CombatHUDLabelLevel.Type:
+            //        label = new Text($"{type}");
+            //        break;
+            //    case CombatHUDLabelLevel.Chassis:
+            //        label = new Text($"{chassisName}");
+            //        break;
+            //    case CombatHUDLabelLevel.Weight:
+            //        label = new Text($"{chassisName} ({tonnage}t)");
+            //        break;
+            //    case CombatHUDLabelLevel.Partial:
+            //    case CombatHUDLabelLevel.Full:
+            //        label = new Text($"{fullName}");
+            //        break;
+            //}
+            //Mod.Log.Debug($"GetMechDetectionLabel - label:({label}) for type:({type}) " +
+            //    $"visLevel/visScore:{visLevel}/{visScore} sensorScanType/secScore:{sensorScanType}/{senScore} MechLabelLevel:{labelLevel}" +
+            //    $"chassisName:({chassisName}) fullName:({fullName}) type:(MECH) tonnage:{tonnage}t");
 
-            int visScore = GetVisibilityLevelScore(visLevel);
-            int senScore = GetSensorScanTypeScore(sensorScanType);
-            CombatHUDLabelLevel labelLevel = GetCombatHUDLabelLevel(visScore, senScore);
-
-            switch (labelLevel)
+            if (visLevel >= VisibilityLevel.Blip0Minimum)
             {
-                case CombatHUDLabelLevel.Type:
-                    label = new Text($"{type}");
-                    break;
-                case CombatHUDLabelLevel.Chassis:
-                    label = new Text($"{chassisName}");
-                    break;
-                case CombatHUDLabelLevel.Weight:
-                    label = new Text($"{chassisName} ({tonnage}t)");
-                    break;
-                case CombatHUDLabelLevel.Partial:
-                case CombatHUDLabelLevel.Full:
-                    label = new Text($"{fullName}");
-                    break;
+                if (sensorScanType == SensorScanType.NoInfo) label = new Text("?");
+                else if (sensorScanType == SensorScanType.LocationAndType) label = new Text($"{type}"); // TODO: LOCALIZE THIS
+                else if (sensorScanType == SensorScanType.ArmorAndWeaponType) label = new Text($"{chassisName}");
+                else if (sensorScanType == SensorScanType.StructAndWeaponID) label = new Text($"{fullName}");
+                else if (sensorScanType == SensorScanType.AllInformation) label = new Text($"{fullName}");
             }
-            Mod.Log.Debug($"GetMechDetectionLabel - label:({label}) for type:({type}) " +
-                $"visLevel/visScore:{visLevel}/{visScore} sensorScanType/secScore:{sensorScanType}/{senScore} MechLabelLevel:{labelLevel}" +
-                $"chassisName:({chassisName}) fullName:({fullName}) type:(MECH) tonnage:{tonnage}t");
+
             return label;
         }
 
@@ -68,32 +77,42 @@ namespace LowVisibility.Patch {
 
             Text label = new Text("?");
 
-            int visScore = GetVisibilityLevelScore(visLevel);
-            int senScore = GetSensorScanTypeScore(sensorScanType);
-            CombatHUDLabelLevel labelLevel = GetCombatHUDLabelLevel(visScore, senScore);
+            //int visScore = GetVisibilityLevelScore(visLevel);
+            //int senScore = GetSensorScanTypeScore(sensorScanType);
+            //CombatHUDLabelLevel labelLevel = GetCombatHUDLabelLevel(visScore, senScore);
 
-            switch (labelLevel)
+            //switch (labelLevel)
+            //{
+            //    case CombatHUDLabelLevel.Type:
+            //        label = new Text($"MECH");
+            //        break;
+            //    case CombatHUDLabelLevel.Chassis:
+            //        label = new Text($"{chassisName}");
+            //        break;
+            //    case CombatHUDLabelLevel.Weight:
+            //        label = new Text($"{chassisName} ({tonnage}t)");
+            //        break;
+            //    case CombatHUDLabelLevel.Partial:
+            //        label = new Text($"{partialName}");
+            //        break;
+            //    case CombatHUDLabelLevel.Full:
+            //        label = new Text($"{fullName}");
+            //        break;
+            //}
+
+            //Mod.Log.Debug($"GetMechDetectionLabel - label:({label}) for " +
+            //    $"visLevel/visScore:{visLevel}/{visScore} sensorScanType/secScore:{sensorScanType}/{senScore} MechLabelLevel:{labelLevel}" +
+            //    $"chassisName:({chassisName}) partialName:({partialName}) fullName:({fullName}) type:(MECH) tonnage:{tonnage}t");
+
+            if (visLevel >= VisibilityLevel.Blip0Minimum)
             {
-                case CombatHUDLabelLevel.Type:
-                    label = new Text($"MECH");
-                    break;
-                case CombatHUDLabelLevel.Chassis:
-                    label = new Text($"{chassisName}");
-                    break;
-                case CombatHUDLabelLevel.Weight:
-                    label = new Text($"{chassisName} ({tonnage}t)");
-                    break;
-                case CombatHUDLabelLevel.Partial:
-                    label = new Text($"{partialName}");
-                    break;
-                case CombatHUDLabelLevel.Full:
-                    label = new Text($"{fullName}");
-                    break;
+                if (sensorScanType == SensorScanType.NoInfo) label = new Text("?");
+                else if (sensorScanType == SensorScanType.LocationAndType) label = new Text("MECH"); // TODO: LOCALIZE THIS
+                else if (sensorScanType == SensorScanType.ArmorAndWeaponType) label = new Text($"{chassisName}");
+                else if (sensorScanType == SensorScanType.StructAndWeaponID) label = new Text($"{partialName}");
+                else if (sensorScanType == SensorScanType.AllInformation) label = new Text($"{fullName}");
             }
 
-            Mod.Log.Debug($"GetMechDetectionLabel - label:({label}) for " +
-                $"visLevel/visScore:{visLevel}/{visScore} sensorScanType/secScore:{sensorScanType}/{senScore} MechLabelLevel:{labelLevel}" +
-                $"chassisName:({chassisName}) partialName:({partialName}) fullName:({fullName}) type:(MECH) tonnage:{tonnage}t");
             return label;
         }
 
@@ -111,32 +130,32 @@ namespace LowVisibility.Patch {
             21-   - Full, all information available                            = Atlas AS7-D Danielle
 
          */
-        private static CombatHUDLabelLevel GetCombatHUDLabelLevel(decimal visScore, decimal senScore)
-        {
-            int labelScore = (int) Math.Round((visScore + senScore) / 2);
+        //private static CombatHUDLabelLevel GetCombatHUDLabelLevel(decimal visScore, decimal senScore)
+        //{
+        //    int labelScore = (int) Math.Round((visScore + senScore) / 2);
 
-            if (labelScore < 2)
-            {
-                return CombatHUDLabelLevel.None;
-            }
-            if (labelScore < 5)
-            {
-                return CombatHUDLabelLevel.Type;
-            }
-            if (labelScore < 10)
-            {
-                return CombatHUDLabelLevel.Chassis;
-            }
-            if (labelScore < 15)
-            {
-                return CombatHUDLabelLevel.Weight;
-            }
-            if (labelScore < 21)
-            {
-                return CombatHUDLabelLevel.Partial;
-            }
-            return CombatHUDLabelLevel.Full;
-        }
+        //    if (labelScore < 2)
+        //    {
+        //        return CombatHUDLabelLevel.None;
+        //    }
+        //    if (labelScore < 5)
+        //    {
+        //        return CombatHUDLabelLevel.Type;
+        //    }
+        //    if (labelScore < 10)
+        //    {
+        //        return CombatHUDLabelLevel.Chassis;
+        //    }
+        //    if (labelScore < 15)
+        //    {
+        //        return CombatHUDLabelLevel.Weight;
+        //    }
+        //    if (labelScore < 21)
+        //    {
+        //        return CombatHUDLabelLevel.Partial;
+        //    }
+        //    return CombatHUDLabelLevel.Full;
+        //}
 
         /*
           Find the label score value from the visibility level. Range from 0 to 7, if unknown defaults to 0.
@@ -149,23 +168,23 @@ namespace LowVisibility.Patch {
             6 - Full visibility 
 
         */
-        private static int GetVisibilityLevelScore(VisibilityLevel visLevel)
-        {
-            switch (visLevel)
-            {
-                case VisibilityLevel.Blip0Minimum:
-                    return 1;
-                case VisibilityLevel.Blip1Type:
-                case VisibilityLevel.BlipGhost:
-                    return 3;
-                case VisibilityLevel.Blip4Maximum:
-                    return 5;
-                case VisibilityLevel.LOSFull:
-                    return 6;
-                default:
-                    return 0;
-            }
-        }       
+        //private static int GetVisibilityLevelScore(VisibilityLevel visLevel)
+        //{
+        //    switch (visLevel)
+        //    {
+        //        case VisibilityLevel.Blip0Minimum:
+        //            return 1;
+        //        case VisibilityLevel.Blip1Type:
+        //        case VisibilityLevel.BlipGhost:
+        //            return 3;
+        //        case VisibilityLevel.Blip4Maximum:
+        //            return 5;
+        //        case VisibilityLevel.LOSFull:
+        //            return 6;
+        //        default:
+        //            return 0;
+        //    }
+        //}       
 
         /*
           Find the label score value from the sensor scan type. Range from 0 to 30, if unknown defaults 0.
@@ -182,24 +201,24 @@ namespace LowVisibility.Patch {
             30 - Dental Records
 
         */
-        private static int GetSensorScanTypeScore(SensorScanType scanType)
-        {
-            switch (scanType)
-            {
-                case SensorScanType.NoInfo:
-                    return 1;
-                case SensorScanType.LocationAndType:
-                    return 2;
-                case SensorScanType.ArmorAndWeaponType:
-                    return 4;
-                case SensorScanType.StructAndWeaponID:
-                    return 7;
-                case SensorScanType.AllInformation:
-                    return 9;
-                default:
-                    return 0;
-            }
-        }
+        //private static int GetSensorScanTypeScore(SensorScanType scanType)
+        //{
+        //    switch (scanType)
+        //    {
+        //        case SensorScanType.NoInfo:
+        //            return 1;
+        //        case SensorScanType.LocationAndType:
+        //            return 2;
+        //        case SensorScanType.ArmorAndWeaponType:
+        //            return 4;
+        //        case SensorScanType.StructAndWeaponID:
+        //            return 7;
+        //        case SensorScanType.AllInformation:
+        //            return 9;
+        //        default:
+        //            return 0;
+        //    }
+        //}
 
         /*
            Helper method used to find the label text for any non-hostile mechs. 
@@ -227,10 +246,8 @@ namespace LowVisibility.Patch {
 
         private enum CombatHUDLabelLevel
         {
-            None,          // ?
             Type,          // MECH
             Chassis,       // Atlas
-            Weight,        // Atlas (100t)
             Partial,       // Atlas AS7-D
             Full           // Atlas AS7-D Danielle
         }

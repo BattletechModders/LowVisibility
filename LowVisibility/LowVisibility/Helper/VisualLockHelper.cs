@@ -179,6 +179,8 @@ namespace LowVisibility.Helper {
 
         public static bool CanSpotTargetUsingCurrentPositions(AbstractActor source, ICombatant target)
         {
+            if (source == null || target == null) return false;
+
             return CanSpotTarget(source, source.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, source.Combat.LOS);
         }
     }
