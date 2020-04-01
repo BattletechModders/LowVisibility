@@ -37,7 +37,6 @@ namespace LowVisibility.Patch {
             if (___Readout != null && ___Readout.DisplayedVehicle != null && ___Readout.DisplayedVehicle.Combat != null && ___ToolTip != null) {
                 Vehicle target = ___Readout.DisplayedVehicle;
                 if (!target.Combat.HostilityMatrix.IsLocalPlayerFriendly(target.TeamId)) {
-
                     SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
                     if (scanType < SensorScanType.AllInformation) {
                         ___ToolTip.BuffStrings.Clear();

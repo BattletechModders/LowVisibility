@@ -15,13 +15,13 @@ using UnityEngine;
 
 namespace LowVisibility.Patch {
 
-    [HarmonyPatch()]
+    [HarmonyPatch(typeof(CombatHUDStatusPanel), "RefreshDisplayedCombatant")]
     public static class CombatHUDStatusPanel_RefreshDisplayedCombatant {
 
         // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod() {
-            return AccessTools.Method(typeof(CombatHUDStatusPanel), "RefreshDisplayedCombatant", new Type[] { });
-        }
+        //public static MethodInfo TargetMethod() {
+        //    return AccessTools.Method(typeof(CombatHUDStatusPanel), "RefreshDisplayedCombatant", new Type[] { });
+        //}
 
         public static void Postfix(CombatHUDStatusPanel __instance, List<CombatHUDStatusIndicator> ___Buffs, List<CombatHUDStatusIndicator> ___Debuffs) {
             Mod.Log.Trace("CHUDSP:RDC - entered.");
@@ -51,13 +51,6 @@ namespace LowVisibility.Patch {
     }
 
 
-    [HarmonyPatch(typeof(CombatHUDStatusPanel), "HideStealthIndicator")]
-    public static class CombatHUDStatusPanel_HideStealthIndicator {
-        public static void Postfix(CombatHUDStatusPanel __instance) {
-            Mod.Log.Trace("CHUDSP:HSI - entered.");
-        }
-    }
-
     [HarmonyPatch(typeof(CombatHUDStatusPanel), "ShowStealthIndicators")]
     [HarmonyPatch(new Type[] {  typeof(AbstractActor), typeof(Vector3) })]
     public static class CombatHUDStatusPanel_ShowStealthIndicators_Vector3 {
@@ -79,7 +72,6 @@ namespace LowVisibility.Patch {
             VfxHelper.CalculateMimeticPips(___stealthDisplay, target);
         }
     }
-
 
     [HarmonyPatch()]
     public static class CombatHUDStatusPanel_ShowActorStatuses {

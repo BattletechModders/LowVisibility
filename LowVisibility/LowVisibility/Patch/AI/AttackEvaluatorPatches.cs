@@ -14,9 +14,6 @@ namespace LowVisibility.Patch {
 
             ICombatant combatant = attackingUnit.BehaviorTree.enemyUnits[enemyUnitIndex];
             if (combatant is AbstractActor targetActor) {
-                EWState attackerState = new EWState(attackingUnit);
-                EWState targetState = new EWState(targetActor);
-
                 // Prevents blips from being the targets of called shots
                 VisibilityLevel targetVisibility = attackingUnit.VisibilityToTargetUnit(targetActor);
                 if (targetVisibility < VisibilityLevel.LOSFull) {
