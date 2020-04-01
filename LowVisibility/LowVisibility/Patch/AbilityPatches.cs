@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using LowVisibility.Helper;
 using System.Collections.Generic;
 
 namespace LowVisibility.Patch
@@ -22,12 +23,7 @@ namespace LowVisibility.Patch
 					(allEffectsWithID[i].EffectData.statisticData.statName.Equals(ModStats.ProbeCarrier) || allEffectsWithID[i].EffectData.statisticData.statName.Equals(ModStats.PingedByProbe))
 					)
 				{
-					foreach (ICombatant combatant in __instance.Combat.GetAllImporantCombatants()) 
-					{
-						PlayerVisibilityChangedMessage visibilityChangedMsg = new PlayerVisibilityChangedMessage(combatant.GUID);
-						__instance.Combat.MessageCenter.PublishMessage(visibilityChangedMsg);
-					}
-					
+					CombatHUDHelper.ForceNameRefresh(__instance.Combat);
 				}
 			}
 		}

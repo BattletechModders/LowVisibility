@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using BattleTech.UI;
 using LowVisibility.Object;
 using us.frostraptor.modUtils;
 
@@ -30,7 +31,12 @@ namespace LowVisibility.Helper {
                 // Refresh the unit's vision
                 VfxHelper.RedrawFogOfWar(actor);
                 actor.VisibilityCache.RebuildCache(actor.Combat.GetAllImporantCombatants());
+                CombatHUDHelper.ForceNameRefresh(actor.Combat);
 
+                // Hack - turn on Vission indicator?
+                VisRangeIndicator visRangeIndicator = VisRangeIndicator.Instance;
+                visRangeIndicator.SetState(VisRangeIndicator.VisRangeIndicatorState.On);
+                
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using BattleTech.UI;
 using Harmony;
 using Localize;
 using LowVisibility.Helper;
@@ -214,6 +215,11 @@ namespace LowVisibility.Patch {
         public static bool Prepare() { return Mod.Config.Toggles.LogEffectsOnMove;  }
 
         public static void Prefix(AbstractActor __instance) {
+
+            if (__instance.TeamId == __instance.Combat.LocalPlayerTeamGuid)
+            {
+                CombatHUDHelper.ForceNameRefresh(__instance.Combat);
+            }
 
             EWState actorState = new EWState(__instance);
             Mod.Log.Debug($" OnMoveComplete: Effects targeting actor: {CombatantUtils.Label(__instance)}");

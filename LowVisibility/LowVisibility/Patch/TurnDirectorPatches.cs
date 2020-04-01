@@ -61,13 +61,8 @@ namespace LowVisibility.Patch {
     }
 
 
-    [HarmonyPatch()]
+    [HarmonyPatch(typeof(TurnDirector), "BeginNewRound")]
     public static class TurnDirector_BeginNewRound {
-
-        // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod() {
-            return AccessTools.Method(typeof(TurnDirector), "BeginNewRound", new Type[] { typeof(int) });
-        }
 
         public static void Prefix(TurnDirector __instance, int round) {
             Mod.Log.Trace($"TD:BNR entered");
@@ -76,6 +71,11 @@ namespace LowVisibility.Patch {
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
                 ActorHelper.UpdateSensorCheck(actor, true);
+                if (actor.TeamId == __instance.Combat.LocalPlayerTeamGuid)
+                {
+                    actor.VisibilityCache.RebuildCache(actor.Combat.GetAllImporantCombatants());
+                    CombatHUDHelper.ForceNameRefresh(actor.Combat);
+                }
             }
 
         }
