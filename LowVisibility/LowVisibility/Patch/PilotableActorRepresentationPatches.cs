@@ -44,16 +44,18 @@ namespace LowVisibility.Patch {
 
                 if (parentActor.team.IsFriendly(parentActor.Combat.LocalPlayerTeam)) {
                     Mod.Log.Debug($" Target actor is friendly, forcing blip off");
-                    // Force the blip to be hidden
-                    // TODO: Does this work?
                     __instance.BlipObjectUnknown.SetActive(false);
                 } else {
-                    Mod.Log.Debug($" Actor is a foe,  disabling the identified blip and showing the object");
-                    __instance.VisibleObject.SetActive(true);
-                    __instance.BlipObjectIdentified.SetActive(false);
+                    // Because Blip1 corresponds to ArmorAndWeapon, go ahead and show the model as the chassis is 'known'
+                    if (newLevel >= VisibilityLevel.Blip1Type)
+                    {
+                        Mod.Log.Debug($" Actor is a foe,  disabling the identified blip and showing the object");
+                        __instance.VisibleObject.SetActive(true);
+                        __instance.BlipObjectIdentified.SetActive(false);
 
-                    __instance.BlipObjectUnknown.transform.localScale = new Vector3(1f, 0.8f, 1f);
-                    __instance.BlipObjectUnknown.SetActive(true);
+                        __instance.BlipObjectUnknown.transform.localScale = new Vector3(1f, 0.8f, 1f);
+                        __instance.BlipObjectUnknown.SetActive(true);
+                    }
                 }
             }
         }
