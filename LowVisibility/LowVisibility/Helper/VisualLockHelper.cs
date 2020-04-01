@@ -72,7 +72,7 @@ namespace LowVisibility.Helper {
             // Round up to the nearest full hex
             float normalizedRange = HexUtils.CountHexes(spotterRange, true) * 30f;
 
-            //LowVisibility.Logger.Trace($" -- source:{CombatantUtils.Label(source)} adjusted spotterRange:{normalizedRange}m normalized from:{spotterRange}m");
+            Mod.Log.Trace($" -- source:{CombatantUtils.Label(source)} adjusted spotterRange:{normalizedRange}m normalized from:{spotterRange}m");
             return normalizedRange;
         }
 

@@ -82,7 +82,7 @@ namespace LowVisibility.Patch {
                 __result = sensorsVisibility;
             }
 
-            Mod.Log.Trace($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
+            //Mod.Log.Trace($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
             return false;
         }                        
     }

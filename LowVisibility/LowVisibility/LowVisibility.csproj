@@ -113,7 +113,7 @@
     <Compile Include="Patch\CombatGameStatePatches.cs" />
     <Compile Include="Patch\FogOfWarPatches.cs" />
     <Compile Include="Patch\HUD\CombatHUDActorInfoPatches.cs" />
-    <Compile Include="Patch\HUD\CombatHUDActorNameDisplayPatches.cs" />
+    <Compile Include="Patch\HUD\NameDisplayPatches.cs" />
     <Compile Include="Patch\HUD\CombatHUDPatches.cs" />
     <Compile Include="Patch\HUD\CombatHUDStealthBarPipsPatches.cs" />
     <Compile Include="Patch\HUD\CombatHUDTargetingComputerPatches.cs" />

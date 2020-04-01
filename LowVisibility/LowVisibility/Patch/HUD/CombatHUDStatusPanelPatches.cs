@@ -18,11 +18,6 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(CombatHUDStatusPanel), "RefreshDisplayedCombatant")]
     public static class CombatHUDStatusPanel_RefreshDisplayedCombatant {
 
-        // Private method can't be patched by annotations, so use MethodInfo
-        //public static MethodInfo TargetMethod() {
-        //    return AccessTools.Method(typeof(CombatHUDStatusPanel), "RefreshDisplayedCombatant", new Type[] { });
-        //}
-
         public static void Postfix(CombatHUDStatusPanel __instance, List<CombatHUDStatusIndicator> ___Buffs, List<CombatHUDStatusIndicator> ___Debuffs) {
             Mod.Log.Trace("CHUDSP:RDC - entered.");
             if (__instance != null && __instance.DisplayedCombatant != null) {
@@ -73,13 +68,8 @@ namespace LowVisibility.Patch {
         }
     }
 
-    [HarmonyPatch()]
+    [HarmonyPatch(typeof(CombatHUDStatusPanel), "ShowActorStatuses")]
     public static class CombatHUDStatusPanel_ShowActorStatuses {
-
-        // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod() {
-            return AccessTools.Method(typeof(CombatHUDStatusPanel), "ShowActorStatuses", new Type[] { typeof(AbstractActor) });
-        }
 
         public static void Postfix(CombatHUDStatusPanel __instance) {
             Mod.Log.Trace("CHUDSP:SAS - entered.");
@@ -213,11 +203,10 @@ namespace LowVisibility.Patch {
 
             // Sensors check
             EWState ewState = new EWState(actor);
-            SensorScanType checkLevel;
+
+            
             int totalDetails = ewState.GetCurrentEWCheck() + ewState.AdvancedSensorsMod();
-            if (totalDetails > (int)SensorScanType.AllInformation) { checkLevel = SensorScanType.AllInformation; } 
-            else if (totalDetails < (int)SensorScanType.NoInfo) { checkLevel = SensorScanType.NoInfo; } 
-            else { checkLevel = SensorScanTypeHelper.DetectionLevelForCheck(totalDetails); }
+            SensorScanType checkLevel = SensorScanTypeHelper.DetectionLevelForCheck(totalDetails);
             float sensorsRange = SensorLockHelper.GetSensorsRange(actor);
             string sensorColor = ewState.GetCurrentEWCheck() >= 0 ? "00FF00" : "FF0000";
             details.Add(

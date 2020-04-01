@@ -149,7 +149,8 @@ namespace LowVisibility.Patch {
                     AbstractActor target = __instance.ActivelyShownCombatant as AbstractActor;
 
                     float range = Vector3.Distance(ModState.LastPlayerActorActivated.CurrentPosition, target.CurrentPosition);
-                    bool hasVisualScan = VisualLockHelper.GetVisualScanRange(ModState.LastPlayerActorActivated) >= range && ModState.LastPlayerActorActivated.VisibilityToTargetUnit(target) == VisibilityLevel.LOSFull;
+                    bool hasVisualScan = VisualLockHelper.CanSpotTarget(ModState.LastPlayerActorActivated, ModState.LastPlayerActorActivated.CurrentPosition, 
+                        target, target.CurrentPosition, target.CurrentRotation, target.Combat.LOS);
                     SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
                     Mod.Log.Debug($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(ModState.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} " +
                         $"at range: {range} has scanType:{scanType} visualScan:{hasVisualScan}");

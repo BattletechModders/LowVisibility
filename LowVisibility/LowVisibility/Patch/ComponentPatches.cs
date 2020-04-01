@@ -46,24 +46,4 @@ namespace LowVisibility.Patch {
         }
     }
 
-    // Hide the pilot name unless you have all info
-    [HarmonyPatch(typeof(CombatHUDActorNameDisplay), "RefreshInfo")]
-    [HarmonyPatch(new Type[] { typeof(VisibilityLevel) })]
-    public static class CombatHUDActorNameDisplay_RefreshInfo {
-
-        public static void Postfix(CombatHUDActorNameDisplay __instance, VisibilityLevel visLevel, AbstractActor ___displayedActor) {
-            if (___displayedActor != null && ModState.LastPlayerActorActivated != null && ModState.TurnDirectorStarted
-                && !___displayedActor.Combat.HostilityMatrix.IsLocalPlayerFriendly(___displayedActor.TeamId)) {
-
-                SensorScanType scanType = SensorLockHelper.CalculateSharedLock(___displayedActor, ModState.LastPlayerActorActivated);
-
-                if (scanType < SensorScanType.AllInformation) {
-                    // TODO: Needs to be hidden or localized
-                    __instance.PilotNameText.SetText("");
-                } else {
-                    __instance.PilotNameText.SetText(___displayedActor.GetPilot().Name);
-                }
-            }
-        }
-    }
 }

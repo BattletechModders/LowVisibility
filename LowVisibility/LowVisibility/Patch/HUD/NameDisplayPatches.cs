@@ -333,15 +333,10 @@ namespace LowVisibility.Patch {
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(___displayedActor, ModState.LastPlayerActorActivated);
 
-                if (scanType < SensorScanType.AllInformation)
-                {
-                    // TODO: Needs to be hidden or localized
-                    __instance.PilotNameText.SetText("");
-                }
-                else
-                {
-                    __instance.PilotNameText.SetText(___displayedActor.GetPilot().Name);
-                }
+                // TODO: Needs to be hidden or localized
+                string nameText = scanType >= SensorScanType.AllInformation ? ___displayedActor.GetPilot().Name : "";
+                __instance.PilotNameText.SetText(nameText);
+                
             }
         }
     }

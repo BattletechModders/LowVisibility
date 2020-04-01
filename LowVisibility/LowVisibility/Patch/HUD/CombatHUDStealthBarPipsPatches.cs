@@ -46,18 +46,6 @@ namespace LowVisibility.Patch {
             }
         }
 
-        [HarmonyPatch(typeof(CombatHUDPipBar), "ActivatePips")]
-        public static class CombatHUDPipBar_ActivatePips {
-            public static void Postfix(CombatHUDPipBar __instance, int totalPips) {
-                Mod.Log.Trace("CHUDSBP:AP entered");
-
-                //if (__instance.enabled) {
-                //    Mod.Log.Debug($"Activating pips: {totalPips}");
-                //}
-                
-            }
-        }
-
         [HarmonyPatch(typeof(MoveStatusPreview), "DisplayPreviewStatus")]
         public static class MoveStatusPreview_DisplayPreviewStatus {
 
