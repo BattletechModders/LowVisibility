@@ -156,6 +156,10 @@ namespace LowVisibility {
         public const string LT_DETAILS_ALL_INFO = "ALL_INFO";
         public const string LT_DETAILS_UNKNOWN = "DETAILS_UNKNOWN";
 
+        public const string LT_UNIT_TYPE_MECH = "UNIT_TYPE_MECH";
+        public const string LT_UNIT_TYPE_VEHICLE = "UNIT_TYPE_VEHICLE";
+        public const string LT_UNIT_TYPE_TURRET = "UNIT_TYPE_TURRET";
+
         // Attack Tooltip
         public const string LT_ATTACK_FIRING_BLIND = "ATTACK_FIRE_BLIND";
         public const string LT_ATTACK_NO_VISUALS = "ATTACK_NO_VISUALS";
@@ -218,6 +222,10 @@ namespace LowVisibility {
             { LT_DETAILS_STRUCT_AND_WEAPON_ID, "Struct + Weapon" },
             { LT_DETAILS_ALL_INFO, "All Info" },
             { LT_DETAILS_UNKNOWN, "Unknown" },
+
+            { LT_UNIT_TYPE_MECH, "MECH" },
+            { LT_UNIT_TYPE_VEHICLE, "VEHICLE" },
+            { LT_UNIT_TYPE_TURRET, "TURRET" },
 
             // Attack Tooltip
             { LT_ATTACK_FIRING_BLIND, "FIRING BLIND" },
