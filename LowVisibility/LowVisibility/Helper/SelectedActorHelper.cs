@@ -29,6 +29,7 @@ namespace LowVisibility.Helper {
 
                 // Refresh the unit's vision
                 VfxHelper.RedrawFogOfWar(actor);
+                actor.VisibilityCache.RebuildCache(actor.Combat.GetAllImporantCombatants());
 
             }
         }

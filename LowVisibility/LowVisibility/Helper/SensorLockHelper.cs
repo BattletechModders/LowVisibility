@@ -139,7 +139,7 @@ namespace LowVisibility.Helper {
             if (source.GUID == target.GUID || source.Combat.HostilityMatrix.IsFriendly(source.TeamId, target.team.GUID)) {
                 // If they are us, or allied, automatically give sensor details
                 Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is friendly to target:{CombatantUtils.Label(target)}. Forcing full visibility.");
-                return SensorScanType.DentalRecords;
+                return SensorScanType.AllInformation;
             }
 
             if (source.IsDead || source.IsFlaggedForDeath) {
@@ -168,7 +168,7 @@ namespace LowVisibility.Helper {
                 // TODO: ADD FRIENDLY ECM CHECK HERE?
 
                 // TODO: This should be calculated more fully! Major bug here!
-                SensorScanType buildingLock = sourceState.GetCurrentEWCheck() > 0 ? SensorScanType.SurfaceScan : SensorScanType.NoInfo;
+                SensorScanType buildingLock = sourceState.GetCurrentEWCheck() > 0 ? SensorScanType.ArmorAndWeaponType : SensorScanType.NoInfo;
                 Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} is a building with lockState:{buildingLock}");
                 return buildingLock;
             } else if ((target as AbstractActor) != null) {
@@ -177,7 +177,7 @@ namespace LowVisibility.Helper {
 
                 if (distance > sensorRangeVsTarget) {
                     // Check for Narc effect that will show the target regardless of range
-                    SensorScanType narcLock = HasNarcBeaconDetection(target, sourceState, targetState) ? SensorScanType.Location : SensorScanType.NoInfo;
+                    SensorScanType narcLock = HasNarcBeaconDetection(target, sourceState, targetState) ? SensorScanType.LocationAndType : SensorScanType.NoInfo;
                     Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
                     return narcLock;
                 } else {
@@ -191,8 +191,8 @@ namespace LowVisibility.Helper {
                         sensorLock = CalculateSensorInfoLevel(source, target);
 
                         // Check for Narc effect overriding detection
-                        if (sensorLock < SensorScanType.Location && HasNarcBeaconDetection(targetActor, sourceState, targetState)) {
-                            sensorLock = SensorScanType.Location;
+                        if (sensorLock < SensorScanType.LocationAndType && HasNarcBeaconDetection(targetActor, sourceState, targetState)) {
+                            sensorLock = SensorScanType.LocationAndType;
                         }
                     }
                     Mod.Log.Trace($"SensorLockHelper - source:{CombatantUtils.Label(source)} has sensorLock:({sensorLock}) vs " +
@@ -294,36 +294,12 @@ namespace LowVisibility.Helper {
             int detailLevel = positiveMods + negativeMods + ecmNegativeMods;
             Mod.Log.Trace($"  == detailsTotal: {detailLevel} = positiveMods: {positiveMods} + negativeMods: {negativeMods}");
 
-            SensorScanType sensorInfo = DetectionLevelForCheck(detailLevel);
+            SensorScanType sensorInfo = SensorScanTypeHelper.DetectionLevelForCheck(detailLevel);
             Mod.Log.Trace($" == Calculated sensorInfo as: ({sensorInfo})");
 
             return sensorInfo;
         }
 
-        public static SensorScanType DetectionLevelForCheck(int checkResult) {
-            SensorScanType level = SensorScanType.NoInfo;
-            if (checkResult == 0) {
-                level = SensorScanType.Location;
-            } else if (checkResult == 1) {
-                level = SensorScanType.Type;
-            } else if (checkResult == 2) {
-                level = SensorScanType.Silhouette;
-            } else if (checkResult == 3) {
-                level = SensorScanType.Vector;
-            } else if (checkResult == 4 || checkResult == 5) {
-                level = SensorScanType.SurfaceScan;
-            } else if (checkResult == 6 || checkResult == 7) {
-                level = SensorScanType.SurfaceAnalysis;
-            } else if (checkResult == 8) {
-                level = SensorScanType.WeaponAnalysis;
-            } else if (checkResult == 9) {
-                level = SensorScanType.StructureAnalysis;
-            } else if (checkResult == 10) {
-                level = SensorScanType.DeepScan;
-            } else if (checkResult >= 11) {
-                level = SensorScanType.DentalRecords;
-            }
-            return level;
-        }
+
     }
 }

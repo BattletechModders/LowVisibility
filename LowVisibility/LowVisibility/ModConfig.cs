@@ -150,16 +150,10 @@ namespace LowVisibility {
 
         // Sensor details keys
         public const string LT_DETAILS_NONE = "DETAILS_NONE";
-        public const string LT_DETAILS_LOCATION = "DETAILS_LOCATION";
-        public const string LT_DETAILS_TYPE = "DETAILS_TYPE";
-        public const string LT_DETAILS_SILHOUETTE = "DETAILS_SILHOUETTE";
-        public const string LT_DETAILS_VECTOR = "DETAILS_VECTOR";
-        public const string LT_DETAILS_SURFACE_SCAN = "DETAILS_SURFACE_SCAN";
-        public const string LT_DETAILS_SURFACE_ANALYZE = "DETAILS_SURFACE_ANALYZE";
-        public const string LT_DETAILS_WEAPON_ANALYZE = "DETAILS_WEAPON_ANALYZE";
-        public const string LT_DETAILS_STRUCTURE_ANALYZE = "DETAILS_STRUCTURE_ANALYZE";
-        public const string LT_DETAILS_DEEP_SCAN = "DETAILS_DEEP_SCAN";
-        public const string LT_DETAILS_PILOT = "DETAILS_PILOT";
+        public const string LT_DETAILS_LOCATION_AND_TYPE = "LOCATION_AND_TYPE";
+        public const string LT_DETAILS_ARMOR_AND_WEAPON_TYPE = "ARMOR_AND_WEAPON_TYPE";
+        public const string LT_DETAILS_STRUCT_AND_WEAPON_ID = "STRUCT_AND_WEAPON_ID";
+        public const string LT_DETAILS_ALL_INFO = "ALL_INFO";
         public const string LT_DETAILS_UNKNOWN = "DETAILS_UNKNOWN";
 
         // Attack Tooltip
@@ -219,16 +213,10 @@ namespace LowVisibility {
 
             // Sensor Details Level
             { LT_DETAILS_NONE, "No Info" },
-            { LT_DETAILS_LOCATION, "Location" },
-            { LT_DETAILS_TYPE, "Unit Type" },
-            { LT_DETAILS_SILHOUETTE, "Silhouettte" },
-            { LT_DETAILS_VECTOR, "Vector" },
-            { LT_DETAILS_SURFACE_SCAN, "Surface Only" },
-            { LT_DETAILS_SURFACE_ANALYZE, "SurfaceAnalysis" },
-            { LT_DETAILS_WEAPON_ANALYZE, "Weapons" },
-            { LT_DETAILS_STRUCTURE_ANALYZE, "Structural" },
-            { LT_DETAILS_DEEP_SCAN, "Complete" },
-            { LT_DETAILS_PILOT, "Pilot" },
+            { LT_DETAILS_LOCATION_AND_TYPE, "Type" },
+            { LT_DETAILS_ARMOR_AND_WEAPON_TYPE, "Armor + Weapon Type" },
+            { LT_DETAILS_STRUCT_AND_WEAPON_ID, "Struct + Weapon" },
+            { LT_DETAILS_ALL_INFO, "All Info" },
             { LT_DETAILS_UNKNOWN, "Unknown" },
 
             // Attack Tooltip

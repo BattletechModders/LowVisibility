@@ -112,7 +112,7 @@ namespace LowVisibility.Patch {
          */
         private static CombatHUDLabelLevel GetCombatHUDLabelLevel(decimal visScore, decimal senScore)
         {
-            int labelScore = (int) Math.Round((visScore + 2 * senScore) / 2);
+            int labelScore = (int) Math.Round((visScore + senScore) / 2);
 
             if (labelScore < 2)
             {
@@ -152,10 +152,8 @@ namespace LowVisibility.Patch {
         {
             switch (visLevel)
             {
-                case VisibilityLevel.BlobSmall:
-                    return 1;
                 case VisibilityLevel.Blip0Minimum:
-                    return 2;
+                    return 1;
                 case VisibilityLevel.Blip1Type:
                 case VisibilityLevel.BlipGhost:
                     return 3;
@@ -187,24 +185,16 @@ namespace LowVisibility.Patch {
         {
             switch (scanType)
             {
-                case SensorScanType.Type:
+                case SensorScanType.NoInfo:
+                    return 1;
+                case SensorScanType.LocationAndType:
                     return 2;
-                case SensorScanType.Silhouette:
+                case SensorScanType.ArmorAndWeaponType:
                     return 4;
-                case SensorScanType.Vector:
+                case SensorScanType.StructAndWeaponID:
                     return 7;
-                case SensorScanType.SurfaceScan:
+                case SensorScanType.AllInformation:
                     return 9;
-                case SensorScanType.SurfaceAnalysis:
-                    return 12;
-                case SensorScanType.WeaponAnalysis:
-                    return 14;
-                case SensorScanType.StructureAnalysis:
-                    return 16;
-                case SensorScanType.DeepScan:
-                    return 22;
-                case SensorScanType.DentalRecords:
-                    return 30;
                 default:
                     return 0;
             }

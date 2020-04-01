@@ -38,7 +38,7 @@ namespace LowVisibility.Patch {
                     float distance = Vector3.Distance(__instance.SelectedActor.CurrentPosition, targetActor.CurrentPosition);
                     bool hasVisualScan = VisualLockHelper.GetVisualScanRange(__instance.SelectedActor) >= distance;
                     SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, __instance.SelectedActor);
-                    if (sensorScan < SensorScanType.SurfaceScan && !hasVisualScan) {
+                    if (sensorScan < SensorScanType.ArmorAndWeaponType && !hasVisualScan) {
                         Mod.Log.Info($"Target {CombatantUtils.Label(targetActor)} sensor info {sensorScan} is less than SurfaceScan and range:{distance} outside visualScan range, cannot be targeted by called shot");
                         __result = false;
                         return false;

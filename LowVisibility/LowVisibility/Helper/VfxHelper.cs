@@ -349,10 +349,16 @@ namespace LowVisibility.Helper {
         }
 
         public static void RedrawFogOfWar(AbstractActor activeActor) {
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
 
             FogOfWarSystem fowSystem = LazySingletonBehavior<FogOfWarView>.Instance.FowSystem;
+            if (fowSystem == null)
+            {
+                Mod.Log.Error("FogOfWarSystem could not be found - this should never happen!");
+                return;
+            }
+
+            Mod.Log.Debug($"Redrawing FOW for actor: {CombatantUtils.Label(activeActor)}");
+
             Traverse viewersT = Traverse.Create(fowSystem).Field("viewers");
             List<AbstractActor> viewers = viewersT.GetValue<List<AbstractActor>>();
             viewers.Clear();
@@ -365,7 +371,7 @@ namespace LowVisibility.Helper {
             fowSystem.AddViewer(activeActor);
 
             // Check lancemates; if they have vision sharing add them as well
-            foreach (string lanceGuid in activeActor.lance.unitGuids) {
+            foreach (string lanceGuid in activeActor?.lance?.unitGuids) {
                 if (!lanceGuid.Equals(activeActor.GUID)) {
                     ICombatant lanceMateC = activeActor.Combat.FindCombatantByGUID(lanceGuid);
                     if (lanceMateC is AbstractActor lanceActor) {
@@ -377,8 +383,6 @@ namespace LowVisibility.Helper {
                 }
             }
 
-            sw.Stop();
-            Mod.Log.Trace($"FOG OF WAR REBUILD TOOK: {sw.ElapsedMilliseconds}ms");
         }
 
         public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, Vector3 previewPos) {

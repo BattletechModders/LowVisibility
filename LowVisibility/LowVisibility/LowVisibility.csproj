@@ -136,9 +136,6 @@
     <Compile Include="ModState.cs" />
     <Compile Include="ModConfig.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetDir)$(TargetFileName)" "$(BattleTechGame)\Mods\LowVisibility" /y</PostBuildEvent>

@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
-using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
 
@@ -34,16 +33,11 @@ namespace LowVisibility.Patch {
 
                         SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
 
-                        if (scanType < SensorScanType.Vector) {
+                        // Hide the buffs and debuffs if the current scanType is less than allInfo
+                        if (scanType < SensorScanType.AllInformation) {
                             //// Hide the buffs and debuffs
                             ___Buffs.ForEach(si => si.gameObject.SetActive(false));
                             ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        } else if (scanType < SensorScanType.StructureAnalysis) {
-                            // Hide the buffs and debuffs
-                            ___Buffs.ForEach(si => si.gameObject.SetActive(false));
-                            ___Debuffs.ForEach(si => si.gameObject.SetActive(false));
-                        } else if (scanType >= SensorScanType.StructureAnalysis) {
-                            // Do nothing; normal state
                         }
                     }
 
@@ -229,9 +223,9 @@ namespace LowVisibility.Patch {
             EWState ewState = new EWState(actor);
             SensorScanType checkLevel;
             int totalDetails = ewState.GetCurrentEWCheck() + ewState.AdvancedSensorsMod();
-            if (totalDetails > (int)SensorScanType.DentalRecords) { checkLevel = SensorScanType.DentalRecords; } 
+            if (totalDetails > (int)SensorScanType.AllInformation) { checkLevel = SensorScanType.AllInformation; } 
             else if (totalDetails < (int)SensorScanType.NoInfo) { checkLevel = SensorScanType.NoInfo; } 
-            else { checkLevel = (SensorScanType)totalDetails; }
+            else { checkLevel = SensorScanTypeHelper.DetectionLevelForCheck(totalDetails); }
             float sensorsRange = SensorLockHelper.GetSensorsRange(actor);
             string sensorColor = ewState.GetCurrentEWCheck() >= 0 ? "00FF00" : "FF0000";
             details.Add(

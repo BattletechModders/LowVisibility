@@ -72,7 +72,7 @@ namespace LowVisibility.Patch {
                         // Values that are always displayed
                         setGOActiveMethod.GetValue(__instance.NameDisplay, true);
 
-                        if (scanType >= SensorScanType.StructureAnalysis) {
+                        if (scanType >= SensorScanType.StructAndWeaponID) {
                             // Show unit summary
                             setGOActiveMethod.GetValue(__instance.DetailsDisplay, true);
 
@@ -94,7 +94,7 @@ namespace LowVisibility.Patch {
                                 setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                                 setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                             }
-                        } else if (scanType >= SensorScanType.SurfaceScan) {
+                        } else if (scanType >= SensorScanType.ArmorAndWeaponType) {
                             // Show unit summary
                             setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 

@@ -113,9 +113,8 @@ namespace LowVisibility.Patch {
 
             // Forces you to be able to see targets that are only blips
             __result = __instance.VisibilityToTargetUnit(targetUnit) >= VisibilityLevel.Blip0Minimum;
-            Mod.Log.Trace($"Actor{CombatantUtils.Label(__instance)} has LOSToTargetUnit? {__result} " +
-                $"to target:{CombatantUtils.Label(targetUnit as AbstractActor)}");
-            //LowVisibility.Logger.Trace($"Called from:{new StackTrace(true)}");
+            //Mod.Log.Trace($"Actor{CombatantUtils.Label(__instance)} has LOSToTargetUnit? {__result} " +
+            //    $"to target:{CombatantUtils.Label(targetUnit as AbstractActor)}");
         }
     }
 

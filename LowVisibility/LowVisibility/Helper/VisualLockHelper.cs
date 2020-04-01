@@ -37,8 +37,8 @@ namespace LowVisibility.Helper {
                 float absolutes = VisualLockHelper.GetAllSpotterAbsolutes(source);
                 
                 visualRange = visionRange * multipliers + absolutes;
-                Mod.Log.Trace($" -- source:{CombatantUtils.Label(source)} has spotting " +
-                    $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
+                //Mod.Log.Trace($" -- source:{CombatantUtils.Label(source)} has spotting " +
+                //    $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
             }
 
             if (visualRange < Mod.Config.Vision.MinimumVisionRange()) {

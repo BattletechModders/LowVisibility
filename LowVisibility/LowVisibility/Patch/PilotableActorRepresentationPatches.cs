@@ -11,7 +11,7 @@ namespace LowVisibility.Patch {
 
     [HarmonyPatch(typeof(PilotableActorRepresentation), "OnPlayerVisibilityChanged")]
     public static class PilotableActorRepresentation_OnPlayerVisibilityChanged {
-        public static void Postfix(PilotableActorRepresentation __instance, VisibilityLevel newLevel, CapsuleCollider ___mainCollider) {
+        public static void Postfix(PilotableActorRepresentation __instance, VisibilityLevel newLevel) {
             Mod.Log.Trace("PAR:OPVC entered.");
 
             Traverse parentT = Traverse.Create(__instance).Property("parentActor");

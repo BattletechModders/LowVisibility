@@ -6,7 +6,8 @@ using LowVisibility.Object;
 using System;
 
 namespace LowVisibility.Patch {
-    // --- HIDE COMPONENT PATCHES ---
+    
+    // Hide the buff strings unless you have full information on the target
     [HarmonyPatch(typeof(CombatHUDMechTrayArmorHover), "OnPointerEnter")]
     public static class CombatHUDMechTrayArmorHover_OnPointerEnter {
         public static void Postfix(CombatHUDMechTrayArmorHover __instance) {
@@ -17,7 +18,7 @@ namespace LowVisibility.Patch {
                 Mech target = ___Readout.DisplayedMech;
                 if (!target.Combat.HostilityMatrix.IsLocalPlayerFriendly(target.TeamId)) {
                     SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
-                    if (scanType < SensorScanType.DeepScan) {
+                    if (scanType < SensorScanType.AllInformation) {
                         ___ToolTip.BuffStrings.Clear();
                     }
                 }
@@ -26,6 +27,7 @@ namespace LowVisibility.Patch {
         }
     }
 
+    // Hide the buff strings unless you have full information on the target
     [HarmonyPatch(typeof(CombatHUDVehicleArmorHover), "OnPointerEnter")]
     public static class CombatHUDVehicleArmorHover_OnPointerEnter {
         public static void Postfix(CombatHUDVehicleArmorHover __instance) {
@@ -37,7 +39,7 @@ namespace LowVisibility.Patch {
                 if (!target.Combat.HostilityMatrix.IsLocalPlayerFriendly(target.TeamId)) {
 
                     SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
-                    if (scanType < SensorScanType.DeepScan) {
+                    if (scanType < SensorScanType.AllInformation) {
                         ___ToolTip.BuffStrings.Clear();
                     }
                 }
@@ -45,7 +47,7 @@ namespace LowVisibility.Patch {
         }
     }
 
-    // -- HIDE PILOT NAME PATCHES --
+    // Hide the pilot name unless you have all info
     [HarmonyPatch(typeof(CombatHUDActorNameDisplay), "RefreshInfo")]
     [HarmonyPatch(new Type[] { typeof(VisibilityLevel) })]
     public static class CombatHUDActorNameDisplay_RefreshInfo {
@@ -56,9 +58,10 @@ namespace LowVisibility.Patch {
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(___displayedActor, ModState.LastPlayerActorActivated);
 
-                if (scanType < SensorScanType.DentalRecords) {
-                    __instance.PilotNameText.SetText("Unidentified Pilot");
-                } else if (scanType >= SensorScanType.DentalRecords) {
+                if (scanType < SensorScanType.AllInformation) {
+                    // TODO: Needs to be hidden or localized
+                    __instance.PilotNameText.SetText("");
+                } else {
                     __instance.PilotNameText.SetText(___displayedActor.GetPilot().Name);
                 }
             }

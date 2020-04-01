@@ -6,27 +6,26 @@ using LowVisibility.Object;
 using System;
 using System.Reflection;
 using TMPro;
+using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patches {
 
-    public static class Helper {
+    public static class ArmorAndStructHelper {
         public static void HideArmorAndStructure(AbstractActor target, TextMeshProUGUI armorHover, TextMeshProUGUI structHover) {
             if (target == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - target is null!");  }
             if (armorHover == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - armorHover is null!"); }
             if (structHover == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - structHover is null!"); }
 
             SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
-            //if (scanType == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - scanType is null!"); }
+            bool hasVisualLOS = ModState.LastPlayerActorActivated != null && ModState.LastPlayerActorActivated.VisibilityToTargetUnit(target) == VisibilityLevel.LOSFull;
 
-            string armorText = null;
-            string structText = null;
-
-            if (scanType >= SensorScanType.StructureAnalysis) {
+            string armorText;
+            string structText;
+            if (scanType >= SensorScanType.StructAndWeaponID) {
                 // See all values
                 armorText = armorHover.text;
                 structText = structHover.text;
-            } else if (scanType >= SensorScanType.SurfaceScan || 
-                ModState.LastPlayerActorActivated != null && ModState.LastPlayerActorActivated.VisibilityToTargetUnit(target) == VisibilityLevel.LOSFull) {
+            } else if (scanType >= SensorScanType.ArmorAndWeaponType || hasVisualLOS) {
                 // See max armor, max struct                
                 string rawArmor = armorHover.text;
                 string maxArmor = rawArmor.Split('/')[1];
@@ -48,19 +47,20 @@ namespace LowVisibility.Patches {
         }
     }
 
-    [HarmonyPatch()]
+    [HarmonyPatch(typeof(HUDMechArmorReadout), "RefreshHoverInfo")]
     public static class HUDMechArmorReadout_RefreshHoverInfo {
 
         // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod() {
-            return AccessTools.Method(typeof(HUDMechArmorReadout), "RefreshHoverInfo", new Type[] { });
-        }
+        //public static MethodInfo TargetMethod() {
+        //    return AccessTools.Method(typeof(HUDMechArmorReadout), "RefreshHoverInfo", new Type[] { });
+        //}
 
         public static void Postfix(HUDMechArmorReadout __instance) {
 
             if (__instance != null && __instance.DisplayedMech != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null) {
                 if (!__instance.DisplayedMech.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedMech.TeamId)) {
-                    Helper.HideArmorAndStructure(__instance.DisplayedMech, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
+                    Mod.Log.Trace($"Hiding armor and structure on target: {CombatantUtils.Label(__instance.DisplayedMech)}");
+                    ArmorAndStructHelper.HideArmorAndStructure(__instance.DisplayedMech, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
                 }
             }
         }
@@ -77,7 +77,7 @@ namespace LowVisibility.Patches {
 
             if (__instance != null && __instance.DisplayedVehicle != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null) {
                 if (!__instance.DisplayedVehicle.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedVehicle.TeamId)) {
-                    Helper.HideArmorAndStructure(__instance.DisplayedVehicle, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
+                    ArmorAndStructHelper.HideArmorAndStructure(__instance.DisplayedVehicle, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace LowVisibility.Patches {
         public static void Postfix(HUDTurretArmorReadout __instance) {
             if (__instance.DisplayedTurret != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null) {
                 if (!__instance.DisplayedTurret.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedTurret.TeamId)) {
-                    Helper.HideArmorAndStructure(__instance.DisplayedTurret, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
+                    ArmorAndStructHelper.HideArmorAndStructure(__instance.DisplayedTurret, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
                 }
             }
         }
@@ -109,7 +109,7 @@ namespace LowVisibility.Patches {
 
         public static void Postfix(HUDTurretArmorReadout __instance) {
             if (!__instance.DisplayedTurret.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedTurret.TeamId)) {
-                Helper.HideArmorAndStructure(__instance.DisplayedTurret, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
+                ArmorAndStructHelper.HideArmorAndStructure(__instance.DisplayedTurret, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
             }
         }
     }
