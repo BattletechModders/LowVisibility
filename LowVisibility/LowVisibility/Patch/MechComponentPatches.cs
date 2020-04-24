@@ -56,16 +56,16 @@ namespace LowVisibility.Patch {
         }
     }
 
-    [HarmonyPatch(typeof(MechComponent), "DamageComponent")]
-    public static class MechComponent_DamageComponent {
+    //[HarmonyPatch(typeof(MechComponent), "DamageComponent")]
+    //public static class MechComponent_DamageComponent {
 
-        public static void Postfix(MechComponent __instance, WeaponHitInfo hitInfo, ComponentDamageLevel damageLevel, bool applyEffects) {
-            Mod.Log.Trace("MC:DC:post entered.");
+    //    public static void Postfix(MechComponent __instance, WeaponHitInfo hitInfo, ComponentDamageLevel damageLevel, bool applyEffects) {
+    //        Mod.Log.Trace("MC:DC:post entered.");
 
-            Mod.Log.Debug($" Damaging component: ({__instance.Name}) on actor: ({CombatantUtils.Label(__instance.parent)} from hitInfo: {hitInfo.targetId}" +
-                $" applying damageLevel: {damageLevel} with applyEffects: {applyEffects}");
-        }
-    }
+    //        Mod.Log.Debug($" Damaging component: ({__instance.Name}) on actor: ({CombatantUtils.Label(__instance.parent)} from hitInfo: {hitInfo.targetId}" +
+    //            $" applying damageLevel: {damageLevel} with applyEffects: {applyEffects}");
+    //    }
+    //}
 
 
 }

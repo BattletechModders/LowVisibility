@@ -20,6 +20,7 @@ namespace LowVisibility.Patch {
                     SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
                     if (scanType < SensorScanType.AllInformation) {
                         ___ToolTip.BuffStrings.Clear();
+                        ___ToolTip.DebuffStrings.Clear();
                     }
                 }
 
@@ -40,6 +41,7 @@ namespace LowVisibility.Patch {
                     SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
                     if (scanType < SensorScanType.AllInformation) {
                         ___ToolTip.BuffStrings.Clear();
+                        ___ToolTip.DebuffStrings.Clear();
                     }
                 }
             }
