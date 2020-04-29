@@ -40,6 +40,12 @@ namespace LowVisibility.Patch {
                             Mod.Log.Debug($"  Actor:{CombatantUtils.Label(actor)} was NULL!");
                         }
                     }
+                    
+                    if (randomPlayerActor != null)
+                    {
+                        Mod.Log.Debug($"Assigning actor: {CombatantUtils.Label(randomPlayerActor)} as lastActive.");
+                        ModState.LastPlayerActorActivated = randomPlayerActor;
+                    }
                 }
 
             }

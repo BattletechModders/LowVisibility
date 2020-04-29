@@ -33,7 +33,7 @@ namespace LowVisibility.Helper {
                 actor.VisibilityCache.RebuildCache(actor.Combat.GetAllImporantCombatants());
                 CombatHUDHelper.ForceNameRefresh(actor.Combat);
 
-                // Hack - turn on Vission indicator?
+                // Hack - turn on Vision indicator?
                 VisRangeIndicator visRangeIndicator = VisRangeIndicator.Instance;
                 visRangeIndicator.SetState(VisRangeIndicator.VisRangeIndicatorState.On);
                 
