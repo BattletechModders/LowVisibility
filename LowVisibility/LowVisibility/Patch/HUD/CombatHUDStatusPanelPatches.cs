@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
 
@@ -45,6 +46,105 @@ namespace LowVisibility.Patch {
         }
     }
 
+
+    // This patch only exists to try to isolate the bug being reported in RT where the HUD 'vanishes'. See
+    //   https://github.com/BattletechModders/LowVisibility/issues/39 for details. I have no code that interferes in this logic
+    //   before the postfix above on RefreshDisplayedCombatant, so we're replicating ShowEffectStatuses faithfully here
+    [HarmonyPatch(typeof(CombatHUDStatusPanel), "ShowEffectStatuses")]
+    static class CombatHUDStatusPanel_ShowEffectStatuses
+    {
+        static bool Prefix(CombatHUDStatusPanel __instance, AbstractActor actor, AbilityDef.SpecialRules specialRulesFilter, Vector3 worldPos, Dictionary<string, CombatHUDStatusIndicator> ___effectDict)
+        {
+            Mod.Log.Info($"Processing Effect Status Details for actor: {CombatantUtils.Label(actor)}");
+
+            try
+            {
+                List<EffectData> effectsOnActor = new List<EffectData>();
+                Traverse HUDT = Traverse.Create(__instance).Property("CombatHUD");
+                CombatHUD HUD = HUDT.GetValue<CombatHUD>();
+                foreach (Effect effect in HUD.Combat.EffectManager.GetAllEffectsTargeting(actor))
+                {
+                    if (effect.EffectData.targetingData.specialRules != AbilityDef.SpecialRules.Aura && 
+                        (effect.EffectData.targetingData.effectTriggerType != EffectTriggerType.OnDamaged || effect.triggerCount != 0))
+                    {
+                        Mod.Log.Debug($"Adding effectId: {effect?.EffectData?.Description?.Id} with name: {effect?.EffectData?.Description?.Name}");
+                        effectsOnActor.Add(effect.EffectData);
+                    }
+                }
+
+                if (specialRulesFilter == AbilityDef.SpecialRules.Aura)
+                {
+                    Dictionary<string, List<EffectData>> dictionary = actor.AuraCache.PreviewAurasAffectingMe(actor, worldPos, null);
+                    foreach (string key in dictionary.Keys)
+                    {
+                        List<EffectData> collection = dictionary[key];
+                        Mod.Log.Debug("Adding collection from aura.");
+                        effectsOnActor.AddRange(collection);
+                    }
+                }
+
+                ___effectDict.Clear();
+
+                Traverse shouldShowEffectT = Traverse.Create(__instance).Method("ShouldShowEffect", new Type[] { typeof(EffectData), typeof(AbilityDef.SpecialRules)});
+                Traverse showDebuffT = Traverse.Create(__instance).Method("ShowBuff", new Type[] { typeof(string), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) });
+                Traverse showBuffT = Traverse.Create(__instance).Method("ShowDebuff", new Type[] { typeof(string), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) });
+
+                for (int i = 0; i < effectsOnActor.Count; i++)
+                {
+                    EffectData effectData = effectsOnActor[i];
+                    if (effectData == null || effectData.Description == null || 
+                        effectData.Description.Id == null || effectData.Description.Name == null || effectData.Description.Icon == null)
+                    {
+                        Mod.Log.Error($"EffectData {effectData?.Description?.Name} has no description, id, name, or icon! Cannot process, skipping!");
+                        continue;
+                    }
+
+                    bool shouldShowEffect = shouldShowEffectT.GetValue<bool>(new object[] { effectData, specialRulesFilter });
+                    bool alreadyShown = ___effectDict.ContainsKey(effectData.Description.Id);
+                    Mod.Log.Info($" -- Effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} has shouldShowEffect: {shouldShowEffect} and alreadyShown: {alreadyShown}");
+
+                    string effectId = effectData.Description.Id;
+                    if (shouldShowEffect && !alreadyShown && !string.IsNullOrEmpty(effectData.Description.Icon))
+                    {
+                        int num = effectsOnActor.FindAll((EffectData x) => x.Description.Id == effectId).Count;
+                        if (effectData.statisticData != null && 
+                            effectData.statisticData.targetCollection == StatisticEffectData.TargetCollection.Weapon && 
+                            effectData.statisticData.targetWeaponSubType != WeaponSubType.Melee)
+                        {
+                            num = ((num > 1) ? (num / actor.Weapons.Count) : num);
+                        }
+                        Text text = CombatHUDStatusPanel.ProcessDetailString(effectData, (num > 0) ? num : 1);
+
+                        CombatHUDStatusIndicator combatHUDStatusIndicator;
+                        if (effectsOnActor[i].nature == EffectNature.Debuff)
+                        {
+                            combatHUDStatusIndicator = showDebuffT.GetValue<CombatHUDStatusIndicator>(new object[] {
+                                effectData.Description.Icon, new Text(effectData.Description.Name, Array.Empty<object>()), text, __instance.effectIconScale, false
+                            });
+                        }
+                        else
+                        {
+                            combatHUDStatusIndicator = showBuffT.GetValue<CombatHUDStatusIndicator>(new object[] {
+                                effectData.Description.Icon, new Text(effectData.Description.Name, Array.Empty<object>()), text, __instance.effectIconScale, false
+                            });
+                        }
+
+                        if (combatHUDStatusIndicator != null)
+                        {
+                            combatHUDStatusIndicator.AddTooltipString(text, effectsOnActor[i].nature);
+                            ___effectDict[effectId] = combatHUDStatusIndicator;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Mod.Log.Error($"Failed to log status effects for actor: {CombatantUtils.Label(actor)} at position: {worldPos}", e);
+            }
+
+            return false;
+        }
+    }
 
     [HarmonyPatch(typeof(CombatHUDStatusPanel), "ShowStealthIndicators")]
     [HarmonyPatch(new Type[] {  typeof(AbstractActor), typeof(Vector3) })]
