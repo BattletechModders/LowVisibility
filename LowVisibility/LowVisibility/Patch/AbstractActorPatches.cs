@@ -53,6 +53,15 @@ namespace LowVisibility.Patch {
 
             // Night vision
             __instance.StatCollection.AddStatistic<bool>(ModStats.NightVision, false);
+
+            // Disabled sensors flag
+            __instance.StatCollection.AddStatistic<bool>(ModStats.DisableSensors, false);
+            if (Mod.Config.Sensors.SensorsOfflineAtSpawn)
+            {
+                Mod.Log.Info($"Disabling sensors on actor: {CombatantUtils.Label(__instance)} during spawn.");
+                __instance.StatCollection.Set<bool>(ModStats.DisableSensors, true);
+
+            }
         }
     }
 
@@ -100,10 +109,19 @@ namespace LowVisibility.Patch {
         public static void Prefix(AbstractActor __instance) {
             Mod.Log.Trace("AA:OnAEnd - entered.");
 
-            if (__instance != null && ModState.IsNightVisionMode) {
-                VfxHelper.DisableNightVisionEffect();
-            }
+            if (__instance != null)
+            { 
+                // Disable night vision 
+                if (ModState.IsNightVisionMode) VfxHelper.DisableNightVisionEffect();
 
+                // If our sensors are offline, re-enable them
+                if (__instance.StatCollection.ContainsStatistic(ModStats.DisableSensors) &&
+                    __instance.StatCollection.GetValue<bool>(ModStats.DisableSensors))
+                {
+                    Mod.Log.Info($"Re-enabling sensors for {CombatantUtils.Label(__instance)}");
+                    __instance.StatCollection.Set<bool>(ModStats.DisableSensors, false);
+                }
+            }
         }
     }
 
