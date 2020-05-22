@@ -2,7 +2,7 @@
     "Name": "LowVisibility",
     "Enabled": true,
 	"Hidden": true,
-    "Version": "0.7.5",
+    "Version": "0.8.0",
     "Description": "Implements double-blind semantics and more complex electronic warfare",
     "Author": "IceRaptor",
     "Website": "https://github.com/IceRaptor/LowVisibility",
@@ -31,7 +31,7 @@
             "TurretTypeRange" : 15,
             "UnknownTypeRange" : 6,
             "MinimumRangeHexes" : 8,
-            "FirstTurnForceFailedChecks" : true,
+            "SensorsOfflineAtSpawn" : true,
             "MaxECMDetailsPenalty" : -11
         },
         "Vision" : {
@@ -107,7 +107,15 @@
             "TOOLTIP_LABEL_EW_PROBE_EFFECT" : "<size=90%><b>PROBE PINGED</b>: <color=#{0}>{1:+0;-#}</color> to detect.\n",
             "TOOLTIP_LABEL_EW_TAG_EFFECT" : "<size=90%><b>TAGGED</b>: <color=#{0}>{1:+0;-#}</color> attack and detection modifier.\n",
             "TOOLTIP_LABEL_EW_MIMETIC" : "<size=90%><b>MIMETIC</b>: <color=#{0}>{1:+0;-#}</color> attack modifier.\n",
-            "TOOLTIP_LABEL_EW_STEALTH" : "<size=90%><b>STEALTH</b>: med. <color=#{0}>{1:+0;-#}</color> / long <color=#{0}>{2:+0;-#}</color> / ext. <color=#{0}>{3:+0;-#}</color> attack modifier\n"
+            "TOOLTIP_LABEL_EW_STEALTH" : "<size=90%><b>STEALTH</b>: med. <color=#{0}>{1:+0;-#}</color> / long <color=#{0}>{2:+0;-#}</color> / ext. <color=#{0}>{3:+0;-#}</color> attack modifier\n",
+
+            "SIDEPANEL_TITLE" : "  {0} {1}\n",
+            "SIDEPANEL_MOVE_MECH" : "  Walk: {0}m  Run: {1}m  Jump: {2}m\n",
+            "SIDEPANEL_MOVE_VEHICLE" : "  Cruise: {0}m  Flank: {1}m\n",
+            "SIDEPANEL_DISTANCE" : "  Distance: {0}m\n",
+            "SIDEPANEL_HEAT" : "  Heat: {0} of {1}\n",
+            "SIDEPANEL_DAMAGE" : "  Instability: {0} of {1}\n",
+            "SIDEPANEL_WEIGHT" : "{0} tons",
         }
 
     }
