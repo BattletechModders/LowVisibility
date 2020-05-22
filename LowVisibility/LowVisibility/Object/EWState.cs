@@ -431,8 +431,11 @@ namespace LowVisibility.Object {
         public Mimetic GetRawMimetic() { return mimetic; }
 
         // ZoomVision - Attacker
-        public int GetZoomVisionAttackMod(Weapon weapon, float distance) {
+        public int GetZoomVisionAttackMod(Weapon weapon, float distance, LineOfFireLevel lofLevel) {
             if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return 0; }
+
+            bool isIndirect = weapon.IndirectFireCapable && lofLevel < LineOfFireLevel.LOFObstructed;
+            if (isIndirect) { return 0; }
 
             int hexesBetween = (int)Math.Ceiling(distance / 30f);
             Mod.Log.Trace($"  hexesBetween: {hexesBetween} = distance: {distance} / 30");

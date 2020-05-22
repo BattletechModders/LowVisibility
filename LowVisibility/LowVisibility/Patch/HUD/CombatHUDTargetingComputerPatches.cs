@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text;
 using TMPro;
 using UnityEngine;
 using us.frostraptor.modUtils;
@@ -117,6 +118,110 @@ namespace LowVisibility.Patch {
             else if (turret != null) { __instance.TurretArmorDisplay.gameObject.SetActive(active); }
             else if (building != null) { __instance.BuildingArmorDisplay.gameObject.SetActive(active); }        
         }
+
+        private static void BuildCACDialogForTarget(AbstractActor source, ICombatant target, float range, bool hasVisualScan, SensorScanType scanType)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            VisibilityLevel visLevel = source.VisibilityToTargetUnit(target);
+            if (target is Mech mech)
+            {
+                string fullName = mech.Description.UIName;
+                string chassisName = mech.UnitName;
+                string partialName = mech.Nickname;
+                string localName = CombatNameHelper.GetEnemyMechDetectionLabel(visLevel, scanType, fullName, partialName, chassisName).ToString();
+
+                string tonnage = "?";
+                if (scanType > SensorScanType.LocationAndType)
+                {
+                    tonnage = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_WEIGHT], new object[] { (int)Math.Floor(mech.tonnage) }).ToString();
+                }
+
+                string titleText = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_TITLE],
+                    new object[] { localName, tonnage }).ToString();
+                sb.Append(titleText);
+
+                if (scanType > SensorScanType.AllInformation)
+                {
+                    // Movement
+                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_MOVE_MECH],
+                        new object[] { mech.WalkSpeed, mech.RunSpeed, mech.JumpDistance })
+                        .ToString()
+                        );
+
+                    // Heat
+                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_HEAT],
+                        new object[] { mech.CurrentHeat, mech.MaxHeat })
+                        .ToString()
+                        );
+
+                    // Stability
+                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_STAB],
+                        new object[] { mech.CurrentStability, mech.MaxStability })
+                        .ToString()
+                        );
+
+                }
+                else
+                {
+                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_MOVE_MECH],
+                        new object[] { "?", "?", "?" })
+                        .ToString()
+                        );
+                }
+
+            }
+            else if (target is Turret turret)
+            {
+                string chassisName = turret.UnitName;
+                string fullName = turret.Nickname;
+                string localName = CombatNameHelper.GetTurretOrVehicleDetectionLabel(visLevel, scanType, fullName, chassisName, false).ToString();
+
+                string titleText = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_TITLE],
+                    new object[] { localName, "" }).ToString();
+                sb.Append(titleText);
+            }
+            else if (target is Vehicle vehicle)
+            {
+                string chassisName = vehicle.UnitName;
+                string fullName = vehicle.Nickname;
+                string localName = CombatNameHelper.GetTurretOrVehicleDetectionLabel(visLevel, scanType, fullName, chassisName, true).ToString();
+
+                string tonnage = "?";
+                if (scanType > SensorScanType.LocationAndType)
+                {
+                    tonnage = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_WEIGHT], new object[] { (int)Math.Floor(vehicle.tonnage) }).ToString();
+                }
+
+                string titleText = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_TITLE],
+                    new object[] { localName, tonnage }).ToString();
+                sb.Append(titleText);
+
+                if (scanType > SensorScanType.AllInformation)
+                {
+                    // Movement
+                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_MOVE_VEHICLE],
+                        new object[] { vehicle.CruiseSpeed, vehicle.FlankSpeed })
+                        .ToString()
+                        );
+                }
+                else
+                {
+                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_MOVE_VEHICLE],
+                        new object[] { "?", "?" })
+                        .ToString()
+                        );
+                }
+            }
+
+
+            string distance = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_DIST], new object[] { range }).ToString();
+            sb.Append(distance);
+
+            Text panelText = new Text(sb.ToString(), new object[] { });
+
+            CustAmmoCategories.CombatHUDInfoSidePanelHelper.SetTargetInfo(source, target, panelText);
+        }
         
         public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames) {
 
@@ -139,9 +244,10 @@ namespace LowVisibility.Patch {
                 __instance.WeaponList.SetActive(true);
                 return;
             } 
-                        
+
+            // Only enemies or neutrals below this point
             Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy");
-                
+
             try
             {
                 if ((__instance.ActivelyShownCombatant as AbstractActor) != null)
@@ -154,6 +260,17 @@ namespace LowVisibility.Patch {
                     SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
                     Mod.Log.Debug($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(ModState.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} " +
                         $"at range: {range} has scanType:{scanType} visualScan:{hasVisualScan}");
+
+                    // Build the CAC side-panel
+                    try
+                    {
+                        BuildCACDialogForTarget(ModState.LastPlayerActorActivated, __instance.ActivelyShownCombatant, range, hasVisualScan, scanType);
+                    }
+                    catch (Exception e)
+                    {
+                        Mod.Log.Error($"Failed to initialize CAC SidePanel for source: {CombatantUtils.Label(ModState.LastPlayerActorActivated)} and " +
+                            $"target: {CombatantUtils.Label(__instance.ActivelyShownCombatant)}!", e);
+                    }
 
                     if (scanType >= SensorScanType.StructAndWeaponID)
                     {

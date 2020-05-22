@@ -16,15 +16,18 @@ namespace LowVisibility.Patch {
             chassisName -> ICombatant.UnitName = (Vehicle/Turret)Def.Chassis.Description.Name -> Carrier / Vargr APC / ArrowIV Chassis
             fullname -> ICombatant.NickName = (Vehicle/Turret)Def.Description.Name -> AC/2 Carrier / Vargr APC / Arrow IV Turret
         */
-        public static Text GetTurretOrVehicleDetectionLabel(ICombatant target, VisibilityLevel visLevel, SensorScanType sensorScanType,
-            string fullName, string chassisName, string type, float tonnage) {
+        public static Text GetTurretOrVehicleDetectionLabel(VisibilityLevel visLevel, SensorScanType sensorScanType,
+            string fullName, string chassisName, bool isVehicle=true) {
 
             Text label = new Text("?");
             
             if (visLevel >= VisibilityLevel.Blip0Minimum)
             {
+                string labelKey = isVehicle ? ModConfig.LT_UNIT_TYPE_VEHICLE : ModConfig.LT_UNIT_TYPE_TURRET;
+                string typeS = new Text(Mod.Config.LocalizedText[labelKey]).ToString();
+
                 if (sensorScanType == SensorScanType.NoInfo) label = new Text("?");
-                else if (sensorScanType == SensorScanType.LocationAndType) label = new Text($"{type}"); // TODO: LOCALIZE THIS
+                else if (sensorScanType == SensorScanType.LocationAndType) label = new Text(typeS);
                 else if (sensorScanType == SensorScanType.ArmorAndWeaponType) label = new Text($"{chassisName}");
                 else if (sensorScanType == SensorScanType.StructAndWeaponID) label = new Text($"{fullName}");
                 else if (sensorScanType == SensorScanType.AllInformation) label = new Text($"{fullName}");
@@ -47,16 +50,18 @@ namespace LowVisibility.Patch {
             fullname -> Mech.NickName = MechDef.Description.UIName -> Shadow Hawk SHD-2D / Atlas AS7-D Danielle / Anand ANU-O
                     (Full name, will almost always display the full actual name, and if a hero/elite mech the chassis name is replaced by its custom name. ONly exception is LA's hidden nasty surprises, such as Nuke mechs)
         */
-        public static Text GetEnemyMechDetectionLabel(ICombatant target, VisibilityLevel visLevel, SensorScanType sensorScanType,
-            string fullName, string partialName, string chassisName, float tonnage)
+        public static Text GetEnemyMechDetectionLabel(VisibilityLevel visLevel, SensorScanType sensorScanType,
+            string fullName, string partialName, string chassisName)
         {
 
             Text label = new Text("?");
 
             if (visLevel >= VisibilityLevel.Blip0Minimum)
             {
+                string typeS = new Text(Mod.Config.LocalizedText[ModConfig.LT_UNIT_TYPE_MECH]).ToString();
+
                 if (sensorScanType == SensorScanType.NoInfo) label = new Text("?");
-                else if (sensorScanType == SensorScanType.LocationAndType) label = new Text("MECH"); // TODO: LOCALIZE THIS
+                else if (sensorScanType == SensorScanType.LocationAndType) label = new Text(typeS);
                 else if (sensorScanType == SensorScanType.ArmorAndWeaponType) label = new Text($"{chassisName}");
                 else if (sensorScanType == SensorScanType.StructAndWeaponID) label = new Text($"{partialName}");
                 else if (sensorScanType == SensorScanType.AllInformation) label = new Text($"{fullName}");
@@ -116,7 +121,6 @@ namespace LowVisibility.Patch {
             {
                 string chassisName = __instance.UnitName;
                 string partialName = __instance.Nickname;
-                float tonnage = __instance.MechDef.Chassis.Tonnage;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
                 if (scanType < SensorScanType.ArmorAndWeaponType)
@@ -125,8 +129,7 @@ namespace LowVisibility.Patch {
                     if (hasVisualScan) scanType = SensorScanType.ArmorAndWeaponType;
                 }
 
-                __result = CombatNameHelper.GetEnemyMechDetectionLabel(__instance, visLevel, scanType,
-                    fullName, partialName, chassisName, tonnage);
+                __result = CombatNameHelper.GetEnemyMechDetectionLabel(visLevel, scanType, fullName, partialName, chassisName);
             }
             else
             {
@@ -150,7 +153,6 @@ namespace LowVisibility.Patch {
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
                 string chassisName = __instance.UnitName;
                 string fullName = __instance.Nickname;
-                float tonnage = __instance.TurretDef.Chassis.Tonnage;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
                 if (scanType < SensorScanType.ArmorAndWeaponType)
@@ -159,8 +161,7 @@ namespace LowVisibility.Patch {
                     if (hasVisualScan) scanType = SensorScanType.ArmorAndWeaponType;
                 }
 
-                Text response = CombatNameHelper.GetTurretOrVehicleDetectionLabel(__instance, visLevel, scanType, 
-                    fullName, chassisName, "TURRET", tonnage);
+                Text response = CombatNameHelper.GetTurretOrVehicleDetectionLabel(visLevel, scanType, fullName, chassisName, false);
                 __result = response;
             }
         }
@@ -183,7 +184,6 @@ namespace LowVisibility.Patch {
             if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
                 string chassisName = __instance.UnitName;
                 string fullName = __instance.Nickname;
-                float tonnage = __instance.VehicleDef.Chassis.Tonnage;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
                 if (scanType < SensorScanType.ArmorAndWeaponType)
@@ -192,8 +192,7 @@ namespace LowVisibility.Patch {
                     if (hasVisualScan) scanType = SensorScanType.ArmorAndWeaponType;
                 }
 
-                Text response = CombatNameHelper.GetTurretOrVehicleDetectionLabel(__instance, visLevel, scanType,
-                    fullName, chassisName, "VEHICLE", tonnage);
+                Text response = CombatNameHelper.GetTurretOrVehicleDetectionLabel(visLevel, scanType, fullName, chassisName, true);
                 __result = response;
             }
         }
