@@ -21,7 +21,12 @@ namespace LowVisibility.Helper
             foreach (ICombatant combatant in combat.GetAllImporantCombatants())
             {
                 CombatHUDNumFlagHex flagHex = inWorldMgr.GetNumFlagForCombatant(combatant);
-                flagHex.ActorInfo.NameDisplay.RefreshInfo();
+                // Can be null in CWolf's blackout contracts. He intentionally disables the flagHex in those cases.
+                if (flagHex != null)
+                {
+                    flagHex.ActorInfo.NameDisplay.RefreshInfo();
+                }
+                
             }
         }
     }
