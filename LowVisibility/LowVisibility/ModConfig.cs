@@ -279,7 +279,7 @@ namespace LowVisibility {
             { LT_TT_TEXT_EW_STEALTH, "<size=90%><b>STEALTH</b>: med. <color=#{0}>{1:+0;-#}</color> / long <color=#{0}>{2:+0;-#}</color> / ext. <color=#{0}>{3:+0;-#}</color> attack modifier\n" },
 
             // CAC Sidepanel strings
-            { LT_CAC_SIDEPANEL_TITLE, "TARGET: {0} {1}\n" },
+            { LT_CAC_SIDEPANEL_TITLE, "  {0} {1}\n" },
             { LT_CAC_SIDEPANEL_MOVE_MECH, "  Walk: {0}m  Run: {1}m  Jump: {2}m\n" },
             { LT_CAC_SIDEPANEL_MOVE_VEHICLE, "  Cruise: {0}m  Flank: {1}m\n" },
             { LT_CAC_SIDEPANEL_DIST, "  Distance: {0}m\n" },
