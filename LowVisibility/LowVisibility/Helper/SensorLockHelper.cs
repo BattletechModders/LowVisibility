@@ -10,8 +10,13 @@ namespace LowVisibility.Helper {
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         public static float GetSensorsRange(AbstractActor source) {
 
-            // Add multipliers and absolute bonuses
+            if (source.StatCollection.ContainsStatistic(ModStats.DisableSensors) && source.StatCollection.GetValue<bool>(ModStats.DisableSensors))
+            {
+                Mod.Log.Trace($"Returning minimum sensors range for {CombatantUtils.Label(source)} due to disabled sensors.");
+                return Mod.Config.Sensors.MinimumSensorRange();
+            }
 
+            // Add multipliers and absolute bonuses
             EWState ewState = new EWState(source);
 
             Mod.Log.Trace($"  == Sensors Range for for actor:{CombatantUtils.Label(source)}");
@@ -27,10 +32,7 @@ namespace LowVisibility.Helper {
             float sensorsRange = ewState.GetSensorsBaseRange() * rangeMulti + rangeMod;
             Mod.Log.Trace($"    sensorsRange: { sensorsRange} = baseRange: {ewState.GetSensorsBaseRange()} * rangeMult: {rangeMulti} + rangeMod: {rangeMod}");
 
-            if (sensorsRange < Mod.Config.Sensors.MinimumSensorRange() ||
-                source.Combat.TurnDirector.CurrentRound <= 1 && Mod.Config.Sensors.FirstTurnForceFailedChecks) {
-                sensorsRange = Mod.Config.Sensors.MinimumSensorRange();
-            }
+            if (sensorsRange < Mod.Config.Sensors.MinimumSensorRange()) sensorsRange = Mod.Config.Sensors.MinimumSensorRange();
 
             return sensorsRange;
         }
@@ -156,6 +158,13 @@ namespace LowVisibility.Helper {
 
             if (source.IsTeleportedOffScreen) {
                 Mod.Log.Trace($"  source as is teleported off screen. Skipping.");
+                return SensorScanType.NoInfo;
+            }
+
+            if (source.StatCollection.ContainsStatistic(ModStats.DisableSensors) &&
+                source.StatCollection.GetValue<bool>(ModStats.DisableSensors))
+            {
+                Mod.Log.Trace($"  sensors disabled for source, returning no info.");
                 return SensorScanType.NoInfo;
             }
 

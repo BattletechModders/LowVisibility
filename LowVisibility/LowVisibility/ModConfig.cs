@@ -43,6 +43,8 @@ namespace LowVisibility {
         public const string NightVision = "LV_NIGHT_VISION"; // bool
         public const string SharesVision = "LV_SHARES_VISION"; // bool
 
+        public const string DisableSensors = "LV_DISABLE_SENSORS"; // bool
+
         // CAE Stats - write carefully!
         public const string CAESensorsRange = "CAE_SENSORS_RANGE";
 
@@ -82,7 +84,7 @@ namespace LowVisibility {
             public int MinimumRangeHexes = 8;
 
             // If true, sensor checks always fail on the first turn of the game
-            public bool FirstTurnForceFailedChecks = true;
+            public bool SensorsOfflineAtSpawn = true;
 
             // The maximum penalty that ECM Shield + ECM Jamming should apply TO SENSOR DETAILS ONLY
             public int MaxECMDetailsPenalty = -8;
@@ -197,7 +199,17 @@ namespace LowVisibility {
         public const string LT_TT_TEXT_EW_PROBE_EFFECT = "TOOLTIP_LABEL_EW_PROBE_EFFECT";
         public const string LT_TT_TEXT_EW_TAG_EFFECT = "TOOLTIP_LABEL_EW_TAG_EFFECT";
 
+        // CAC TargetInfo strings
+        public const string LT_CAC_SIDEPANEL_TITLE = "SIDEPANEL_TITLE";
+        public const string LT_CAC_SIDEPANEL_MOVE_MECH = "SIDEPANEL_MOVE_MECH";
+        public const string LT_CAC_SIDEPANEL_MOVE_VEHICLE = "SIDEPANEL_MOVE_VEHICLE";
+        public const string LT_CAC_SIDEPANEL_DIST = "SIDEPANEL_DISTANCE";
+        public const string LT_CAC_SIDEPANEL_HEAT = "SIDEPANEL_HEAT";
+        public const string LT_CAC_SIDEPANEL_STAB = "SIDEPANEL_DAMAGE";
+        public const string LT_CAC_SIDEPANEL_WEIGHT = "SIDEPANEL_WEIGHT";
+
         public Dictionary<string, string> LocalizedText = new Dictionary<string, string>() {
+
 
             // Map effects
             { LT_MAP_LIGHT_BRIGHT, "Bright" },
@@ -264,8 +276,16 @@ namespace LowVisibility {
             { LT_TT_TEXT_EW_PROBE_EFFECT, "<size=90%><b>PROBE PINGED</b>: <color=#{0}>{1:+0;-#}</color> to detect.\n" },
             { LT_TT_TEXT_EW_TAG_EFFECT, "<size=90%><b>TAGGED</b>: <color=#{0}>{1:+0;-#}</color> attack and detection modifier.\n" },
             { LT_TT_TEXT_EW_MIMETIC, "<size=90%><b>MIMETIC</b>: <color=#{0}>{1:+0;-#}</color> attack modifier.\n" },
-            { LT_TT_TEXT_EW_STEALTH, "<size=90%><b>STEALTH</b>: med. <color=#{0}>{1:+0;-#}</color> / long <color=#{0}>{2:+0;-#}</color> / ext. <color=#{0}>{3:+0;-#}</color> attack modifier\n" }
+            { LT_TT_TEXT_EW_STEALTH, "<size=90%><b>STEALTH</b>: med. <color=#{0}>{1:+0;-#}</color> / long <color=#{0}>{2:+0;-#}</color> / ext. <color=#{0}>{3:+0;-#}</color> attack modifier\n" },
 
+            // CAC Sidepanel strings
+            { LT_CAC_SIDEPANEL_TITLE, "TARGET: {0} {1}\n" },
+            { LT_CAC_SIDEPANEL_MOVE_MECH, "  Walk: {0}m  Run: {1}m  Jump: {2}m\n" },
+            { LT_CAC_SIDEPANEL_MOVE_VEHICLE, "  Cruise: {0}m  Flank: {1}m\n" },
+            { LT_CAC_SIDEPANEL_DIST, "  Distance: {0}m\n" },
+            { LT_CAC_SIDEPANEL_HEAT, "  Heat: {0} of {1}\n" },
+            { LT_CAC_SIDEPANEL_STAB, "  Instability: {0} of {1}\n" },
+            { LT_CAC_SIDEPANEL_WEIGHT, "{0} tons" }
     };
 
         public void LogConfig() {
@@ -277,7 +297,7 @@ namespace LowVisibility {
             
             Mod.Log.Info($"  == Sensors ==");
             Mod.Log.Info($"Type Ranges - Mech: {Sensors.MechTypeRange} Vehicle: {Sensors.VehicleTypeRange} Turret: {Sensors.TurretTypeRange} UnknownType: {Sensors.UnknownTypeRange}");
-            Mod.Log.Info($"MinimumRange: {Sensors.MinimumRangeHexes}  FirstTurnForceFailedChecks: {Sensors.FirstTurnForceFailedChecks}  MaxECMDetailsPenalty: {Sensors.MaxECMDetailsPenalty}");
+            Mod.Log.Info($"MinimumRange: {Sensors.MinimumRangeHexes}  FirstTurnForceFailedChecks: {Sensors.SensorsOfflineAtSpawn}  MaxECMDetailsPenalty: {Sensors.MaxECMDetailsPenalty}");
 
             Mod.Log.Info($"  == Vision ==");
             Mod.Log.Info($"Vision Ranges - Bright: {Vision.BaseRangeBright} Dim:{Vision.BaseRangeDim} Dark:{Vision.BaseRangeDark}");
