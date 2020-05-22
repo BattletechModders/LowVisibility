@@ -50,6 +50,9 @@
     <Reference Include="CustomActivatableEquipment">
       <HintPath>E:\steam\SteamApps\common\BATTLETECH\Mods\CustomActivatableEquipment\CustomActivatableEquipment.dll</HintPath>
     </Reference>
+    <Reference Include="CustomAmmoCategories">
+      <HintPath>E:\steam\SteamApps\common\BATTLETECH\Mods\CustomAmmoCategories\CustomAmmoCategories.dll</HintPath>
+    </Reference>
     <Reference Include="CustomComponents, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\..\Steam\steamapps\common\BATTLETECH\Mods\CustomComponents\CustomComponents.dll</HintPath>
