@@ -141,7 +141,7 @@ namespace LowVisibility.Patch {
                     new object[] { localName, tonnage }).ToString();
                 sb.Append(titleText);
 
-                if (scanType > SensorScanType.AllInformation)
+                if (scanType > SensorScanType.StructAndWeaponID)
                 {
                     // Movement
                     sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_MOVE_MECH],
@@ -161,13 +161,6 @@ namespace LowVisibility.Patch {
                         .ToString()
                         );
 
-                }
-                else
-                {
-                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_MOVE_MECH],
-                        new object[] { "?", "?", "?" })
-                        .ToString()
-                        );
                 }
 
             }
@@ -197,7 +190,7 @@ namespace LowVisibility.Patch {
                     new object[] { localName, tonnage }).ToString();
                 sb.Append(titleText);
 
-                if (scanType > SensorScanType.AllInformation)
+                if (scanType > SensorScanType.StructAndWeaponID)
                 {
                     // Movement
                     sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_MOVE_VEHICLE],
@@ -205,17 +198,12 @@ namespace LowVisibility.Patch {
                         .ToString()
                         );
                 }
-                else
-                {
-                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_MOVE_VEHICLE],
-                        new object[] { "?", "?" })
-                        .ToString()
-                        );
-                }
+
             }
 
 
-            string distance = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_DIST], new object[] { range }).ToString();
+            string distance = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_DIST], 
+                new object[] { (int)Math.Ceiling(range) }).ToString();
             sb.Append(distance);
 
             Text panelText = new Text(sb.ToString(), new object[] { });
