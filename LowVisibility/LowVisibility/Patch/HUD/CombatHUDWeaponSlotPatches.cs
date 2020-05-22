@@ -4,6 +4,7 @@ using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
+using UnityEngine;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch.HUD {
@@ -51,23 +52,7 @@ namespace LowVisibility.Patch.HUD {
     [HarmonyPatch(new Type[] {  typeof(ICombatant) })]
     [HarmonyBefore("us.frostraptor.CBTBehaviorsEnhanced", "dZ.Zappo.Pilot_Quirks")]
     public static class CombatHUDWeaponSlot_SetHitChance {
-        //public static void Prefix(CombatHUDWeaponSlot __instance, ICombatant target, Weapon ___displayedWeapon, CombatHUD ___HUD) {
-            
-        //    if (__instance == null || ___displayedWeapon == null || ___HUD.SelectedActor == null || target == null) { return; }
-        //    Mod.Log.Trace("CHUDWS:SHC - entered.");
 
-        //    EWState attackerState = new EWState(___HUD.SelectedActor);
-        //    Mod.Log.Debug($"Attacker ({CombatantUtils.Label(___HUD.SelectedActor)} => EWState: {attackerState}");
-        //    bool canSpotTarget = VisualLockHelper.CanSpotTarget(___HUD.SelectedActor, ___HUD.SelectedActor.CurrentPosition, 
-        //        target, target.CurrentPosition, target.CurrentRotation, ___HUD.SelectedActor.Combat.LOS);
-        //    SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(target, ___HUD.SelectedActor);
-        //    Mod.Log.Debug($"  canSpotTarget: {canSpotTarget}  sensorScan: {sensorScan}");
-
-        //    if (target is AbstractActor targetActor) {
-        //        EWState targetState = new EWState(targetActor);
-        //        Mod.Log.Debug($"Target ({CombatantUtils.Label(targetActor)} => EWState: {targetState}");
-        //    }
-        //}
 
         private static void Postfix(CombatHUDWeaponSlot __instance, ICombatant target, Weapon ___displayedWeapon, CombatHUD ___HUD) {
 
@@ -90,7 +75,19 @@ namespace LowVisibility.Patch.HUD {
                 int eyeballAttackMod = canSpotTarget ? mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
 
                 // Zoom applies independently of visibility (request from Harkonnen)
-                int zoomVisionMod = attackerState.GetZoomVisionAttackMod(__instance.DisplayedWeapon, magnitude);
+                LineOfFireLevel lofLevel;
+                Vector3 attackPosition = ___HUD.SelectionHandler.ActiveState.PreviewPos;
+                if (Vector3.Distance(attacker.CurrentPosition, attackPosition) > 0.1f)
+                {
+                    Vector3 vector;
+                    lofLevel = attacker.Combat.LOS.GetLineOfFire(attacker, attackPosition, target, target.CurrentPosition, target.CurrentRotation, out vector);
+                }
+                else
+                {
+                    lofLevel = attacker.VisibilityCache.VisibilityToTarget(target).LineOfFireLevel;
+                }
+
+                int zoomVisionMod = attackerState.GetZoomVisionAttackMod(__instance.DisplayedWeapon, magnitude, lofLevel);
                 int zoomAttackMod = attackerState.HasZoomVisionToTarget(__instance.DisplayedWeapon, magnitude) ? zoomVisionMod - mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
                 Mod.Log.Debug($"  Visual attack == eyeball: {eyeballAttackMod} mimetic: {mimeticMod} zoomAtack: {zoomAttackMod}");
 
