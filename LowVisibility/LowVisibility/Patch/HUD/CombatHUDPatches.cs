@@ -12,13 +12,11 @@ namespace LowVisibility.Patch {
     public static class CombatHUD_SubscribeToMessages {
 
         private static CombatGameState Combat = null;
-        private static CombatHUDTargetingComputer TargetingComputer = null;
         private static Traverse ShowTargetMethod = null;
 
         public static void Postfix(CombatHUD __instance, bool shouldAdd) {
             if (shouldAdd) {
                 Combat = __instance.Combat;
-                TargetingComputer = __instance.TargetingComputer;
                 ShowTargetMethod = Traverse.Create(__instance).Method("ShowTarget", new Type[] { typeof(ICombatant) });
 
                 __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
@@ -28,7 +26,6 @@ namespace LowVisibility.Patch {
                     new ReceiveMessageCenterMessage(__instance.OnActorTargetedMessage), false);
             } else {
                 Combat = null;
-                TargetingComputer = null;
                 ShowTargetMethod = null;
 
                 __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
@@ -49,6 +46,8 @@ namespace LowVisibility.Patch {
             Mod.Log.Trace("CHUD:STM:OAT - entered.");
 
             ActorTargetedMessage actorTargetedMessage = message as ActorTargetedMessage;
+            if (message == null || actorTargetedMessage == null || actorTargetedMessage.affectedObjectGuid == null) return; // Nothing to do, bail
+
             ICombatant combatant = Combat.FindActorByGUID(actorTargetedMessage.affectedObjectGuid);
             if (combatant == null) { combatant = Combat.FindCombatantByGUID(actorTargetedMessage.affectedObjectGuid); }
             
