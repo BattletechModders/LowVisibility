@@ -16,35 +16,50 @@ namespace LowVisibility.Patches {
             if (armorHover == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - armorHover is null!"); }
             if (structHover == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - structHover is null!"); }
 
-            SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
-            bool hasVisualScan = VisualLockHelper.CanSpotTarget(ModState.LastPlayerActorActivated, ModState.LastPlayerActorActivated.CurrentPosition,
-                            target, target.CurrentPosition, target.CurrentRotation, target.Combat.LOS);
+            try
+            {
+                SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
+                bool hasVisualScan = VisualLockHelper.CanSpotTarget(
+                    ModState.LastPlayerActorActivated, ModState.LastPlayerActorActivated.CurrentPosition,
+                    target, target.CurrentPosition, target.CurrentRotation, target.Combat.LOS);
 
-            string armorText;
-            string structText;
-            if (scanType >= SensorScanType.StructAndWeaponID) {
-                // See all values
-                armorText = armorHover.text;
-                structText = structHover.text;
-            } else if (scanType >= SensorScanType.ArmorAndWeaponType || hasVisualScan) {
-                // See max armor, max struct                
-                string rawArmor = armorHover.text;
-                string maxArmor = rawArmor.Split('/')[1];
+                string armorText;
+                string structText;
+                if (scanType >= SensorScanType.StructAndWeaponID)
+                {
+                    // See all values
+                    armorText = armorHover.text;
+                    structText = structHover.text;
+                }
+                else if (scanType >= SensorScanType.ArmorAndWeaponType || hasVisualScan)
+                {
+                    // See max armor, max struct                
+                    string rawArmor = armorHover.text;
+                    string maxArmor = rawArmor.Split('/')[1];
 
-                string rawStruct = structHover.text;
-                string maxStruct = rawStruct.Split('/')[1];
+                    string rawStruct = structHover.text;
+                    string maxStruct = rawStruct.Split('/')[1];
 
-                armorText = $"? / {maxArmor}";
-                structText = $"? / {maxStruct}";
-            } else {
-                // See ? / ?
-                armorText = "? / ?";
-                structText = "? / ?";
+                    armorText = $"? / {maxArmor}";
+                    structText = $"? / {maxStruct}";
+                }
+                else
+                {
+                    // See ? / ?
+                    armorText = "? / ?";
+                    structText = "? / ?";
+                }
+
+                // TODO: Sensor lock should give you an exact amount at the point you're locked
+                armorHover.SetText(armorText);
+                structHover.SetText(structText);
+            }
+            catch (Exception e)
+            {
+                Mod.Log.Error($"Failed to obfuscate armor and structure text for unit: {CombatantUtils.Label(target)} from position of last-activated actor: {CombatantUtils.Label(ModState.LastPlayerActorActivated)}.", e);
             }
 
-            // TODO: Sensor lock should give you an exact amount at the point you're locked
-            armorHover.SetText(armorText);
-            structHover.SetText(structText);
+
         }
     }
 
