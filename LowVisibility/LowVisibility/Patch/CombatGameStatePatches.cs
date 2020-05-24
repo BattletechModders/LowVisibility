@@ -2,11 +2,6 @@
 using BattleTech.Data;
 using Harmony;
 using SVGImporter;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LowVisibility.Patch {
 
@@ -26,7 +21,20 @@ namespace LowVisibility.Patch {
 
             loadRequest.ProcessRequests();
             Mod.Log.Info("  ICON LOADING COMPLETE!");
+
+            ModState.Combat = __instance;
         }
 
+    }
+
+    [HarmonyPatch(typeof(CombatGameState), "OnCombatGameDestroyed")]
+    static class CombatGameState_OnCombatGameDestroyed
+    {
+        static void Postfix()
+        {
+            Mod.Log.Trace("CGS:OCGD - entered.");
+
+            ModState.Reset();
+        }
     }
 }
