@@ -108,15 +108,11 @@ namespace LowVisibility.Patch {
     public static class CombatHUDTargetingComputer_RefreshActorInfo {
 
         private static void SetArmorDisplayActive(CombatHUDTargetingComputer __instance, bool active) {
-            Mech mech = __instance.ActivelyShownCombatant as Mech;
-            Vehicle vehicle = __instance.ActivelyShownCombatant as Vehicle;
-            Turret turret = __instance.ActivelyShownCombatant as Turret;
-            Building building = __instance.ActivelyShownCombatant as Building;
 
-            if (mech != null) { __instance.MechArmorDisplay.gameObject.SetActive(active); }
-            else if (vehicle != null) { __instance.VehicleArmorDisplay.gameObject.SetActive(active); }
-            else if (turret != null) { __instance.TurretArmorDisplay.gameObject.SetActive(active); }
-            else if (building != null) { __instance.BuildingArmorDisplay.gameObject.SetActive(active); }        
+            if (__instance.ActivelyShownCombatant is Mech mech) __instance.MechArmorDisplay.gameObject.SetActive(active);
+            else if (__instance.ActivelyShownCombatant is Vehicle vehicle) { __instance.VehicleArmorDisplay.gameObject.SetActive(active); }
+            else if (__instance.ActivelyShownCombatant is Turret turret) { __instance.TurretArmorDisplay.gameObject.SetActive(active); }
+            else if (__instance.ActivelyShownCombatant is BattleTech.Building building) { __instance.BuildingArmorDisplay.gameObject.SetActive(active); }        
         }
 
         private static void BuildCACDialogForTarget(AbstractActor source, ICombatant target, float range, bool hasVisualScan, SensorScanType scanType)
@@ -287,7 +283,7 @@ namespace LowVisibility.Patch {
                         weaponsLabel.SetActive(false);
                     }
                 }
-                else if ((__instance.ActivelyShownCombatant as Building) != null)
+                else if (__instance.ActivelyShownCombatant is BattleTech.Building building)
                 {
                     Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy building");
 

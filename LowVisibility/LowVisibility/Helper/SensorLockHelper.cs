@@ -172,13 +172,13 @@ namespace LowVisibility.Helper {
             float distance = Vector3.Distance(sourcePos, targetPos);
             float sensorRangeVsTarget = SensorLockHelper.GetAdjustedSensorRange(source, target);
             Mod.Log.Trace($"SensorLockHelper - source: {CombatantUtils.Label(source)} sensorRangeVsTarget: {sensorRangeVsTarget} vs distance: {distance}");
-            if ((target as Building) != null) {
+            if (target is BattleTech.Building targetBuilding) {
                 // If the target is a building, show them so long as they are in sensor distance
                 // TODO: ADD FRIENDLY ECM CHECK HERE?
 
                 // TODO: This should be calculated more fully! Major bug here!
                 SensorScanType buildingLock = sourceState.GetCurrentEWCheck() > 0 ? SensorScanType.ArmorAndWeaponType : SensorScanType.NoInfo;
-                Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} is a building with lockState:{buildingLock}");
+                Mod.Log.Trace($"  target:{CombatantUtils.Label(targetBuilding)} is a building with lockState:{buildingLock}");
                 return buildingLock;
             } else if ((target as AbstractActor) != null) {
                 AbstractActor targetActor = target as AbstractActor;
@@ -208,15 +208,6 @@ namespace LowVisibility.Helper {
                         $"target:{CombatantUtils.Label(target)}");
                     return sensorLock;
                 }
-
-                // TODO:
-                /*
-                 *if (source.IsGhosted) {
-                Mod.Log.Trace($"  source is ghosted. Treating as noInfo.");
-                return SensorScanType.NoInfo;
-            }
-
-                 */
             } else {
                 Mod.Log.Info($"SensorLockHelper - fallthrough case for target: {CombatantUtils.Label(target)} with type: {target.GetType()}. Returning NoLock!");
                 return SensorScanType.NoInfo;
