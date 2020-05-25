@@ -20,6 +20,9 @@ namespace LowVisibility {
         public static double[] CheckResults = new double[ResultsToPrecalcuate];
         public static int CheckResultIdx = 0;
 
+        // Combat specific statuc
+        public static CombatGameState Combat = null;
+
         // --- Methods Below ---
         public static MapConfig GetMapConfig() {
             if (MapConfig == null) {
@@ -80,7 +83,10 @@ namespace LowVisibility {
 
             CheckResults = new double[ResultsToPrecalcuate];
             CheckResultIdx = 0;
-        }
+
+            // Combat state
+            Combat = null;
+    }
 
     }
 }

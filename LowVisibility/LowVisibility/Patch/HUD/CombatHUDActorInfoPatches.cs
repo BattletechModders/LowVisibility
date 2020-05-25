@@ -82,7 +82,7 @@ namespace LowVisibility.Patch {
 
                             // Show active state
                             setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
-                            setGOActiveMethod.GetValue(__instance.MarkDisplay, true);
+                            //setGOActiveMethod.GetValue(__instance.MarkDisplay, true);
 
                             // Show armor and struct
                             setGOActiveMethod.GetValue(__instance.ArmorBar, true);
@@ -101,7 +101,7 @@ namespace LowVisibility.Patch {
 
                             // Show active state
                             setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
-                            setGOActiveMethod.GetValue(__instance.MarkDisplay, false);
+                            //setGOActiveMethod.GetValue(__instance.MarkDisplay, false);
 
                             // Show armor and struct
                             setGOActiveMethod.GetValue(__instance.ArmorBar, true);
@@ -115,7 +115,7 @@ namespace LowVisibility.Patch {
 
                             // Hide active state
                             setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
-                            setGOActiveMethod.GetValue(__instance.MarkDisplay, false);
+                            //setGOActiveMethod.GetValue(__instance.MarkDisplay, false);
 
                             // Hide armor and struct
                             setGOActiveMethod.GetValue(__instance.ArmorBar, false);
@@ -124,6 +124,9 @@ namespace LowVisibility.Patch {
                             setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                             setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                         }
+
+                        // TODO: DEBUG TESTING 
+                        setGOActiveMethod.GetValue(__instance.MarkDisplay, true);
 
                         CombatHUDStateStack stateStack = (CombatHUDStateStack)Traverse.Create(__instance).Property("StateStack").GetValue();
                         setGOActiveMethod.GetValue(stateStack, false);

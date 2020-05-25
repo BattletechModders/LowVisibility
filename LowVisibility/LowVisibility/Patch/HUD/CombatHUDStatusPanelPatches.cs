@@ -55,17 +55,25 @@ namespace LowVisibility.Patch {
     {
         static bool Prefix(CombatHUDStatusPanel __instance, AbstractActor actor, AbilityDef.SpecialRules specialRulesFilter, Vector3 worldPos, Dictionary<string, CombatHUDStatusIndicator> ___effectDict)
         {
-            Mod.Log.Info($"Processing Effect Status Details for actor: {CombatantUtils.Label(actor)}");
+            Mod.Log.Debug($"Updating StatusEffect Panel for actor: {CombatantUtils.Label(actor)}");
 
             try
             {
                 List<EffectData> effectsOnActor = new List<EffectData>();
-                Traverse HUDT = Traverse.Create(__instance).Property("CombatHUD");
-                CombatHUD HUD = HUDT.GetValue<CombatHUD>();
-                foreach (Effect effect in HUD.Combat.EffectManager.GetAllEffectsTargeting(actor))
+
+                foreach (Effect effect in ModState.Combat.EffectManager.GetAllEffectsTargeting(actor))
                 {
+
+                    if (effect == null || effect.EffectData == null) 
+                    {
+                        Mod.Log.Warn($"Effect with id: {effect?.id} has no effectData! Effect is from creatorGUID: {effect?.creatorGUID} creatorID: {effect?.creatorID} " +
+                            $"with targetId: {effect?.targetID}");
+                        continue;
+                    }
+
                     if (effect.EffectData.targetingData.specialRules != AbilityDef.SpecialRules.Aura && 
-                        (effect.EffectData.targetingData.effectTriggerType != EffectTriggerType.OnDamaged || effect.triggerCount != 0))
+                        (effect.EffectData.targetingData.effectTriggerType != EffectTriggerType.OnDamaged || effect.triggerCount != 0)
+                        )
                     {
                         Mod.Log.Debug($"Adding effectId: {effect?.EffectData?.Description?.Id} with name: {effect?.EffectData?.Description?.Name}");
                         effectsOnActor.Add(effect.EffectData);
@@ -74,38 +82,54 @@ namespace LowVisibility.Patch {
 
                 if (specialRulesFilter == AbilityDef.SpecialRules.Aura)
                 {
-                    Dictionary<string, List<EffectData>> dictionary = actor.AuraCache.PreviewAurasAffectingMe(actor, worldPos, null);
-                    foreach (string key in dictionary.Keys)
+                    if (actor.AuraCache == null)
                     {
-                        List<EffectData> collection = dictionary[key];
-                        Mod.Log.Debug("Adding collection from aura.");
-                        effectsOnActor.AddRange(collection);
+                        Mod.Log.Warn($"Actor: {CombatantUtils.Label(actor)} has a null aura cache.  This should not happen!");
+                    }
+                    else
+                    {
+                        Dictionary<string, List<EffectData>> dictionary = actor.AuraCache.PreviewAurasAffectingMe(actor, worldPos, null);
+                        foreach (string key in dictionary.Keys)
+                        {
+                            List<EffectData> collection = dictionary[key];
+                            Mod.Log.Debug("Adding collection from aura.");
+                            effectsOnActor.AddRange(collection);
+                        }
                     }
                 }
 
-                ___effectDict.Clear();
 
                 Traverse shouldShowEffectT = Traverse.Create(__instance).Method("ShouldShowEffect", new Type[] { typeof(EffectData), typeof(AbilityDef.SpecialRules)});
                 Traverse showDebuffT = Traverse.Create(__instance).Method("ShowBuff", new Type[] { typeof(string), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) });
                 Traverse showBuffT = Traverse.Create(__instance).Method("ShowDebuff", new Type[] { typeof(string), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) });
+                if (shouldShowEffectT == null || showDebuffT == null || showBuffT == null)
+                {
+                    Mod.Log.Error("Failed to traverse necessary methods! Notify FrostRaptor - this should not happen!");
+                    return false;
+                }
 
+                ___effectDict.Clear();
                 for (int i = 0; i < effectsOnActor.Count; i++)
                 {
                     EffectData effectData = effectsOnActor[i];
+
                     if (effectData == null || effectData.Description == null || 
-                        effectData.Description.Id == null || effectData.Description.Name == null || effectData.Description.Icon == null)
+                        effectData.Description.Id == null || effectData.Description.Name == null)
                     {
-                        Mod.Log.Error($"EffectData {effectData?.Description?.Name} has no description, id, name, or icon! Cannot process, skipping!");
+                        Mod.Log.Error($"EffectData {effectData?.Description?.Name} has no description, id, or name! Cannot process, skipping!");
                         continue;
                     }
 
+                    if (string.IsNullOrEmpty(effectData?.Description?.Icon)) continue; // No icon to display, skip.
+
                     bool shouldShowEffect = shouldShowEffectT.GetValue<bool>(new object[] { effectData, specialRulesFilter });
                     bool alreadyShown = ___effectDict.ContainsKey(effectData.Description.Id);
-                    Mod.Log.Info($" -- Effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} has shouldShowEffect: {shouldShowEffect} and alreadyShown: {alreadyShown}");
+                    Mod.Log.Debug($" -- Effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} has shouldShowEffect: {shouldShowEffect} and alreadyShown: {alreadyShown}");
 
                     string effectId = effectData.Description.Id;
-                    if (shouldShowEffect && !alreadyShown && !string.IsNullOrEmpty(effectData.Description.Icon))
+                    if (shouldShowEffect && !alreadyShown)
                     {
+                        Mod.Log.Debug($" -- Adding effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} to buff list.");
                         int num = effectsOnActor.FindAll((EffectData x) => x.Description.Id == effectId).Count;
                         if (effectData.statisticData != null && 
                             effectData.statisticData.targetCollection == StatisticEffectData.TargetCollection.Weapon && 

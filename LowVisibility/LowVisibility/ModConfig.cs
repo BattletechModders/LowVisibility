@@ -63,6 +63,8 @@ namespace LowVisibility {
             public string VisionAndSensors = "lv_cyber-eye";
             public string SensorsDisabled = "lv_sight-disabled";
             public string ElectronicWarfare = "lv_eye-shield";
+            public string TargetSensorsMark = "lv_radar-sweep"; 
+            public string TargetVisualsMark = "lv_eye-target";
         }
         public IconOpts Icons = new IconOpts();
 

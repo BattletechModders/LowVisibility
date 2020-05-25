@@ -111,7 +111,6 @@ namespace LowVisibility.Patch.HUD {
                 }
                 if (sensorsAttackMod > Mod.Config.Attack.NoSensorsPenalty) {
                     Mod.Log.Debug($"  Rollup of penalties {sensorsAttackMod} is > than NoSensors, defaulting to {Mod.Config.Attack.NoSensorsPenalty} ");
-                    sensorsAttackMod = Mod.Config.Attack.NoSensorsPenalty;
                     hasSensorAttack = false;
                 }
 

@@ -18,6 +18,8 @@ namespace LowVisibility.Patch {
             loadRequest.AddLoadRequest<SVGAsset>(BattleTechResourceType.SVGAsset, Mod.Config.Icons.ElectronicWarfare, null);
             loadRequest.AddLoadRequest<SVGAsset>(BattleTechResourceType.SVGAsset, Mod.Config.Icons.SensorsDisabled, null);
             loadRequest.AddLoadRequest<SVGAsset>(BattleTechResourceType.SVGAsset, Mod.Config.Icons.VisionAndSensors, null);
+            loadRequest.AddLoadRequest<SVGAsset>(BattleTechResourceType.SVGAsset, Mod.Config.Icons.TargetSensorsMark, null);
+            loadRequest.AddLoadRequest<SVGAsset>(BattleTechResourceType.SVGAsset, Mod.Config.Icons.TargetVisualsMark, null);
 
             loadRequest.ProcessRequests();
             Mod.Log.Info("  ICON LOADING COMPLETE!");

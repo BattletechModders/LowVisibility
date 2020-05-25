@@ -3,7 +3,6 @@ using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using UnityEngine;
-using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch {
 
@@ -12,7 +11,7 @@ namespace LowVisibility.Patch {
 
         [HarmonyBefore(new string[] { "Sheepy.BattleTechMod.AttackImprovementMod" })]
         private static void Postfix(ToHit __instance, ref float __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
-            Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
+            Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel) {
 
             //Mod.Log.Debug($"Getting modifiers for attacker:{CombatantUtils.Label(attacker)} " +
             //    $"using weapon:{weapon.Name} vs target:{CombatantUtils.Label(target)} with initial result:{__result}");
