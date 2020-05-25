@@ -4,12 +4,33 @@ using Harmony;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using SVGImporter;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Patch.HUD
 {
+
+    // CombatHUDMarkDisplay displays any effect that createsa 
+
+    static class CombatHUDMarkDisplayConsts
+    {
+        public const string SensorsMarkGOId = "lv_sensors_mark";
+        public const string VisualsMarkGOId = "lv_visuals_mark";
+    }
+
+    [HarmonyPatch(typeof(CombatHUDMarkDisplay), "Init")]
+    static class CombatHUDMarkDisplay_Init
+    {
+
+       
+
+        static void Postfix(CombatHUDMarkDisplay __instance)
+        {
+
+        }
+    }
 
     [HarmonyPatch(typeof(CombatHUDMarkDisplay), "RefreshMark")]
     static class CombatHUDMarkDisplay_RefreshMark
@@ -35,121 +56,110 @@ namespace LowVisibility.Patch.HUD
                 if (isEnemy)
                 {
 
-                    // Check that enemy is visible (blip or better)
-                    Vector3 newPos = __instance.gameObject.transform.position;
+                    MarkGOContainer container = null;
+                    if (!ModState.MarkContainerRefs.ContainsKey(__instance))
+                    {
+                        // We can't patch Init (probably compiled to a point we can't patch it) so create the objects here.
+                        Mod.Log.Debug($"CHUDMD:I invoked");
+                        GameObject sensorsMark = CreateMark(__instance.transform.parent.gameObject, Mod.Config.Icons.TargetSensorsMark, CombatHUDMarkDisplayConsts.SensorsMarkGOId);
+                        GameObject visualsMark = CreateMark(__instance.transform.parent.gameObject, Mod.Config.Icons.TargetVisualsMark, CombatHUDMarkDisplayConsts.VisualsMarkGOId);
+                        container = new MarkGOContainer
+                        {
+                            SensorsMark = sensorsMark,
+                            VisualsMark = visualsMark
+                        };
+                        ModState.MarkContainerRefs[__instance] = container;
+                        Mod.Log.Debug($"Created reference from instance {__instance} to container: {container}");
+                    }
+                    else
+                    {
+                        container = ModState.MarkContainerRefs[__instance];
+                    }
 
+
+                    // Check that enemy is visible (blip or better)
                     VerticalLayoutGroup vlg = __instance.gameObject.transform.parent.gameObject.GetComponent<VerticalLayoutGroup>();
-                    vlg.spacing = 4f;
+                    vlg.spacing = 6f;
 
                     Mod.Log.Info($"UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(__instance.DisplayedActor)}");
                     // Cache these
                     AbstractActor target = __instance.DisplayedActor;
                     AbstractActor attacker = ModState.LastPlayerActorActivated;
 
-                    SVGAsset icon = ModState.Combat.DataManager.GetObjectOfType<SVGAsset>(Mod.Config.Icons.TargetVisualsMark, BattleTechResourceType.SVGAsset);
-                    if (icon == null) Mod.Log.Error("FAILED TO LOAD ICON!");
-                    GameObject imageGO = new GameObject();
-                    imageGO.name = "lv_icon_foo";
-                    imageGO.transform.parent = __instance.gameObject.transform.parent;
-                    //newPos.x += 30f;
-                    //imageGO.transform.position = newPos;
-                    //imageGO.transform.localScale = new Vector3(0.6f, 0.6f, 1f);
-                    imageGO.transform.localScale = new Vector3(0.35f, 1f, 1f);
+                    // Sensor lock should only be enabled when the target is marked
+                    if (target.IsMarked) { __instance.gameObject.SetActive(true); }
+                    else { __instance.gameObject.SetActive(false);  }
 
-                    SVGImage image = imageGO.AddComponent<SVGImage>();
-                    if (image == null) Mod.Log.Error("FAILED TO CREATE IMAGE!");
-                    image.vectorGraphics = icon;
-                    image.color = Color.green;
-                    image.enabled = true;
-                    imageGO.SetActive(true);
-                    Mod.Log.Info("Set objects active!");
+                        // Check sensors
+                        bool hasSensorAttack = SensorLockHelper.CalculateSharedLock(target, attacker) > SensorScanType.NoInfo;
+                    if (hasSensorAttack)
+                    {
+                        Mod.Log.Debug($" - Can sensors detect target, setting icon to green.");
+                        SVGImage image = container.SensorsMark.GetComponent<SVGImage>();
+                        image.color = Color.green;
+                        container.SensorsMark.SetActive(true);
+                    }
+                    else
+                    {
+                        Mod.Log.Debug($" - Can not sensors detect target, setting icon to red.");
+                        SVGImage image = container.SensorsMark.GetComponent<SVGImage>();
+                        image.color = Color.red;
+                        container.SensorsMark.SetActive(true);
+                    }
 
-                    LayoutElement le = imageGO.AddComponent<LayoutElement>();
-                    le.preferredHeight = 16f;
-                    le.preferredWidth = 16f;
-
-                    RectTransform rectTransform = imageGO.GetComponent<RectTransform>();
-                    rectTransform.sizeDelta = new Vector2(50f, 0f);
-                    Mod.Log.Info("Set SIZE DELTA");
-
-                    //SVGAsset icon2 = ModState.Combat.DataManager.GetObjectOfType<SVGAsset>(Mod.Config.Icons.TargetSensorsMark, BattleTechResourceType.SVGAsset);
-                    //if (icon2 == null) Mod.Log.Error("FAILED TO LOAD ICON 2!");
-                    //GameObject imageGO2 = new GameObject();
-                    //imageGO2.name = "lv_icon_foo2";
-                    //imageGO2.transform.parent = __instance.gameObject.transform.parent;
-                    //newPos.x += 30f;
-                    //imageGO.transform.position = newPos;
-                    ////imageGO.transform.localScale = new Vector3(1f, 1f, 1f);
-
-                    //SVGImage image2 = imageGO2.AddComponent<SVGImage>();
-                    //if (image2 == null) Mod.Log.Error("FAILED TO CREATE IMAGE 2!");
-                    //image2.vectorGraphics = icon;
-                    //image2.color = Color.green;
-                    //image.enabled = true;
-                    //imageGO.SetActive(true);
-                    //Mod.Log.Info("Set objects active 2!");
-
-                    //RectTransform rectTransform2 = imageGO.GetComponent<RectTransform>();
-                    //rectTransform2.sizeDelta = new Vector2(28f, 28f);
-                    //Mod.Log.Info("Set SIZE DELTA");
-
-                    //bool hasSensorAttack = SensorLockHelper.CalculateSharedLock(target, attacker) > SensorScanType.NoInfo;
-                    //if (hasSensorAttack)
-                    //{
-                    //    SVGAsset icon = ModState.Combat.DataManager.GetObjectOfType<SVGAsset>(Mod.Config.Icons.HasSensorsOnTarget, BattleTechResourceType.SVGAsset);
-                    //    SVGImage image = __instance.gameObject.AddComponent<SVGImage>();
-                    //    image.vectorGraphics = icon;
-
-                    //    if (!__instance.MarkIcons.Contains(image))
-                    //    {
-                    //        Mod.Log.Debug("ADDING IMAGE FOR HAS_SENSORS");
-                    //        __instance.MarkIcons.Add(image);
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    SVGAsset icon = ModState.Combat.DataManager.GetObjectOfType<SVGAsset>(Mod.Config.Icons.NoSensorsOnTarget, BattleTechResourceType.SVGAsset);
-                    //    SVGImage image = new SVGImage();
-                    //    image.transform.parent = __instance.transform.parent;
-                    //    image.vectorGraphics = icon;
-
-                    //    if (!__instance.MarkIcons.Contains(image))
-                    //    {
-                    //        Mod.Log.Debug("ADDING IMAGE FOR NO_SENSORS");
-                    //        __instance.MarkIcons.Add(image);
-                    //    }
-                    //}
-
-                    //bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
-                    //if (canSpotTarget)
-                    //{
-                    //    SVGAsset icon = ModState.Combat.DataManager.GetObjectOfType<SVGAsset>(Mod.Config.Icons.HasVisualsOnTarget, BattleTechResourceType.SVGAsset);
-                    //    SVGImage image = new SVGImage();
-                    //    image.transform.parent = __instance.transform.parent;
-                    //    image.vectorGraphics = icon;
-
-                    //    if (!__instance.MarkIcons.Contains(image))
-                    //    {
-                    //        Mod.Log.Debug("ADDING IMAGE FOR HAS VISUALS");
-                    //        __instance.MarkIcons.Add(image);
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    SVGAsset icon = ModState.Combat.DataManager.GetObjectOfType<SVGAsset>(Mod.Config.Icons.NoVisualsOnTarget, BattleTechResourceType.SVGAsset);
-                    //    SVGImage image = new SVGImage();
-                    //    image.transform.parent = __instance.transform.parent;
-                    //    image.vectorGraphics = icon;
-
-                    //    if (!__instance.MarkIcons.Contains(image))
-                    //    {
-                    //        Mod.Log.Debug("ADDING IMAGE FOR NO VISUALS");
-                    //        __instance.MarkIcons.Add(image);
-                    //    }
-                    //}
-
+                    bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
+                    if (canSpotTarget)
+                    {
+                        Mod.Log.Debug($" - Can spot target, setting icon to green.");
+                        SVGImage image = container.VisualsMark.GetComponent<SVGImage>();
+                        image.color = Color.green;
+                        container.VisualsMark.SetActive(true);
+                    }
+                    else
+                    {
+                        Mod.Log.Debug($" - Cannot spot target, setting icon to red.");
+                        SVGImage image = container.VisualsMark.GetComponent<SVGImage>();
+                        image.color = Color.red;
+                        container.VisualsMark.SetActive(true);
+                    }
 
                 }
+            }
+        }
+
+        static GameObject CreateMark(GameObject parent, string iconId, string objectId)
+        {
+            Mod.Log.Debug($"Creating mark for iconId: {iconId}");
+            try
+            {
+                SVGAsset icon = ModState.Combat.DataManager.GetObjectOfType<SVGAsset>(iconId, BattleTechResourceType.SVGAsset);
+                if (icon == null) Mod.Log.Warn($"Icon: {iconId} was not loaded! Check the manifest load");
+
+                GameObject imageGO = new GameObject();
+                imageGO.name = objectId;
+                imageGO.transform.parent = parent.transform;
+                imageGO.transform.localScale = new Vector3(0.7f, 1f, 1f);
+
+                SVGImage image = imageGO.AddComponent<SVGImage>();
+                if (image == null) Mod.Log.Warn("Failed to create image for icon, load will fail!");
+
+                image.vectorGraphics = icon;
+                image.color = Color.white;
+                image.enabled = true;
+
+                LayoutElement le = imageGO.AddComponent<LayoutElement>();
+                le.preferredHeight = 32f;
+                le.preferredWidth = 32f;
+
+                RectTransform rectTransform = imageGO.GetComponent<RectTransform>();
+                rectTransform.sizeDelta = new Vector2(50f, 0f);
+
+                return imageGO;
+            }
+            catch (Exception e)
+            {
+                Mod.Log.Error($"Failed to create mark image: {iconId}", e);
+                return null;
             }
         }
     }

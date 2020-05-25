@@ -1,8 +1,11 @@
 ﻿
 using BattleTech;
 using BattleTech.Rendering.Mood;
+using BattleTech.UI;
 using LowVisibility.Helper;
+using LowVisibility.Object;
 using System;
+using System.Collections.Generic;
 using us.frostraptor.modUtils.Redzen;
 using static LowVisibility.Helper.MapHelper;
 
@@ -20,8 +23,9 @@ namespace LowVisibility {
         public static double[] CheckResults = new double[ResultsToPrecalcuate];
         public static int CheckResultIdx = 0;
 
-        // Combat specific statuc
+        // Combat specific status
         public static CombatGameState Combat = null;
+        public static Dictionary<CombatHUDMarkDisplay, MarkGOContainer> MarkContainerRefs = new Dictionary<CombatHUDMarkDisplay, MarkGOContainer>();
 
         // --- Methods Below ---
         public static MapConfig GetMapConfig() {
@@ -74,6 +78,7 @@ namespace LowVisibility {
         }
 
         public static void Reset() {
+            Mod.Log.Info($"RESETTING STATE!");
             // Reinitialize state
             MapConfig = null;
             MoodController = null;
@@ -86,6 +91,7 @@ namespace LowVisibility {
 
             // Combat state
             Combat = null;
+            MarkContainerRefs.Clear();
     }
 
     }

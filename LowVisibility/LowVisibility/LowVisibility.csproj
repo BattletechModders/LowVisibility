@@ -109,6 +109,7 @@
     <Compile Include="Object\EWState.cs" />
     <Compile Include="Helper\MapHelper.cs" />
     <Compile Include="ModInit.cs" />
+    <Compile Include="Object\MarkGOContainer.cs" />
     <Compile Include="Object\Visibility.cs" />
     <Compile Include="Patch\AbilityPatches.cs" />
     <Compile Include="Patch\AI\AIUtilPatches.cs" />

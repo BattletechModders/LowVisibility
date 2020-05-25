@@ -63,7 +63,8 @@ namespace LowVisibility.Patch {
 
                     Traverse setGOActiveMethod = Traverse.Create(__instance).Method("SetGOActive", new Type[] { typeof(MonoBehaviour), typeof(bool) });
                     // The actual method should handle allied and friendly units fine, so we can just change it for enemies
-                    if (isEnemyOrNeutral && visibilityLevel >= VisibilityLevel.Blip0Minimum && ___displayedActor != null) {
+                    if (isEnemyOrNeutral && visibilityLevel >= VisibilityLevel.Blip0Minimum && ___displayedActor != null) 
+                    {
 
                         SensorScanType scanType = SensorLockHelper.CalculateSharedLock(___displayedActor, ModState.LastPlayerActorActivated);
                         bool hasVisualScan = VisualLockHelper.CanSpotTarget(ModState.LastPlayerActorActivated, ModState.LastPlayerActorActivated.CurrentPosition, 
@@ -76,13 +77,13 @@ namespace LowVisibility.Patch {
                         setGOActiveMethod.GetValue(__instance.NameDisplay, true);
                         setGOActiveMethod.GetValue(__instance.PhaseDisplay, true);
 
-                        if (scanType >= SensorScanType.StructAndWeaponID) {
+                        if (scanType >= SensorScanType.StructAndWeaponID) 
+                        {
                             // Show unit summary
                             setGOActiveMethod.GetValue(__instance.DetailsDisplay, true);
 
                             // Show active state
                             setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
-                            //setGOActiveMethod.GetValue(__instance.MarkDisplay, true);
 
                             // Show armor and struct
                             setGOActiveMethod.GetValue(__instance.ArmorBar, true);
@@ -95,13 +96,14 @@ namespace LowVisibility.Patch {
                                 setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                                 setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
                             }
-                        } else if (scanType >= SensorScanType.ArmorAndWeaponType || hasVisualScan) {
+                        } 
+                        else if (scanType >= SensorScanType.ArmorAndWeaponType || hasVisualScan) 
+                        {
                             // Show unit summary
                             setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
                             // Show active state
                             setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
-                            //setGOActiveMethod.GetValue(__instance.MarkDisplay, false);
 
                             // Show armor and struct
                             setGOActiveMethod.GetValue(__instance.ArmorBar, true);
@@ -109,13 +111,14 @@ namespace LowVisibility.Patch {
 
                             setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
                             setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
-                        } else {
+                        } 
+                        else 
+                        {
                             // Hide unit summary
                             setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
 
                             // Hide active state
                             setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
-                            //setGOActiveMethod.GetValue(__instance.MarkDisplay, false);
 
                             // Hide armor and struct
                             setGOActiveMethod.GetValue(__instance.ArmorBar, false);
