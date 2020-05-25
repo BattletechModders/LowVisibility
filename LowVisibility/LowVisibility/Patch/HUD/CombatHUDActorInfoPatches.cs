@@ -43,6 +43,8 @@ namespace LowVisibility.Patch {
             public static void Postfix(CombatHUDActorInfo __instance, AbstractActor ___displayedActor,
                 BattleTech.Building ___displayedBuilding, ICombatant ___displayedCombatant) {
 
+                if (__instance == null || ___displayedActor == null) return;
+
                 try {
                     bool isEnemyOrNeutral = false;
                     VisibilityLevel visibilityLevel = VisibilityLevel.None;
@@ -129,14 +131,14 @@ namespace LowVisibility.Patch {
                         }
 
                         // TODO: DEBUG TESTING 
-                        setGOActiveMethod.GetValue(__instance.MarkDisplay, true);
+                        if (__instance.MarkDisplay != null) setGOActiveMethod.GetValue(__instance.MarkDisplay, true);
 
                         CombatHUDStateStack stateStack = (CombatHUDStateStack)Traverse.Create(__instance).Property("StateStack").GetValue();
                         setGOActiveMethod.GetValue(stateStack, false);
                     }
                     else
                     {
-                        setGOActiveMethod.GetValue(__instance.MarkDisplay, ___displayedActor.IsMarked);
+                        if (__instance.MarkDisplay != null && ___displayedActor != null) setGOActiveMethod.GetValue(__instance.MarkDisplay, ___displayedActor.IsMarked);
                     }    
                 } catch (Exception e) {
                     Mod.Log.Info($"Error updating item visibility! Error was: {e.Message}");

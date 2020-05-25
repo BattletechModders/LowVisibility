@@ -72,10 +72,23 @@ namespace LowVisibility.Patch {
 
         public static void Prefix(TurnDirector __instance, int round) {
             Mod.Log.Trace($"TD:BNR entered");
-            Mod.Log.Debug($"=== TurnDirector - Beginning round:{round}");
+            Mod.Log.Info($"=== Turn Director is beginning round: {round}");
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
+                // If our sensors are offline, re-enable them
+                if (actor.StatCollection.ContainsStatistic(ModStats.DisableSensors))
+                {
+                    Mod.Log.Info($"Actor: {CombatantUtils.Label(actor)} sensors are offline until: {actor.StatCollection.GetValue<int>(ModStats.DisableSensors)}");
+
+                    if (round >= actor.StatCollection.GetValue<int>(ModStats.DisableSensors))
+                    {
+                        Mod.Log.Info($"Re-enabling sensors for {CombatantUtils.Label(actor)}");
+                        actor.StatCollection.RemoveStatistic(ModStats.DisableSensors);
+                    }
+                }
+                    
+                // Update our sensors check
                 ActorHelper.UpdateSensorCheck(actor, true);
                 if (actor.TeamId == __instance.Combat.LocalPlayerTeamGuid)
                 {

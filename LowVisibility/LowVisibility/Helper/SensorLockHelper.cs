@@ -10,9 +10,9 @@ namespace LowVisibility.Helper {
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         public static float GetSensorsRange(AbstractActor source) {
 
-            if (source.StatCollection.ContainsStatistic(ModStats.DisableSensors) && source.StatCollection.GetValue<bool>(ModStats.DisableSensors))
+            if (source.StatCollection.ContainsStatistic(ModStats.DisableSensors))
             {
-                Mod.Log.Trace($"Returning minimum sensors range for {CombatantUtils.Label(source)} due to disabled sensors.");
+                Mod.Log.Debug($"Returning minimum sensors range for {CombatantUtils.Label(source)} due to disabled sensors.");
                 return Mod.Config.Sensors.MinimumSensorRange();
             }
 
@@ -161,10 +161,9 @@ namespace LowVisibility.Helper {
                 return SensorScanType.NoInfo;
             }
 
-            if (source.StatCollection.ContainsStatistic(ModStats.DisableSensors) &&
-                source.StatCollection.GetValue<bool>(ModStats.DisableSensors))
+            if (source.StatCollection.ContainsStatistic(ModStats.DisableSensors))
             {
-                Mod.Log.Trace($"  sensors disabled for source, returning no info.");
+                Mod.Log.Debug($"Sensors disabled for source: {CombatantUtils.Label(source)}, returning no info.");
                 return SensorScanType.NoInfo;
             }
 

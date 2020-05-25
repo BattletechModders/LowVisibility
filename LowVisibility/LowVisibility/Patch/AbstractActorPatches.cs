@@ -55,12 +55,15 @@ namespace LowVisibility.Patch {
             __instance.StatCollection.AddStatistic<bool>(ModStats.NightVision, false);
 
             // Disabled sensors flag
-            __instance.StatCollection.AddStatistic<bool>(ModStats.DisableSensors, false);
+            __instance.StatCollection.AddStatistic<int>(ModStats.DisableSensors, 2);
             if (Mod.Config.Sensors.SensorsOfflineAtSpawn)
             {
-                Mod.Log.Info($"Disabling sensors on actor: {CombatantUtils.Label(__instance)} during spawn.");
-                __instance.StatCollection.Set<bool>(ModStats.DisableSensors, true);
-
+ 
+                if (__instance.Combat != null && __instance.Combat.TurnDirector != null && __instance.Combat.TurnDirector.GameHasBegun && __instance.Combat.TurnDirector.CurrentRound >= 2)
+                {
+                    __instance.StatCollection.Set<int>(ModStats.DisableSensors, __instance.Combat.TurnDirector.CurrentRound + 1); // initialize to start on the next round
+                }
+                Mod.Log.Info($"Disabling sensors on actor: {CombatantUtils.Label(__instance)} until: {__instance.StatCollection.GetValue<int>(ModStats.DisableSensors)}.");
             }
         }
     }
@@ -113,17 +116,6 @@ namespace LowVisibility.Patch {
             { 
                 // Disable night vision 
                 if (ModState.IsNightVisionMode) VfxHelper.DisableNightVisionEffect();
-
-                // If our sensors are offline, re-enable them
-                if (__instance.StatCollection.ContainsStatistic(ModStats.DisableSensors) &&
-                    __instance.StatCollection.GetValue<bool>(ModStats.DisableSensors))
-                {
-                    Mod.Log.Info($"Re-enabling sensors for {CombatantUtils.Label(__instance)}");
-                    __instance.StatCollection.Set<bool>(ModStats.DisableSensors, false);
-                }
-
-                // Refresh any CombatHUDMarkDisplays
-                foreach (CombatHUDMarkDisplay chudMD in ModState.MarkContainerRefs.Keys) chudMD.RefreshInfo();
 
             }
         }
@@ -234,8 +226,6 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(AbstractActor), "OnMoveComplete")]
     public static class AbstractActor_OnMoveComplete {
 
-        public static bool Prepare() { return Mod.Config.Toggles.LogEffectsOnMove;  }
-
         public static void Prefix(AbstractActor __instance) {
 
             if (__instance.TeamId == __instance.Combat.LocalPlayerTeamGuid)
@@ -243,33 +233,48 @@ namespace LowVisibility.Patch {
                 CombatHUDHelper.ForceNameRefresh(__instance.Combat);
             }
 
-            EWState actorState = new EWState(__instance);
-            Mod.Log.Debug($" OnMoveComplete: Effects targeting actor: {CombatantUtils.Label(__instance)}");
-            List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
-            foreach (Effect effect in list) {
-                if (effect.EffectData.statisticData != null) {
-                    Mod.Log.Debug($"   -- EffectID: '{effect.EffectData.Description.Id}'  Name: '{effect.EffectData.Description.Name}'  " +
-                        $"StatName:'{effect.EffectData.statisticData.statName}'  StatValue:{effect.EffectData.statisticData.modValue}");
-                } else {
-                    Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}  Name: {effect.EffectData.Description.Name}");
-                }
-            }
+            // Refresh any CombatHUDMarkDisplays
+            foreach (CombatHUDMarkDisplay chudMD in ModState.MarkContainerRefs.Keys) chudMD.RefreshInfo();
 
-            foreach(AbstractActor unit in __instance.team.units) {
-                if (unit.GUID != __instance.GUID) {
-                    Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
-                    List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
-                    foreach (Effect effect in list2) {
-                        if (effect.EffectData.statisticData != null) {
-                            Mod.Log.Debug($"   -- EffectID: '{effect.EffectData.Description.Id}'  Name: '{effect.EffectData.Description.Name}'  " +
-                                $"StatName:'{effect.EffectData.statisticData.statName}'  StatValue:{effect.EffectData.statisticData.modValue}");
-                        } else {
-                            Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}  Name: {effect.EffectData.Description.Name}");
+            if (Mod.Config.Toggles.LogEffectsOnMove)
+            {
+                Mod.Log.Debug($" OnMoveComplete: Effects targeting actor: {CombatantUtils.Label(__instance)}");
+                List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
+                foreach (Effect effect in list)
+                {
+                    if (effect.EffectData.statisticData != null)
+                    {
+                        Mod.Log.Debug($"   -- EffectID: '{effect.EffectData.Description.Id}'  Name: '{effect.EffectData.Description.Name}'  " +
+                            $"StatName:'{effect.EffectData.statisticData.statName}'  StatValue:{effect.EffectData.statisticData.modValue}");
+                    }
+                    else
+                    {
+                        Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}  Name: {effect.EffectData.Description.Name}");
+                    }
+                }
+
+                foreach (AbstractActor unit in __instance.team.units)
+                {
+                    if (unit.GUID != __instance.GUID)
+                    {
+                        Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
+                        List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
+                        foreach (Effect effect in list2)
+                        {
+                            if (effect.EffectData.statisticData != null)
+                            {
+                                Mod.Log.Debug($"   -- EffectID: '{effect.EffectData.Description.Id}'  Name: '{effect.EffectData.Description.Name}'  " +
+                                    $"StatName:'{effect.EffectData.statisticData.statName}'  StatValue:{effect.EffectData.statisticData.modValue}");
+                            }
+                            else
+                            {
+                                Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}  Name: {effect.EffectData.Description.Name}");
+                            }
                         }
                     }
                 }
             }
-            
+
         }
     }
 

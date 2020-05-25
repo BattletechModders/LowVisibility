@@ -44,7 +44,7 @@ namespace LowVisibility {
         public const string NightVision = "LV_NIGHT_VISION"; // bool
         public const string SharesVision = "LV_SHARES_VISION"; // bool
 
-        public const string DisableSensors = "LV_DISABLE_SENSORS"; // bool
+        public const string DisableSensors = "LV_DISABLE_SENSORS"; // int
 
         // CAE Stats - write carefully!
         public const string CAESensorsRange = "CAE_SENSORS_RANGE";

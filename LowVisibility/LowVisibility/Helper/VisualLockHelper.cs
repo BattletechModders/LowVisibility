@@ -151,6 +151,7 @@ namespace LowVisibility.Helper {
 
             float spottingRangeVsTarget = VisualLockHelper.GetAdjustedSpotterRange(source, target);
             float distance = Vector3.Distance(sourcePos, targetPos);
+            //Mod.Log.Info($" COMPARING SPOTTING_RANGE: {spottingRangeVsTarget} VS DISTANCE: {distance}");
 
             // Check range first
             if (distance > spottingRangeVsTarget) {

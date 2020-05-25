@@ -40,8 +40,8 @@ namespace LowVisibility.Patch.HUD
     {
         static void Prefix(CombatHUDMarkDisplay __instance)
         {
-            Mod.Log.Info("CHUDMD:RI - entered.");
-            Mod.Log.Info($"  instance is null: {__instance == null}  displayedActor: {CombatantUtils.Label(__instance?.DisplayedActor)}  " +
+            Mod.Log.Trace("CHUDMD:RI - entered.");
+            Mod.Log.Debug($"  instance is null: {__instance == null}  displayedActor: {CombatantUtils.Label(__instance?.DisplayedActor)}  " +
                 $"lastPlayerActivated: {CombatantUtils.Label(ModState.LastPlayerActorActivated)}.");
 
             if (__instance != null && __instance.DisplayedActor != null && ModState.LastPlayerActorActivated != null)
@@ -67,7 +67,7 @@ namespace LowVisibility.Patch.HUD
                 if (!ModState.MarkContainerRefs.ContainsKey(__instance)) container = InitializeContainer(__instance);
                 else container = ModState.MarkContainerRefs[__instance];
 
-                Mod.Log.Info($"UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(__instance.DisplayedActor)}");
+                Mod.Log.Debug($"UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(__instance.DisplayedActor)}");
                 UpdateSensorAndVisualsIcons(container, __instance.DisplayedActor, ModState.LastPlayerActorActivated, isPlayer);
 
                 // Tagged State
@@ -94,6 +94,7 @@ namespace LowVisibility.Patch.HUD
                 // ECMShielded State
                 if (targetState.GetRawECMShield() != 0) UpdateIcon(container.ECMShieldedMark, true, !isPlayer);
                 else UpdateIcon(container.ECMShieldedMark, false, !isPlayer);
+                Mod.Log.Debug($"  -- DONE UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(__instance.DisplayedActor)}");
 
                 // DEBUG MODE
                 //UpdateIcon(container.TaggedMark, true, isPlayer);
