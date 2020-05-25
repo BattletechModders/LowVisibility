@@ -134,6 +134,10 @@ namespace LowVisibility.Patch {
                         CombatHUDStateStack stateStack = (CombatHUDStateStack)Traverse.Create(__instance).Property("StateStack").GetValue();
                         setGOActiveMethod.GetValue(stateStack, false);
                     }
+                    else
+                    {
+                        setGOActiveMethod.GetValue(__instance.MarkDisplay, ___displayedActor.IsMarked);
+                    }    
                 } catch (Exception e) {
                     Mod.Log.Info($"Error updating item visibility! Error was: {e.Message}");
                 }

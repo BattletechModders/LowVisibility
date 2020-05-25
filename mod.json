@@ -2,7 +2,7 @@
     "Name": "LowVisibility",
     "Enabled": true,
 	"Hidden": true,
-    "Version": "0.8.0",
+    "Version": "0.8.1",
     "Description": "Implements double-blind semantics and more complex electronic warfare",
     "Author": "IceRaptor",
     "Website": "https://github.com/IceRaptor/LowVisibility",
@@ -11,14 +11,26 @@
     "DLLEntryPoint" : "LowVisibility.Mod.Init",
     "DependsOn" : [ "IRBTModUtils", "CustomActivatableEquipment" ],
 	"CustomResourceTypes": [ "CustomSVGIcon" ],
-    "Manifest": [ { "Type": "SVGAsset", "Path": "icons/"} ],
+    "Manifest": [ 
+        { "Type": "SVGAsset", "Path": "icons/"} 
+    ],
     "Settings": {
         "Debug" : false,
         "Trace" : false,
         "Icons" : {
             "ElectronicWarfare" : "ECMGear",
             "SensorsDisabled" : "lv_sight-disabled",
-            "VisionAndSensors" : "lv_cyber-eye"
+            "VisionAndSensors" : "lv_cyber-eye",
+            "TargetSensorsMark" : "lv_radar-sweep",
+            "TargetVisualsMark" : "lv_brass-eye",
+            "TargetTaggedMark" : "lv_target-laser",
+            "TargetNarcedMark" : "lv_radio-tower",
+            "TargetStealthMark" : "lv_robber-mask",
+            "TargetMimeticMark" : "lv_static",
+            "TargetECMShieldedMark" : "lv_eye-shield",
+            "TargetActiveProbePingedMark" : "lv_eye-target",
+            "MarkColorPlayerPositive" : [ 1.0, 0.0, 0.062, 1.0 ],
+            "MarkColorPlayerNegative" : [ 0.0, 0.901, 0.098, 1.0 ],
         },
         "Toggles" : {
             "LogEffectsOnMove" : false,
@@ -43,6 +55,9 @@
             "RangeMultiHeavyFog" : 0.4,
             "MinimumRangeHexes" : 3,
             "ScanRangeHexes" : 7,
+        },
+        "FogOfWar" : {
+            "RedrawFogOfWarOnActivation" : false,
             "ShowTerrainThroughFogOfWar" : true
         },
         "Probability": {

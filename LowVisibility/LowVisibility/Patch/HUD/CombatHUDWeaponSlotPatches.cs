@@ -87,8 +87,8 @@ namespace LowVisibility.Patch.HUD {
                     lofLevel = attacker.VisibilityCache.VisibilityToTarget(target).LineOfFireLevel;
                 }
 
-                int zoomVisionMod = attackerState.GetZoomVisionAttackMod(__instance.DisplayedWeapon, magnitude, lofLevel);
-                int zoomAttackMod = attackerState.HasZoomVisionToTarget(__instance.DisplayedWeapon, magnitude) ? zoomVisionMod - mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
+                int zoomVisionMod = attackerState.GetZoomVisionAttackMod(__instance.DisplayedWeapon, magnitude);
+                int zoomAttackMod = attackerState.HasZoomVisionToTarget(__instance.DisplayedWeapon, magnitude, lofLevel) ? zoomVisionMod - mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
                 Mod.Log.Debug($"  Visual attack == eyeball: {eyeballAttackMod} mimetic: {mimeticMod} zoomAtack: {zoomAttackMod}");
 
                 bool hasVisualAttack = (eyeballAttackMod < Mod.Config.Attack.NoVisualsPenalty || zoomAttackMod < Mod.Config.Attack.NoVisualsPenalty);

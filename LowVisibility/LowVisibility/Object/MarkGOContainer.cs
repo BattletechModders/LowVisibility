@@ -7,7 +7,11 @@ namespace LowVisibility.Object
     {
         public GameObject SensorsMark;
         public GameObject VisualsMark;
-        public GameObject SensorLockMarks;
-
+        public GameObject TaggedMark;
+        public GameObject NarcedMark;
+        public GameObject StealthMark;
+        public GameObject MimeticMark;
+        public GameObject ECMShieldedMark;
+        public GameObject ActiveProbePingedMark;
     }
 }

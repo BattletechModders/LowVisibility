@@ -37,6 +37,8 @@ namespace LowVisibility.Helper {
                 VisRangeIndicator visRangeIndicator = VisRangeIndicator.Instance;
                 visRangeIndicator.SetState(VisRangeIndicator.VisRangeIndicatorState.On);
                 
+                // Refresh any CombatHUDMarkDisplays
+                foreach (CombatHUDMarkDisplay chudMD in ModState.MarkContainerRefs.Keys) chudMD.RefreshInfo();
             }
         }
 

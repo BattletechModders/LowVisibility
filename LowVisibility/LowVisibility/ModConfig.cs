@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace LowVisibility {
 
@@ -60,11 +61,23 @@ namespace LowVisibility {
         public bool Trace = false;
 
         public class IconOpts {
+            public string ElectronicWarfare = "lv_eye-shield"; // 00aad4ff
+            public string SensorsDisabled = "lv_sight-disabled"; // ff0000ff
             public string VisionAndSensors = "lv_cyber-eye";
-            public string SensorsDisabled = "lv_sight-disabled";
-            public string ElectronicWarfare = "lv_eye-shield";
-            public string TargetSensorsMark = "lv_radar-sweep"; 
-            public string TargetVisualsMark = "lv_eye-target";
+
+            public string TargetSensorsMark = "lv_radar-sweep";
+            public string TargetVisualsMark = "lv_brass-eye";
+            public string TargetTaggedMark = "lv_target-laser";
+            public string TargetNarcedMark = "lv_radio-tower";
+            public string TargetStealthMark = "lv_robber-mask";
+            public string TargetMimeticMark = "lv_static";
+            public string TargetECMShieldedMark = "lv_eye-shield";
+            public string TargetActiveProbePingedMark = "lv_eye-target";
+
+            public float[] MarkColorPlayerPositive = new float[] { 1f, 0f, 0.062f, 1f };
+            public Color PlayerPositiveMarkColor;
+            public float[] MarkColorPlayerNegative = new float[] { 0f, 0.901f, 0.098f, 1f };
+            public Color PlayerNegativeMarkColor;
         }
         public IconOpts Icons = new IconOpts();
 
@@ -112,12 +125,19 @@ namespace LowVisibility {
             // The range (in hexes) from which you can identify some elements of a unit
             public int ScanRangeHexes = 7;
 
-            // If true, terrain is visible outside of the immediate fog of war boundaires
-            public bool ShowTerrainThroughFogOfWar = true;
-
             public float MinimumVisionRange() { return this.MinimumRangeHexes * 30.0f; }
         }
         public VisionRangeOpts Vision = new VisionRangeOpts();
+
+        public class FogOfWarOpts
+        {
+            // If true, fog of war will be redrawn on each unit's activation
+            public bool RedrawFogOfWarOnActivation = false;
+
+            // If true, terrain is visible outside of the immediate fog of war boundaires
+            public bool ShowTerrainThroughFogOfWar = true;
+        }
+        public FogOfWarOpts FogOfWar = new FogOfWarOpts();
 
         public class AttackOpts {
             public int NoVisualsPenalty = 5;
@@ -305,7 +325,9 @@ namespace LowVisibility {
             Mod.Log.Info($"Vision Ranges - Bright: {Vision.BaseRangeBright} Dim:{Vision.BaseRangeDim} Dark:{Vision.BaseRangeDark}");
             Mod.Log.Info($"Range Multis - Rain/Snow: x{Vision.RangeMultiRainSnow} Light Fog: x{Vision.RangeMultiLightFog} HeavyFog: x{Vision.RangeMultiHeavyFog}");
             Mod.Log.Info($"Minimum range: {Vision.MinimumRangeHexes} ScanRange: {Vision.ScanRangeHexes}");
-            Mod.Log.Info($"ShowTerrainThroughFogOfWar: {Vision.ShowTerrainThroughFogOfWar}");
+
+            Mod.Log.Info($"  == FogOfWar ==");
+            Mod.Log.Info($"RedrawFogOfWarOnActivation: {FogOfWar.RedrawFogOfWarOnActivation}  ShowTerrainThroughFogOfWar: {FogOfWar.ShowTerrainThroughFogOfWar}");
 
             Mod.Log.Info($"  == Attacking ==");
             //Mod.Log.Info($"Penalties - NoSensors:{Attack.NoSensorInfoPenalty} NoVisuals:{Attack.NoVisualsPenalty} BlindFire:{Attack.BlindFirePenalty}");
@@ -313,6 +335,12 @@ namespace LowVisibility {
             //Mod.Log.Info($"HeatVisionMaxBonus: {Attack.MaxHeatVisionBonus}");
 
             Mod.Log.Info("=== MOD CONFIG END ===");
+        }
+
+        public void Init()
+        {
+            this.Icons.PlayerPositiveMarkColor = new Color(this.Icons.MarkColorPlayerPositive[0], this.Icons.MarkColorPlayerPositive[1], this.Icons.MarkColorPlayerPositive[2], this.Icons.MarkColorPlayerPositive[3]);
+            this.Icons.PlayerNegativeMarkColor = new Color(this.Icons.MarkColorPlayerNegative[0], this.Icons.MarkColorPlayerNegative[1], this.Icons.MarkColorPlayerNegative[2], this.Icons.MarkColorPlayerNegative[3]);
         }
     }
 }

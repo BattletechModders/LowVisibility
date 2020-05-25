@@ -32,6 +32,7 @@ namespace LowVisibility {
                 settingsE = e;
                 Mod.Config = new ModConfig();
             }
+            Mod.Config.Init();
 
             Log = new IntraModLogger(modDirectory, LogFilename, LogLabel, Config.Debug, Config.Trace);
 

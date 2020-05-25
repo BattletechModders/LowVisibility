@@ -121,6 +121,10 @@ namespace LowVisibility.Patch {
                     Mod.Log.Info($"Re-enabling sensors for {CombatantUtils.Label(__instance)}");
                     __instance.StatCollection.Set<bool>(ModStats.DisableSensors, false);
                 }
+
+                // Refresh any CombatHUDMarkDisplays
+                foreach (CombatHUDMarkDisplay chudMD in ModState.MarkContainerRefs.Keys) chudMD.RefreshInfo();
+
             }
         }
     }

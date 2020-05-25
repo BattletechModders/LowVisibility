@@ -1,6 +1,5 @@
 ﻿using BattleTech;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using us.frostraptor.modUtils;
@@ -431,16 +430,12 @@ namespace LowVisibility.Object {
         public Mimetic GetRawMimetic() { return mimetic; }
 
         // ZoomVision - Attacker
-        public int GetZoomVisionAttackMod(Weapon weapon, float distance, LineOfFireLevel lofLevel) {
+        public int GetZoomVisionAttackMod(Weapon weapon, float distance) {
             if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return 0; }
-
-            bool isIndirect = weapon.IndirectFireCapable && lofLevel < LineOfFireLevel.LOFObstructed;
-            if (isIndirect) { return 0; }
 
             int hexesBetween = (int)Math.Ceiling(distance / 30f);
             Mod.Log.Trace($"  hexesBetween: {hexesBetween} = distance: {distance} / 30");
 
-            int pips = zoomVision.AttackMod;
             int numDecays = (int)Math.Floor(hexesBetween / (float)zoomVision.HexesUntilDecay);
             Mod.Log.Trace($"  -- decays = {numDecays} from currentSteps: {hexesBetween} / decayPerStep: {zoomVision.HexesUntilDecay}");
             int currentMod = HexUtils.DecayingModifier(zoomVision.AttackMod, zoomVision.AttackCap, zoomVision.HexesUntilDecay, distance);
@@ -449,8 +444,19 @@ namespace LowVisibility.Object {
             return currentMod;
         }
 
-        public bool HasZoomVisionToTarget(Weapon weapon, float distance) {
-            if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return false; }
+        public bool HasZoomVisionToTarget(Weapon weapon, float distance, LineOfFireLevel lofLevel) {
+            // If we're firing indirectly, zoom doesn't count
+            if (weapon.IndirectFireCapable && lofLevel < LineOfFireLevel.LOFObstructed)
+            {
+                Mod.Log.Debug("Line of fire is indirect - cannot use zoom!");
+                return false;
+            }
+
+            if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) {
+                Mod.Log.Debug("Zoom vision is null, weaponType is melee or unset - cannot use zoom!");
+                return false; 
+            }
+
             return distance < zoomVision.MaximumRange;
         }
         public ZoomVision GetRawZoomVision() { return zoomVision; }

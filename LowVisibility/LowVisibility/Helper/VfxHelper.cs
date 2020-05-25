@@ -350,6 +350,8 @@ namespace LowVisibility.Helper {
 
         public static void RedrawFogOfWar(AbstractActor activeActor) {
 
+            if (!Mod.Config.FogOfWar.RedrawFogOfWarOnActivation) return;
+
             FogOfWarSystem fowSystem = LazySingletonBehavior<FogOfWarView>.Instance.FowSystem;
             if (fowSystem == null)
             {
@@ -364,7 +366,7 @@ namespace LowVisibility.Helper {
             viewers.Clear();
 
             // Reset FoW to being unseen
-            fowSystem.WipeToValue(Mod.Config.Vision.ShowTerrainThroughFogOfWar ? 
+            fowSystem.WipeToValue(Mod.Config.FogOfWar.ShowTerrainThroughFogOfWar ? 
                 FogOfWarState.Surveyed : FogOfWarState.Unknown);
 
             // Add the actor as a viewer

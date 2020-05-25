@@ -30,8 +30,8 @@ namespace LowVisibility.Patch {
                 int eyeballAttackMod = canSpotTarget ? mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
 
                 // Zoom applies independently of visibility (request from Harkonnen)
-                int zoomVisionMod = attackerState.GetZoomVisionAttackMod(weapon, distance, lofLevel);
-                int zoomAttackMod = attackerState.HasZoomVisionToTarget(weapon, distance) ? zoomVisionMod - mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
+                int zoomVisionMod = attackerState.GetZoomVisionAttackMod(weapon, distance);
+                int zoomAttackMod = attackerState.HasZoomVisionToTarget(weapon, distance, lofLevel) ? zoomVisionMod - mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
 
                 bool hasVisualAttack = (eyeballAttackMod < Mod.Config.Attack.NoVisualsPenalty || zoomAttackMod < Mod.Config.Attack.NoVisualsPenalty);
 
