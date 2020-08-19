@@ -12,9 +12,9 @@ namespace LowVisibility.Patches {
 
     public static class ArmorAndStructHelper {
         public static void ObfuscateArmorAndStructText(AbstractActor target, TextMeshProUGUI armorHover, TextMeshProUGUI structHover) {
-            if (target == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - target is null!");  }
-            if (armorHover == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - armorHover is null!"); }
-            if (structHover == null) { Mod.Log.Warn("Helper::HideArmorAndStructure - structHover is null!"); }
+            if (target == null) { Mod.Log.Warn?.Write("Helper::HideArmorAndStructure - target is null!");  }
+            if (armorHover == null) { Mod.Log.Warn?.Write("Helper::HideArmorAndStructure - armorHover is null!"); }
+            if (structHover == null) { Mod.Log.Warn?.Write("Helper::HideArmorAndStructure - structHover is null!"); }
 
             try
             {
@@ -56,7 +56,8 @@ namespace LowVisibility.Patches {
             }
             catch (Exception e)
             {
-                Mod.Log.Error($"Failed to obfuscate armor and structure text for unit: {CombatantUtils.Label(target)} from position of last-activated actor: {CombatantUtils.Label(ModState.LastPlayerActorActivated)}.", e);
+                Mod.Log.Error?.Write(e, $"Failed to obfuscate armor and structure text for unit: {CombatantUtils.Label(target)}" +
+                    $" from position of last-activated actor: {CombatantUtils.Label(ModState.LastPlayerActorActivated)}.");
             }
 
 
@@ -75,7 +76,7 @@ namespace LowVisibility.Patches {
 
             if (__instance != null && __instance.DisplayedMech != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null) {
                 if (!__instance.DisplayedMech.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedMech.TeamId)) {
-                    Mod.Log.Trace($"Hiding armor and structure on target: {CombatantUtils.Label(__instance.DisplayedMech)}");
+                    Mod.Log.Trace?.Write($"Hiding armor and structure on target: {CombatantUtils.Label(__instance.DisplayedMech)}");
                     ArmorAndStructHelper.ObfuscateArmorAndStructText(__instance.DisplayedMech, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
                 }
             }

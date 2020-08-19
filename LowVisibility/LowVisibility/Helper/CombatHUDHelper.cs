@@ -13,7 +13,7 @@ namespace LowVisibility.Helper
 
             if (combat == null || combatHUD == null || inWorldMgr == null)
             {
-                Mod.Log.Warn("CombatGameState, CombatHUD, or InWorldManager was null when a ForceNameRefresh call was made - skipping!");
+                Mod.Log.Warn?.Write("CombatGameState, CombatHUD, or InWorldManager was null when a ForceNameRefresh call was made - skipping!");
                 return;
             }
 

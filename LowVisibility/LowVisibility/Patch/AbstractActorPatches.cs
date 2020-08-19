@@ -14,7 +14,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(AbstractActor), "InitEffectStats")]
     public static class AbstractActor_InitEffectStats {
         private static void Postfix(AbstractActor __instance) {
-            Mod.Log.Trace("AA:IES entered");
+            Mod.Log.Trace?.Write("AA:IES entered");
 
             __instance.StatCollection.AddStatistic<int>(ModStats.TacticsMod, 0);
 
@@ -63,7 +63,7 @@ namespace LowVisibility.Patch {
                 {
                     __instance.StatCollection.Set<int>(ModStats.DisableSensors, __instance.Combat.TurnDirector.CurrentRound + 1); // initialize to start on the next round
                 }
-                Mod.Log.Info($"Disabling sensors on actor: {CombatantUtils.Label(__instance)} until: {__instance.StatCollection.GetValue<int>(ModStats.DisableSensors)}.");
+                Mod.Log.Info?.Write($"Disabling sensors on actor: {CombatantUtils.Label(__instance)} until: {__instance.StatCollection.GetValue<int>(ModStats.DisableSensors)}.");
             }
         }
     }
@@ -80,7 +80,7 @@ namespace LowVisibility.Patch {
             // Draw stealth if applicable
             EWState actorState = new EWState(__instance);
             if (actorState.HasStealth()) {
-                Mod.Log.Debug($"-- Sending message to update stealth");
+                Mod.Log.Debug?.Write($"-- Sending message to update stealth");
                 StealthChangedMessage message = new StealthChangedMessage(__instance.GUID);
                 __instance.Combat.MessageCenter.PublishMessage(message);
             }
@@ -88,10 +88,10 @@ namespace LowVisibility.Patch {
             // If friendly, reset the map visibility 
             if (__instance.TeamId != __instance.Combat.LocalPlayerTeamGuid && 
                 __instance.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.TeamId)) {
-                Mod.Log.Info($"{CombatantUtils.Label(__instance)} IS FRIENDLY, REBUILDING FOG OF WAR");
+                Mod.Log.Info?.Write($"{CombatantUtils.Label(__instance)} IS FRIENDLY, REBUILDING FOG OF WAR");
 
                 if (actorState.HasNightVision() && ModState.GetMapConfig().isDark) {
-                    Mod.Log.Info($"Enabling night vision mode.");
+                    Mod.Log.Info?.Write($"Enabling night vision mode.");
                     VfxHelper.EnableNightVisionEffect(__instance);
                 } else {
                     // TODO: This is likely never triggered due to the patch below... remove?
@@ -110,7 +110,7 @@ namespace LowVisibility.Patch {
     public static class AbstractActor_OnActivationEnd {
 
         public static void Prefix(AbstractActor __instance) {
-            Mod.Log.Trace("AA:OnAEnd - entered.");
+            Mod.Log.Trace?.Write("AA:OnAEnd - entered.");
 
             if (__instance != null)
             { 
@@ -128,7 +128,7 @@ namespace LowVisibility.Patch {
 
             // Forces you to be able to see targets that are only blips
             __result = __instance.VisibilityToTargetUnit(targetUnit) >= VisibilityLevel.Blip0Minimum;
-            //Mod.Log.Trace($"Actor{CombatantUtils.Label(__instance)} has LOSToTargetUnit? {__result} " +
+            //Mod.Log.Trace?.Write($"Actor{CombatantUtils.Label(__instance)} has LOSToTargetUnit? {__result} " +
             //    $"to target:{CombatantUtils.Label(targetUnit as AbstractActor)}");
         }
     }
@@ -137,13 +137,13 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(new Type[] { typeof(EffectData), typeof(Ability), typeof(string), typeof(int), typeof(AbstractActor), typeof(bool) })]
     public static class AbstractActor_CreateEffect_AbstractActor {
         public static void Postfix(AbstractActor __instance, EffectData effect, AbstractActor creator) {
-            Mod.Log.Debug("AA:CreateEffect entered");
+            Mod.Log.Debug?.Write("AA:CreateEffect entered");
 
-            Mod.Log.Debug($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: {CombatantUtils.Label(creator)}");
+            Mod.Log.Debug?.Write($" Creating effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from creator: {CombatantUtils.Label(creator)}");
 
             if (effect.effectType == EffectType.StatisticEffect) {
                 if (ModStats.IsStealthStat(effect.statisticData.statName)) {
-                    Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
+                    Mod.Log.Debug?.Write("  - Stealth effect found, rebuilding visibility.");
                     List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
                     __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
                 }
@@ -155,13 +155,13 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(new Type[] { typeof(EffectData), typeof(Ability), typeof(string), typeof(int), typeof(Team), typeof(bool) })]
     public static class AbstractActor_CreateEffect_Team {
         public static void Postfix(AbstractActor __instance, EffectData effect, Team creator) {
-            Mod.Log.Debug("AA:CreateEffect entered");
+            Mod.Log.Debug?.Write("AA:CreateEffect entered");
 
-            Mod.Log.Debug($" Creating team effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from team: {creator.GUID}");
+            Mod.Log.Debug?.Write($" Creating team effect on actor:{CombatantUtils.Label(__instance)} effectId:{effect.Description.Id} from team: {creator.GUID}");
 
             if (effect.effectType == EffectType.StatisticEffect) {
                 if (ModStats.IsStealthStat(effect.statisticData.statName)) {
-                    Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
+                    Mod.Log.Debug?.Write("  - Stealth effect found, rebuilding visibility.");
                     List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
                     __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
                 }
@@ -173,14 +173,14 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(AbstractActor), "CancelEffect")]
     public static class AbstractActor_CancelEffect {
         public static void Postfix(AbstractActor __instance, Effect effect) {
-            Mod.Log.Trace("AA:CancelEffect entered");
+            Mod.Log.Trace?.Write("AA:CancelEffect entered");
 
             if (effect.EffectData.effectType == EffectType.StatisticEffect) {
-                Mod.Log.Debug($" Cancelling effectId: '{effect.EffectData.Description.Id}'  effectName: '{effect.EffectData.Description.Name}'  " +
+                Mod.Log.Debug?.Write($" Cancelling effectId: '{effect.EffectData.Description.Id}'  effectName: '{effect.EffectData.Description.Name}'  " +
                     $"on actor: '{CombatantUtils.Label(__instance)}'  from creator: {effect.creatorID}");
 
                 if (effect.EffectData.effectType == EffectType.StatisticEffect && ModStats.IsStealthStat(effect.EffectData.statisticData.statName)) {
-                    Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
+                    Mod.Log.Debug?.Write("  - Stealth effect found, rebuilding visibility.");
                     List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
                     __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
 
@@ -188,7 +188,7 @@ namespace LowVisibility.Patch {
                 }
 
                 if (ModStats.IsStealthStat(effect.EffectData.statisticData.statName)) {
-                    Mod.Log.Debug("  - Stealth effect found, rebuilding visibility.");
+                    Mod.Log.Debug?.Write("  - Stealth effect found, rebuilding visibility.");
                     List<ICombatant> allLivingCombatants = __instance.Combat.GetAllLivingCombatants();
                     __instance.VisibilityCache.UpdateCacheReciprocal(allLivingCombatants);
 
@@ -201,10 +201,10 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(AbstractActor), "OnAuraAdded")]
     public static class AbstractActor_OnAuraAdded {
         public static void Postfix(AbstractActor __instance, MessageCenterMessage message) {
-            //Mod.Log.Debug("AA:OAA entered");
+            //Mod.Log.Debug?.Write("AA:OAA entered");
 
             AuraAddedMessage auraAddedMessage = message as AuraAddedMessage;
-            Mod.Log.Debug($" Adding aura: {auraAddedMessage.effectData.Description.Id} to target: {auraAddedMessage.targetID} from creator: {auraAddedMessage.creatorID}");
+            Mod.Log.Debug?.Write($" Adding aura: {auraAddedMessage.effectData.Description.Id} to target: {auraAddedMessage.targetID} from creator: {auraAddedMessage.creatorID}");
             if (auraAddedMessage.targetID == __instance.GUID && __instance.Combat.TurnDirector.IsInterleaved) {
 
                 if (auraAddedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
@@ -238,18 +238,18 @@ namespace LowVisibility.Patch {
 
             if (Mod.Config.Toggles.LogEffectsOnMove)
             {
-                Mod.Log.Debug($" OnMoveComplete: Effects targeting actor: {CombatantUtils.Label(__instance)}");
+                Mod.Log.Debug?.Write($" OnMoveComplete: Effects targeting actor: {CombatantUtils.Label(__instance)}");
                 List<Effect> list = __instance.Combat.EffectManager.GetAllEffectsTargeting(__instance);
                 foreach (Effect effect in list)
                 {
                     if (effect.EffectData.statisticData != null)
                     {
-                        Mod.Log.Debug($"   -- EffectID: '{effect.EffectData.Description.Id}'  Name: '{effect.EffectData.Description.Name}'  " +
+                        Mod.Log.Debug?.Write($"   -- EffectID: '{effect.EffectData.Description.Id}'  Name: '{effect.EffectData.Description.Name}'  " +
                             $"StatName:'{effect.EffectData.statisticData.statName}'  StatValue:{effect.EffectData.statisticData.modValue}");
                     }
                     else
                     {
-                        Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}  Name: {effect.EffectData.Description.Name}");
+                        Mod.Log.Debug?.Write($"   -- EffectID: {effect.EffectData.Description.Id}  Name: {effect.EffectData.Description.Name}");
                     }
                 }
 
@@ -257,18 +257,18 @@ namespace LowVisibility.Patch {
                 {
                     if (unit.GUID != __instance.GUID)
                     {
-                        Mod.Log.Debug($" friendly actor effects: {CombatantUtils.Label(unit)}");
+                        Mod.Log.Debug?.Write($" friendly actor effects: {CombatantUtils.Label(unit)}");
                         List<Effect> list2 = __instance.Combat.EffectManager.GetAllEffectsTargeting(unit);
                         foreach (Effect effect in list2)
                         {
                             if (effect.EffectData.statisticData != null)
                             {
-                                Mod.Log.Debug($"   -- EffectID: '{effect.EffectData.Description.Id}'  Name: '{effect.EffectData.Description.Name}'  " +
+                                Mod.Log.Debug?.Write($"   -- EffectID: '{effect.EffectData.Description.Id}'  Name: '{effect.EffectData.Description.Name}'  " +
                                     $"StatName:'{effect.EffectData.statisticData.statName}'  StatValue:{effect.EffectData.statisticData.modValue}");
                             }
                             else
                             {
-                                Mod.Log.Debug($"   -- EffectID: {effect.EffectData.Description.Id}  Name: {effect.EffectData.Description.Name}");
+                                Mod.Log.Debug?.Write($"   -- EffectID: {effect.EffectData.Description.Id}  Name: {effect.EffectData.Description.Name}");
                             }
                         }
                     }

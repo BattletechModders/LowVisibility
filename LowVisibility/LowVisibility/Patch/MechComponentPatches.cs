@@ -11,17 +11,17 @@ namespace LowVisibility.Patch {
     public static class MechComponent_CancelCreatedEffects {
 
         public static void Prefix(MechComponent __instance, ref bool __state) {
-            Mod.Log.Trace("MC:CCE:pre entered.");
+            Mod.Log.Trace?.Write("MC:CCE:pre entered.");
 
             // State indicates whether a stealth effect was found
             __state = false;
 
-            Mod.Log.Debug($" Cancelling effects from component: ({__instance.Name}) on actor: ({CombatantUtils.Label(__instance.parent)})");
+            Mod.Log.Debug?.Write($" Cancelling effects from component: ({__instance.Name}) on actor: ({CombatantUtils.Label(__instance.parent)})");
             for (int i = 0; i < __instance.createdEffectIDs.Count; i++) {
                 List<Effect> allEffectsWithID = __instance.parent.Combat.EffectManager.GetAllEffectsWithID(__instance.createdEffectIDs[i]);
                 foreach (Effect effect in allEffectsWithID) {
                     if (effect.EffectData.effectType == EffectType.StatisticEffect && ModStats.IsStealthStat(effect.EffectData.statisticData.statName)) {
-                        Mod.Log.Debug($" -- Found stealth effect to cancel: ({effect.EffectData.Description.Id})");
+                        Mod.Log.Debug?.Write($" -- Found stealth effect to cancel: ({effect.EffectData.Description.Id})");
                         __state = true;
                     }
                 }
@@ -29,10 +29,10 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(MechComponent __instance, bool __state) {
-            Mod.Log.Trace("MC:CCE:post entered.");
+            Mod.Log.Trace?.Write("MC:CCE:post entered.");
 
             if (__state) {
-                Mod.Log.Debug($" Stealth effect was cancelled, parent visibility needs refreshed.");
+                Mod.Log.Debug?.Write($" Stealth effect was cancelled, parent visibility needs refreshed.");
 
                 EWState parentState = new EWState(__instance.parent);
                 PilotableActorRepresentation par = __instance.parent.GameRep as PilotableActorRepresentation;
@@ -60,9 +60,9 @@ namespace LowVisibility.Patch {
     //public static class MechComponent_DamageComponent {
 
     //    public static void Postfix(MechComponent __instance, WeaponHitInfo hitInfo, ComponentDamageLevel damageLevel, bool applyEffects) {
-    //        Mod.Log.Trace("MC:DC:post entered.");
+    //        Mod.Log.Trace?.Write("MC:DC:post entered.");
 
-    //        Mod.Log.Debug($" Damaging component: ({__instance.Name}) on actor: ({CombatantUtils.Label(__instance.parent)} from hitInfo: {hitInfo.targetId}" +
+    //        Mod.Log.Debug?.Write($" Damaging component: ({__instance.Name}) on actor: ({CombatantUtils.Label(__instance.parent)} from hitInfo: {hitInfo.targetId}" +
     //            $" applying damageLevel: {damageLevel} with applyEffects: {applyEffects}");
     //    }
     //}

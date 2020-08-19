@@ -311,30 +311,30 @@ namespace LowVisibility {
     };
 
         public void LogConfig() {
-            Mod.Log.Info("=== MOD CONFIG BEGIN ===");
-            Mod.Log.Info($"  DEBUG:{this.Debug} Trace:{this.Trace}");
+            Mod.Log.Info?.Write("=== MOD CONFIG BEGIN ===");
+            Mod.Log.Info?.Write($"  DEBUG:{this.Debug} Trace:{this.Trace}");
 
-            Mod.Log.Info($"  == Probability ==");
-            Mod.Log.Info($"ProbabilitySigma:{Probability.Sigma}, ProbabilityMu:{Probability.Mu}");
+            Mod.Log.Info?.Write($"  == Probability ==");
+            Mod.Log.Info?.Write($"ProbabilitySigma:{Probability.Sigma}, ProbabilityMu:{Probability.Mu}");
             
-            Mod.Log.Info($"  == Sensors ==");
-            Mod.Log.Info($"Type Ranges - Mech: {Sensors.MechTypeRange} Vehicle: {Sensors.VehicleTypeRange} Turret: {Sensors.TurretTypeRange} UnknownType: {Sensors.UnknownTypeRange}");
-            Mod.Log.Info($"MinimumRange: {Sensors.MinimumRangeHexes}  FirstTurnForceFailedChecks: {Sensors.SensorsOfflineAtSpawn}  MaxECMDetailsPenalty: {Sensors.MaxECMDetailsPenalty}");
+            Mod.Log.Info?.Write($"  == Sensors ==");
+            Mod.Log.Info?.Write($"Type Ranges - Mech: {Sensors.MechTypeRange} Vehicle: {Sensors.VehicleTypeRange} Turret: {Sensors.TurretTypeRange} UnknownType: {Sensors.UnknownTypeRange}");
+            Mod.Log.Info?.Write($"MinimumRange: {Sensors.MinimumRangeHexes}  FirstTurnForceFailedChecks: {Sensors.SensorsOfflineAtSpawn}  MaxECMDetailsPenalty: {Sensors.MaxECMDetailsPenalty}");
 
-            Mod.Log.Info($"  == Vision ==");
-            Mod.Log.Info($"Vision Ranges - Bright: {Vision.BaseRangeBright} Dim:{Vision.BaseRangeDim} Dark:{Vision.BaseRangeDark}");
-            Mod.Log.Info($"Range Multis - Rain/Snow: x{Vision.RangeMultiRainSnow} Light Fog: x{Vision.RangeMultiLightFog} HeavyFog: x{Vision.RangeMultiHeavyFog}");
-            Mod.Log.Info($"Minimum range: {Vision.MinimumRangeHexes} ScanRange: {Vision.ScanRangeHexes}");
+            Mod.Log.Info?.Write($"  == Vision ==");
+            Mod.Log.Info?.Write($"Vision Ranges - Bright: {Vision.BaseRangeBright} Dim:{Vision.BaseRangeDim} Dark:{Vision.BaseRangeDark}");
+            Mod.Log.Info?.Write($"Range Multis - Rain/Snow: x{Vision.RangeMultiRainSnow} Light Fog: x{Vision.RangeMultiLightFog} HeavyFog: x{Vision.RangeMultiHeavyFog}");
+            Mod.Log.Info?.Write($"Minimum range: {Vision.MinimumRangeHexes} ScanRange: {Vision.ScanRangeHexes}");
 
-            Mod.Log.Info($"  == FogOfWar ==");
-            Mod.Log.Info($"RedrawFogOfWarOnActivation: {FogOfWar.RedrawFogOfWarOnActivation}  ShowTerrainThroughFogOfWar: {FogOfWar.ShowTerrainThroughFogOfWar}");
+            Mod.Log.Info?.Write($"  == FogOfWar ==");
+            Mod.Log.Info?.Write($"RedrawFogOfWarOnActivation: {FogOfWar.RedrawFogOfWarOnActivation}  ShowTerrainThroughFogOfWar: {FogOfWar.ShowTerrainThroughFogOfWar}");
 
-            Mod.Log.Info($"  == Attacking ==");
-            //Mod.Log.Info($"Penalties - NoSensors:{Attack.NoSensorInfoPenalty} NoVisuals:{Attack.NoVisualsPenalty} BlindFire:{Attack.BlindFirePenalty}");
-            //Mod.Log.Info($"Criticals Penalty - NoSensors:{Attack.NoSensorsCriticalPenalty} NoVisuals:{Attack.NoVisualsCriticalPenalty}");
-            //Mod.Log.Info($"HeatVisionMaxBonus: {Attack.MaxHeatVisionBonus}");
+            Mod.Log.Info?.Write($"  == Attacking ==");
+            //Mod.Log.Info?.Write($"Penalties - NoSensors:{Attack.NoSensorInfoPenalty} NoVisuals:{Attack.NoVisualsPenalty} BlindFire:{Attack.BlindFirePenalty}");
+            //Mod.Log.Info?.Write($"Criticals Penalty - NoSensors:{Attack.NoSensorsCriticalPenalty} NoVisuals:{Attack.NoVisualsCriticalPenalty}");
+            //Mod.Log.Info?.Write($"HeatVisionMaxBonus: {Attack.MaxHeatVisionBonus}");
 
-            Mod.Log.Info("=== MOD CONFIG END ===");
+            Mod.Log.Info?.Write("=== MOD CONFIG END ===");
         }
 
         public void Init()

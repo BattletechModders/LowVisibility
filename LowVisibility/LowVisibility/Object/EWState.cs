@@ -153,11 +153,11 @@ namespace LowVisibility.Object {
                             ExtremeRangeAttackMod = Int32.Parse(tokens[4])
                         };
                     } catch (Exception) {
-                        Mod.Log.Info($"Failed to tokenize StealthEffect value: ({rawValue}). Discarding!");
+                        Mod.Log.Info?.Write($"Failed to tokenize StealthEffect value: ({rawValue}). Discarding!");
                         stealth = null;
                     }
                 } else {
-                    Mod.Log.Info($"WARNING: Invalid StealthEffect value: ({rawValue}) found. Discarding!");
+                    Mod.Log.Info?.Write($"WARNING: Invalid StealthEffect value: ({rawValue}) found. Discarding!");
                 }
             }
             
@@ -174,11 +174,11 @@ namespace LowVisibility.Object {
                             HexesUntilDecay = Int32.Parse(tokens[2]),
                         };
                     } catch (Exception) {
-                        Mod.Log.Info($"Failed to tokenize Mimetic value: ({rawValue}). Discarding!");
+                        Mod.Log.Info?.Write($"Failed to tokenize Mimetic value: ({rawValue}). Discarding!");
                         mimetic = null;
                     }
                 } else {
-                    Mod.Log.Info($"WARNING: Invalid Mimetic value: ({rawValue}) found. Discarding!");
+                    Mod.Log.Info?.Write($"WARNING: Invalid Mimetic value: ({rawValue}) found. Discarding!");
                 }
             }
 
@@ -191,11 +191,11 @@ namespace LowVisibility.Object {
                     try {
                         zoomVision = new ZoomVision(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2]));
                     } catch (Exception) {
-                        Mod.Log.Info($"Failed to tokenize ZoomVision value: ({rawValue}). Discarding!");
+                        Mod.Log.Info?.Write($"Failed to tokenize ZoomVision value: ({rawValue}). Discarding!");
                         zoomVision = null;
                     }
                 } else {
-                    Mod.Log.Info($"WARNING: Invalid ZoomVision value: ({rawValue}) found. Discarding!");
+                    Mod.Log.Info?.Write($"WARNING: Invalid ZoomVision value: ({rawValue}) found. Discarding!");
                 }
             }
 
@@ -212,11 +212,11 @@ namespace LowVisibility.Object {
                             MaximumRange = Int32.Parse(tokens[2])
                         };
                     } catch (Exception) {
-                        Mod.Log.Info($"Failed to tokenize HeatVision value: ({rawValue}). Discarding!");
+                        Mod.Log.Info?.Write($"Failed to tokenize HeatVision value: ({rawValue}). Discarding!");
                         heatVision = null;
                     }
                 } else {
-                    Mod.Log.Info($"WARNING: Invalid HeatVision value: ({rawValue}) found. Discarding!");
+                    Mod.Log.Info?.Write($"WARNING: Invalid HeatVision value: ({rawValue}) found. Discarding!");
                 }
             }
 
@@ -233,11 +233,11 @@ namespace LowVisibility.Object {
                             AttackMod = Int32.Parse(tokens[2]), 
                         };
                     } catch (Exception) {
-                        Mod.Log.Info($"Failed to tokenize NarcEffect value: ({rawValue}). Discarding!");
+                        Mod.Log.Info?.Write($"Failed to tokenize NarcEffect value: ({rawValue}). Discarding!");
                         stealth = null;
                     }
                 } else {
-                    Mod.Log.Info($"WARNING: Invalid NarcEffect value: ({rawValue}) found. Discarding!");
+                    Mod.Log.Info?.Write($"WARNING: Invalid NarcEffect value: ({rawValue}) found. Discarding!");
                 }
             }
 
@@ -254,11 +254,11 @@ namespace LowVisibility.Object {
                             AttackMod = Int32.Parse(tokens[2]),
                         };
                     } catch (Exception) {
-                        Mod.Log.Info($"Failed to tokenize TagEffect value: ({rawValue}). Discarding!");
+                        Mod.Log.Info?.Write($"Failed to tokenize TagEffect value: ({rawValue}). Discarding!");
                         stealth = null;
                     }
                 } else {
-                    Mod.Log.Info($"WARNING: Invalid TagEffect value: ({rawValue}) found. Discarding!");
+                    Mod.Log.Info?.Write($"WARNING: Invalid TagEffect value: ({rawValue}) found. Discarding!");
                 }
             }
 
@@ -293,7 +293,7 @@ namespace LowVisibility.Object {
             strength = Math.Max(0, strength);
 
             float sigMod = strength * 0.1f;
-            if (sigMod != 0) { Mod.Log.Trace($"Target:({CombatantUtils.Label(actor)}) has ECMSignatureMod:{sigMod}"); }
+            if (sigMod != 0) { Mod.Log.Trace?.Write($"Target:({CombatantUtils.Label(actor)}) has ECMSignatureMod:{sigMod}"); }
 
             return sigMod;
         }
@@ -417,13 +417,13 @@ namespace LowVisibility.Object {
             if (mimetic == null) { return 0;  }
 
             int hexesMoved = (int)Math.Ceiling(distance / 30f);
-//            Mod.Log.Debug($"  hexesMoved: {hexesMoved} = distanceMoved: {distance} / 30");
+//            Mod.Log.Debug?.Write($"  hexesMoved: {hexesMoved} = distanceMoved: {distance} / 30");
 
             int pips = mimetic.AttackMod;
             int numDecays = (int)Math.Floor(hexesMoved / (float)mimetic.HexesUntilDecay);
-            Mod.Log.Trace($"  -- decays = {numDecays} from currentSteps: {hexesMoved} / decayPerStep: {mimetic.HexesUntilDecay}");
+            Mod.Log.Trace?.Write($"  -- decays = {numDecays} from currentSteps: {hexesMoved} / decayPerStep: {mimetic.HexesUntilDecay}");
             int currentMod = Math.Max(mimetic.AttackMod - numDecays, 0);
-            Mod.Log.Trace($"  -- current: {currentMod} = initial: {mimetic.AttackMod} - decays: {numDecays}");
+            Mod.Log.Trace?.Write($"  -- current: {currentMod} = initial: {mimetic.AttackMod} - decays: {numDecays}");
 
             return currentMod;
         }
@@ -434,12 +434,12 @@ namespace LowVisibility.Object {
             if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return 0; }
 
             int hexesBetween = (int)Math.Ceiling(distance / 30f);
-            Mod.Log.Trace($"  hexesBetween: {hexesBetween} = distance: {distance} / 30");
+            Mod.Log.Trace?.Write($"  hexesBetween: {hexesBetween} = distance: {distance} / 30");
 
             int numDecays = (int)Math.Floor(hexesBetween / (float)zoomVision.HexesUntilDecay);
-            Mod.Log.Trace($"  -- decays = {numDecays} from currentSteps: {hexesBetween} / decayPerStep: {zoomVision.HexesUntilDecay}");
+            Mod.Log.Trace?.Write($"  -- decays = {numDecays} from currentSteps: {hexesBetween} / decayPerStep: {zoomVision.HexesUntilDecay}");
             int currentMod = HexUtils.DecayingModifier(zoomVision.AttackMod, zoomVision.AttackCap, zoomVision.HexesUntilDecay, distance);
-            Mod.Log.Trace($"  -- current: {currentMod} = initial: {zoomVision.AttackMod} - decays: {numDecays}");
+            Mod.Log.Trace?.Write($"  -- current: {currentMod} = initial: {zoomVision.AttackMod} - decays: {numDecays}");
 
             return currentMod;
         }
@@ -448,12 +448,12 @@ namespace LowVisibility.Object {
             // If we're firing indirectly, zoom doesn't count
             if (weapon.IndirectFireCapable && lofLevel < LineOfFireLevel.LOFObstructed)
             {
-                Mod.Log.Debug("Line of fire is indirect - cannot use zoom!");
+                Mod.Log.Debug?.Write("Line of fire is indirect - cannot use zoom!");
                 return false;
             }
 
             if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) {
-                Mod.Log.Debug("Zoom vision is null, weaponType is melee or unset - cannot use zoom!");
+                Mod.Log.Debug?.Write("Zoom vision is null, weaponType is melee or unset - cannot use zoom!");
                 return false; 
             }
 
@@ -474,11 +474,11 @@ namespace LowVisibility.Object {
 
                 double targetHeat = targetMech != null ? (double)targetMech.CurrentHeat : 0.0;
                 int numSteps = (int)Math.Floor(targetHeat / heatVision.HeatDivisor);
-                //Mod.Log.Debug($"  numDecays: {numSteps} = targetHeat: {targetHeat} / divisor: {heatVision.HeatDivisor}");
+                //Mod.Log.Debug?.Write($"  numDecays: {numSteps} = targetHeat: {targetHeat} / divisor: {heatVision.HeatDivisor}");
 
                 // remember: Negative is better
                 currentMod = Math.Max(heatVision.AttackMod - numSteps, 0);                
-                //Mod.Log.Debug($"  -- current: {currentMod} = initial: {heatVision.AttackMod} - decays: {numSteps}");
+                //Mod.Log.Debug?.Write($"  -- current: {currentMod} = initial: {heatVision.AttackMod} - decays: {numSteps}");
             }
 
             return currentMod;

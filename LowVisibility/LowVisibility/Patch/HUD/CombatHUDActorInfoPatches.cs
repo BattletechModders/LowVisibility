@@ -14,7 +14,7 @@ namespace LowVisibility.Patch {
         [HarmonyPatch(typeof(CombatHUDActorInfo), "OnStealthChanged")]
         public static class CombatHUDActorInfo_OnStealthChanged {
             public static void Postfix(CombatHUDActorInfo __instance, MessageCenterMessage message, AbstractActor ___displayedActor) {
-                Mod.Log.Trace("CHUDAI:OSC entered");
+                Mod.Log.Trace?.Write("CHUDAI:OSC entered");
 
                 StealthChangedMessage stealthChangedMessage = message as StealthChangedMessage;
                 if (___displayedActor != null && stealthChangedMessage.affectedObjectGuid == ___displayedActor.GUID && __instance.StealthDisplay != null) {
@@ -26,7 +26,7 @@ namespace LowVisibility.Patch {
         [HarmonyPatch(typeof(CombatHUDActorInfo), "RefreshAllInfo")]
         public static class CombatHUDActorInfo_RefreshAllInfo {
             public static void Postfix(CombatHUDActorInfo __instance, AbstractActor ___displayedActor) {
-                Mod.Log.Trace("CHUDAI:RAI entered");
+                Mod.Log.Trace?.Write("CHUDAI:RAI entered");
 
                 if (___displayedActor == null || ModState.LastPlayerActorActivated == null) return;
 
@@ -72,7 +72,7 @@ namespace LowVisibility.Patch {
                         bool hasVisualScan = VisualLockHelper.CanSpotTarget(ModState.LastPlayerActorActivated, ModState.LastPlayerActorActivated.CurrentPosition, 
                             ___displayedActor, ___displayedActor.CurrentPosition, ___displayedActor.CurrentRotation, ___displayedActor.Combat.LOS);
 
-                        Mod.Log.Debug($"Updating item visibility for enemy: {CombatantUtils.Label(___displayedActor)} to scanType: {scanType} and " +
+                        Mod.Log.Debug?.Write($"Updating item visibility for enemy: {CombatantUtils.Label(___displayedActor)} to scanType: {scanType} and " +
                             $"hasVisualScan: {hasVisualScan} from lastActivated: {CombatantUtils.Label(ModState.LastPlayerActorActivated)}");
 
                         // Values that are always displayed
@@ -141,7 +141,7 @@ namespace LowVisibility.Patch {
                         if (__instance.MarkDisplay != null && ___displayedActor != null) setGOActiveMethod.GetValue(__instance.MarkDisplay, ___displayedActor.IsMarked);
                     }    
                 } catch (Exception e) {
-                    Mod.Log.Info($"Error updating item visibility! Error was: {e.Message}");
+                    Mod.Log.Info?.Write($"Error updating item visibility! Error was: {e.Message}");
                 }
             }
         }

@@ -14,7 +14,7 @@ namespace LowVisibility.Patch {
         public static bool IsFromSave = false;
 
         public static void Prefix(TurnDirector __instance) {
-            Mod.Log.Trace("TD:OEB:pre entered.");
+            Mod.Log.Trace?.Write("TD:OEB:pre entered.");
 
             // Initialize the probabilities
             ModState.InitializeCheckResults();
@@ -37,13 +37,13 @@ namespace LowVisibility.Patch {
                             }
 
                         } else {
-                            Mod.Log.Debug($"  Actor:{CombatantUtils.Label(actor)} was NULL!");
+                            Mod.Log.Debug?.Write($"  Actor:{CombatantUtils.Label(actor)} was NULL!");
                         }
                     }
                     
                     if (randomPlayerActor != null)
                     {
-                        Mod.Log.Debug($"Assigning actor: {CombatantUtils.Label(randomPlayerActor)} as lastActive.");
+                        Mod.Log.Debug?.Write($"Assigning actor: {CombatantUtils.Label(randomPlayerActor)} as lastActive.");
                         ModState.LastPlayerActorActivated = randomPlayerActor;
                     }
                 }
@@ -71,19 +71,19 @@ namespace LowVisibility.Patch {
     public static class TurnDirector_BeginNewRound {
 
         public static void Prefix(TurnDirector __instance, int round) {
-            Mod.Log.Trace($"TD:BNR entered");
-            Mod.Log.Info($"=== Turn Director is beginning round: {round}");
+            Mod.Log.Trace?.Write($"TD:BNR entered");
+            Mod.Log.Info?.Write($"=== Turn Director is beginning round: {round}");
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
                 // If our sensors are offline, re-enable them
                 if (actor.StatCollection.ContainsStatistic(ModStats.DisableSensors))
                 {
-                    Mod.Log.Info($"Actor: {CombatantUtils.Label(actor)} sensors are offline until: {actor.StatCollection.GetValue<int>(ModStats.DisableSensors)}");
+                    Mod.Log.Info?.Write($"Actor: {CombatantUtils.Label(actor)} sensors are offline until: {actor.StatCollection.GetValue<int>(ModStats.DisableSensors)}");
 
                     if (round >= actor.StatCollection.GetValue<int>(ModStats.DisableSensors))
                     {
-                        Mod.Log.Info($"Re-enabling sensors for {CombatantUtils.Label(actor)}");
+                        Mod.Log.Info?.Write($"Re-enabling sensors for {CombatantUtils.Label(actor)}");
                         actor.StatCollection.RemoveStatistic(ModStats.DisableSensors);
                     }
                 }
@@ -104,7 +104,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(TurnDirector), "OnCombatGameDestroyed")]
     public static class TurnDirector_OnCombatGameDestroyed {
         public static void Prefix(TurnDirector __instance) {
-            Mod.Log.Debug($"TD:OCGD entered");
+            Mod.Log.Debug?.Write($"TD:OCGD entered");
             // Remove all combat state
             CombatHUD_SubscribeToMessages.OnCombatGameDestroyed(__instance.Combat);
 
@@ -131,7 +131,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(EncounterLayerParent __instance, CombatGameState combat) {
-            Mod.Log.Trace($"TD:IFSPT entered");
+            Mod.Log.Trace?.Write($"TD:IFSPT entered");
 
             TurnDirector_OnEncounterBegin.IsFromSave = true;
         }

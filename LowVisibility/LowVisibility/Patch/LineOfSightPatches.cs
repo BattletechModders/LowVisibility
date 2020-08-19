@@ -61,7 +61,7 @@ namespace LowVisibility.Patch {
         public static bool Prefix(LineOfSight __instance, ref VisibilityLevel __result,
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation) {
 
-            Mod.Log.Trace($"LOS:GVTTWPAR: source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
+            Mod.Log.Trace?.Write($"LOS:GVTTWPAR: source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
 
             // Skip if we aren't ready to process
             // TODO: Is this necessary anymore?
@@ -82,7 +82,7 @@ namespace LowVisibility.Patch {
                 __result = sensorsVisibility;
             }
 
-            //Mod.Log.Trace($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
+            //Mod.Log.Trace?.Write($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
             return false;
         }                        
     }
@@ -91,7 +91,7 @@ namespace LowVisibility.Patch {
     public static class LineOfSight_GetLineOfFireUncached {
         public static void Postfix(LineOfSight __instance, ref LineOfFireLevel __result, CombatGameState ___Combat,
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation, out Vector3 collisionWorldPos) {
-            Mod.Log.Trace($"LOS:GLOFU entered. ");
+            Mod.Log.Trace?.Write($"LOS:GLOFU entered. ");
 
             Vector3 forward = targetPosition - sourcePosition;
             forward.y = 0f;
@@ -222,7 +222,7 @@ namespace LowVisibility.Patch {
                 __result = LineOfFireLevel.LOFBlocked;
             }
 
-            Mod.Log.Trace($"LOS:GLOFU LOS result is:{__result}");
+            Mod.Log.Trace?.Write($"LOS:GLOFU LOS result is:{__result}");
         }
     }
 
@@ -244,7 +244,7 @@ namespace LowVisibility.Patch {
                 //if (allies[i].VisibilityCache.VisibilityToTarget(target).VisibilityLevel == VisibilityLevel.LOSFull) {
                 if (allies[i].VisibilityCache.VisibilityToTarget(target).VisibilityLevel >= VisibilityLevel.Blip0Minimum) {
                     __result = true;
-                    Mod.Log.Trace($"Allied actor{CombatantUtils.Label(allies[i])} has LOS " +
+                    Mod.Log.Trace?.Write($"Allied actor{CombatantUtils.Label(allies[i])} has LOS " +
                         $"to target:{CombatantUtils.Label(target as AbstractActor)}, returning true.");
                     return;
                 }
@@ -254,7 +254,7 @@ namespace LowVisibility.Patch {
                 ___combat.LOS.GetVisibilityToTargetWithPositionsAndRotations(attacker, position, target);
             //__result = visibilityToTargetWithPositionsAndRotations == VisibilityLevel.LOSFull;
             __result = visibilityToTargetWithPositionsAndRotations >= VisibilityLevel.Blip0Minimum;
-            Mod.Log.Trace($"Actor{CombatantUtils.Label(attacker)} has LOS? {__result} " +
+            Mod.Log.Trace?.Write($"Actor{CombatantUtils.Label(attacker)} has LOS? {__result} " +
                 $"to target:{CombatantUtils.Label(target as AbstractActor)}");
         }
     }

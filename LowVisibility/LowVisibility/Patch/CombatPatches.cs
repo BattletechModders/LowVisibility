@@ -9,7 +9,7 @@ namespace LowVisibility.Patch {
    [HarmonyPatch(typeof(CombatSelectionHandler), "TrySelectActor")]
     public static class CombatSelectionHandler_TrySelectActor {
         public static void Postfix(CombatSelectionHandler __instance, bool __result, AbstractActor actor, bool manualSelection) {
-            Mod.Log.Debug($"=== CombatSelectionHandler:TrySelectActor:post - entered for {CombatantUtils.Label(actor)}.");
+            Mod.Log.Debug?.Write($"=== CombatSelectionHandler:TrySelectActor:post - entered for {CombatantUtils.Label(actor)}.");
             if (__instance != null && actor != null && __result == true && actor.IsAvailableThisPhase) {
 
                 // Do this to force a refresh during a combat save

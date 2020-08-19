@@ -50,7 +50,7 @@ namespace LowVisibility {
 
         // --- Methods manipulating CheckResults
         public static void InitializeCheckResults() {
-            Mod.Log.Info($"Initializing a new random buffer of size:{ResultsToPrecalcuate}");
+            Mod.Log.Info?.Write($"Initializing a new random buffer of size:{ResultsToPrecalcuate}");
             Xoshiro256PlusRandomBuilder builder = new Xoshiro256PlusRandomBuilder();
             IRandomSource rng = builder.Create();
             double mean = Mod.Config.Probability.Mu;
@@ -61,7 +61,7 @@ namespace LowVisibility {
 
         public static int GetCheckResult() {
             if (CheckResultIdx < 0 || CheckResultIdx > ResultsToPrecalcuate) {
-                Mod.Log.Info($"ERROR: CheckResultIdx of {CheckResultIdx} is out of bounds! THIS SHOULD NOT HAPPEN!");
+                Mod.Log.Info?.Write($"ERROR: CheckResultIdx of {CheckResultIdx} is out of bounds! THIS SHOULD NOT HAPPEN!");
             }
 
             double result = CheckResults[CheckResultIdx];
@@ -78,7 +78,7 @@ namespace LowVisibility {
         }
 
         public static void Reset() {
-            Mod.Log.Info($"RESETTING STATE!");
+            Mod.Log.Info?.Write($"RESETTING STATE!");
             // Reinitialize state
             MapConfig = null;
             MoodController = null;

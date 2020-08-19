@@ -20,7 +20,7 @@ namespace LowVisibility.Patch.UI
     {
         public static void Postfix(VisRangeIndicator __instance, bool visible)
         {
-            Mod.Log.Trace("VRI:SDV - invoked!");
+            Mod.Log.Trace?.Write("VRI:SDV - invoked!");
             VisRangeState.VisRangeProjector.SetActive(visible);
         }
     }
@@ -30,10 +30,10 @@ namespace LowVisibility.Patch.UI
     {
         public static void Postfix(VisRangeIndicator __instance)
         {
-            Mod.Log.Trace("VRI:I - invoked!");
+            Mod.Log.Trace?.Write("VRI:I - invoked!");
             Transform projectorTransform = __instance.gameObject.transform.Find("VisRangeProjector");
             if (projectorTransform != null) VisRangeState.VisRangeProjector = projectorTransform.gameObject;
-            else Mod.Log.Warn("FAILED TO FIND VisRangeProjector transform!");
+            else Mod.Log.Warn?.Write("FAILED TO FIND VisRangeProjector transform!");
         }
     }
 
@@ -42,7 +42,7 @@ namespace LowVisibility.Patch.UI
     {
         public static void Postfix(VisRangeIndicator __instance)
         {
-            Mod.Log.Trace("VRI:OD - invoked!");
+            Mod.Log.Trace?.Write("VRI:OD - invoked!");
             VisRangeState.VisRangeProjector = null;
         }
     }

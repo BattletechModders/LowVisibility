@@ -72,7 +72,7 @@ namespace LowVisibility.Patch {
 
         // TODO: Dangerous PREFIX false here!
         public static bool Prefix(CombatHUDTargetingComputer __instance, CombatHUD ___HUD) {
-            //Mod.Log.Trace("CHUDTC:U:pre - entered.");
+            //Mod.Log.Trace?.Write("CHUDTC:U:pre - entered.");
 
             CombatGameState Combat = ___HUD?.Combat;
 
@@ -213,24 +213,24 @@ namespace LowVisibility.Patch {
                 __instance.ActivelyShownCombatant.Combat == null || __instance.ActivelyShownCombatant.Combat.HostilityMatrix == null ||
                 __instance.WeaponList == null) 
             {
-                Mod.Log.Debug($"CHTC:RAI ~~~ TC, target, or WeaponList is null, skipping.");
+                Mod.Log.Debug?.Write($"CHTC:RAI ~~~ TC, target, or WeaponList is null, skipping.");
                 return;
             }
 
             if (ModState.LastPlayerActorActivated == null)
             {
-                Mod.Log.Error("Attempting to refresh ActorInfo, but LastPlayerActorActivated is null. This should never happen!");
+                Mod.Log.Error?.Write("Attempting to refresh ActorInfo, but LastPlayerActorActivated is null. This should never happen!");
             }
 
             if (__instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID)) 
             {
-                Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
+                Mod.Log.Debug?.Write($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
                 __instance.WeaponList.SetActive(true);
                 return;
             } 
 
             // Only enemies or neutrals below this point
-            Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy");
+            Mod.Log.Debug?.Write($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy");
 
             try
             {
@@ -242,7 +242,7 @@ namespace LowVisibility.Patch {
                     bool hasVisualScan = VisualLockHelper.CanSpotTarget(ModState.LastPlayerActorActivated, ModState.LastPlayerActorActivated.CurrentPosition, 
                         target, target.CurrentPosition, target.CurrentRotation, target.Combat.LOS);
                     SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
-                    Mod.Log.Debug($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(ModState.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} " +
+                    Mod.Log.Debug?.Write($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(ModState.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} " +
                         $"at range: {range} has scanType:{scanType} visualScan:{hasVisualScan}");
 
                     // Build the CAC side-panel
@@ -252,8 +252,8 @@ namespace LowVisibility.Patch {
                     }
                     catch (Exception e)
                     {
-                        Mod.Log.Error($"Failed to initialize CAC SidePanel for source: {CombatantUtils.Label(ModState.LastPlayerActorActivated)} and " +
-                            $"target: {CombatantUtils.Label(__instance.ActivelyShownCombatant)}!", e);
+                        Mod.Log.Error?.Write(e, $"Failed to initialize CAC SidePanel for source: {CombatantUtils.Label(ModState.LastPlayerActorActivated)} and " +
+                            $"target: {CombatantUtils.Label(__instance.ActivelyShownCombatant)}!");
                     }
 
                     if (scanType >= SensorScanType.StructAndWeaponID)
@@ -285,7 +285,7 @@ namespace LowVisibility.Patch {
                 }
                 else if (__instance.ActivelyShownCombatant is BattleTech.Building building)
                 {
-                    Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy building");
+                    Mod.Log.Debug?.Write($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy building");
 
                     SetArmorDisplayActive(__instance, true);
 
@@ -301,7 +301,7 @@ namespace LowVisibility.Patch {
             } 
             catch (Exception e)
             {
-                Mod.Log.Error("Failed to RefreshActorInfo!", e);
+                Mod.Log.Error?.Write(e, "Failed to RefreshActorInfo!");
             }
 
         }

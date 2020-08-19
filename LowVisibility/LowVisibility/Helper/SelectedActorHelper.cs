@@ -15,12 +15,12 @@ namespace LowVisibility.Helper {
             ActorSelectedMessage actorSelectedMessage = message as ActorSelectedMessage;
             AbstractActor actor = Combat.FindActorByGUID(actorSelectedMessage.affectedObjectGuid);
             if (actor.team.IsLocalPlayer) {
-                Mod.Log.Info($"Updating last activated actor to: ({CombatantUtils.Label(actor)})");
+                Mod.Log.Info?.Write($"Updating last activated actor to: ({CombatantUtils.Label(actor)})");
                 ModState.LastPlayerActorActivated = actor;
 
                 EWState actorState = new EWState(actor);
                 if (actorState.HasNightVision() && ModState.GetMapConfig().isDark) {
-                    Mod.Log.Info($"Enabling night vision mode.");
+                    Mod.Log.Info?.Write($"Enabling night vision mode.");
                     VfxHelper.EnableNightVisionEffect(actor);
                 } else {
                     if (ModState.IsNightVisionMode) {
@@ -43,19 +43,19 @@ namespace LowVisibility.Helper {
         }
 
         public static void OnAuraAddedMessage(MessageCenterMessage message) {
-            Mod.Log.Info("SAH == ON AURA Added");
+            Mod.Log.Info?.Write("SAH == ON AURA Added");
             AuraAddedMessage auraAddedMessage = message as AuraAddedMessage;
             AbstractActor target = Combat.FindActorByGUID(auraAddedMessage.targetID);
             AbstractActor creator = Combat.FindActorByGUID(auraAddedMessage.creatorID);
-            Mod.Log.Debug($"ON AURA ADDED: {CombatantUtils.Label(target)} from {CombatantUtils.Label(creator)}");
+            Mod.Log.Debug?.Write($"ON AURA ADDED: {CombatantUtils.Label(target)} from {CombatantUtils.Label(creator)}");
         }
 
         public static void OnAuraRemovedMessage(MessageCenterMessage message) {
-            Mod.Log.Info("SAH == ON AURA REMOVED");
+            Mod.Log.Info?.Write("SAH == ON AURA REMOVED");
             AuraRemovedMessage auraRemoveMessage = message as AuraRemovedMessage;
             AbstractActor target = Combat.FindActorByGUID(auraRemoveMessage.targetID);
             AbstractActor creator = Combat.FindActorByGUID(auraRemoveMessage.creatorID);
-            Mod.Log.Debug($"ON AURA ADDED: {CombatantUtils.Label(target)} from {CombatantUtils.Label(creator)}");
+            Mod.Log.Debug?.Write($"ON AURA ADDED: {CombatantUtils.Label(target)} from {CombatantUtils.Label(creator)}");
         }
     }
 }

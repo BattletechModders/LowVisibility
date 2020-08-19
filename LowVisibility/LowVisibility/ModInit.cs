@@ -1,4 +1,5 @@
 ﻿using Harmony;
+using IRBTModUtils.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
@@ -14,7 +15,7 @@ namespace LowVisibility {
         public const string LogFilename = "low_visibility";
         public const string LogLabel = "LOWVIS";
 
-        public static IntraModLogger Log;
+        public static DeferringLogger Log;
         public static string ModDir;
         public static ModConfig Config;
 
@@ -34,14 +35,14 @@ namespace LowVisibility {
             }
             Mod.Config.Init();
 
-            Log = new IntraModLogger(modDirectory, LogFilename, LogLabel, Config.Debug, Config.Trace);
+            Log = new DeferringLogger(modDirectory, LogFilename, LogLabel, Config.Debug, Config.Trace);
 
             Assembly asm = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(asm.Location);
-            Log.Info($"Assembly version: {fvi.ProductVersion}");
+            Log.Info?.Write($"Assembly version: {fvi.ProductVersion}");
 
-            Log.Debug($"ModDir is:{modDirectory}");
-            Log.Debug($"mod.json settings are:({settingsJSON})");
+            Log.Debug?.Write($"ModDir is:{modDirectory}");
+            Log.Debug?.Write($"mod.json settings are:({settingsJSON})");
             Mod.Config.LogConfig();
 
             var harmony = HarmonyInstance.Create(HarmonyPackage);

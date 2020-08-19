@@ -12,25 +12,25 @@ namespace LowVisibility.Helper {
 
             if (source.StatCollection.ContainsStatistic(ModStats.DisableSensors))
             {
-                Mod.Log.Debug($"Returning minimum sensors range for {CombatantUtils.Label(source)} due to disabled sensors.");
+                Mod.Log.Debug?.Write($"Returning minimum sensors range for {CombatantUtils.Label(source)} due to disabled sensors.");
                 return Mod.Config.Sensors.MinimumSensorRange();
             }
 
             // Add multipliers and absolute bonuses
             EWState ewState = new EWState(source);
 
-            Mod.Log.Trace($"  == Sensors Range for for actor:{CombatantUtils.Label(source)}");
+            Mod.Log.Trace?.Write($"  == Sensors Range for for actor:{CombatantUtils.Label(source)}");
 
             float rawRangeMulti = SensorLockHelper.GetAllSensorRangeMultipliers(source);
             float rangeMulti = rawRangeMulti + ewState.GetSensorsRangeMulti();
-            Mod.Log.Trace($"    rangeMulti: {rangeMulti} = rawRangeMulti: {rawRangeMulti} + sensorCheckRangeMulti: {ewState.GetSensorsRangeMulti()}");
+            Mod.Log.Trace?.Write($"    rangeMulti: {rangeMulti} = rawRangeMulti: {rawRangeMulti} + sensorCheckRangeMulti: {ewState.GetSensorsRangeMulti()}");
 
             float rawRangeMod = SensorLockHelper.GetAllSensorRangeAbsolutes(source);
             float rangeMod = rawRangeMod * (1 + ewState.GetSensorsRangeMulti());
-            Mod.Log.Trace($"    rangeMod: {rangeMod} = rawRangeMod: {rawRangeMod} + sensorCheckRangeMulti: {ewState.GetSensorsRangeMulti()}");
+            Mod.Log.Trace?.Write($"    rangeMod: {rangeMod} = rawRangeMod: {rawRangeMod} + sensorCheckRangeMulti: {ewState.GetSensorsRangeMulti()}");
 
             float sensorsRange = ewState.GetSensorsBaseRange() * rangeMulti + rangeMod;
-            Mod.Log.Trace($"    sensorsRange: { sensorsRange} = baseRange: {ewState.GetSensorsBaseRange()} * rangeMult: {rangeMulti} + rangeMod: {rangeMod}");
+            Mod.Log.Trace?.Write($"    sensorsRange: { sensorsRange} = baseRange: {ewState.GetSensorsBaseRange()} * rangeMult: {rangeMulti} + rangeMod: {rangeMod}");
 
             if (sensorsRange < Mod.Config.Sensors.MinimumSensorRange()) sensorsRange = Mod.Config.Sensors.MinimumSensorRange();
 
@@ -54,7 +54,7 @@ namespace LowVisibility.Helper {
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        private static float GetAllSensorRangeMultipliers(AbstractActor source) {
+        public static float GetAllSensorRangeMultipliers(AbstractActor source) {
             if (source == null) {
                 return 1f;
             }
@@ -101,7 +101,7 @@ namespace LowVisibility.Helper {
             float tagMod = ewState.TagSignatureMod(sourceState);
 
             float targetSignature = rawSignature + shutdownMod + ecmShieldMod + narcMod + tagMod;
-            Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has signature: {targetSignature} = " +
+            Mod.Log.Trace?.Write($" Actor: {CombatantUtils.Label(target)} has signature: {targetSignature} = " +
                 $"rawSignature: {rawSignature} +  shutdown: {shutdownMod} + ecmShield: {ecmShieldMod} " +
                 $"+ stealth: {stealthMod} + narc: {narcMod} + tag: {tagMod}");
 
@@ -115,24 +115,24 @@ namespace LowVisibility.Helper {
             List<AbstractActor> sensorSources = new List<AbstractActor>();
             if (source == null) {
                 // We don't have an active source, so treat the entire allied faction as sources
-                Mod.Log.Trace($"No primary lock source, assuming all allies.");
+                Mod.Log.Trace?.Write($"No primary lock source, assuming all allies.");
                 sensorSources.AddRange(target.Combat.GetAllAlliesOf(target.Combat.LocalPlayerTeam));
             } else {
                 // We have an active source, so only use that model plus any 'shares sensors' models
-                Mod.Log.Trace($"Actor:({CombatantUtils.Label(source)}) is primary lock source.");
+                Mod.Log.Trace?.Write($"Actor:({CombatantUtils.Label(source)}) is primary lock source.");
                 sensorSources.Add(source);
             }
 
-            Mod.Log.Trace($"Checking locks from {sensorSources.Count} sources.");
+            Mod.Log.Trace?.Write($"Checking locks from {sensorSources.Count} sources.");
             foreach (AbstractActor actor in sensorSources) {
                 SensorScanType actorScanType = CalculateSensorInfoLevel(actor, target);
                 if (actorScanType > scanType) {
-                    Mod.Log.Trace($"Increasing scanType to: ({actorScanType}) from source:({CombatantUtils.Label(actor)}) ");
+                    Mod.Log.Trace?.Write($"Increasing scanType to: ({actorScanType}) from source:({CombatantUtils.Label(actor)}) ");
                     scanType = actorScanType;
                 }
             }
 
-            Mod.Log.Trace($"Shared lock to target:({CombatantUtils.Label(target)}) is type: ({scanType})");
+            Mod.Log.Trace?.Write($"Shared lock to target:({CombatantUtils.Label(target)}) is type: ({scanType})");
             return scanType;
         }
 
@@ -140,44 +140,44 @@ namespace LowVisibility.Helper {
 
             if (source.GUID == target.GUID || source.Combat.HostilityMatrix.IsFriendly(source.TeamId, target.team.GUID)) {
                 // If they are us, or allied, automatically give sensor details
-                Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is friendly to target:{CombatantUtils.Label(target)}. Forcing full visibility.");
+                Mod.Log.Trace?.Write($"  source:{CombatantUtils.Label(source)} is friendly to target:{CombatantUtils.Label(target)}. Forcing full visibility.");
                 return SensorScanType.AllInformation;
             }
 
             if (source.IsDead || source.IsFlaggedForDeath) {
                 // If we're dead, we can't have vision or sensors. If we're off the map, we can't either. If the target is off the map, we can't see it.                
-                Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is dead or dying. Forcing no visibility.");
+                Mod.Log.Trace?.Write($"  source:{CombatantUtils.Label(source)} is dead or dying. Forcing no visibility.");
                 return SensorScanType.NoInfo;
             }
 
             if (target.IsDead || target.IsFlaggedForDeath) {
                 // If the target is dead, we can't have sensor but we have vision 
-                Mod.Log.Trace($"  target:{CombatantUtils.Label(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
+                Mod.Log.Trace?.Write($"  target:{CombatantUtils.Label(target)} is dead or dying. Forcing no sensor lock, vision based upon visibility.");
                 return SensorScanType.NoInfo;
             }
 
             if (source.IsTeleportedOffScreen) {
-                Mod.Log.Trace($"  source as is teleported off screen. Skipping.");
+                Mod.Log.Trace?.Write($"  source as is teleported off screen. Skipping.");
                 return SensorScanType.NoInfo;
             }
 
             if (source.StatCollection.ContainsStatistic(ModStats.DisableSensors))
             {
-                Mod.Log.Debug($"Sensors disabled for source: {CombatantUtils.Label(source)}, returning no info.");
+                Mod.Log.Debug?.Write($"Sensors disabled for source: {CombatantUtils.Label(source)}, returning no info.");
                 return SensorScanType.NoInfo;
             }
 
             EWState sourceState = new EWState(source);
             float distance = Vector3.Distance(sourcePos, targetPos);
             float sensorRangeVsTarget = SensorLockHelper.GetAdjustedSensorRange(source, target);
-            Mod.Log.Trace($"SensorLockHelper - source: {CombatantUtils.Label(source)} sensorRangeVsTarget: {sensorRangeVsTarget} vs distance: {distance}");
+            Mod.Log.Trace?.Write($"SensorLockHelper - source: {CombatantUtils.Label(source)} sensorRangeVsTarget: {sensorRangeVsTarget} vs distance: {distance}");
             if (target is BattleTech.Building targetBuilding) {
                 // If the target is a building, show them so long as they are in sensor distance
                 // TODO: ADD FRIENDLY ECM CHECK HERE?
 
                 // TODO: This should be calculated more fully! Major bug here!
                 SensorScanType buildingLock = sourceState.GetCurrentEWCheck() > 0 ? SensorScanType.ArmorAndWeaponType : SensorScanType.NoInfo;
-                Mod.Log.Trace($"  target:{CombatantUtils.Label(targetBuilding)} is a building with lockState:{buildingLock}");
+                Mod.Log.Trace?.Write($"  target:{CombatantUtils.Label(targetBuilding)} is a building with lockState:{buildingLock}");
                 return buildingLock;
             } else if ((target as AbstractActor) != null) {
                 AbstractActor targetActor = target as AbstractActor;
@@ -186,12 +186,12 @@ namespace LowVisibility.Helper {
                 if (distance > sensorRangeVsTarget) {
                     // Check for Narc effect that will show the target regardless of range
                     SensorScanType narcLock = HasNarcBeaconDetection(target, sourceState, targetState) ? SensorScanType.LocationAndType : SensorScanType.NoInfo;
-                    Mod.Log.Trace($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
+                    Mod.Log.Trace?.Write($"  source:{CombatantUtils.Label(source)} is out of range, lock from Narc is:{narcLock}");
                     return narcLock;
                 } else {
                     SensorScanType sensorLock = SensorScanType.NoInfo;
                     if (targetActor.IsTeleportedOffScreen) {
-                        Mod.Log.Trace($"  target is teleported off screen. Skipping.");
+                        Mod.Log.Trace?.Write($"  target is teleported off screen. Skipping.");
                     } else {
                         // TODO: Re-add shadowing logic
                         // TODO: SensorLock adds a boost from friendlies if they have shares sensors?
@@ -203,12 +203,12 @@ namespace LowVisibility.Helper {
                             sensorLock = SensorScanType.LocationAndType;
                         }
                     }
-                    Mod.Log.Trace($"SensorLockHelper - source:{CombatantUtils.Label(source)} has sensorLock:({sensorLock}) vs " +
+                    Mod.Log.Trace?.Write($"SensorLockHelper - source:{CombatantUtils.Label(source)} has sensorLock:({sensorLock}) vs " +
                         $"target:{CombatantUtils.Label(target)}");
                     return sensorLock;
                 }
             } else {
-                Mod.Log.Info($"SensorLockHelper - fallthrough case for target: {CombatantUtils.Label(target)} with type: {target.GetType()}. Returning NoLock!");
+                Mod.Log.Info?.Write($"SensorLockHelper - fallthrough case for target: {CombatantUtils.Label(target)} with type: {target.GetType()}. Returning NoLock!");
                 return SensorScanType.NoInfo;
             }
         }
@@ -222,7 +222,7 @@ namespace LowVisibility.Helper {
         }
 
         private static SensorScanType CalculateSensorInfoLevel(AbstractActor source, ICombatant target) {
-            Mod.Log.Trace($"Calculating SensorInfo from source: ({CombatantUtils.Label(source)}) to target: ({CombatantUtils.Label(target)})");
+            Mod.Log.Trace?.Write($"Calculating SensorInfo from source: ({CombatantUtils.Label(source)}) to target: ({CombatantUtils.Label(target)})");
 
             // Determine modified check against target
             EWState sourceState = new EWState(source);
@@ -232,17 +232,17 @@ namespace LowVisibility.Helper {
             int ecmNegativeMods = 0;
 
             positiveMods += sourceState.GetCurrentEWCheck(); 
-            Mod.Log.Trace($" == detailsLevel from EW check = {positiveMods}");
+            Mod.Log.Trace?.Write($" == detailsLevel from EW check = {positiveMods}");
 
             // --- Source: Advanced Sensors
             if (sourceState.AdvancedSensorsMod() > 0) {
-                Mod.Log.Trace($" == source has advanced sensors, detailsLevel = {positiveMods} + {sourceState.AdvancedSensorsMod()}");
+                Mod.Log.Trace?.Write($" == source has advanced sensors, detailsLevel = {positiveMods} + {sourceState.AdvancedSensorsMod()}");
                 positiveMods += sourceState.AdvancedSensorsMod();
             }
 
             // --- Source: ECM Jamming
             if (sourceState.GetRawECMJammed() > 0) {
-                Mod.Log.Trace($" == source is jammed by ECM, detailsLevel = {ecmNegativeMods} - {sourceState.GetRawECMJammed()}");
+                Mod.Log.Trace?.Write($" == source is jammed by ECM, detailsLevel = {ecmNegativeMods} - {sourceState.GetRawECMJammed()}");
                 ecmNegativeMods -= sourceState.GetRawECMJammed();
             }
 
@@ -253,48 +253,48 @@ namespace LowVisibility.Helper {
 
                 // ECM Shield reduces sensor info
                 if (targetState.ECMDetailsMod(sourceState) > 0) {
-                    Mod.Log.Trace($" == target is shielded by ECM, detailsLevel = {ecmNegativeMods} - {targetState.ECMDetailsMod(sourceState)}");
+                    Mod.Log.Trace?.Write($" == target is shielded by ECM, detailsLevel = {ecmNegativeMods} - {targetState.ECMDetailsMod(sourceState)}");
                     ecmNegativeMods -= targetState.ECMDetailsMod(sourceState);
                 }
 
                 // Stealth reduces sensor info
                 if (targetState.HasStealth()) {
-                    Mod.Log.Trace($" == target has stealth, detailsLevel = {negativeMods} - {targetState.StealthDetailsMod()}");
+                    Mod.Log.Trace?.Write($" == target has stealth, detailsLevel = {negativeMods} - {targetState.StealthDetailsMod()}");
                     negativeMods -= targetState.StealthDetailsMod();
                 }
 
                 // A Narc effect increases sensor info
                 // TODO: Narc should effect buildings
                 if (targetState.IsNarced(sourceState)) {
-                    Mod.Log.Trace($" == target is NARC'd, detailsLevel = {positiveMods} + {targetState.NarcDetailsMod(sourceState)}");
+                    Mod.Log.Trace?.Write($" == target is NARC'd, detailsLevel = {positiveMods} + {targetState.NarcDetailsMod(sourceState)}");
                     positiveMods += targetState.NarcDetailsMod(sourceState);
                 }
 
                 // A TAG effect increases sensor info
                 // TODO: TAG should effect buildings
                 if (targetState.IsTagged(sourceState)) {
-                    Mod.Log.Trace($" == target is tagged, detailsLevel = {positiveMods} + {targetState.TagDetailsMod(sourceState)}");
+                    Mod.Log.Trace?.Write($" == target is tagged, detailsLevel = {positiveMods} + {targetState.TagDetailsMod(sourceState)}");
                     positiveMods += targetState.TagDetailsMod(sourceState);
                 }
 
                 // Active Probe ping acts as sensors boost as well
                 if (targetState.PingedByProbeMod() != 0) {
-                    Mod.Log.Trace($" == target is pinged by probe, detailsLevel = {positiveMods} + {targetState.PingedByProbeMod()}");
+                    Mod.Log.Trace?.Write($" == target is pinged by probe, detailsLevel = {positiveMods} + {targetState.PingedByProbeMod()}");
                     positiveMods += targetState.PingedByProbeMod();
                 }
 
             }
 
             if (ecmNegativeMods < Mod.Config.Sensors.MaxECMDetailsPenalty) {
-                Mod.Log.Trace($"  == negatives exceed cap, setting negative penalty to Sensors.MaxECMDetailsPenalty: {Mod.Config.Sensors.MaxECMDetailsPenalty }");
+                Mod.Log.Trace?.Write($"  == negatives exceed cap, setting negative penalty to Sensors.MaxECMDetailsPenalty: {Mod.Config.Sensors.MaxECMDetailsPenalty }");
                 ecmNegativeMods = Mod.Config.Sensors.MaxECMDetailsPenalty; 
             }
 
             int detailLevel = positiveMods + negativeMods + ecmNegativeMods;
-            Mod.Log.Trace($"  == detailsTotal: {detailLevel} = positiveMods: {positiveMods} + negativeMods: {negativeMods}");
+            Mod.Log.Trace?.Write($"  == detailsTotal: {detailLevel} = positiveMods: {positiveMods} + negativeMods: {negativeMods}");
 
             SensorScanType sensorInfo = SensorScanTypeHelper.DetectionLevelForCheck(detailLevel);
-            Mod.Log.Trace($" == Calculated sensorInfo as: ({sensorInfo})");
+            Mod.Log.Trace?.Write($" == Calculated sensorInfo as: ({sensorInfo})");
 
             return sensorInfo;
         }

@@ -9,12 +9,12 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(CombatGameState), "_Init")]
     public static class CombatGameState__Init {
         public static void Postfix(CombatGameState __instance) {
-            Mod.Log.Trace("CGS:_I entered.");
+            Mod.Log.Trace?.Write("CGS:_I entered.");
             DataManager dm = UnityGameInstance.BattleTechGame.DataManager;
             LoadRequest loadRequest = dm.CreateLoadRequest();
 
             // Need to load each unique icon
-            Mod.Log.Info("LOADING EFFECT ICONS...");
+            Mod.Log.Info?.Write("LOADING EFFECT ICONS...");
             loadRequest.AddLoadRequest<SVGAsset>(BattleTechResourceType.SVGAsset, Mod.Config.Icons.ElectronicWarfare, null);
             loadRequest.AddLoadRequest<SVGAsset>(BattleTechResourceType.SVGAsset, Mod.Config.Icons.SensorsDisabled, null);
             loadRequest.AddLoadRequest<SVGAsset>(BattleTechResourceType.SVGAsset, Mod.Config.Icons.VisionAndSensors, null);
@@ -29,7 +29,7 @@ namespace LowVisibility.Patch {
             loadRequest.AddLoadRequest<SVGAsset>(BattleTechResourceType.SVGAsset, Mod.Config.Icons.TargetActiveProbePingedMark, null);
 
             loadRequest.ProcessRequests();
-            Mod.Log.Info("  ICON LOADING COMPLETE!");
+            Mod.Log.Info?.Write("  ICON LOADING COMPLETE!");
 
             ModState.Combat = __instance;
         }
@@ -41,7 +41,7 @@ namespace LowVisibility.Patch {
     {
         static void Postfix()
         {
-            Mod.Log.Trace("CGS:OCGD - entered.");
+            Mod.Log.Trace?.Write("CGS:OCGD - entered.");
 
             ModState.Reset();
         }

@@ -110,7 +110,7 @@ namespace LowVisibility.Object {
             else if (checkResult >= 3) level = SensorScanType.ArmorAndWeaponType;
             else if (checkResult >= 0) level = SensorScanType.LocationAndType;
 
-            Mod.Log.Trace($" For EW check result: {checkResult} detectionLevel is: {level} ");
+            Mod.Log.Trace?.Write($" For EW check result: {checkResult} detectionLevel is: {level} ");
             return level;
         }
     }
