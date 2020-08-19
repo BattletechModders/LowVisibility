@@ -12,13 +12,13 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(PilotableActorRepresentation), "OnPlayerVisibilityChanged")]
     public static class PilotableActorRepresentation_OnPlayerVisibilityChanged {
         public static void Postfix(PilotableActorRepresentation __instance, VisibilityLevel newLevel) {
-            Mod.Log.Trace("PAR:OPVC entered.");
+            Mod.Log.Trace()?.Invoke("PAR:OPVC entered.");
 
             Traverse parentT = Traverse.Create(__instance).Property("parentActor");
             AbstractActor parentActor = parentT.GetValue<AbstractActor>();
 
             if (parentActor == null) {
-                Mod.Log.Trace($"ParentActor is null, skipping!");
+                Mod.Log.Trace()?.Invoke($"ParentActor is null, skipping!");
                 return;
             }
 
@@ -40,16 +40,16 @@ namespace LowVisibility.Patch {
                 __instance.BlipObjectUnknown.SetActive(false);
                 __instance.BlipObjectUnknown.SetActive(false);
             } else if (newLevel >= VisibilityLevel.Blip0Minimum) {
-                Mod.Log.Debug($"Actor: {CombatantUtils.Label(parentActor)} has changed player visibility to: {newLevel}");
+                Mod.Log.Debug()?.Invoke($"Actor: {CombatantUtils.Label(parentActor)} has changed player visibility to: {newLevel}");
 
                 if (parentActor.team.IsFriendly(parentActor.Combat.LocalPlayerTeam)) {
-                    Mod.Log.Debug($" Target actor is friendly, forcing blip off");
+                    Mod.Log.Debug()?.Invoke($" Target actor is friendly, forcing blip off");
                     __instance.BlipObjectUnknown.SetActive(false);
                 } else {
                     // Because Blip1 corresponds to ArmorAndWeapon, go ahead and show the model as the chassis is 'known'
                     if (newLevel >= VisibilityLevel.Blip1Type)
                     {
-                        Mod.Log.Debug($" Actor is a foe,  disabling the identified blip and showing the object");
+                        Mod.Log.Debug()?.Invoke($" Actor is a foe,  disabling the identified blip and showing the object");
                         __instance.VisibleObject.SetActive(true);
                         __instance.BlipObjectIdentified.SetActive(false);
 
@@ -64,7 +64,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(PilotableActorRepresentation), "updateBlips")]
     public static class PilotableActorRepresentation_updateBlips {
         public static void Prefix(PilotableActorRepresentation __instance, ref Vector3 ___blipPendingPosition) {
-            //Mod.Log.Debug($" UPDATE BLIPS INVOKED");
+            //Mod.Log.Debug()?.Invoke($" UPDATE BLIPS INVOKED");
             if (__instance.BlipObjectUnknown.activeSelf && __instance.VisibleObject.activeSelf
                 && !__instance.BlipObjectIdentified.activeSelf) {
                 float height = Math.Min(__instance.VisibleObject.transform.position.y + 20f, ___blipPendingPosition.y + 20f);

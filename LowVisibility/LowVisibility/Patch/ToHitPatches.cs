@@ -13,7 +13,7 @@ namespace LowVisibility.Patch {
         private static void Postfix(ToHit __instance, ref float __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel) {
 
-            //Mod.Log.Debug($"Getting modifiers for attacker:{CombatantUtils.Label(attacker)} " +
+            //Mod.Log.Debug()?.Invoke($"Getting modifiers for attacker:{CombatantUtils.Label(attacker)} " +
             //    $"using weapon:{weapon.Name} vs target:{CombatantUtils.Label(target)} with initial result:{__result}");
 
             AbstractActor targetActor = target as AbstractActor;
@@ -81,7 +81,7 @@ namespace LowVisibility.Patch {
         private static void Postfix(ToHit __instance, ref string __result, AbstractActor attacker, Weapon weapon, ICombatant target, 
             Vector3 attackPosition, Vector3 targetPosition, LineOfFireLevel lofLevel, bool isCalledShot) {
 
-            //Mod.Log.Debug($"Getting modifier descriptions for attacker:{CombatantUtils.Label(attacker)} " +
+            //Mod.Log.Debug()?.Invoke($"Getting modifier descriptions for attacker:{CombatantUtils.Label(attacker)} " +
             //    $"using weapon:{weapon.Name} vs target:{CombatantUtils.Label(target)}");
 
             //AbstractActor targetActor = target as AbstractActor;

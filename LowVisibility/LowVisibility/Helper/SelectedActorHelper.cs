@@ -47,7 +47,7 @@ namespace LowVisibility.Helper {
             AuraAddedMessage auraAddedMessage = message as AuraAddedMessage;
             AbstractActor target = Combat.FindActorByGUID(auraAddedMessage.targetID);
             AbstractActor creator = Combat.FindActorByGUID(auraAddedMessage.creatorID);
-            Mod.Log.Debug($"ON AURA ADDED: {CombatantUtils.Label(target)} from {CombatantUtils.Label(creator)}");
+            Mod.Log.Debug()?.Invoke($"ON AURA ADDED: {CombatantUtils.Label(target)} from {CombatantUtils.Label(creator)}");
         }
 
         public static void OnAuraRemovedMessage(MessageCenterMessage message) {
@@ -55,7 +55,7 @@ namespace LowVisibility.Helper {
             AuraRemovedMessage auraRemoveMessage = message as AuraRemovedMessage;
             AbstractActor target = Combat.FindActorByGUID(auraRemoveMessage.targetID);
             AbstractActor creator = Combat.FindActorByGUID(auraRemoveMessage.creatorID);
-            Mod.Log.Debug($"ON AURA ADDED: {CombatantUtils.Label(target)} from {CombatantUtils.Label(creator)}");
+            Mod.Log.Debug()?.Invoke($"ON AURA ADDED: {CombatantUtils.Label(target)} from {CombatantUtils.Label(creator)}");
         }
     }
 }

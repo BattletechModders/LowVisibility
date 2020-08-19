@@ -10,7 +10,7 @@ namespace LowVisibility.Patch {
     public static class AttackEvaluator_MakeCalledShotOrder {
 
         public static void Postfix(ref CalledShotAttackOrderInfo __result, AbstractActor attackingUnit, int enemyUnitIndex) {
-            Mod.Log.Trace("AE:CCSLTC entered");
+            Mod.Log.Trace()?.Invoke("AE:CCSLTC entered");
 
             ICombatant combatant = attackingUnit.BehaviorTree.enemyUnits[enemyUnitIndex];
             if (combatant is AbstractActor targetActor) {

@@ -14,7 +14,7 @@ namespace LowVisibility.Patch {
         public static bool IsFromSave = false;
 
         public static void Prefix(TurnDirector __instance) {
-            Mod.Log.Trace("TD:OEB:pre entered.");
+            Mod.Log.Trace()?.Invoke("TD:OEB:pre entered.");
 
             // Initialize the probabilities
             ModState.InitializeCheckResults();
@@ -37,13 +37,13 @@ namespace LowVisibility.Patch {
                             }
 
                         } else {
-                            Mod.Log.Debug($"  Actor:{CombatantUtils.Label(actor)} was NULL!");
+                            Mod.Log.Debug()?.Invoke($"  Actor:{CombatantUtils.Label(actor)} was NULL!");
                         }
                     }
                     
                     if (randomPlayerActor != null)
                     {
-                        Mod.Log.Debug($"Assigning actor: {CombatantUtils.Label(randomPlayerActor)} as lastActive.");
+                        Mod.Log.Debug()?.Invoke($"Assigning actor: {CombatantUtils.Label(randomPlayerActor)} as lastActive.");
                         ModState.LastPlayerActorActivated = randomPlayerActor;
                     }
                 }
@@ -71,7 +71,7 @@ namespace LowVisibility.Patch {
     public static class TurnDirector_BeginNewRound {
 
         public static void Prefix(TurnDirector __instance, int round) {
-            Mod.Log.Trace($"TD:BNR entered");
+            Mod.Log.Trace()?.Invoke($"TD:BNR entered");
             Mod.Log.Info($"=== Turn Director is beginning round: {round}");
 
             // Update the current vision for all allied and friendly units
@@ -104,7 +104,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(TurnDirector), "OnCombatGameDestroyed")]
     public static class TurnDirector_OnCombatGameDestroyed {
         public static void Prefix(TurnDirector __instance) {
-            Mod.Log.Debug($"TD:OCGD entered");
+            Mod.Log.Debug()?.Invoke($"TD:OCGD entered");
             // Remove all combat state
             CombatHUD_SubscribeToMessages.OnCombatGameDestroyed(__instance.Combat);
 
@@ -131,7 +131,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void Postfix(EncounterLayerParent __instance, CombatGameState combat) {
-            Mod.Log.Trace($"TD:IFSPT entered");
+            Mod.Log.Trace()?.Invoke($"TD:IFSPT entered");
 
             TurnDirector_OnEncounterBegin.IsFromSave = true;
         }

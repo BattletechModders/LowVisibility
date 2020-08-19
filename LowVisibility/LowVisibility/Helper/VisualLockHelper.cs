@@ -37,7 +37,7 @@ namespace LowVisibility.Helper {
                 float absolutes = VisualLockHelper.GetAllSpotterAbsolutes(source);
                 
                 visualRange = visionRange * multipliers + absolutes;
-                //Mod.Log.Trace($" -- source:{CombatantUtils.Label(source)} has spotting " +
+                //Mod.Log.Trace()?.Invoke()?.Invoke($" -- source:{CombatantUtils.Label(source)} has spotting " +
                 //    $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
             }
 
@@ -72,7 +72,7 @@ namespace LowVisibility.Helper {
             // Round up to the nearest full hex
             float normalizedRange = HexUtils.CountHexes(spotterRange, true) * 30f;
 
-            Mod.Log.Trace($" -- source:{CombatantUtils.Label(source)} adjusted spotterRange:{normalizedRange}m normalized from:{spotterRange}m");
+            Mod.Log.Trace()?.Invoke($" -- source:{CombatantUtils.Label(source)} adjusted spotterRange:{normalizedRange}m normalized from:{spotterRange}m");
             return normalizedRange;
         }
 
@@ -126,7 +126,7 @@ namespace LowVisibility.Helper {
             float mimeticMod = ewState.MimeticVisibilityMod(sourceState);
 
             float targetVisibility = baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier + mimeticMod;
-            Mod.Log.Trace($" Actor: {CombatantUtils.Label(target)} has visibility: {targetVisibility} = " +
+            Mod.Log.Trace()?.Invoke($" Actor: {CombatantUtils.Label(target)} has visibility: {targetVisibility} = " +
                 $"baseVisMulti: {baseVisMulti} +  shutdownVisMulti: {shutdownVisMulti} + spottingVisibilityMultiplier: {spottingVisibilityMultiplier} + visionStealthMod: {mimeticMod}");
 
             return targetVisibility;

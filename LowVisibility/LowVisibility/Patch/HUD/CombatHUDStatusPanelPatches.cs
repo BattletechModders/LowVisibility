@@ -20,7 +20,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDStatusPanel_RefreshDisplayedCombatant {
 
         public static void Postfix(CombatHUDStatusPanel __instance, List<CombatHUDStatusIndicator> ___Buffs, List<CombatHUDStatusIndicator> ___Debuffs) {
-            Mod.Log.Trace("CHUDSP:RDC - entered.");
+            Mod.Log.Trace()?.Invoke("CHUDSP:RDC - entered.");
             if (__instance != null && __instance.DisplayedCombatant != null) {
                 AbstractActor target = __instance.DisplayedCombatant as AbstractActor;
                 // We can receive a building here, so 
@@ -55,7 +55,7 @@ namespace LowVisibility.Patch {
     {
         static bool Prefix(CombatHUDStatusPanel __instance, AbstractActor actor, AbilityDef.SpecialRules specialRulesFilter, Vector3 worldPos, Dictionary<string, CombatHUDStatusIndicator> ___effectDict)
         {
-            Mod.Log.Debug($"Updating StatusEffect Panel for actor: {CombatantUtils.Label(actor)}");
+            Mod.Log.Debug()?.Invoke($"Updating StatusEffect Panel for actor: {CombatantUtils.Label(actor)}");
 
             try
             {
@@ -66,7 +66,7 @@ namespace LowVisibility.Patch {
 
                     if (effect == null || effect.EffectData == null) 
                     {
-                        Mod.Log.Warn($"Effect with id: {effect?.id} has no effectData! Effect is from creatorGUID: {effect?.creatorGUID} creatorID: {effect?.creatorID} " +
+                        Mod.Log.Warn()?.Invoke($"Effect with id: {effect?.id} has no effectData! Effect is from creatorGUID: {effect?.creatorGUID} creatorID: {effect?.creatorID} " +
                             $"with targetId: {effect?.targetID}");
                         continue;
                     }
@@ -75,7 +75,7 @@ namespace LowVisibility.Patch {
                         (effect.EffectData.targetingData.effectTriggerType != EffectTriggerType.OnDamaged || effect.triggerCount != 0)
                         )
                     {
-                        Mod.Log.Debug($"Adding effectId: {effect?.EffectData?.Description?.Id} with name: {effect?.EffectData?.Description?.Name}");
+                        Mod.Log.Debug()?.Invoke($"Adding effectId: {effect?.EffectData?.Description?.Id} with name: {effect?.EffectData?.Description?.Name}");
                         effectsOnActor.Add(effect.EffectData);
                     }
                 }
@@ -84,7 +84,7 @@ namespace LowVisibility.Patch {
                 {
                     if (actor.AuraCache == null)
                     {
-                        Mod.Log.Warn($"Actor: {CombatantUtils.Label(actor)} has a null aura cache.  This should not happen!");
+                        Mod.Log.Warn()?.Invoke($"Actor: {CombatantUtils.Label(actor)} has a null aura cache.  This should not happen!");
                     }
                     else
                     {
@@ -92,7 +92,7 @@ namespace LowVisibility.Patch {
                         foreach (string key in dictionary.Keys)
                         {
                             List<EffectData> collection = dictionary[key];
-                            Mod.Log.Debug("Adding collection from aura.");
+                            Mod.Log.Debug()?.Invoke("Adding collection from aura.");
                             effectsOnActor.AddRange(collection);
                         }
                     }
@@ -124,12 +124,12 @@ namespace LowVisibility.Patch {
 
                     bool shouldShowEffect = shouldShowEffectT.GetValue<bool>(new object[] { effectData, specialRulesFilter });
                     bool alreadyShown = ___effectDict.ContainsKey(effectData.Description.Id);
-                    Mod.Log.Debug($" -- Effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} has shouldShowEffect: {shouldShowEffect} and alreadyShown: {alreadyShown}");
+                    Mod.Log.Debug()?.Invoke($" -- Effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} has shouldShowEffect: {shouldShowEffect} and alreadyShown: {alreadyShown}");
 
                     string effectId = effectData.Description.Id;
                     if (shouldShowEffect && !alreadyShown)
                     {
-                        Mod.Log.Debug($" -- Adding effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} to buff list.");
+                        Mod.Log.Debug()?.Invoke($" -- Adding effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} to buff list.");
                         int num = effectsOnActor.FindAll((EffectData x) => x.Description.Id == effectId).Count;
                         if (effectData.statisticData != null && 
                             effectData.statisticData.targetCollection == StatisticEffectData.TargetCollection.Weapon && 
@@ -175,7 +175,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDStatusPanel_ShowStealthIndicators_Vector3 {
         public static void Postfix(CombatHUDStatusPanel __instance, AbstractActor target, Vector3 previewPos, CombatHUDStealthBarPips ___stealthDisplay) {
             if (___stealthDisplay == null) { return; }
-            Mod.Log.Trace("CHUDSP:SSI:Vector3 - entered.");
+            Mod.Log.Trace()?.Invoke("CHUDSP:SSI:Vector3 - entered.");
 
             VfxHelper.CalculateMimeticPips(___stealthDisplay, target, previewPos);
         }
@@ -186,7 +186,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDStatusPanel_ShowStealthIndicators_float {
         public static void Postfix(CombatHUDStatusPanel __instance, AbstractActor target, float previewStealth, CombatHUDStealthBarPips ___stealthDisplay) {
             if (___stealthDisplay == null) { return; }
-            Mod.Log.Trace("CHUDSP:SSI:float - entered.");
+            Mod.Log.Trace()?.Invoke("CHUDSP:SSI:float - entered.");
 
             VfxHelper.CalculateMimeticPips(___stealthDisplay, target);
         }
@@ -196,7 +196,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDStatusPanel_ShowActorStatuses {
 
         public static void Postfix(CombatHUDStatusPanel __instance) {
-            Mod.Log.Trace("CHUDSP:SAS - entered.");
+            Mod.Log.Trace()?.Invoke("CHUDSP:SAS - entered.");
 
             if (__instance.DisplayedCombatant != null) {
                 Type[] iconMethodParams = new Type[] { typeof(SVGAsset), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) };
@@ -312,7 +312,7 @@ namespace LowVisibility.Patch {
         }
 
         private static string BuildToolTip(AbstractActor actor) {
-            //Mod.Log.Debug($"EW State for actor:{CombatantUtils.Label(actor)} = {ewState}");
+            //Mod.Log.Debug()?.Invoke($"EW State for actor:{CombatantUtils.Label(actor)} = {ewState}");
 
             List<string> details = new List<string>();
 

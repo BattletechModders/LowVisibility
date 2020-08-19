@@ -72,7 +72,7 @@ namespace LowVisibility.Patch {
 
         // TODO: Dangerous PREFIX false here!
         public static bool Prefix(CombatHUDTargetingComputer __instance, CombatHUD ___HUD) {
-            //Mod.Log.Trace("CHUDTC:U:pre - entered.");
+            //Mod.Log.Trace()?.Invoke("CHUDTC:U:pre - entered.");
 
             CombatGameState Combat = ___HUD?.Combat;
 
@@ -213,7 +213,7 @@ namespace LowVisibility.Patch {
                 __instance.ActivelyShownCombatant.Combat == null || __instance.ActivelyShownCombatant.Combat.HostilityMatrix == null ||
                 __instance.WeaponList == null) 
             {
-                Mod.Log.Debug($"CHTC:RAI ~~~ TC, target, or WeaponList is null, skipping.");
+                Mod.Log.Debug()?.Invoke($"CHTC:RAI ~~~ TC, target, or WeaponList is null, skipping.");
                 return;
             }
 
@@ -224,13 +224,13 @@ namespace LowVisibility.Patch {
 
             if (__instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID)) 
             {
-                Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
+                Mod.Log.Debug()?.Invoke($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
                 __instance.WeaponList.SetActive(true);
                 return;
             } 
 
             // Only enemies or neutrals below this point
-            Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy");
+            Mod.Log.Debug()?.Invoke($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy");
 
             try
             {
@@ -242,7 +242,7 @@ namespace LowVisibility.Patch {
                     bool hasVisualScan = VisualLockHelper.CanSpotTarget(ModState.LastPlayerActorActivated, ModState.LastPlayerActorActivated.CurrentPosition, 
                         target, target.CurrentPosition, target.CurrentRotation, target.Combat.LOS);
                     SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
-                    Mod.Log.Debug($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(ModState.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} " +
+                    Mod.Log.Debug()?.Invoke($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(ModState.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} " +
                         $"at range: {range} has scanType:{scanType} visualScan:{hasVisualScan}");
 
                     // Build the CAC side-panel
@@ -285,7 +285,7 @@ namespace LowVisibility.Patch {
                 }
                 else if (__instance.ActivelyShownCombatant is BattleTech.Building building)
                 {
-                    Mod.Log.Debug($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy building");
+                    Mod.Log.Debug()?.Invoke($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy building");
 
                     SetArmorDisplayActive(__instance, true);
 

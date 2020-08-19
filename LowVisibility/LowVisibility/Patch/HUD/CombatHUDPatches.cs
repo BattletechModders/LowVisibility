@@ -43,7 +43,7 @@ namespace LowVisibility.Patch {
         }
 
         public static void OnActorTargeted(MessageCenterMessage message) {
-            Mod.Log.Trace("CHUD:STM:OAT - entered.");
+            Mod.Log.Trace()?.Invoke("CHUD:STM:OAT - entered.");
 
             ActorTargetedMessage actorTargetedMessage = message as ActorTargetedMessage;
             if (message == null || actorTargetedMessage == null || actorTargetedMessage.affectedObjectGuid == null) return; // Nothing to do, bail
@@ -53,14 +53,14 @@ namespace LowVisibility.Patch {
             
             try {
                 if (Combat.LocalPlayerTeam.VisibilityToTarget(combatant) >= VisibilityLevel.Blip0Minimum) {
-                    Mod.Log.Trace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
+                    Mod.Log.Trace()?.Invoke("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
                     if (ShowTargetMethod != null) {
                         ShowTargetMethod.GetValue(combatant);
                     } else {
                         Mod.Log.Info("WARNING: CHUD:STM caled with a null traverse!");
                     }
                 } else {
-                    Mod.Log.Trace("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
+                    Mod.Log.Trace()?.Invoke("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility < Blip0, hiding target.");
                 }
             } catch (Exception e) {
                 Mod.Log.Error($"Failed to display HUD target: {CombatantUtils.Label(combatant)}!");

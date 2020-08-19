@@ -33,7 +33,7 @@ namespace LowVisibility.Helper {
         public static Material DistortionMaterial;
         
         public static void Initialize(CombatGameState cgs) {
-            Mod.Log.Debug("== INITIALIZING MATERIALS ==");
+            Mod.Log.Debug()?.Invoke("== INITIALIZING MATERIALS ==");
 
             Traverse abmT = Traverse.Create(cgs.DataManager).Property("AssetBundleManager");
             AssetBundleManager abm = abmT.GetValue<AssetBundleManager>();
@@ -57,11 +57,11 @@ namespace LowVisibility.Helper {
         //    if (!ModState.TurnDirectorStarted || actor == null || actor.GameRep == null) { return; }
 
         //    if (!actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
-        //        Mod.Log.Debug($" ENABLING ECM LOOP ON ACTOR: {CombatantUtils.Label(actor)}");
+        //        Mod.Log.Debug()?.Invoke($" ENABLING ECM LOOP ON ACTOR: {CombatantUtils.Label(actor)}");
                 
         //        // Calculate the range factor
         //        float vfxScaleFactor = carrierRange / 100f;
-        //        Mod.Log.Debug($" VFX scaling factor {vfxScaleFactor}");
+        //        Mod.Log.Debug()?.Invoke($" VFX scaling factor {vfxScaleFactor}");
 
         //       // Bubble
         //       ParticleSystem psECMLoop = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
@@ -86,9 +86,9 @@ namespace LowVisibility.Helper {
 
         //        actor.StatCollection.AddStatistic(ModStats.ECMVFXEnabled, true);
 
-        //        Mod.Log.Debug(" DONE ENABLING ECM LOOP");
+        //        Mod.Log.Debug()?.Invoke(" DONE ENABLING ECM LOOP");
         //    } else {
-        //        Mod.Log.Debug(" ECM LOOP ALREADY ENABLED, SKIPPING");
+        //        Mod.Log.Debug()?.Invoke(" ECM LOOP ALREADY ENABLED, SKIPPING");
         //    }
         //}
 
@@ -97,7 +97,7 @@ namespace LowVisibility.Helper {
         //    if (!ModState.TurnDirectorStarted) { return; }
 
         //    if (actor.GameRep != null && actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
-        //        Mod.Log.Debug("DISABLING ECM CARRIER EFFECT");
+        //        Mod.Log.Debug()?.Invoke("DISABLING ECM CARRIER EFFECT");
 
         //        actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform, Vector3.zero, ECMBubbleRemovedBaseBFX, true, Vector3.zero, true, -1f);
         //        actor.GameRep.StopManualPersistentVFX(ECMBubbleBaseVFX);
@@ -113,14 +113,14 @@ namespace LowVisibility.Helper {
             if (!ModState.TurnDirectorStarted) { return; }
 
             if (!actor.StatCollection.ContainsStatistic(ModStats.StealthVFXEnabled)) {
-                Mod.Log.Debug("ENABLING SENSOR STEALTH EFFECT");
+                Mod.Log.Debug()?.Invoke("ENABLING SENSOR STEALTH EFFECT");
 
                 ParticleSystem ps = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform, Vector3.zero, ECMBubbleBaseVFX, StealthEffectVfxId, true, Vector3.zero, false, -1f); ;
                 ps.Stop(true);
 
                 foreach (Transform child in ps.transform) {
                     if (child.gameObject.name == "sphere") {
-                        Mod.Log.Debug($"  - Configuring sphere");
+                        Mod.Log.Debug()?.Invoke($"  - Configuring sphere");
 
                         if (actor.UnitType == UnitType.Mech) {
                             // problate ellipsoid
@@ -135,24 +135,24 @@ namespace LowVisibility.Helper {
 
                         // Center the sphere
                         if (actor.GameRep is MechRepresentation mr) {
-                            Mod.Log.Debug($"Parent mech y positions: head: {mr.vfxHeadTransform.position.y} / " +
+                            Mod.Log.Debug()?.Invoke($"Parent mech y positions: head: {mr.vfxHeadTransform.position.y} / " +
                                 $"torso: {mr.vfxCenterTorsoTransform.position.y} / " +
                                 $"leg: {mr.vfxLeftLegTransform.position.y}");
                             float headToTorso = mr.vfxHeadTransform.position.y - mr.vfxCenterTorsoTransform.position.y;
                             float torsoToLeg = mr.vfxCenterTorsoTransform.position.y - mr.vfxLeftLegTransform.position.y;
-                            Mod.Log.Debug($"Parent mech headToTorso:{headToTorso} / torsoToLeg:{torsoToLeg}");
+                            Mod.Log.Debug()?.Invoke($"Parent mech headToTorso:{headToTorso} / torsoToLeg:{torsoToLeg}");
 
                             child.gameObject.transform.position = mr.vfxCenterTorsoTransform.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, headToTorso * 2, 2f);
-                            Mod.Log.Debug($"Centering sphere on mech torso at position: {mr.TorsoAttach.position}");
+                            Mod.Log.Debug()?.Invoke($"Centering sphere on mech torso at position: {mr.TorsoAttach.position}");
                         } else if (actor.GameRep is VehicleRepresentation vr) {
                             child.gameObject.transform.position = vr.BodyAttach.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
-                            Mod.Log.Debug($"Centering sphere on vehicle body at position: {vr.BodyAttach.position}");
+                            Mod.Log.Debug()?.Invoke($"Centering sphere on vehicle body at position: {vr.BodyAttach.position}");
                         } else if (actor.GameRep is TurretRepresentation tr) {
                             child.gameObject.transform.position = tr.BodyAttach.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
-                            Mod.Log.Debug($"Centering sphere on turret body at position: {tr.BodyAttach.position}");
+                            Mod.Log.Debug()?.Invoke($"Centering sphere on turret body at position: {tr.BodyAttach.position}");
                         }
 
                         ParticleSystemRenderer spherePSR = child.gameObject.transform.GetComponent<ParticleSystemRenderer>();
@@ -172,7 +172,7 @@ namespace LowVisibility.Helper {
             if (!ModState.TurnDirectorStarted) { return; }
 
             if (actor.StatCollection.ContainsStatistic(ModStats.StealthVFXEnabled)) {
-                Mod.Log.Debug("DISABLING SENSOR STEALTH EFFECT");
+                Mod.Log.Debug()?.Invoke("DISABLING SENSOR STEALTH EFFECT");
 
                 actor.GameRep.StopManualPersistentVFX(StealthEffectVfxId);
 
@@ -185,14 +185,14 @@ namespace LowVisibility.Helper {
             if (!ModState.TurnDirectorStarted) { return; }
 
             if (!actor.StatCollection.ContainsStatistic(ModStats.MimeticVFXEnabled)) {
-                Mod.Log.Debug("ENABLING MIMETIC EFFECT");
+                Mod.Log.Debug()?.Invoke("ENABLING MIMETIC EFFECT");
 
                 ParticleSystem ps = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform, Vector3.zero, ECMBubbleBaseVFX, MimeticEffectVfxId, true, Vector3.zero, false, -1f); ;
                 ps.Stop(true);
 
                 foreach (Transform child in ps.transform) {
                     if (child.gameObject.name == "sphere rumble") {
-                        Mod.Log.Trace($"  - Configuring sphere rumble");
+                        Mod.Log.Trace()?.Invoke($"  - Configuring sphere rumble");
 
                         if (actor.UnitType == UnitType.Mech) {
                             // problate ellipsoid
@@ -218,19 +218,19 @@ namespace LowVisibility.Helper {
                         if (actor.GameRep is MechRepresentation mr) {
                             float headToTorso = mr.vfxHeadTransform.position.y - mr.vfxCenterTorsoTransform.position.y;
                             float torsoToLeg = mr.vfxCenterTorsoTransform.position.y - mr.vfxLeftLegTransform.position.y;
-                            Mod.Log.Trace($"Parent mech headToTorso:{headToTorso} / torsoToLeg:{torsoToLeg}");
+                            Mod.Log.Trace()?.Invoke($"Parent mech headToTorso:{headToTorso} / torsoToLeg:{torsoToLeg}");
 
                             child.gameObject.transform.position = mr.vfxCenterTorsoTransform.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, headToTorso * 2, 2f);
-                            Mod.Log.Debug($"Centering sphere on mech torso at position: {mr.TorsoAttach.position}");
+                            Mod.Log.Debug()?.Invoke($"Centering sphere on mech torso at position: {mr.TorsoAttach.position}");
                         } else if (actor.GameRep is VehicleRepresentation vr) {
                             child.gameObject.transform.position = vr.BodyAttach.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
-                            Mod.Log.Debug($"Centering sphere on vehicle body at position: {vr.BodyAttach.position}");
+                            Mod.Log.Debug()?.Invoke($"Centering sphere on vehicle body at position: {vr.BodyAttach.position}");
                         } else if (actor.GameRep is TurretRepresentation tr) {
                             child.gameObject.transform.position = tr.BodyAttach.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
-                            Mod.Log.Debug($"Centering sphere on turret body at position: {tr.BodyAttach.position}");
+                            Mod.Log.Debug()?.Invoke($"Centering sphere on turret body at position: {tr.BodyAttach.position}");
                         }
 
 
@@ -243,7 +243,7 @@ namespace LowVisibility.Helper {
                 ps.Play(true);
 
                 if (Mod.Config.Toggles.MimeticUsesGhost) {
-                    Mod.Log.Debug($"Enabling GhostWeak VFX on actor: {CombatantUtils.Label(actor)}");
+                    Mod.Log.Debug()?.Invoke($"Enabling GhostWeak VFX on actor: {CombatantUtils.Label(actor)}");
                     PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
                     par.BlipObjectGhostStrong.SetActive(false);
                     par.BlipObjectGhostWeak.SetActive(true);
@@ -259,12 +259,12 @@ namespace LowVisibility.Helper {
 
             if (actor.StatCollection.ContainsStatistic(ModStats.MimeticVFXEnabled)) {
 
-                Mod.Log.Debug("DISABLING MIMETIC EFFECT");
+                Mod.Log.Debug()?.Invoke("DISABLING MIMETIC EFFECT");
 
                 actor.GameRep.StopManualPersistentVFX(MimeticEffectVfxId);
 
                 if (Mod.Config.Toggles.MimeticUsesGhost) {
-                    Mod.Log.Debug($"Disabling GhostWeak VFX on actor: {CombatantUtils.Label(actor)}");
+                    Mod.Log.Debug()?.Invoke($"Disabling GhostWeak VFX on actor: {CombatantUtils.Label(actor)}");
                     PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
                     par.BlipObjectGhostStrong.SetActive(false);
                     par.BlipObjectGhostWeak.SetActive(false);
@@ -359,7 +359,7 @@ namespace LowVisibility.Helper {
                 return;
             }
 
-            Mod.Log.Debug($"Redrawing FOW for actor: {CombatantUtils.Label(activeActor)}");
+            Mod.Log.Debug()?.Invoke($"Redrawing FOW for actor: {CombatantUtils.Label(activeActor)}");
 
             Traverse viewersT = Traverse.Create(fowSystem).Field("viewers");
             List<AbstractActor> viewers = viewersT.GetValue<List<AbstractActor>>();
@@ -400,10 +400,10 @@ namespace LowVisibility.Helper {
 
         public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, float distanceMoved) {
             EWState actorState = new EWState(actor);
-            Mod.Log.Trace($"Calculating mimeticPips for Actor: {CombatantUtils.Label(actor)}");
+            Mod.Log.Trace()?.Invoke($"Calculating mimeticPips for Actor: {CombatantUtils.Label(actor)}");
 
             int stepsMoved = (int)Math.Ceiling(distanceMoved / 30f);
-            Mod.Log.Trace($"  stepsMoved: {stepsMoved} = distanceMoved: {distanceMoved} / 30");
+            Mod.Log.Trace()?.Invoke($"  stepsMoved: {stepsMoved} = distanceMoved: {distanceMoved} / 30");
 
             // Update # of pips
             int maxPips = actorState.MaxMimeticPips();

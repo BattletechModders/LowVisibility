@@ -293,7 +293,7 @@ namespace LowVisibility.Object {
             strength = Math.Max(0, strength);
 
             float sigMod = strength * 0.1f;
-            if (sigMod != 0) { Mod.Log.Trace($"Target:({CombatantUtils.Label(actor)}) has ECMSignatureMod:{sigMod}"); }
+            if (sigMod != 0) { Mod.Log.Trace()?.Invoke($"Target:({CombatantUtils.Label(actor)}) has ECMSignatureMod:{sigMod}"); }
 
             return sigMod;
         }
@@ -417,13 +417,13 @@ namespace LowVisibility.Object {
             if (mimetic == null) { return 0;  }
 
             int hexesMoved = (int)Math.Ceiling(distance / 30f);
-//            Mod.Log.Debug($"  hexesMoved: {hexesMoved} = distanceMoved: {distance} / 30");
+//            Mod.Log.Debug()?.Invoke($"  hexesMoved: {hexesMoved} = distanceMoved: {distance} / 30");
 
             int pips = mimetic.AttackMod;
             int numDecays = (int)Math.Floor(hexesMoved / (float)mimetic.HexesUntilDecay);
-            Mod.Log.Trace($"  -- decays = {numDecays} from currentSteps: {hexesMoved} / decayPerStep: {mimetic.HexesUntilDecay}");
+            Mod.Log.Trace()?.Invoke($"  -- decays = {numDecays} from currentSteps: {hexesMoved} / decayPerStep: {mimetic.HexesUntilDecay}");
             int currentMod = Math.Max(mimetic.AttackMod - numDecays, 0);
-            Mod.Log.Trace($"  -- current: {currentMod} = initial: {mimetic.AttackMod} - decays: {numDecays}");
+            Mod.Log.Trace()?.Invoke($"  -- current: {currentMod} = initial: {mimetic.AttackMod} - decays: {numDecays}");
 
             return currentMod;
         }
@@ -434,12 +434,12 @@ namespace LowVisibility.Object {
             if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return 0; }
 
             int hexesBetween = (int)Math.Ceiling(distance / 30f);
-            Mod.Log.Trace($"  hexesBetween: {hexesBetween} = distance: {distance} / 30");
+            Mod.Log.Trace()?.Invoke($"  hexesBetween: {hexesBetween} = distance: {distance} / 30");
 
             int numDecays = (int)Math.Floor(hexesBetween / (float)zoomVision.HexesUntilDecay);
-            Mod.Log.Trace($"  -- decays = {numDecays} from currentSteps: {hexesBetween} / decayPerStep: {zoomVision.HexesUntilDecay}");
+            Mod.Log.Trace()?.Invoke($"  -- decays = {numDecays} from currentSteps: {hexesBetween} / decayPerStep: {zoomVision.HexesUntilDecay}");
             int currentMod = HexUtils.DecayingModifier(zoomVision.AttackMod, zoomVision.AttackCap, zoomVision.HexesUntilDecay, distance);
-            Mod.Log.Trace($"  -- current: {currentMod} = initial: {zoomVision.AttackMod} - decays: {numDecays}");
+            Mod.Log.Trace()?.Invoke($"  -- current: {currentMod} = initial: {zoomVision.AttackMod} - decays: {numDecays}");
 
             return currentMod;
         }
@@ -448,12 +448,12 @@ namespace LowVisibility.Object {
             // If we're firing indirectly, zoom doesn't count
             if (weapon.IndirectFireCapable && lofLevel < LineOfFireLevel.LOFObstructed)
             {
-                Mod.Log.Debug("Line of fire is indirect - cannot use zoom!");
+                Mod.Log.Debug()?.Invoke("Line of fire is indirect - cannot use zoom!");
                 return false;
             }
 
             if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) {
-                Mod.Log.Debug("Zoom vision is null, weaponType is melee or unset - cannot use zoom!");
+                Mod.Log.Debug()?.Invoke("Zoom vision is null, weaponType is melee or unset - cannot use zoom!");
                 return false; 
             }
 
@@ -474,11 +474,11 @@ namespace LowVisibility.Object {
 
                 double targetHeat = targetMech != null ? (double)targetMech.CurrentHeat : 0.0;
                 int numSteps = (int)Math.Floor(targetHeat / heatVision.HeatDivisor);
-                //Mod.Log.Debug($"  numDecays: {numSteps} = targetHeat: {targetHeat} / divisor: {heatVision.HeatDivisor}");
+                //Mod.Log.Debug()?.Invoke($"  numDecays: {numSteps} = targetHeat: {targetHeat} / divisor: {heatVision.HeatDivisor}");
 
                 // remember: Negative is better
                 currentMod = Math.Max(heatVision.AttackMod - numSteps, 0);                
-                //Mod.Log.Debug($"  -- current: {currentMod} = initial: {heatVision.AttackMod} - decays: {numSteps}");
+                //Mod.Log.Debug()?.Invoke($"  -- current: {currentMod} = initial: {heatVision.AttackMod} - decays: {numSteps}");
             }
 
             return currentMod;

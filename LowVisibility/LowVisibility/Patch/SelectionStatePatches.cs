@@ -12,14 +12,14 @@ namespace LowVisibility.Patch {
     public static class SelectionStateFire_ProcessClickedCombatant {
 
         public static bool Prefix(SelectionStateFire __instance, ref bool __result, ICombatant combatant) {
-            Mod.Log.Trace("SSF:PCC:PRE entered");
+            Mod.Log.Trace()?.Invoke("SSF:PCC:PRE entered");
 
             if (__instance != null && combatant != null && combatant is AbstractActor targetActor && __instance.SelectedActor != null) {
 
                 CombatGameState Combat = __instance.SelectedActor.Combat;
                 bool targetIsFriendly = Combat.HostilityMatrix.IsFriendly(combatant.team.GUID, Combat.LocalPlayerTeamGuid);
                 if (targetIsFriendly) {
-                    Mod.Log.Trace("Friendly target, skipping check");
+                    Mod.Log.Trace()?.Invoke("Friendly target, skipping check");
                     return true;
                 }
 

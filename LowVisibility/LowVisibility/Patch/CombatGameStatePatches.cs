@@ -9,7 +9,7 @@ namespace LowVisibility.Patch {
     [HarmonyPatch(typeof(CombatGameState), "_Init")]
     public static class CombatGameState__Init {
         public static void Postfix(CombatGameState __instance) {
-            Mod.Log.Trace("CGS:_I entered.");
+            Mod.Log.Trace()?.Invoke("CGS:_I entered.");
             DataManager dm = UnityGameInstance.BattleTechGame.DataManager;
             LoadRequest loadRequest = dm.CreateLoadRequest();
 
@@ -41,7 +41,7 @@ namespace LowVisibility.Patch {
     {
         static void Postfix()
         {
-            Mod.Log.Trace("CGS:OCGD - entered.");
+            Mod.Log.Trace()?.Invoke("CGS:OCGD - entered.");
 
             ModState.Reset();
         }

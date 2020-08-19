@@ -56,11 +56,11 @@ namespace LowVisibility.Helper {
                 };
             }
 
-            Mod.Log.Debug($"  - Parsing current map for mod config");
+            Mod.Log.Debug()?.Invoke($"  - Parsing current map for mod config");
             MapConfig mapConfig = new MapConfig();
             
             String allTags = String.Join(", ", moodTags.ToArray());
-            Mod.Log.Debug($"  - All mood tags are: {allTags}");
+            Mod.Log.Debug()?.Invoke($"  - All mood tags are: {allTags}");
 
             float baseVision = Mod.Config.Vision.BaseRangeBright;
             float visionMulti = 1.0f;
@@ -70,7 +70,7 @@ namespace LowVisibility.Helper {
                     case "mood_timeNoon":
                     case "mood_timeAfternoon":
                     case "mood_timeDay":
-                        Mod.Log.Debug($"  - {tag}");
+                        Mod.Log.Debug()?.Invoke($"  - {tag}");
                         mapConfig.isDay = true;
                         mapConfig.isDim = false;
                         mapConfig.isDark = false;
@@ -78,7 +78,7 @@ namespace LowVisibility.Helper {
                     case "mood_timeSunrise":
                     case "mood_timeSunset":
                     case "mood_timeTwilight":
-                        Mod.Log.Debug($"  - {tag}");
+                        Mod.Log.Debug()?.Invoke($"  - {tag}");
                         if (baseVision > Mod.Config.Vision.BaseRangeDim) {
                             baseVision = Mod.Config.Vision.BaseRangeDim;
                             mapConfig.isDay = false;
@@ -87,7 +87,7 @@ namespace LowVisibility.Helper {
                         }
                         break;
                     case "mood_timeNight":
-                        Mod.Log.Debug($"  - {tag}");
+                        Mod.Log.Debug()?.Invoke($"  - {tag}");
                         if (baseVision > Mod.Config.Vision.BaseRangeDark) {
                             baseVision = Mod.Config.Vision.BaseRangeDark;
                             mapConfig.isDay = false;
@@ -96,28 +96,28 @@ namespace LowVisibility.Helper {
                         }
                         break;
                     case "mood_weatherRain":
-                        Mod.Log.Debug($"  - {tag}");
+                        Mod.Log.Debug()?.Invoke($"  - {tag}");
                         if (visionMulti > Mod.Config.Vision.RangeMultiRainSnow) {
                             visionMulti = Mod.Config.Vision.RangeMultiRainSnow;
                             mapConfig.hasRain = true;
                         }
                         break;
                     case "mood_weatherSnow":
-                        Mod.Log.Debug($"  - {tag}");
+                        Mod.Log.Debug()?.Invoke($"  - {tag}");
                         if (visionMulti > Mod.Config.Vision.RangeMultiRainSnow) {
                             visionMulti = Mod.Config.Vision.RangeMultiRainSnow;
                             mapConfig.hasSnow = true;
                         }
                         break;
                     case "mood_fogLight":
-                        Mod.Log.Debug($"  - {tag}");
+                        Mod.Log.Debug()?.Invoke($"  - {tag}");
                         if (visionMulti > Mod.Config.Vision.RangeMultiLightFog) {
                             visionMulti = Mod.Config.Vision.RangeMultiLightFog;
                             mapConfig.hasLightFog = true;
                         }
                         break;
                     case "mood_fogHeavy":
-                        Mod.Log.Debug($"  - {tag}");
+                        Mod.Log.Debug()?.Invoke($"  - {tag}");
                         if (visionMulti > Mod.Config.Vision.RangeMultiHeavyFog) {
                             visionMulti = Mod.Config.Vision.RangeMultiHeavyFog;
                             mapConfig.hasHeavyFog = true;

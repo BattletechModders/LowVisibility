@@ -61,7 +61,7 @@ namespace LowVisibility.Patch {
         public static bool Prefix(LineOfSight __instance, ref VisibilityLevel __result,
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation) {
 
-            Mod.Log.Trace($"LOS:GVTTWPAR: source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
+            Mod.Log.Trace()?.Invoke($"LOS:GVTTWPAR: source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
 
             // Skip if we aren't ready to process
             // TODO: Is this necessary anymore?
@@ -82,16 +82,16 @@ namespace LowVisibility.Patch {
                 __result = sensorsVisibility;
             }
 
-            //Mod.Log.Trace($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
+            //Mod.Log.Trace()?.Invoke()?.Invoke($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
             return false;
         }                        
     }
 
     [HarmonyPatch(typeof(LineOfSight), "GetLineOfFireUncached")]
     public static class LineOfSight_GetLineOfFireUncached {
-        public static void Postfix(LineOfSight __instance, ref LineOfFireLevel __result, CombatGameState ___Combat,
+        public static bool Prefix(LineOfSight __instance, ref LineOfFireLevel __result, CombatGameState ___Combat,
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation, out Vector3 collisionWorldPos) {
-            Mod.Log.Trace($"LOS:GLOFU entered. ");
+            Mod.Log.Trace()?.Invoke($"LOS:GLOFU entered. ");
 
             Vector3 forward = targetPosition - sourcePosition;
             forward.y = 0f;
@@ -141,7 +141,7 @@ namespace LowVisibility.Patch {
             float adjustedSensorRange = ___Combat.LOS.GetAdjustedSensorRange(source, abstractActor);
 
             //LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - using sensorRange:{adjustedSensorRange} instead of spotterRange:{adjustedSpotterRange}.  Max weapon range is:{maximumWeaponRangeForSource} ");
-            maximumWeaponRangeForSource = Mathf.Max(maximumWeaponRangeForSource, adjustedSensorRange);
+            maximumWeaponRangeForSource = Mathf.Max(maximumWeaponRangeForSource, adjustedSensorRange, adjustedSpotterRange);
             for (int j = 0; j < lossourcePositions.Length; j++) {
                 // Iterate the source positions (presumably each weapon has different source locations)
                 for (int k = 0; k < lostargetPositions.Length; k++) {
@@ -222,7 +222,9 @@ namespace LowVisibility.Patch {
                 __result = LineOfFireLevel.LOFBlocked;
             }
 
-            Mod.Log.Trace($"LOS:GLOFU LOS result is:{__result}");
+            Mod.Log.Trace()?.Invoke($"LOS:GLOFU LOS result is:{__result}");
+
+            return false;
         }
     }
 
@@ -244,7 +246,7 @@ namespace LowVisibility.Patch {
                 //if (allies[i].VisibilityCache.VisibilityToTarget(target).VisibilityLevel == VisibilityLevel.LOSFull) {
                 if (allies[i].VisibilityCache.VisibilityToTarget(target).VisibilityLevel >= VisibilityLevel.Blip0Minimum) {
                     __result = true;
-                    Mod.Log.Trace($"Allied actor{CombatantUtils.Label(allies[i])} has LOS " +
+                    Mod.Log.Trace()?.Invoke($"Allied actor{CombatantUtils.Label(allies[i])} has LOS " +
                         $"to target:{CombatantUtils.Label(target as AbstractActor)}, returning true.");
                     return;
                 }
@@ -254,7 +256,7 @@ namespace LowVisibility.Patch {
                 ___combat.LOS.GetVisibilityToTargetWithPositionsAndRotations(attacker, position, target);
             //__result = visibilityToTargetWithPositionsAndRotations == VisibilityLevel.LOSFull;
             __result = visibilityToTargetWithPositionsAndRotations >= VisibilityLevel.Blip0Minimum;
-            Mod.Log.Trace($"Actor{CombatantUtils.Label(attacker)} has LOS? {__result} " +
+            Mod.Log.Trace()?.Invoke($"Actor{CombatantUtils.Label(attacker)} has LOS? {__result} " +
                 $"to target:{CombatantUtils.Label(target as AbstractActor)}");
         }
     }

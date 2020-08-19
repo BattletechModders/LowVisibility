@@ -14,7 +14,7 @@ namespace LowVisibility.Patch.HUD {
         public static void Prefix(CombatHUDWeaponPanel __instance, AbstractActor ___displayedActor) {
 
             if (__instance == null || ___displayedActor == null) { return; }
-            Mod.Log.Trace("CHUDWP:RDW - entered.");
+            Mod.Log.Trace()?.Invoke("CHUDWP:RDW - entered.");
 
             Traverse targetT = Traverse.Create(__instance).Property("target");
             Traverse hoveredTargetT = Traverse.Create(__instance).Property("hoveredTarget");
@@ -34,15 +34,15 @@ namespace LowVisibility.Patch.HUD {
             if (target == null) { return; }
 
             EWState attackerState = new EWState(___displayedActor);
-            Mod.Log.Debug($"Attacker ({CombatantUtils.Label(___displayedActor)} => EWState: {attackerState}");
+            Mod.Log.Debug()?.Invoke($"Attacker ({CombatantUtils.Label(___displayedActor)} => EWState: {attackerState}");
             bool canSpotTarget = VisualLockHelper.CanSpotTarget(___displayedActor, ___displayedActor.CurrentPosition,
                 target, target.CurrentPosition, target.CurrentRotation, ___displayedActor.Combat.LOS);
             SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(target, ___displayedActor);
-            Mod.Log.Debug($"  canSpotTarget: {canSpotTarget}  sensorScan: {sensorScan}");
+            Mod.Log.Debug()?.Invoke($"  canSpotTarget: {canSpotTarget}  sensorScan: {sensorScan}");
 
             if (target is AbstractActor targetActor) {
                 EWState targetState = new EWState(targetActor);
-                Mod.Log.Debug($"Target ({CombatantUtils.Label(targetActor)} => EWState: {targetState}");
+                Mod.Log.Debug()?.Invoke($"Target ({CombatantUtils.Label(targetActor)} => EWState: {targetState}");
             }
 
         }
@@ -58,7 +58,7 @@ namespace LowVisibility.Patch.HUD {
 
             if (__instance == null || ___displayedWeapon == null || ___HUD.SelectedActor == null || target == null) { return; }
 
-            Mod.Log.Trace("CHUDWS:SHC - entered.");
+            Mod.Log.Trace()?.Invoke("CHUDWS:SHC - entered.");
 
             AbstractActor attacker = __instance.DisplayedWeapon.parent;
             Traverse AddToolTipDetailMethod = Traverse.Create(__instance).Method("AddToolTipDetail", 
@@ -89,7 +89,7 @@ namespace LowVisibility.Patch.HUD {
 
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(__instance.DisplayedWeapon, magnitude);
                 int zoomAttackMod = attackerState.HasZoomVisionToTarget(__instance.DisplayedWeapon, magnitude, lofLevel) ? zoomVisionMod - mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
-                Mod.Log.Debug($"  Visual attack == eyeball: {eyeballAttackMod} mimetic: {mimeticMod} zoomAtack: {zoomAttackMod}");
+                Mod.Log.Debug()?.Invoke($"  Visual attack == eyeball: {eyeballAttackMod} mimetic: {mimeticMod} zoomAtack: {zoomAttackMod}");
 
                 bool hasVisualAttack = (eyeballAttackMod < Mod.Config.Attack.NoVisualsPenalty || zoomAttackMod < Mod.Config.Attack.NoVisualsPenalty);
 
@@ -98,7 +98,7 @@ namespace LowVisibility.Patch.HUD {
                 int tagAttackMod = targetState.TagAttackMod(attackerState);
                 int ecmShieldAttackMod = targetState.ECMAttackMod(attackerState);
                 int stealthAttackMod = targetState.StealthAttackMod(attackerState, __instance.DisplayedWeapon, magnitude);
-                Mod.Log.Debug($"  Sensor attack penalties == narc: {narcAttackMod}  tag: {tagAttackMod}  ecmShield: {ecmShieldAttackMod}  stealth: {stealthAttackMod}");
+                Mod.Log.Debug()?.Invoke($"  Sensor attack penalties == narc: {narcAttackMod}  tag: {tagAttackMod}  ecmShield: {ecmShieldAttackMod}  stealth: {stealthAttackMod}");
 
                 bool hasSensorAttack = SensorLockHelper.CalculateSharedLock(targetActor, attacker) > SensorScanType.NoInfo;
                 int sensorsAttackMod = Mod.Config.Attack.NoSensorsPenalty;
@@ -110,7 +110,7 @@ namespace LowVisibility.Patch.HUD {
                     sensorsAttackMod += stealthAttackMod;
                 }
                 if (sensorsAttackMod > Mod.Config.Attack.NoSensorsPenalty) {
-                    Mod.Log.Debug($"  Rollup of penalties {sensorsAttackMod} is > than NoSensors, defaulting to {Mod.Config.Attack.NoSensorsPenalty} ");
+                    Mod.Log.Debug()?.Invoke($"  Rollup of penalties {sensorsAttackMod} is > than NoSensors, defaulting to {Mod.Config.Attack.NoSensorsPenalty} ");
                     hasSensorAttack = false;
                 }
 

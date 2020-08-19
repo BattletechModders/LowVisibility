@@ -40,8 +40,8 @@ namespace LowVisibility.Patch.HUD
     {
         static void Prefix(CombatHUDMarkDisplay __instance)
         {
-            Mod.Log.Trace("CHUDMD:RI - entered.");
-            Mod.Log.Debug($"  instance is null: {__instance == null}  displayedActor: {CombatantUtils.Label(__instance?.DisplayedActor)}  " +
+            Mod.Log.Trace()?.Invoke("CHUDMD:RI - entered.");
+            Mod.Log.Debug()?.Invoke($"  instance is null: {__instance == null}  displayedActor: {CombatantUtils.Label(__instance?.DisplayedActor)}  " +
                 $"lastPlayerActivated: {CombatantUtils.Label(ModState.LastPlayerActorActivated)}.");
 
             if (__instance != null && __instance.DisplayedActor != null && ModState.LastPlayerActorActivated != null)
@@ -67,7 +67,7 @@ namespace LowVisibility.Patch.HUD
                 if (!ModState.MarkContainerRefs.ContainsKey(__instance)) container = InitializeContainer(__instance);
                 else container = ModState.MarkContainerRefs[__instance];
 
-                Mod.Log.Debug($"UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(__instance.DisplayedActor)}");
+                Mod.Log.Debug()?.Invoke($"UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(__instance.DisplayedActor)}");
                 UpdateSensorAndVisualsIcons(container, __instance.DisplayedActor, ModState.LastPlayerActorActivated, isPlayer);
 
                 // Tagged State
@@ -94,7 +94,7 @@ namespace LowVisibility.Patch.HUD
                 // ECMShielded State
                 if (targetState.GetRawECMShield() != 0) UpdateIcon(container.ECMShieldedMark, true, !isPlayer);
                 else UpdateIcon(container.ECMShieldedMark, false, !isPlayer);
-                Mod.Log.Debug($"  -- DONE UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(__instance.DisplayedActor)}");
+                Mod.Log.Debug()?.Invoke($"  -- DONE UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(__instance.DisplayedActor)}");
 
                 // DEBUG MODE
                 //UpdateIcon(container.TaggedMark, true, isPlayer);
@@ -128,12 +128,12 @@ namespace LowVisibility.Patch.HUD
                 SVGImage sensorsImage = container.SensorsMark.GetComponent<SVGImage>();
                 if (hasSensorLock)
                 {
-                    Mod.Log.Debug($" - Can sensors detect target, setting icon to green.");
+                    Mod.Log.Debug()?.Invoke($" - Can sensors detect target, setting icon to green.");
                     sensorsImage.color = Color.green;
                 }
                 else
                 {
-                    Mod.Log.Debug($" - Can not sensors detect target, setting icon to red.");
+                    Mod.Log.Debug()?.Invoke($" - Can not sensors detect target, setting icon to red.");
                     sensorsImage.color = Color.red;
                 }
 
@@ -143,12 +143,12 @@ namespace LowVisibility.Patch.HUD
                 container.VisualsMark.SetActive(true);
                 if (canSpotTarget)
                 {
-                    Mod.Log.Debug($" - Can spot target, setting icon to green.");
+                    Mod.Log.Debug()?.Invoke($" - Can spot target, setting icon to green.");
                     visualsImage.color = Color.green;
                 }
                 else
                 {
-                    Mod.Log.Debug($" - Cannot spot target, setting icon to red.");
+                    Mod.Log.Debug()?.Invoke($" - Cannot spot target, setting icon to red.");
                     visualsImage.color = Color.red;
 
                 }
@@ -163,7 +163,7 @@ namespace LowVisibility.Patch.HUD
         static MarkGOContainer InitializeContainer(CombatHUDMarkDisplay markDisplay)
         {
             // We can't patch Init (probably compiled to a point we can't patch it) so create the objects here.
-            Mod.Log.Debug($"CHUDMD:I invoked");
+            Mod.Log.Debug()?.Invoke($"CHUDMD:I invoked");
             GameObject sensorsMark = CreateMark(markDisplay.transform.parent.gameObject, Mod.Config.Icons.TargetSensorsMark, CombatHUDMarkDisplayConsts.SensorsMarkGOId);
             GameObject visualsMark = CreateMark(markDisplay.transform.parent.gameObject, Mod.Config.Icons.TargetVisualsMark, CombatHUDMarkDisplayConsts.VisualsMarkGOId);
 
@@ -188,7 +188,7 @@ namespace LowVisibility.Patch.HUD
             };
 
             ModState.MarkContainerRefs[markDisplay] = container;
-            Mod.Log.Debug($"Created reference from instance {markDisplay} to container: {container}");
+            Mod.Log.Debug()?.Invoke($"Created reference from instance {markDisplay} to container: {container}");
 
             // Set the parent's (Marks GO) scale to 300y
             GameObject marksGO = markDisplay.transform.parent.gameObject;
@@ -207,11 +207,11 @@ namespace LowVisibility.Patch.HUD
 
         static GameObject CreateMark(GameObject parent, string iconId, string objectId)
         {
-            Mod.Log.Debug($"Creating mark for iconId: {iconId}");
+            Mod.Log.Debug()?.Invoke($"Creating mark for iconId: {iconId}");
             try
             {
                 SVGAsset icon = ModState.Combat.DataManager.GetObjectOfType<SVGAsset>(iconId, BattleTechResourceType.SVGAsset);
-                if (icon == null) Mod.Log.Warn($"Icon: {iconId} was not loaded! Check the manifest load");
+                if (icon == null) Mod.Log.Warn()?.Invoke($"Icon: {iconId} was not loaded! Check the manifest load");
 
                 GameObject imageGO = new GameObject();
                 imageGO.name = objectId;
@@ -219,7 +219,7 @@ namespace LowVisibility.Patch.HUD
                 imageGO.transform.localScale = new Vector3(0.7f, 1f, 1f);
 
                 SVGImage image = imageGO.AddComponent<SVGImage>();
-                if (image == null) Mod.Log.Warn("Failed to create image for icon, load will fail!");
+                if (image == null) Mod.Log.Warn()?.Invoke("Failed to create image for icon, load will fail!");
 
                 image.vectorGraphics = icon;
                 image.color = Color.white;
