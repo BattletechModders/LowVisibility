@@ -89,7 +89,7 @@ namespace LowVisibility.Patch {
 
     [HarmonyPatch(typeof(LineOfSight), "GetLineOfFireUncached")]
     public static class LineOfSight_GetLineOfFireUncached {
-        public static void Postfix(LineOfSight __instance, ref LineOfFireLevel __result, CombatGameState ___Combat,
+        public static bool Prefix(LineOfSight __instance, ref LineOfFireLevel __result, CombatGameState ___Combat,
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation, out Vector3 collisionWorldPos) {
             Mod.Log.Trace?.Write($"LOS:GLOFU entered. ");
 
@@ -141,7 +141,7 @@ namespace LowVisibility.Patch {
             float adjustedSensorRange = ___Combat.LOS.GetAdjustedSensorRange(source, abstractActor);
 
             //LowVisibility.Logger.Log($"LineOfSight:GetLineOfFireUncached:pre - using sensorRange:{adjustedSensorRange} instead of spotterRange:{adjustedSpotterRange}.  Max weapon range is:{maximumWeaponRangeForSource} ");
-            maximumWeaponRangeForSource = Mathf.Max(maximumWeaponRangeForSource, adjustedSensorRange);
+            maximumWeaponRangeForSource = Mathf.Max(maximumWeaponRangeForSource, adjustedSensorRange, adjustedSpotterRange);
             for (int j = 0; j < lossourcePositions.Length; j++) {
                 // Iterate the source positions (presumably each weapon has different source locations)
                 for (int k = 0; k < lostargetPositions.Length; k++) {
@@ -223,6 +223,8 @@ namespace LowVisibility.Patch {
             }
 
             Mod.Log.Trace?.Write($"LOS:GLOFU LOS result is:{__result}");
+
+            return false;
         }
     }
 
