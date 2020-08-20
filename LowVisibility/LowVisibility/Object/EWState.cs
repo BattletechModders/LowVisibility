@@ -110,38 +110,31 @@ namespace LowVisibility.Object {
             this.actor = actor;
 
             // Pilot effects; cache and only read once
-            if (actor.StatCollection.ContainsStatistic(ModStats.TacticsMod)) {
-                tacticsMod = actor.StatCollection.GetStatistic(ModStats.TacticsMod).Value<int>();
-                if (tacticsMod == 0 && actor.GetPilot() != null) {
-                    tacticsMod = SkillUtils.GetTacticsModifier(actor.GetPilot());
-                    actor.StatCollection.Set<int>(ModStats.TacticsMod, tacticsMod);
-                }
+            tacticsMod = actor.StatCollection.GetValue<int>(ModStats.TacticsMod);
+            if (tacticsMod == 0 && actor.GetPilot() != null) {
+                tacticsMod = SkillUtils.GetTacticsModifier(actor.GetPilot());
+                actor.StatCollection.Set<int>(ModStats.TacticsMod, tacticsMod);
             }
 
             // Ephemeral round check
-            ewCheck = actor.StatCollection.ContainsStatistic(ModStats.CurrentRoundEWCheck) ?
-                actor.StatCollection.GetStatistic(ModStats.CurrentRoundEWCheck).Value<int>() : 0;
+            ewCheck = actor.StatCollection.GetValue<int>(ModStats.CurrentRoundEWCheck);
 
             // ECM
-            jammedByECMMod = actor.StatCollection.ContainsStatistic(ModStats.ECMJamming) ?
-                actor.StatCollection.GetStatistic(ModStats.ECMJamming).Value<int>() : 0;
-            shieldedByECMMod = actor.StatCollection.ContainsStatistic(ModStats.ECMShield) ?
-                actor.StatCollection.GetStatistic(ModStats.ECMShield).Value<int>() : 0;
+            jammedByECMMod = actor.StatCollection.GetValue<int>(ModStats.ECMJamming);
+
+            shieldedByECMMod = actor.StatCollection.GetValue<int>(ModStats.ECMShield);
 
             // Sensors
-            advSensorsCarrierMod = actor.StatCollection.ContainsStatistic(ModStats.AdvancedSensors) ?
-                actor.StatCollection.GetStatistic(ModStats.AdvancedSensors).Value<int>() : 0;
+            advSensorsCarrierMod = actor.StatCollection.GetValue<int>(ModStats.AdvancedSensors);
 
             // Probes
-            probeCarrierMod = actor.StatCollection.ContainsStatistic(ModStats.ProbeCarrier) ?
-                actor.StatCollection.GetStatistic(ModStats.ProbeCarrier).Value<int>() : 0;
-            pingedByProbeMod = actor.StatCollection.ContainsStatistic(ModStats.PingedByProbe) ?
-                actor.StatCollection.GetStatistic(ModStats.PingedByProbe).Value<int>() : 0;
+            probeCarrierMod = actor.StatCollection.GetValue<int>(ModStats.ProbeCarrier);
+
+            pingedByProbeMod = actor.StatCollection.GetValue<int>(ModStats.PingedByProbe);
 
             // Stealth - <signature_modifier>_<details_modifier>_<mediumAttackMod>_<longAttackmod>_<extremeAttackMod>
-            if (actor.StatCollection.ContainsStatistic(ModStats.StealthEffect) &&
-                actor.StatCollection.GetStatistic(ModStats.StealthEffect).Value<string>() != "") {
-                string rawValue = actor.StatCollection.GetStatistic(ModStats.StealthEffect).Value<string>();
+            string rawValue = actor.StatCollection.GetValue<string>(ModStats.StealthEffect);
+            if (!string.IsNullOrEmpty(rawValue)) {
                 string[] tokens = rawValue.Split('_');
                 if (tokens.Length == 5) {
                     try {
@@ -160,11 +153,10 @@ namespace LowVisibility.Object {
                     Mod.Log.Info?.Write($"WARNING: Invalid StealthEffect value: ({rawValue}) found. Discarding!");
                 }
             }
-            
+
             // Mimetic - <initialVisibility>_<initialModifier>_<stepsUntilDecay>
-            if (actor.StatCollection.ContainsStatistic(ModStats.MimeticEffect) &&
-                actor.StatCollection.GetStatistic(ModStats.MimeticEffect).Value<string>() != "") {
-                string rawValue = actor.StatCollection.GetStatistic(ModStats.MimeticEffect).Value<string>();
+            rawValue = actor.StatCollection.GetValue<string>(ModStats.MimeticEffect);
+            if (!string.IsNullOrEmpty(rawValue)) {
                 string[] tokens = rawValue.Split('_');
                 if (tokens.Length == 3) {
                     try {
@@ -183,9 +175,8 @@ namespace LowVisibility.Object {
             }
 
             // ZoomVision - <initialAttackModifier>_<attackModifierCap>_<hexesUntilDecay>
-            if (actor.StatCollection.ContainsStatistic(ModStats.ZoomVision) &&
-                actor.StatCollection.GetStatistic(ModStats.ZoomVision).Value<string>() != "") {
-                string rawValue = actor.StatCollection.GetStatistic(ModStats.ZoomVision).Value<string>();
+            rawValue = actor.StatCollection.GetValue<string>(ModStats.ZoomVision);
+            if (!string.IsNullOrEmpty(rawValue)) {
                 string[] tokens = rawValue.Split('_');
                 if (tokens.Length == 3) {
                     try {
@@ -200,9 +191,8 @@ namespace LowVisibility.Object {
             }
 
             // HeatVision - <initialAttackModifier>_<heatDivisorForStep>__<maximumRange>
-            if (actor.StatCollection.ContainsStatistic(ModStats.HeatVision) &&
-                actor.StatCollection.GetStatistic(ModStats.HeatVision).Value<string>() != "") {
-                string rawValue = actor.StatCollection.GetStatistic(ModStats.HeatVision).Value<string>();
+            rawValue = actor.StatCollection.GetValue<string>(ModStats.HeatVision);
+            if (!string.IsNullOrEmpty(rawValue)) {
                 string[] tokens = rawValue.Split('_');
                 if (tokens.Length == 3) {
                     try {
@@ -220,10 +210,10 @@ namespace LowVisibility.Object {
                 }
             }
 
+
             // Narc effect - <signatureMod>_<detailsMod>_<attackMod>
-            if (actor.StatCollection.ContainsStatistic(ModStats.NarcEffect) &&
-                actor.StatCollection.GetStatistic(ModStats.NarcEffect).Value<string>() != "") {
-                string rawValue = actor.StatCollection.GetStatistic(ModStats.NarcEffect).Value<string>();
+            rawValue = actor.StatCollection.GetValue<string>(ModStats.NarcEffect);
+            if (!string.IsNullOrEmpty(rawValue)) { 
                 string[] tokens = rawValue.Split('_');
                 if (tokens.Length == 3) {
                     try {
@@ -241,10 +231,10 @@ namespace LowVisibility.Object {
                 }
             }
 
+
             // Tag effect - <signatureMod>_<detailsMod>_<attackMod>
-            if (actor.StatCollection.ContainsStatistic(ModStats.TagEffect) &&
-                actor.StatCollection.GetStatistic(ModStats.TagEffect).Value<string>() != "") {
-                string rawValue = actor.StatCollection.GetStatistic(ModStats.TagEffect).Value<string>();
+            rawValue = actor.StatCollection.GetValue<string>(ModStats.TagEffect);
+            if (!string.IsNullOrEmpty(rawValue)) {
                 string[] tokens = rawValue.Split('_');
                 if (tokens.Length == 3) {
                     try {
@@ -263,15 +253,10 @@ namespace LowVisibility.Object {
             }
 
             // Vision Sharing
-            if (actor.StatCollection.ContainsStatistic(ModStats.SharesVision)) {
-                sharesVision = actor.StatCollection.GetValue<bool>(ModStats.SharesVision);
-            }
+            sharesVision = actor.StatCollection.GetValue<bool>(ModStats.SharesVision);
 
             // Night Vision
-            if (actor.StatCollection.ContainsStatistic(ModStats.NightVision)) {
-                nightVision = actor.StatCollection.GetValue<bool>(ModStats.NightVision);
-            }
-
+            nightVision = actor.StatCollection.GetValue<bool>(ModStats.NightVision);
         }
 
         public int GetCurrentEWCheck() { return ewCheck + tacticsMod; }
