@@ -17,7 +17,7 @@ namespace LowVisibility.Helper {
             }
 
             // Add multipliers and absolute bonuses
-            EWState ewState = new EWState(source);
+            EWState ewState = source.GetEWState();
 
             Mod.Log.Trace?.Write($"  == Sensors Range for for actor:{CombatantUtils.Label(source)}");
 
@@ -38,7 +38,7 @@ namespace LowVisibility.Helper {
         }
 
         public static float GetAdjustedSensorRange(AbstractActor source, ICombatant target) {
-            EWState sourceState = new EWState(source);
+            EWState sourceState = source.GetEWState();
             float sourceSensorRange = SensorLockHelper.GetSensorsRange(source);
             float targetSignature = SensorLockHelper.GetTargetSignature(target, sourceState);
             //LowVisibility.Logger.Debug($"   source:{CombatantUtils.Label(source)} sensorRange:{sourceSensorRange}m vs targetSignature:x{targetSignature}");
@@ -94,7 +94,7 @@ namespace LowVisibility.Helper {
             float shutdownMod = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownSignatureModifier;
             float rawSignature = target.SensorSignatureModifier;
 
-            EWState ewState = new EWState(target);
+            EWState ewState = target.GetEWState();
             float ecmShieldMod = ewState.ECMSignatureMod(sourceState);
             float stealthMod = ewState.StealthSignatureMod(sourceState);
             float narcMod = ewState.NarcSignatureMod(sourceState);
@@ -167,7 +167,7 @@ namespace LowVisibility.Helper {
                 return SensorScanType.NoInfo;
             }
 
-            EWState sourceState = new EWState(source);
+            EWState sourceState = source.GetEWState();
             float distance = Vector3.Distance(sourcePos, targetPos);
             float sensorRangeVsTarget = SensorLockHelper.GetAdjustedSensorRange(source, target);
             Mod.Log.Trace?.Write($"SensorLockHelper - source: {CombatantUtils.Label(source)} sensorRangeVsTarget: {sensorRangeVsTarget} vs distance: {distance}");
@@ -181,7 +181,7 @@ namespace LowVisibility.Helper {
                 return buildingLock;
             } else if ((target as AbstractActor) != null) {
                 AbstractActor targetActor = target as AbstractActor;
-                EWState targetState = new EWState(targetActor);
+                EWState targetState = targetActor.GetEWState();
 
                 if (distance > sensorRangeVsTarget) {
                     // Check for Narc effect that will show the target regardless of range
@@ -225,7 +225,7 @@ namespace LowVisibility.Helper {
             Mod.Log.Trace?.Write($"Calculating SensorInfo from source: ({CombatantUtils.Label(source)}) to target: ({CombatantUtils.Label(target)})");
 
             // Determine modified check against target
-            EWState sourceState = new EWState(source);
+            EWState sourceState = source.GetEWState();
 
             int positiveMods = 0;
             int negativeMods = 0;
@@ -249,7 +249,7 @@ namespace LowVisibility.Helper {
             // --- Target: Stealth, Narc, Tag
             AbstractActor targetActor = target as AbstractActor;
             if (targetActor != null) {
-                EWState targetState = new EWState(targetActor);
+                EWState targetState = targetActor.GetEWState();
 
                 // ECM Shield reduces sensor info
                 if (targetState.ECMDetailsMod(sourceState) > 0) {

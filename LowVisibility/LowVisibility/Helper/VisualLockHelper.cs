@@ -57,7 +57,7 @@ namespace LowVisibility.Helper {
 
             float targetVisibility = 1f;
             AbstractActor abstractActor = target as AbstractActor;
-            EWState sourceState = new EWState(source);
+            EWState sourceState = source.GetEWState();
             if (abstractActor != null) {
                 targetVisibility = VisualLockHelper.GetTargetVisibility(abstractActor, sourceState);
             }
@@ -122,7 +122,7 @@ namespace LowVisibility.Helper {
             float shutdownVisMulti = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownVisibilityModifier;        
             float spottingVisibilityMultiplier = target.SpottingVisibilityMultiplier;
 
-            EWState ewState = new EWState(target);
+            EWState ewState = target.GetEWState();
             float mimeticMod = ewState.MimeticVisibilityMod(sourceState);
 
             float targetVisibility = baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier + mimeticMod;

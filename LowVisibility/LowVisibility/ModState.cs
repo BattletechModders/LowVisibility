@@ -92,7 +92,9 @@ namespace LowVisibility {
             // Combat state
             Combat = null;
             MarkContainerRefs.Clear();
-    }
+
+            EWState.ResetCache();
+        }
 
     }
 }
