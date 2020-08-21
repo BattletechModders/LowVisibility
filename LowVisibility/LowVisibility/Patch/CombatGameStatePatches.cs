@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using BattleTech.Data;
 using Harmony;
+using LowVisibility.Object;
 using SVGImporter;
 
 namespace LowVisibility.Patch {
@@ -44,6 +45,18 @@ namespace LowVisibility.Patch {
             Mod.Log.Trace?.Write("CGS:OCGD - entered.");
 
             ModState.Reset();
+        }
+    }
+
+    [HarmonyPatch(typeof(CombatGameState), nameof(CombatGameState.Update))]
+    public static class CombatGameState_Update
+    {
+        public static void Postfix()
+        {
+            if (EWState.InBatchProcess) {
+                Mod.Log.Error?.Write($"Something has gone wrong in refreshing visibility cache, resetting.");
+                EWState.ResetCache();
+            }
         }
     }
 }

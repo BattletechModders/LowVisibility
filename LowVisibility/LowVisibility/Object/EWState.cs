@@ -1,5 +1,6 @@
 ﻿using BattleTech;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using us.frostraptor.modUtils;
@@ -108,7 +109,6 @@ namespace LowVisibility.Object {
         // Normal Constructor
         public EWState(AbstractActor actor) {
             this.actor = actor;
-
             // Pilot effects; cache and only read once
             tacticsMod = actor.StatCollection.GetValue<int>(ModStats.TacticsMod);
             if (tacticsMod == 0 && actor.GetPilot() != null) {
@@ -257,6 +257,15 @@ namespace LowVisibility.Object {
 
             // Night Vision
             nightVision = actor.StatCollection.GetValue<bool>(ModStats.NightVision);
+        }
+
+        public static Dictionary<AbstractActor, EWState> EWStateCache = new Dictionary<AbstractActor, EWState>();
+
+        public static bool InBatchProcess { get; set; }
+
+        public static void ResetCache() {
+            EWStateCache.Clear();
+            InBatchProcess = false;
         }
 
         public int GetCurrentEWCheck() { return ewCheck + tacticsMod; }

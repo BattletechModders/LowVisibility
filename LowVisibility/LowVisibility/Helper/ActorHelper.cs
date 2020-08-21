@@ -4,11 +4,18 @@ using LowVisibility.Object;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Helper {
-    public class ActorHelper {
+    public static class ActorHelper {
 
         // --- Methods manipulating EWState
-        public static EWState GetEWState(AbstractActor actor) {
-            return actor != null ? new EWState(actor) : new EWState();
+        public static EWState GetEWState(this AbstractActor actor) {
+            if (EWState.InBatchProcess) {
+                if (EWState.EWStateCache.TryGetValue(actor, out EWState state))
+                    return state;
+
+                return EWState.EWStateCache[actor] = new EWState(actor);
+            }
+
+            return new EWState(actor);
         }
 
         public static int UpdateSensorCheck(AbstractActor actor, bool updateAuras) {
