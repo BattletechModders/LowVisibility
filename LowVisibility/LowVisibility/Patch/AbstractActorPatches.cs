@@ -278,5 +278,33 @@ namespace LowVisibility.Patch {
         }
     }
 
+    [HarmonyPatch(typeof(AbstractActor), nameof(AbstractActor.HandleDeath))]
+    public static class AbstractActor_HandleDeath {
+
+        private static int counter = 0;
+
+        public static bool GateActive = false;
+
+        [HarmonyPriority(900)]
+        public static void Prefix(AbstractActor __instance) {
+            VisibilityCacheGate.EnterGate();
+            GateActive = true;
+            counter = VisibilityCacheGate.GetCounter;
+        }
+
+        [HarmonyPriority(0)]
+        public static void Postfix(AbstractActor __instance) {
+            VisibilityCacheGate.ExitGate();
+            GateActive = false;
+
+            int exitCounter = VisibilityCacheGate.GetCounter;
+            if (exitCounter < counter) {
+                Mod.Log.Debug?.Write($"Reset or unsymmetrical larger number of ExitGate() are call.");
+            }
+            else if (exitCounter > counter) {
+                Mod.Log.Error?.Write($"Fewer calls to ExitGate() than EnterGate().");
+            }
+        }
+    }
 }
 

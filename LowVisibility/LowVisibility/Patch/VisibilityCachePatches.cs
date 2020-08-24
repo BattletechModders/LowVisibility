@@ -9,40 +9,64 @@ using LowVisibility.Object;
 
 namespace LowVisibility.Patch
 {
-    [HarmonyPatch(typeof(VisibilityCache), nameof(VisibilityCache.RebuildCache))]
-    public static class VisibilityCache_RebuildCache
+    public static class VisibilityCachePatches
     {
-        // Lowest priority
-        [HarmonyPriority(0)]
-        public static void Prefix()
+        public delegate AbstractActor OwningActor(VisibilityCache cache);
+
+        public static OwningActor GetOwningActor =
+            (OwningActor) Delegate.CreateDelegate(typeof(OwningActor), typeof(VisibilityCache).GetProperty("OwningActor", AccessTools.all).GetMethod);
+
+        [HarmonyPatch(typeof(VisibilityCache), nameof(VisibilityCache.RebuildCache))]
+        public static class VisibilityCache_RebuildCache
         {
-            EWState.InBatchProcess = true;
-            EWState.EWStateCache.Clear();
+            // Lowest priority
+            [HarmonyPriority(0)]
+            public static bool Prefix(VisibilityCache __instance)
+            {
+                EWState.InBatchProcess = true;
+                EWState.EWStateCache.Clear();
+
+                if (VisibilityCacheGate.Active)
+                {
+                    VisibilityCacheGate.AddActorToRefresh(GetOwningActor(__instance));
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Highest priority
+            [HarmonyPriority(900)]
+            public static void Postfix()
+            {
+                EWState.InBatchProcess = false;
+            }
         }
 
-        // Highest priority
-        [HarmonyPriority(900)]
-        public static void Postfix()
+        [HarmonyPatch(typeof(VisibilityCache), nameof(VisibilityCache.UpdateCacheReciprocal))]
+        public static class VisibilityCache_UpdateCacheReciprocal
         {
-            EWState.InBatchProcess = false;
-        }
-    }
+            // Lowest priority
+            [HarmonyPriority(0)]
+            public static bool Prefix(VisibilityCache __instance)
+            {
+                EWState.InBatchProcess = true;
+                EWState.EWStateCache.Clear();
 
-    [HarmonyPatch(typeof(VisibilityCache), nameof(VisibilityCache.UpdateCacheReciprocal))]
-    public static class VisibilityCache_UpdateCacheReciprocal
-    {
-        // Lowest priority
-        [HarmonyPriority(0)]
-        public static void Prefix()
-        {
-            EWState.InBatchProcess = true;
-            EWState.EWStateCache.Clear();
-        }
+                if (VisibilityCacheGate.Active)
+                {
+                    VisibilityCacheGate.AddActorToRefresh(GetOwningActor(__instance));
+                    return false;
+                }
 
-        [HarmonyPriority(900)]
-        public static void Postfix()
-        {
-            EWState.InBatchProcess = false;
+                return true;
+            }
+
+            [HarmonyPriority(900)]
+            public static void Postfix()
+            {
+                EWState.InBatchProcess = false;
+            }
         }
     }
 }
