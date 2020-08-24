@@ -45,6 +45,7 @@ namespace LowVisibility.Patch {
             Mod.Log.Trace?.Write("CGS:OCGD - entered.");
 
             ModState.Reset();
+            VisibilityCacheGate.Reset();
         }
     }
 
@@ -56,6 +57,11 @@ namespace LowVisibility.Patch {
             if (EWState.InBatchProcess) {
                 Mod.Log.Error?.Write($"Something has gone wrong in refreshing visibility cache, resetting.");
                 EWState.ResetCache();
+            }
+
+            if (AbstractActor_HandleDeath.GateActive) {
+                Mod.Log.Error?.Write($"Something has gone wrong in handling actor death, resetting VisibilityCacheGate.");
+                VisibilityCacheGate.ExitAll();
             }
         }
     }
