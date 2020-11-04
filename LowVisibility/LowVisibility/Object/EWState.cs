@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using IRBTModUtils;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -546,6 +547,7 @@ namespace LowVisibility.Object {
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
             sb.Append($"Raw check: {ewCheck}  tacticsMod: {tacticsMod}");
+            sb.Append($"  visionRange: {SharedState.Combat.LOS.GetSpotterRange(actor)}  sensorsRange: {SharedState.Combat.LOS.GetSensorRange(actor)}");
             sb.Append($"  ecmShieldMod: {shieldedByECMMod}  ecmJammedMod: {jammedByECMMod}");
             sb.Append($"  advSensors: {advSensorsCarrierMod}  probeCarrier: {probeCarrierMod}");
             sb.Append($"  stealth (detailsMod: {stealth?.DetailsMod} sigMulti: {stealth?.SignatureMulti} attack: {stealth?.MediumRangeAttackMod} / {stealth?.LongRangeAttackMod} / {stealth?.ExtremeRangeAttackMod})");

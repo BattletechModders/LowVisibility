@@ -1,6 +1,8 @@
 ﻿using BattleTech;
 using Harmony;
+using IRBTModUtils.Extension;
 using LowVisibility.Helper;
+using LowVisibility.Object;
 using System;
 using System.Reflection;
 using us.frostraptor.modUtils;
@@ -76,20 +78,36 @@ namespace LowVisibility.Patch {
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
+                Mod.Log.Info?.Write($" -- Updating actor: {actor.DistinctId()}");
+
                 // If our sensors are offline, re-enable them
                 if (actor.StatCollection.ContainsStatistic(ModStats.DisableSensors))
                 {
-                    Mod.Log.Info?.Write($"Actor: {CombatantUtils.Label(actor)} sensors are offline until: {actor.StatCollection.GetValue<int>(ModStats.DisableSensors)}");
 
                     if (round >= actor.StatCollection.GetValue<int>(ModStats.DisableSensors))
                     {
                         Mod.Log.Info?.Write($"Re-enabling sensors for {CombatantUtils.Label(actor)}");
                         actor.StatCollection.RemoveStatistic(ModStats.DisableSensors);
                     }
+                    else
+                    {
+                        Mod.Log.Info?.Write($"Actor: {CombatantUtils.Label(actor)} sensors are offline until: {actor.StatCollection.GetValue<int>(ModStats.DisableSensors)}");
+                    }
                 }
                     
                 // Update our sensors check
                 ActorHelper.UpdateSensorCheck(actor, true);
+
+                // Print the current state of the actor
+                EWState actorState = new EWState(actor);
+                Mod.Log.Info?.Write(actorState.ToString());
+                
+            }
+
+            // Now that all sensor checks are updated, refresh visiblity for all actors
+            foreach (AbstractActor actor in __instance.Combat.AllActors)
+            {
+
                 if (actor.TeamId == __instance.Combat.LocalPlayerTeamGuid)
                 {
                     actor.VisibilityCache.RebuildCache(actor.Combat.GetAllImporantCombatants());
