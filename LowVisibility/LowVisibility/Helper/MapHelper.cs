@@ -25,17 +25,17 @@ namespace LowVisibility.Helper {
             public string UILabel() {
                 // Parse light
                 string lightLabel;
-                if (isDay) { lightLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_LIGHT_BRIGHT]; }
-                else if (isDim) { lightLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_LIGHT_DIM]; }
-                else { lightLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_LIGHT_DARK]; }
+                if (isDay) { lightLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_LIGHT_BRIGHT]; }
+                else if (isDim) { lightLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_LIGHT_DIM]; }
+                else { lightLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_LIGHT_DARK]; }
                 lightLabel = new Localize.Text(lightLabel).ToString();
 
                 // Parse weather
                 string weatherLabel = null;
-                if (hasHeavyFog) { weatherLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_FOG_HEAVY]; }
-                else if (hasLightFog) { weatherLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_FOG_LIGHT]; }
-                else if (hasSnow) { weatherLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_SNOW]; }
-                else if (hasRain) { weatherLabel = Mod.Config.LocalizedText[ModConfig.LT_MAP_RAIN]; }
+                if (hasHeavyFog) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_FOG_HEAVY]; }
+                else if (hasLightFog) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_FOG_LIGHT]; }
+                else if (hasSnow) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_SNOW]; }
+                else if (hasRain) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_RAIN]; }
                 if (weatherLabel != null) { weatherLabel = new Localize.Text(weatherLabel).ToString(); }
 
                 return weatherLabel == null ? lightLabel : lightLabel + ", " + weatherLabel;

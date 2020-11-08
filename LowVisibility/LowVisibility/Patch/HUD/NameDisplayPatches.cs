@@ -23,8 +23,8 @@ namespace LowVisibility.Patch {
             
             if (visLevel >= VisibilityLevel.Blip0Minimum)
             {
-                string labelKey = isVehicle ? ModConfig.LT_UNIT_TYPE_VEHICLE : ModConfig.LT_UNIT_TYPE_TURRET;
-                string typeS = new Text(Mod.Config.LocalizedText[labelKey]).ToString();
+                string labelKey = isVehicle ? ModText.LT_UNIT_TYPE_VEHICLE : ModText.LT_UNIT_TYPE_TURRET;
+                string typeS = new Text(Mod.LocalizedText.StatusPanel[labelKey]).ToString();
 
                 if (sensorScanType == SensorScanType.NoInfo) label = new Text("?");
                 else if (sensorScanType == SensorScanType.LocationAndType) label = new Text(typeS);
@@ -58,7 +58,7 @@ namespace LowVisibility.Patch {
 
             if (visLevel >= VisibilityLevel.Blip0Minimum)
             {
-                string typeS = new Text(Mod.Config.LocalizedText[ModConfig.LT_UNIT_TYPE_MECH]).ToString();
+                string typeS = new Text(Mod.LocalizedText.StatusPanel[ModText.LT_UNIT_TYPE_MECH]).ToString();
 
                 if (sensorScanType == SensorScanType.NoInfo) label = new Text("?");
                 else if (sensorScanType == SensorScanType.LocationAndType) label = new Text(typeS);

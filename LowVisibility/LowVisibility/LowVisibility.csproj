@@ -104,6 +104,8 @@
     <Compile Include="Helper\VfxHelper.cs" />
     <Compile Include="Helper\VisualLockHelper.cs" />
     <Compile Include="Helper\WeaponHelper.cs" />
+    <Compile Include="ModText.cs" />
+    <Compile Include="ModConsts.cs" />
     <Compile Include="Object\EWState.cs" />
     <Compile Include="Helper\MapHelper.cs" />
     <Compile Include="ModInit.cs" />

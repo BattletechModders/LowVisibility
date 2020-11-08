@@ -208,13 +208,13 @@ namespace LowVisibility.Patch {
             if (auraAddedMessage.targetID == __instance.GUID && __instance.Combat.TurnDirector.IsInterleaved) {
 
                 if (auraAddedMessage.effectData.statisticData.statName == ModStats.ECMShield) {
-                    string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_FLOATIE_ECM_JAMMED]).ToString();
+                    string localText = new Text(Mod.LocalizedText.Floaties[ModText.LT_FLOATIE_ECM_JAMMED]).ToString();
                     __instance.Combat.MessageCenter.PublishMessage(
                            new FloatieMessage(auraAddedMessage.creatorID, auraAddedMessage.targetID, localText, FloatieMessage.MessageNature.Buff));
                 }
 
                 if (auraAddedMessage.effectData.statisticData.statName == ModStats.ECMJamming) {
-                    string localText = new Text(Mod.Config.LocalizedText[ModConfig.LT_FLOATIE_ECM_JAMMED]).ToString();
+                    string localText = new Text(Mod.LocalizedText.Floaties[ModText.LT_FLOATIE_ECM_JAMMED]).ToString();
                     __instance.Combat.MessageCenter.PublishMessage(
                            new FloatieMessage(auraAddedMessage.creatorID, auraAddedMessage.targetID, localText, FloatieMessage.MessageNature.Debuff));
                 }

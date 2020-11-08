@@ -130,29 +130,29 @@ namespace LowVisibility.Patch {
                 string tonnage = "?";
                 if (scanType > SensorScanType.LocationAndType)
                 {
-                    tonnage = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_WEIGHT], new object[] { (int)Math.Floor(mech.tonnage) }).ToString();
+                    tonnage = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_WEIGHT], new object[] { (int)Math.Floor(mech.tonnage) }).ToString();
                 }
 
-                string titleText = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_TITLE],
+                string titleText = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_TITLE],
                     new object[] { localName, tonnage }).ToString();
                 sb.Append(titleText);
 
                 if (scanType > SensorScanType.StructAndWeaponID)
                 {
                     // Movement
-                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_MOVE_MECH],
+                    sb.Append(new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_MOVE_MECH],
                         new object[] { mech.WalkSpeed, mech.RunSpeed, mech.JumpDistance })
                         .ToString()
                         );
 
                     // Heat
-                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_HEAT],
+                    sb.Append(new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_HEAT],
                         new object[] { mech.CurrentHeat, mech.MaxHeat })
                         .ToString()
                         );
 
                     // Stability
-                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_STAB],
+                    sb.Append(new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_STAB],
                         new object[] { mech.CurrentStability, mech.MaxStability })
                         .ToString()
                         );
@@ -166,7 +166,7 @@ namespace LowVisibility.Patch {
                 string fullName = turret.Nickname;
                 string localName = CombatNameHelper.GetTurretOrVehicleDetectionLabel(visLevel, scanType, fullName, chassisName, false).ToString();
 
-                string titleText = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_TITLE],
+                string titleText = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_TITLE],
                     new object[] { localName, "" }).ToString();
                 sb.Append(titleText);
             }
@@ -179,17 +179,17 @@ namespace LowVisibility.Patch {
                 string tonnage = "?";
                 if (scanType > SensorScanType.LocationAndType)
                 {
-                    tonnage = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_WEIGHT], new object[] { (int)Math.Floor(vehicle.tonnage) }).ToString();
+                    tonnage = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_WEIGHT], new object[] { (int)Math.Floor(vehicle.tonnage) }).ToString();
                 }
 
-                string titleText = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_TITLE],
+                string titleText = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_TITLE],
                     new object[] { localName, tonnage }).ToString();
                 sb.Append(titleText);
 
                 if (scanType > SensorScanType.StructAndWeaponID)
                 {
                     // Movement
-                    sb.Append(new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_MOVE_VEHICLE],
+                    sb.Append(new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_MOVE_VEHICLE],
                         new object[] { vehicle.CruiseSpeed, vehicle.FlankSpeed })
                         .ToString()
                         );
@@ -198,7 +198,7 @@ namespace LowVisibility.Patch {
             }
 
 
-            string distance = new Text(Mod.Config.LocalizedText[ModConfig.LT_CAC_SIDEPANEL_DIST], 
+            string distance = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_DIST], 
                 new object[] { (int)Math.Ceiling(range) }).ToString();
             sb.Append(distance);
 
@@ -271,7 +271,7 @@ namespace LowVisibility.Patch {
                         Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
                         GameObject weaponsLabel = weaponListT.gameObject;
                         TextMeshProUGUI labelText = weaponsLabel.GetComponent<TextMeshProUGUI>();
-                        labelText.SetText(new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_UNIDENTIFIED]).ToString());
+                        labelText.SetText(new Text(Mod.LocalizedText.TargetingComputer[ModText.LT_TARG_COMP_UNIDENTIFIED]).ToString());
                     }
                     else
                     {
@@ -324,29 +324,29 @@ namespace LowVisibility.Patch {
                         case WeaponType.Gauss:
                         case WeaponType.MachineGun:
                         case WeaponType.AMS:
-                            wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_BALLISTIC]).ToString();
+                            wName = new Text(Mod.LocalizedText.TargetingComputer[ModText.LT_TARG_COMP_BALLISTIC]).ToString();
                             break;
                         case WeaponType.Laser:
                         case WeaponType.PPC:
                         case WeaponType.Flamer:
-                            wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_ENERGY]).ToString();
+                            wName = new Text(Mod.LocalizedText.TargetingComputer[ModText.LT_TARG_COMP_ENERGY]).ToString();
                             break;
                         case WeaponType.LRM:
                         case WeaponType.SRM:
-                            wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_MISSILE]).ToString();
+                            wName = new Text(Mod.LocalizedText.TargetingComputer[ModText.LT_TARG_COMP_MISSILE]).ToString();
                             break;
                         case WeaponType.Melee:
-                            wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_PHYSICAL]).ToString();
+                            wName = new Text(Mod.LocalizedText.TargetingComputer[ModText.LT_TARG_COMP_PHYSICAL]).ToString();
                             break;
                         default:
-                            wName = new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_UNIDENTIFIED]).ToString();
+                            wName = new Text(Mod.LocalizedText.TargetingComputer[ModText.LT_TARG_COMP_UNIDENTIFIED]).ToString();
                             break;
                     }
                     ___weaponNames[i].SetText(wName);
                 }
                 else if (!___weaponNames[i].text.Equals("XXXXXXXXXXXXXX"))
                 {
-                    ___weaponNames[i].SetText(new Text(Mod.Config.LocalizedText[ModConfig.LT_TARG_COMP_UNIDENTIFIED]).ToString());
+                    ___weaponNames[i].SetText(new Text(Mod.LocalizedText.TargetingComputer[ModText.LT_TARG_COMP_UNIDENTIFIED]).ToString());
                 }
             }
         }

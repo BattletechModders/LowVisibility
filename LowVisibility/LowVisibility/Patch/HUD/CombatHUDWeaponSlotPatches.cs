@@ -116,51 +116,51 @@ namespace LowVisibility.Patch.HUD {
 
                 // Check firing blind
                 if (!hasVisualAttack && !hasSensorAttack) {
-                    string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_FIRING_BLIND]).ToString();
+                    string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_FIRING_BLIND]).ToString();
                     AddToolTipDetailMethod.GetValue(new object[] { localText, Mod.Config.Attack.FiringBlindPenalty });
                 } else {
                     // Visual attacks
                     if (!hasVisualAttack) {
-                        string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_NO_VISUALS]).ToString();
+                        string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_NO_VISUALS]).ToString();
                         AddToolTipDetailMethod.GetValue(new object[] { localText, Mod.Config.Attack.NoVisualsPenalty });
                     } else {
                         // If the zoom + mimetic is better than eyeball, use that. Otherwise, we're using the good ol mk.1 eyeball
                         if (zoomAttackMod < eyeballAttackMod) {
-                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_ZOOM_VISION]).ToString();
+                            string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_ZOOM_VISION]).ToString();
                             AddToolTipDetailMethod.GetValue(new object[] { localText, zoomVisionMod });
                         }
 
                         if (mimeticMod != 0) {
-                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_MIMETIC]).ToString();
+                            string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_MIMETIC]).ToString();
                             AddToolTipDetailMethod.GetValue(new object[] { localText, mimeticMod });
                         }
                     }
 
                     if (attackerState.HasHeatVisionToTarget(__instance.DisplayedWeapon, magnitude)) {
                         int heatAttackMod = attackerState.GetHeatVisionAttackMod(targetActor, magnitude, __instance.DisplayedWeapon);
-                        string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_HEAT_VISION]).ToString();
+                        string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_HEAT_VISION]).ToString();
                         AddToolTipDetailMethod.GetValue(new object[] { localText, heatAttackMod });
                     }
 
                     if (!hasSensorAttack) {
-                        string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_NO_SENSORS]).ToString();
+                        string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_NO_SENSORS]).ToString();
                         AddToolTipDetailMethod.GetValue(new object[] { localText, Mod.Config.Attack.NoSensorsPenalty });
                     } else {
 
                         if (ecmShieldAttackMod != 0) {
-                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_ECM_SHEILD]).ToString();
+                            string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_ECM_SHEILD]).ToString();
                             AddToolTipDetailMethod.GetValue(new object[] { localText, ecmShieldAttackMod });
                         }
                         if (narcAttackMod != 0) {
-                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_NARCED]).ToString();
+                            string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_NARCED]).ToString();
                             AddToolTipDetailMethod.GetValue(new object[] { localText, narcAttackMod });
                         }
                         if (tagAttackMod != 0) {
-                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_TAGGED]).ToString();
+                            string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_TAGGED]).ToString();
                             AddToolTipDetailMethod.GetValue(new object[] { localText, tagAttackMod });
                         }
                         if (stealthAttackMod != 0) {
-                            string localText = new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_ATTACK_STEALTH]).ToString();
+                            string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_STEALTH]).ToString();
                             AddToolTipDetailMethod.GetValue(new object[] { localText, stealthAttackMod });
                         }
                     }

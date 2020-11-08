@@ -69,17 +69,17 @@ namespace LowVisibility.Object {
         public static string Label(this SensorScanType level) {
             switch (level) {
                 case SensorScanType.NoInfo:
-                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_NONE]).ToString();
+                    return new Localize.Text(Mod.LocalizedText.StatusPanel[ModText.LT_DETAILS_NONE]).ToString();
                 case SensorScanType.LocationAndType:
-                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_LOCATION_AND_TYPE]).ToString();
+                    return new Localize.Text(Mod.LocalizedText.StatusPanel[ModText.LT_DETAILS_LOCATION_AND_TYPE]).ToString();
                 case SensorScanType.ArmorAndWeaponType:
-                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_ARMOR_AND_WEAPON_TYPE]).ToString();
+                    return new Localize.Text(Mod.LocalizedText.StatusPanel[ModText.LT_DETAILS_ARMOR_AND_WEAPON_TYPE]).ToString();
                 case SensorScanType.StructAndWeaponID:
-                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_STRUCT_AND_WEAPON_ID]).ToString();
+                    return new Localize.Text(Mod.LocalizedText.StatusPanel[ModText.LT_DETAILS_STRUCT_AND_WEAPON_ID]).ToString();
                 case SensorScanType.AllInformation:
-                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_ALL_INFO]).ToString();
+                    return new Localize.Text(Mod.LocalizedText.StatusPanel[ModText.LT_DETAILS_ALL_INFO]).ToString();
                 default:
-                    return new Localize.Text(Mod.Config.LocalizedText[ModConfig.LT_DETAILS_UNKNOWN]).ToString();
+                    return new Localize.Text(Mod.LocalizedText.StatusPanel[ModText.LT_DETAILS_UNKNOWN]).ToString();
             }
         }
 

@@ -274,6 +274,19 @@ namespace LowVisibility.Object {
         public int GetRawTactics() { return tacticsMod; }
 
         // ECM
+        public int ECMJammedAttackMod(EWState attackerState)
+        {
+
+            if (jammedByECMMod == 0) { return 0; }
+
+            int strength = shieldedByECMMod;
+            if (this.PingedByProbeMod() > 0) { strength -= this.PingedByProbeMod(); }
+            if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
+
+            strength = Math.Max(0, strength);
+
+            return strength;
+        }
         public int GetRawECMJammed() { return jammedByECMMod;  }
 
         public float ECMSignatureMod(EWState attackerState) {
@@ -305,7 +318,7 @@ namespace LowVisibility.Object {
             return strength;
         }
 
-        // Defender modifier
+        // Shield modifier
         public int ECMAttackMod(EWState attackerState) {
 
             if (shieldedByECMMod <= 0) { return 0; }
@@ -319,6 +332,7 @@ namespace LowVisibility.Object {
             return strength;
         }
         public int GetRawECMShield() { return shieldedByECMMod; }
+
 
         // Sensors
         public int AdvancedSensorsMod() { return advSensorsCarrierMod; }
