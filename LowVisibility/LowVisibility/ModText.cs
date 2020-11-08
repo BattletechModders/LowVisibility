@@ -74,7 +74,8 @@ namespace LowVisibility {
         public const string LT_ATTACK_HEAT_VISION = "ATTACK_HEAT_VISION";
         public const string LT_ATTACK_MIMETIC = "ATTACK_MIMETIC_ARMOR";
         public const string LT_ATTACK_NO_SENSORS = "ATTACK_NO_SENSORS";
-        public const string LT_ATTACK_ECM_SHEILD = "ATTACK_ECM_SHIELD";
+        public const string LT_ATTACK_ECM_JAMMED = "ATTACK_ECM_JAMMED";
+        public const string LT_ATTACK_ECM_SHIELD = "ATTACK_ECM_SHIELD";
         public const string LT_ATTACK_STEALTH = "ATTACK_STEALTH";
         public const string LT_ATTACK_NARCED = "ATTACK_NARCED";
         public const string LT_ATTACK_TAGGED = "ATTACK_TAGGED";
@@ -89,7 +90,8 @@ namespace LowVisibility {
             { LT_ATTACK_HEAT_VISION, "HEAT VISION" },
             { LT_ATTACK_MIMETIC, "MIMETIC ARMOR" },
             { LT_ATTACK_STEALTH, "STEALTH" },
-            { LT_ATTACK_ECM_SHEILD, "ECM SHIELD" },
+            { LT_ATTACK_ECM_JAMMED, "ECM JAMMING" },
+            { LT_ATTACK_ECM_SHIELD, "ECM SHIELD" },
             { LT_ATTACK_NARCED, "NARCED" },
             { LT_ATTACK_TAGGED, "TAGGED" }
         };

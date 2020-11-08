@@ -90,6 +90,9 @@ namespace LowVisibility {
             public int NoVisualsPenalty = 5;
             public int NoSensorsPenalty = 5;
             public int FiringBlindPenalty = 13;
+
+            public float ShieldedMulti = 1.0f;
+            public float JammedMulti = 1.0f;
         }
         public AttackOpts Attack = new AttackOpts();
 

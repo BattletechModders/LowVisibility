@@ -65,7 +65,9 @@
         "Attack" : {
             "NoSensorsPenalty" : 7,
             "NoVisualsPenalty" : 5,
-            "FiringBlindPenalty" : 13
+            "FiringBlindPenalty" : 13,
+            "ShieldedMulti" : 1.0,
+            "JammedMulti" : 1.0
         }
     }
 }

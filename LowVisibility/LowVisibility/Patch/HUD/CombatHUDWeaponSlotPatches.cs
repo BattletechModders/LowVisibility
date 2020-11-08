@@ -96,6 +96,8 @@ namespace LowVisibility.Patch.HUD {
                 // Sensor attack bucket.  Sensors always fallback, so roll everything up and cap
                 int narcAttackMod = targetState.NarcAttackMod(attackerState);
                 int tagAttackMod = targetState.TagAttackMod(attackerState);
+
+                int ecmJammedAttackMod = attackerState.ECMJammedAttackMod();
                 int ecmShieldAttackMod = targetState.ECMAttackMod(attackerState);
                 int stealthAttackMod = targetState.StealthAttackMod(attackerState, __instance.DisplayedWeapon, magnitude);
                 Mod.Log.Debug?.Write($"  Sensor attack penalties == narc: {narcAttackMod}  tag: {tagAttackMod}  ecmShield: {ecmShieldAttackMod}  stealth: {stealthAttackMod}");
@@ -106,6 +108,8 @@ namespace LowVisibility.Patch.HUD {
                     sensorsAttackMod = 0;
                     sensorsAttackMod -= narcAttackMod;
                     sensorsAttackMod -= tagAttackMod;
+
+                    sensorsAttackMod += ecmJammedAttackMod;
                     sensorsAttackMod += ecmShieldAttackMod;
                     sensorsAttackMod += stealthAttackMod;
                 }
@@ -147,8 +151,13 @@ namespace LowVisibility.Patch.HUD {
                         AddToolTipDetailMethod.GetValue(new object[] { localText, Mod.Config.Attack.NoSensorsPenalty });
                     } else {
 
+                        if (ecmJammedAttackMod != 0)
+                        {
+                            string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_ECM_JAMMED]).ToString();
+                            AddToolTipDetailMethod.GetValue(new object[] { localText, ecmJammedAttackMod });
+                        }
                         if (ecmShieldAttackMod != 0) {
-                            string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_ECM_SHEILD]).ToString();
+                            string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_ECM_SHIELD]).ToString();
                             AddToolTipDetailMethod.GetValue(new object[] { localText, ecmShieldAttackMod });
                         }
                         if (narcAttackMod != 0) {

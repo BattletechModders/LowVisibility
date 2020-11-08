@@ -38,6 +38,8 @@ namespace LowVisibility.Patch {
                 // Sensor attack bucket.  Sensors always fallback, so roll everything up and cap
                 int narcAttackMod = targetState.NarcAttackMod(attackerState);
                 int tagAttackMod = targetState.TagAttackMod(attackerState);
+
+                int ecmJammedAttackMod = attackerState.ECMJammedAttackMod();
                 int ecmShieldAttackMod = targetState.ECMAttackMod(attackerState);
                 int stealthAttackMod = targetState.StealthAttackMod(attackerState, weapon, distance);
 
@@ -47,6 +49,8 @@ namespace LowVisibility.Patch {
                     sensorsAttackMod = 0;
                     sensorsAttackMod -= narcAttackMod;
                     sensorsAttackMod -= tagAttackMod;
+
+                    sensorsAttackMod += ecmJammedAttackMod;
                     sensorsAttackMod += ecmShieldAttackMod;
                     sensorsAttackMod += stealthAttackMod;
                 }
