@@ -446,6 +446,7 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
 
             return strength;
         }
+
         public int StealthDetailsMod() { return HasStealth() ? stealth.DetailsMod : 0; }
         // Defender modifier
         public int StealthAttackMod(EWState attackerState, Weapon weapon, float distance)

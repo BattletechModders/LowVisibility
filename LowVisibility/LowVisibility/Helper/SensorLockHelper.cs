@@ -100,10 +100,10 @@ namespace LowVisibility.Helper {
             float narcMod = ewState.NarcSignatureMod(sourceState);
             float tagMod = ewState.TagSignatureMod(sourceState);
 
-            float targetSignature = rawSignature + shutdownMod + ecmShieldMod + narcMod + tagMod;
+            float targetSignature = rawSignature * shutdownMod * stealthMod * ecmShieldMod * (1.0f + narcMod) * (1.0f + tagMod);
             Mod.Log.Trace?.Write($" Actor: {CombatantUtils.Label(target)} has signature: {targetSignature} = " +
-                $"rawSignature: {rawSignature} +  shutdown: {shutdownMod} + ecmShield: {ecmShieldMod} " +
-                $"+ stealth: {stealthMod} + narc: {narcMod} + tag: {tagMod}");
+                $"rawSignature: {rawSignature} x shutdown: {shutdownMod} x ecmShield: {ecmShieldMod} x stealthMod: {stealthMod}" +
+                $"x (1.0 + narc: {narcMod}) x (1.0 + tag: {tagMod})");
 
             return targetSignature;
         }
