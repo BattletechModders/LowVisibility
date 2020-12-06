@@ -234,10 +234,8 @@ namespace LowVisibility.Patch {
 
             try
             {
-                if ((__instance.ActivelyShownCombatant as AbstractActor) != null)
+                if (__instance.ActivelyShownCombatant is AbstractActor target)
                 {
-                    AbstractActor target = __instance.ActivelyShownCombatant as AbstractActor;
-
                     float range = Vector3.Distance(ModState.LastPlayerActorActivated.CurrentPosition, target.CurrentPosition);
                     bool hasVisualScan = VisualLockHelper.CanSpotTarget(ModState.LastPlayerActorActivated, ModState.LastPlayerActorActivated.CurrentPosition, 
                         target, target.CurrentPosition, target.CurrentRotation, target.Combat.LOS);

@@ -133,36 +133,36 @@ namespace LowVisibility.Patches {
 
 
     // --- BUILDINGS ---
-    [HarmonyPatch()]
-    public static class HUDBuildingStructureReadout_ResetArmorStructureBars {
-        // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod() {
-            return AccessTools.Method(typeof(HUDBuildingStructureReadout), "ResetArmorStructureBars", new Type[] { });
-        }
+    //[HarmonyPatch()]
+    //public static class HUDBuildingStructureReadout_ResetArmorStructureBars {
+    //    // Private method can't be patched by annotations, so use MethodInfo
+    //    public static MethodInfo TargetMethod() {
+    //        return AccessTools.Method(typeof(HUDBuildingStructureReadout), "ResetArmorStructureBars", new Type[] { });
+    //    }
 
-        public static void Postfix(HUDBuildingStructureReadout __instance) {
-            if (__instance.DisplayedBuilding != null && __instance.HoverInfoTextStructure != null) {
-                // TODO: Handle sensor lock
-                int maxStructure = HUDMechArmorReadout.FormatForSummary(__instance.DisplayedBuilding.SummaryStructureMax);
-                __instance.HoverInfoTextStructure.SetText($"? / {maxStructure}");
-            }
-        }
-    }
+    //    public static void Postfix(HUDBuildingStructureReadout __instance) {
+    //        if (__instance.DisplayedBuilding != null && __instance.HoverInfoTextStructure != null) {
+    //            // TODO: Handle sensor lock
+    //            int maxStructure = HUDMechArmorReadout.FormatForSummary(__instance.DisplayedBuilding.SummaryStructureMax);
+    //            __instance.HoverInfoTextStructure.SetText($"? / {maxStructure}");
+    //        }
+    //    }
+    //}
 
-    [HarmonyPatch()]
-    public static class HUDBuildingStructureReadout_UpdateArmorStructureBars {
-        // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod() {
-            return AccessTools.Method(typeof(HUDBuildingStructureReadout), "UpdateArmorStructureBars", new Type[] { });
-        }
+    //[HarmonyPatch()]
+    //public static class HUDBuildingStructureReadout_UpdateArmorStructureBars {
+    //    // Private method can't be patched by annotations, so use MethodInfo
+    //    public static MethodInfo TargetMethod() {
+    //        return AccessTools.Method(typeof(HUDBuildingStructureReadout), "UpdateArmorStructureBars", new Type[] { });
+    //    }
 
-        public static void Postfix(HUDBuildingStructureReadout __instance) {
-            if (__instance.DisplayedBuilding != null && __instance.HoverInfoTextStructure != null) {
-                // TODO: Handle sensor lock
-                int maxStructure = HUDMechArmorReadout.FormatForSummary(__instance.DisplayedBuilding.SummaryStructureMax);
-                __instance.HoverInfoTextStructure.SetText($"? / {maxStructure}");
-            }
-        }
-    }
+    //    public static void Postfix(HUDBuildingStructureReadout __instance) {
+    //        if (__instance.DisplayedBuilding != null && __instance.HoverInfoTextStructure != null) {
+    //            // TODO: Handle sensor lock
+    //            int maxStructure = HUDMechArmorReadout.FormatForSummary(__instance.DisplayedBuilding.SummaryStructureMax);
+    //            __instance.HoverInfoTextStructure.SetText($"? / {maxStructure}");
+    //        }
+    //    }
+    //}
 
 }
