@@ -118,8 +118,8 @@ namespace LowVisibility.Helper {
         private static float GetAllTargetVisibilityMultipliers(AbstractActor target, EWState sourceState) {
             if (target == null) { return 1f; }
 
-            float baseVisMulti = 0f;
-            float shutdownVisMulti = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownVisibilityModifier;        
+            float baseVisMulti = 1f;
+            float shutdownVisMulti = (!target.IsShutDown) ? 1f : target.Combat.Constants.Visibility.ShutDownVisibilityModifier;        
             float spottingVisibilityMultiplier = target.SpottingVisibilityMultiplier;
 
             EWState ewState = target.GetEWState();

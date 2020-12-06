@@ -77,7 +77,7 @@ namespace LowVisibility.Helper {
 
             AbstractActor targetActor = target as AbstractActor;
             float allTargetSignatureModifiers = GetAllTargetSignatureModifiers(targetActor, sourceState);
-            float staticSignature = 1f + allTargetSignatureModifiers;
+            float staticSignature = 1f * allTargetSignatureModifiers;
 
             // Add in any design mask boosts
             DesignMaskDef occupiedDesignMask = targetActor.occupiedDesignMask;
@@ -89,9 +89,9 @@ namespace LowVisibility.Helper {
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         private static float GetAllTargetSignatureModifiers(AbstractActor target, EWState sourceState) {
-            if (target == null) { return 0f; }
+            if (target == null) { return 1f; }
 
-            float shutdownMod = (!target.IsShutDown) ? 0f : target.Combat.Constants.Visibility.ShutDownSignatureModifier;
+            float shutdownMod = (!target.IsShutDown) ? 1f : target.Combat.Constants.Visibility.ShutDownSignatureModifier;
             float rawSignature = target.SensorSignatureModifier;
 
             EWState ewState = target.GetEWState();
