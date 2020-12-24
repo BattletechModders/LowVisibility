@@ -47,8 +47,8 @@ namespace LowVisibility.Patch {
                 int sensorsAttackMod = Mod.Config.Attack.NoSensorsPenalty;
                 if (hasSensorAttack) {
                     sensorsAttackMod = 0;
-                    sensorsAttackMod -= narcAttackMod;
-                    sensorsAttackMod -= tagAttackMod;
+                    sensorsAttackMod += narcAttackMod;
+                    sensorsAttackMod += tagAttackMod;
 
                     sensorsAttackMod += ecmJammedAttackMod;
                     sensorsAttackMod += ecmShieldAttackMod;
