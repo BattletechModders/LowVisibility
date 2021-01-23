@@ -240,3 +240,6 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+
+# Ignore the VS Directory.build.props file
+Directory.Build.props 
