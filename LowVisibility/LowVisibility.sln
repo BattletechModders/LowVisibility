@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LowVisibility", "LowVisibility\LowVisibility.csproj", "{B04084CE-078E-4683-A6E9-43DBCFCFBF22}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LowVisibilityTests", "LowVisibilityTests\LowVisibilityTests.csproj", "{06AB0513-A99D-4BF1-A4BD-CCFF7FB5169A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{B04084CE-078E-4683-A6E9-43DBCFCFBF22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B04084CE-078E-4683-A6E9-43DBCFCFBF22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B04084CE-078E-4683-A6E9-43DBCFCFBF22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06AB0513-A99D-4BF1-A4BD-CCFF7FB5169A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06AB0513-A99D-4BF1-A4BD-CCFF7FB5169A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06AB0513-A99D-4BF1-A4BD-CCFF7FB5169A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06AB0513-A99D-4BF1-A4BD-CCFF7FB5169A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
