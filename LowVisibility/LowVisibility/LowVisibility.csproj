@@ -146,6 +146,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetDir)$(TargetFileName)" "$(BattleTechGame)\Mods\LowVisibility" /y</PostBuildEvent>
+    <PostBuildEvent>if exist "$(BattleTechGame)\Mods\LowVisibility" (
+   xcopy "$(TargetDir)$(TargetFileName)" "$(BattleTechGame)\Mods\LowVisibility" /y
+)</PostBuildEvent>
   </PropertyGroup>
 </Project>

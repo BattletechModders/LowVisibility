@@ -5,7 +5,7 @@ using us.frostraptor.modUtils;
 using us.frostraptor.modUtils.math;
 
 namespace LowVisibility.Helper {
-    class VisualLockHelper {
+    public static class VisualLockHelper {
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         public static float GetSpotterRange(AbstractActor source) {

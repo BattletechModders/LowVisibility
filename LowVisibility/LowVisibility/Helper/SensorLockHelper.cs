@@ -5,7 +5,7 @@ using UnityEngine;
 using us.frostraptor.modUtils;
 
 namespace LowVisibility.Helper {
-    class SensorLockHelper {
+    public static class SensorLockHelper {
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         public static float GetSensorsRange(AbstractActor source) {
@@ -100,10 +100,17 @@ namespace LowVisibility.Helper {
             float narcMod = ewState.NarcSignatureMod(sourceState);
             float tagMod = ewState.TagSignatureMod(sourceState);
 
-            float targetSignature = rawSignature * shutdownMod * stealthMod * ecmShieldMod * (1.0f + narcMod) * (1.0f + tagMod);
+            float targetSignature = rawSignature * shutdownMod 
+                * (1.0f + stealthMod) 
+                * (1.0f + ecmShieldMod) 
+                * (1.0f + narcMod) 
+                * (1.0f + tagMod);
             Mod.Log.Trace?.Write($" Actor: {CombatantUtils.Label(target)} has signature: {targetSignature} = " +
-                $"rawSignature: {rawSignature} x shutdown: {shutdownMod} x ecmShield: {ecmShieldMod} x stealthMod: {stealthMod}" +
-                $"x (1.0 + narc: {narcMod}) x (1.0 + tag: {tagMod})");
+                $"rawSignature: {rawSignature} x shutdown: {shutdownMod}" +
+                $" x (1.0 + ecmShield: {ecmShieldMod})" +
+                $" x (1.0 + stealthMod: {stealthMod})" +
+                $" x (1.0 + narc: {narcMod})" +
+                $" x (1.0 + tag: {tagMod})");
 
             return targetSignature;
         }
