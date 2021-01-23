@@ -15,8 +15,8 @@ namespace LowVisibilityTests
         [TestMethod]
         public void TestTargetSignature_NoModifiers()
         {
-            Mech attacker = TestHelper.TestMech();
-            Mech target = TestHelper.TestMech();
+            Mech attacker = TestHelper.BuildTestMech();
+            Mech target = TestHelper.BuildTestMech();
 
             EWState attackerState = new EWState(attacker);
             EWState targetState = new EWState(target);
@@ -27,8 +27,8 @@ namespace LowVisibilityTests
         [TestMethod]
         public void TestTargetSignature_WhenShutdown()
         {
-            Mech attacker = TestHelper.TestMech();
-            Mech target = TestHelper.TestMech();
+            Mech attacker = TestHelper.BuildTestMech();
+            Mech target = TestHelper.BuildTestMech();
 
             Traverse isShutdownT = Traverse.Create(target).Field("_isShutDown");
             isShutdownT.SetValue(true);
@@ -42,8 +42,8 @@ namespace LowVisibilityTests
         [TestMethod]
         public void TestTargetSignature_Stealth_20pct()
         {
-            Mech attacker = TestHelper.TestMech();
-            Mech target = TestHelper.TestMech();
+            Mech attacker = TestHelper.BuildTestMech();
+            Mech target = TestHelper.BuildTestMech();
 
             Traverse isShutdownT = Traverse.Create(target).Field("_isShutDown");
             isShutdownT.SetValue(true);

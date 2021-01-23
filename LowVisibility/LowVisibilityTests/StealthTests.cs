@@ -11,82 +11,30 @@ namespace LowVisibilityTests
     public class StealthTests
     {
         [TestMethod]
-        public void TestStealthSignatureMod()
+        public void TestStealthAttackMod_Short()
         {
-            Mech attacker = TestHelper.TestMech();
-            Mech target = TestHelper.TestMech();
+            Mech attacker = TestHelper.BuildTestMech();
+            Mech target = TestHelper.BuildTestMech();
 
             // Stealth - <signature_modifier>_<details_modifier>_<mediumAttackMod>_<longAttackmod>_<extremeAttackMod>
-            target.StatCollection.Set(ModStats.StealthEffect, "0.20_2_1_2_3");
+            target.StatCollection.Set(ModStats.StealthEffect, "0.99_9_1_2_3");
 
             EWState attackerState = new EWState(attacker);
             EWState targetState = new EWState(target);
 
-            Assert.AreEqual(0.2f, targetState.StealthSignatureMod(attackerState));
+            Weapon weapon = TestHelper.BuildTestWeapon(0, 60, 120, 240, 480);
+
+            Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 30)); 
+            Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 60));
+            Assert.AreEqual(-1, targetState.StealthAttackMod(attackerState, weapon, 90));
+            Assert.AreEqual(-1, targetState.StealthAttackMod(attackerState, weapon, 120));
+            Assert.AreEqual(-2, targetState.StealthAttackMod(attackerState, weapon, 200));
+            Assert.AreEqual(-2, targetState.StealthAttackMod(attackerState, weapon, 240));
+            Assert.AreEqual(-3, targetState.StealthAttackMod(attackerState, weapon, 400));
+            Assert.AreEqual(-3, targetState.StealthAttackMod(attackerState, weapon, 480));
         }
 
-        [TestMethod]
-        public void TestStealthSignatureModWithProbeCarrier()
-        {
-            Mech attacker = TestHelper.TestMech();
-            Mech target = TestHelper.TestMech();
+        
 
-            // Stealth - <signature_modifier>_<details_modifier>_<mediumAttackMod>_<longAttackmod>_<extremeAttackMod>
-            target.StatCollection.Set(ModStats.StealthEffect, "0.20_2_1_2_3");
-
-            attacker.StatCollection.Set(ModStats.ProbeCarrier, 1);
-
-            EWState attackerState = new EWState(attacker);
-            EWState targetState = new EWState(target);
-
-            Assert.AreEqual(0.15f, targetState.StealthSignatureMod(attackerState));
-        }
-
-        [TestMethod]
-        public void TestStealthSignatureModWithPingedByProbe()
-        {
-            Mech attacker = TestHelper.TestMech();
-            Mech target = TestHelper.TestMech();
-
-            // Stealth - <signature_modifier>_<details_modifier>_<mediumAttackMod>_<longAttackmod>_<extremeAttackMod>
-            target.StatCollection.Set(ModStats.StealthEffect, "0.20_2_1_2_3");
-
-            target.StatCollection.Set(ModStats.PingedByProbe, 1);
-
-            EWState attackerState = new EWState(attacker);
-            EWState targetState = new EWState(target);
-
-            Assert.AreEqual(0.15f, targetState.StealthSignatureMod(attackerState));
-        }
-
-        [TestMethod]
-        public void TestTargetSignature_Stealtrh_Minus_20pct()
-        {
-            Mech attacker = TestHelper.TestMech();
-            Mech target = TestHelper.TestMech();
-
-            // Stealth - <signature_modifier>_<details_modifier>_<mediumAttackMod>_<longAttackmod>_<extremeAttackMod>
-            target.StatCollection.Set(ModStats.StealthEffect, "0.20_2_1_2_3");
-
-            EWState attackerState = new EWState(attacker);
-            EWState targetState = new EWState(target);
-
-            Assert.AreEqual(0.8f, SensorLockHelper.GetTargetSignature(target, attackerState));
-        }
-
-        [TestMethod]
-        public void TestTargetSignature_Stealth_Plus20pct()
-        {
-            Mech attacker = TestHelper.TestMech();
-            Mech target = TestHelper.TestMech();
-
-            // Stealth - <signature_modifier>_<details_modifier>_<mediumAttackMod>_<longAttackmod>_<extremeAttackMod>
-            target.StatCollection.Set(ModStats.StealthEffect, "-0.20_2_1_2_3");
-
-            EWState attackerState = new EWState(attacker);
-            EWState targetState = new EWState(target);
-
-            Assert.AreEqual(1.2f, SensorLockHelper.GetTargetSignature(target, attackerState));
-        }
     }
 }

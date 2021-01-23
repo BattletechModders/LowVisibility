@@ -12,19 +12,19 @@ namespace LowVisibilityTests
 {
     public static class TestHelper
     {
-        public static Mech TestMech()
+        public static Mech BuildTestMech()
         {
             Mech mech = new Mech();
             return (Mech)InitAbstractActor(mech);
         }
 
-        public static Turret TestTurret()
+        public static Turret BuildTestTurret()
         {
             Turret turret = new Turret();
             return (Turret)InitAbstractActor(turret);
         }
 
-        public static Vehicle TestVehicle()
+        public static Vehicle BuildTestVehicle()
         {
             Vehicle vehicle = new Vehicle();
             return (Vehicle)InitAbstractActor(vehicle);
@@ -81,7 +81,7 @@ namespace LowVisibilityTests
             return actor;
         }
 
-        private static Pilot TestPilot()
+        private static Pilot BuildTestPilot()
         {
             PilotDef pilotDef = new PilotDef();
             Guid guid = new Guid();
@@ -89,6 +89,27 @@ namespace LowVisibilityTests
             Pilot pilot = new Pilot(pilotDef, guid.ToString(), false);
 
             return pilot;
+        }
+
+        public static Weapon BuildTestWeapon(float minRange = 0f, float shortRange = 0f, 
+            float mediumRange = 0f, float longRange = 0f, float maxRange = 0f )
+        {
+            Weapon weapon = new Weapon();
+
+            StatCollection statCollection = new StatCollection();
+            statCollection.AddStatistic("MinRange", minRange);
+            statCollection.AddStatistic("MinRangeMultiplier", 1f);
+            statCollection.AddStatistic("LongRangeModifier", 0f);
+            statCollection.AddStatistic("MaxRange", maxRange);
+            statCollection.AddStatistic("MaxRangeModifier", 0f);
+            statCollection.AddStatistic("ShortRange", shortRange);
+            statCollection.AddStatistic("MediumRange", mediumRange);
+            statCollection.AddStatistic("LongRange", longRange);
+
+            Traverse statCollectionT = Traverse.Create(weapon).Field("statCollection");
+            statCollectionT.SetValue(statCollection);
+
+            return weapon;
         }
     }
 }
