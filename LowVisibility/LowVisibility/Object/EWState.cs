@@ -439,30 +439,39 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
         {
             float strength = this.stealth != null ? this.stealth.SignatureMulti : 0.0f;
 
-            if (this.PingedByProbeMod() > 0) { strength -= (this.PingedByProbeMod() * 0.05f); }
-            if (attackerState.ProbeCarrierMod() > 0) { strength -= (attackerState.ProbeCarrierMod() * 0.05f); }
+            if (strength > 0)
+            {
+                // Probe only applies if stealth sig starts out positive
+                if (this.PingedByProbeMod() > 0) { strength -= (this.PingedByProbeMod() * 0.05f); }
+                if (attackerState.ProbeCarrierMod() > 0) { strength -= (attackerState.ProbeCarrierMod() * 0.05f); }
+             
+                strength = Math.Max(0, strength);
+            }
 
-            strength = Math.Max(0, strength);
-
-            return strength;
+            // Invert the value to be a signature reduction
+            return strength * -1;
         }
 
         public int StealthDetailsMod() { return HasStealth() ? stealth.DetailsMod : 0; }
         // Defender modifier
-        public int StealthAttackMod(EWState attackerState, Weapon weapon, float distance)
+        public int StealthAttackMod(EWState attackerState, Weapon weapon, float attackerDistance)
         {
             if (stealth == null) { return 0; }
 
             int strength = 0;
-            if (distance < weapon.MediumRange)
+            if (attackerDistance <= weapon.ShortRange)
+            {
+                strength = 0;
+            }
+            else if (attackerDistance <= weapon.MediumRange)
             {
                 strength = stealth.MediumRangeAttackMod;
             }
-            else if (distance < weapon.LongRange)
+            else if (attackerDistance <= weapon.LongRange)
             {
                 strength = stealth.LongRangeAttackMod;
             }
-            else if (distance < weapon.MaxRange)
+            else if (attackerDistance <= weapon.MaxRange)
             {
                 strength = stealth.ExtremeRangeAttackMod;
             }
@@ -472,7 +481,8 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
 
             strength = Math.Max(0, strength);
 
-            return strength;
+            // Positive strength is a negative attack modifier, so invert
+            return strength * -1;
         }
         public bool HasStealth() { return stealth != null; }
         public Stealth GetRawStealth() { return stealth; }
