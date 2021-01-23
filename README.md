@@ -7,7 +7,10 @@ __WARNING: THIS MOD LIKELY BREAKS SKIRMISH MULTIPLAYER.__ It has not been tested
 
 CAE is highly recommended. Many effects assume they aren't active at the same time (stealth/ecm, vision modes, etc.) You can enforce yourself through convention, or through CAE.
 
-This mod requires [https://github.com/iceraptor/IRBTModUtils/]. Grab the latest release of __IRBTModUtils__ and extract it in your Mods/ directory alongside of this mod.
+This mod requires the following mods. Grab the latest version of each of them and unzip them under your `BattleTech\Mods` folder:
+* [IRBTModUtils](https://github.com/battletechmodders/IRBTModUtils/) - provides common logging and utility functions
+* [CustomActivatableEquipment](https://github.com/battletechmodders/custombundle/) - replaces vanilla Auras with a far more performant one
+* [CustomAmmoCategories](https://github.com/battletechmodders/custombundle/) - LowVis adds detail to the CAC terrain and unit popup dialog
 
 This mod uses assets from [https://game-icons.net/], which are licensed through a CC BY 3.0 license. I've modified these icons by making them transparent, or changing the color of the icon, but otherwise they are unmodified. 
 

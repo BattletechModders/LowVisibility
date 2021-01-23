@@ -1,5 +1,6 @@
 ﻿using BattleTech;
 using LowVisibility;
+using LowVisibility.Helper;
 using LowVisibility.Object;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -56,6 +57,36 @@ namespace LowVisibilityTests
             EWState targetState = new EWState(target);
 
             Assert.AreEqual(0.15f, targetState.StealthSignatureMod(attackerState));
+        }
+
+        [TestMethod]
+        public void TestTargetSignature_Stealtrh_Minus_20pct()
+        {
+            Mech attacker = TestHelper.TestMech();
+            Mech target = TestHelper.TestMech();
+
+            // Stealth - <signature_modifier>_<details_modifier>_<mediumAttackMod>_<longAttackmod>_<extremeAttackMod>
+            target.StatCollection.Set(ModStats.StealthEffect, "0.20_2_1_2_3");
+
+            EWState attackerState = new EWState(attacker);
+            EWState targetState = new EWState(target);
+
+            Assert.AreEqual(0.8f, SensorLockHelper.GetTargetSignature(target, attackerState));
+        }
+
+        [TestMethod]
+        public void TestTargetSignature_Stealth_Plus20pct()
+        {
+            Mech attacker = TestHelper.TestMech();
+            Mech target = TestHelper.TestMech();
+
+            // Stealth - <signature_modifier>_<details_modifier>_<mediumAttackMod>_<longAttackmod>_<extremeAttackMod>
+            target.StatCollection.Set(ModStats.StealthEffect, "-0.20_2_1_2_3");
+
+            EWState attackerState = new EWState(attacker);
+            EWState targetState = new EWState(target);
+
+            Assert.AreEqual(1.2f, SensorLockHelper.GetTargetSignature(target, attackerState));
         }
     }
 }

@@ -52,15 +52,9 @@
     <Reference Include="CustomAmmoCategories">
       <HintPath>$(BattleTechGameDir)\Mods_RefOnly\CustomAmmoCategories\CustomAmmoCategories.dll</HintPath>
     </Reference>
-    <Reference Include="CustomComponents">
-      <HintPath>$(BattleTechGameDir)\Mods_RefOnly\CustomComponents\CustomComponents.dll</HintPath>
-    </Reference>
     <Reference Include="IRBTModUtils, Version=1.6.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BattleTechGameDir)\Mods_RefOnly\IRBTModUtils\IRBTModUtils.dll</HintPath>
-    </Reference>
-    <Reference Include="MechEngineer">
-      <HintPath>$(BattleTechGameDir)\Mods_RefOnly\MechEngineer\MechEngineer.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

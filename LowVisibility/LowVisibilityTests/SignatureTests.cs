@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using Harmony;
 using LowVisibility;
 using LowVisibility.Helper;
 using LowVisibility.Object;
@@ -23,18 +24,35 @@ namespace LowVisibilityTests
             Assert.AreEqual(1.0f, SensorLockHelper.GetTargetSignature(target, attackerState));
         }
 
-        //[TestMethod]
-        //public void TestSignature_WhenShutdown()
-        //{
-        //    Mech attacker = TestHelper.TestMech();
-        //    Mech target = TestHelper.TestMech();
-        //    target.IsShutDown = false;
+        [TestMethod]
+        public void TestTargetSignature_WhenShutdown()
+        {
+            Mech attacker = TestHelper.TestMech();
+            Mech target = TestHelper.TestMech();
 
-        //    EWState attackerState = new EWState(attacker);
-        //    EWState targetState = new EWState(target);
+            Traverse isShutdownT = Traverse.Create(target).Field("_isShutDown");
+            isShutdownT.SetValue(true);
 
-        //    Assert.AreEqual(0.5f, SensorLockHelper.Get);
-        //}
+            EWState attackerState = new EWState(attacker);
+            EWState targetState = new EWState(target);
+
+            Assert.AreEqual(0.5f, SensorLockHelper.GetTargetSignature(target, attackerState));
+        }
+
+        [TestMethod]
+        public void TestTargetSignature_Stealth_20pct()
+        {
+            Mech attacker = TestHelper.TestMech();
+            Mech target = TestHelper.TestMech();
+
+            Traverse isShutdownT = Traverse.Create(target).Field("_isShutDown");
+            isShutdownT.SetValue(true);
+
+            EWState attackerState = new EWState(attacker);
+            EWState targetState = new EWState(target);
+
+            Assert.AreEqual(0.5f, SensorLockHelper.GetTargetSignature(target, attackerState));
+        }
 
 
     }
