@@ -51,6 +51,9 @@ namespace LowVisibility {
             // The maximum penalty that ECM Shield + ECM Jamming should apply TO SENSOR DETAILS ONLY
             public int MaxECMDetailsPenalty = -8;
 
+            // The minimum signature that we'll allow after all modifiers are applied
+            public float MinSignature = 0.05f;
+
             public float MinimumSensorRange() { return this.MinimumRangeHexes * 30.0f; }
         }
         public SensorRangeOpts Sensors = new SensorRangeOpts();

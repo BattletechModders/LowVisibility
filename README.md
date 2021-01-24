@@ -47,7 +47,7 @@ Even if a target is visible or detected, you may know its location but all other
 Even the most advanced equipment depends upon the pilot... `TODO: CONTINUE ME`
 
 ### Equipment
-
+	
 This mod adds several types of equipment that generate electronic warfare effects. A short summary of their effects are:
 
 * __ECM__ components generate a scrambling bubble that protects the carrier and friendly units within its area. This makes provides an attack penalty to attacks against friendly units, increases the difficulty of sensor identification against friendly units, and applies a penalty to sensor identification for any enemy unit within the area of effect.
@@ -607,6 +607,7 @@ To create a status effect that applies the _LowVisiblity_ TAG logic, use the fol
 
 ```json
         {
+
             "effectType" : "StatisticEffect",
             "Description" :
             {
@@ -738,6 +739,7 @@ From LA:
         "duration": 1,
         "ticksOnEndOfRound": true,
         "stackLimit": 1
+
       },
       "targetingData": {
         "effectTargetType": "SingleTarget",

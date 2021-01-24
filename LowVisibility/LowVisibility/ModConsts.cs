@@ -46,6 +46,8 @@ namespace LowVisibility {
 
         public const string DisableSensors = "LV_DISABLE_SENSORS"; // int
 
+        public const string HBS_SensorSignatureModifier = "SensorSignatureModifier";
+
         // CAE Stats - write carefully!
         public const string CAESensorsRange = "CAE_SENSORS_RANGE";
 

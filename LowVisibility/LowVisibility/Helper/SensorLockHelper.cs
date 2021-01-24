@@ -73,6 +73,7 @@ namespace LowVisibility.Helper {
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         public static float GetTargetSignature(ICombatant target, EWState sourceState) {
+
             if (target == null || (target as AbstractActor) == null) { return 1f; }
 
             AbstractActor targetActor = target as AbstractActor;
@@ -82,7 +83,9 @@ namespace LowVisibility.Helper {
             // Add in any design mask boosts
             DesignMaskDef occupiedDesignMask = targetActor.occupiedDesignMask;
             if (occupiedDesignMask != null) { staticSignature *= occupiedDesignMask.signatureMultiplier; }
-            if (staticSignature < 0.01f) { staticSignature = 0.01f; }
+            
+            if (staticSignature < Mod.Config.Sensors.MinSignature) 
+                staticSignature = Mod.Config.Sensors.MinSignature;
 
             return staticSignature;
         }
@@ -92,7 +95,9 @@ namespace LowVisibility.Helper {
             if (target == null) { return 1f; }
 
             float shutdownMod = (!target.IsShutDown) ? 1f : target.Combat.Constants.Visibility.ShutDownSignatureModifier;
-            float rawSignature = target.SensorSignatureModifier;
+            
+            float chassisSignature = target.StatCollection.GetValue<float>(ModStats.HBS_SensorSignatureModifier);
+            if (chassisSignature == 0f) chassisSignature = 1.0f; // Fix until redbat fixes this
 
             EWState ewState = target.GetEWState();
             float ecmShieldMod = ewState.ECMSignatureMod(sourceState);
@@ -100,17 +105,16 @@ namespace LowVisibility.Helper {
             float narcMod = ewState.NarcSignatureMod(sourceState);
             float tagMod = ewState.TagSignatureMod(sourceState);
 
-            float targetSignature = rawSignature * shutdownMod 
-                * (1.0f + stealthMod) 
-                * (1.0f + ecmShieldMod) 
-                * (1.0f + narcMod) 
-                * (1.0f + tagMod);
+            float signatureMods = (1.0f + stealthMod) * (1.0f + ecmShieldMod) * (1.0f + narcMod) * (1.0f + tagMod);
+            float targetSignature = chassisSignature * shutdownMod * signatureMods;
             Mod.Log.Trace?.Write($" Actor: {CombatantUtils.Label(target)} has signature: {targetSignature} = " +
-                $"rawSignature: {rawSignature} x shutdown: {shutdownMod}" +
+                $"rawSignature: {chassisSignature} x shutdown: {shutdownMod}" +
                 $" x (1.0 + ecmShield: {ecmShieldMod})" +
                 $" x (1.0 + stealthMod: {stealthMod})" +
                 $" x (1.0 + narc: {narcMod})" +
                 $" x (1.0 + tag: {tagMod})");
+
+            if (targetSignature < Mod.Config.Sensors.MinSignature) targetSignature = Mod.Config.Sensors.MinSignature;
 
             return targetSignature;
         }
