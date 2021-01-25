@@ -476,10 +476,13 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
                 strength = stealth.ExtremeRangeAttackMod;
             }
 
-            if (this.PingedByProbeMod() > 0) { strength -= this.PingedByProbeMod(); }
-            if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
+            if (strength > 0)
+            {
+                if (this.PingedByProbeMod() > 0) { strength -= this.PingedByProbeMod(); }
+                if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
 
-            strength = Math.Max(0, strength);
+                strength = Math.Max(0, strength);
+            }
 
             // Positive strength is a negative attack modifier, so invert
             return strength * -1;
