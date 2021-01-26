@@ -10,7 +10,8 @@ namespace LowVisibility.Helper {
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
         public static float GetSpotterRange(AbstractActor source) {
             // FIXME: Dirty hack here. Assuming that night vision mode only comes on during a unit's turn / selection, then goes away
-            float visRange = ModState.IsNightVisionMode ? ModState.GetMapConfig().nightVisionSpotterRange : ModState.GetMapConfig().spotterRange;
+            float visRange = ModState.IsNightVisionMode ? 
+                ModState.GetMapConfig().nightVisionSpotterRange : ModState.GetMapConfig().spotterRange;
             return GetVisualRange(visRange, source);
         }
 
@@ -56,10 +57,10 @@ namespace LowVisibility.Helper {
         public static float GetAdjustedSpotterRange(AbstractActor source, ICombatant target) {
 
             float targetVisibility = 1f;
-            AbstractActor abstractActor = target as AbstractActor;
-            EWState sourceState = source.GetEWState();
-            if (abstractActor != null) {
-                targetVisibility = VisualLockHelper.GetTargetVisibility(abstractActor, sourceState);
+            AbstractActor targetActor = target as AbstractActor;
+            if (targetActor != null) {
+                EWState sourceState = source.GetEWState();
+                targetVisibility = VisualLockHelper.GetTargetVisibility(targetActor, sourceState);
             }
 
             float spotterRange = VisualLockHelper.GetSpotterRange(source);

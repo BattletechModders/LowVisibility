@@ -58,8 +58,11 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MimeticTests.cs" />
+    <Compile Include="VisibilityTests.cs" />
     <Compile Include="SignatureTests.cs" />
     <Compile Include="StealthTests.cs" />
     <Compile Include="TestGlobalInit.cs" />

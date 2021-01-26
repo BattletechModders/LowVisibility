@@ -16,6 +16,8 @@ namespace LowVisibilityTests
         {
             LowVisibility.Mod.Log = new DeferringLogger(testContext.TestResultsDirectory, 
                 "lowvis_tests", "LVT", true, true);
+
+            LowVisibility.Mod.Config = new LowVisibility.ModConfig();
         }
 
         [AssemblyCleanup]

@@ -1,5 +1,6 @@
 ﻿using BattleTech;
 using IRBTModUtils;
+using IRBTModUtils.Extension;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,16 +27,17 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
         }
     }
 
-    // <initialVisibility>_<initialModifier>_<stepsUntilDecay>
+    // <maxCharges>_<visibilityModPerCharge>_<attackModPerCharge>_<hexesUntilDecay>
     public class Mimetic
     {
-        public float VisibilityMulti = 0.0f;
-        public int AttackMod = 0;
+        public int MaxCharges = 0;
+        public float VisibilityMod = 0f;
+        public float AttackMod = 0f;
         public int HexesUntilDecay = 0;
 
         public override string ToString()
         {
-            return $"visibilityMulti:{VisibilityMulti} attackMod:{AttackMod} hexesUntilDecay:{HexesUntilDecay}";
+            return $"maxCharges: {MaxCharges} visibilityMod:{VisibilityMod} attackMod:{AttackMod} hexesUntilDecay:{HexesUntilDecay}";
         }
     }
 
@@ -180,20 +182,21 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
                 }
             }
 
-            // Mimetic - <initialVisibility>_<initialModifier>_<stepsUntilDecay>
+            // Mimetic - <maxCharges>_<visibilityModPerCharge>_<attackModPerCharge>_<hexesUntilDecay>
             rawValue = actor.StatCollection.GetValue<string>(ModStats.MimeticEffect);
             if (!string.IsNullOrEmpty(rawValue))
             {
                 string[] tokens = rawValue.Split('_');
-                if (tokens.Length == 3)
+                if (tokens.Length == 4)
                 {
                     try
                     {
                         mimetic = new Mimetic
                         {
-                            VisibilityMulti = float.Parse(tokens[0]),
-                            AttackMod = Int32.Parse(tokens[1]),
-                            HexesUntilDecay = Int32.Parse(tokens[2]),
+                            MaxCharges = Int32.Parse(tokens[0]),
+                            VisibilityMod = float.Parse(tokens[1]),
+                            AttackMod = float.Parse(tokens[2]),
+                            HexesUntilDecay = Int32.Parse(tokens[3]),
                         };
                     }
                     catch (Exception)
@@ -493,55 +496,59 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
         // Mimetic
         public float MimeticVisibilityMod(EWState attackerState)
         {
-            float strength = CurrentMimeticPips() * 0.05f;
+            // If no mimetic, return
+            if (!HasMimetic()) return 1f;
 
-            if (this.PingedByProbeMod() > 0) { strength -= (this.PingedByProbeMod() * 0.05f); }
-            if (attackerState.ProbeCarrierMod() > 0) { strength -= (attackerState.ProbeCarrierMod() * 0.05f); }
+            int charges = CurrentMimeticPips();
+            if (this.PingedByProbeMod() > 0)
+                charges -= this.PingedByProbeMod();
+            if (attackerState.ProbeCarrierMod() != 0)
+                charges -= attackerState.ProbeCarrierMod();
 
-            strength = Math.Max(0, strength);
+            float visibility = charges > 0 ? 1f - (charges * mimetic.VisibilityMod) : 1f;
 
-            return strength;
+            return visibility;
         }
         // Defender modifier
         public int MimeticAttackMod(EWState attackerState)
         {
-            if (mimetic == null) { return 0; }
+            // If no mimetic, return
+            if (!HasMimetic()) return 0;
 
-            int strength = CurrentMimeticPips();
+            int charges = CurrentMimeticPips();
+            if (this.PingedByProbeMod() > 0)
+                charges -= this.PingedByProbeMod();
+            if (attackerState.ProbeCarrierMod() != 0)
+                charges -= attackerState.ProbeCarrierMod();
 
-            if (this.PingedByProbeMod() > 0) { strength -= this.PingedByProbeMod(); }
-            if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
-
-            strength = Math.Max(0, strength);
+            int strength = charges > 0 ? (int)Math.Ceiling(charges * mimetic.AttackMod) : 0;
 
             return strength;
         }
 
         public int CurrentMimeticPips(float distance)
         {
-            return CalculatePipCount(distance);
+            return MimeticCharges(distance);
         }
         public int CurrentMimeticPips()
         {
             float distance = Vector3.Distance(actor.PreviousPosition, actor.CurrentPosition);
-            return CalculatePipCount(distance);
+            return MimeticCharges(distance);
         }
-        public int MaxMimeticPips() { return mimetic != null ? mimetic.AttackMod : 0; }
-        public bool HasMimetic() { return mimetic != null; }
-        private int CalculatePipCount(float distance)
+        public int MaxMimeticPips() { return mimetic != null ? mimetic.MaxCharges : 0; }
+        public bool HasMimetic() { return mimetic != null && mimetic.MaxCharges > 0; }
+
+        private int MimeticCharges(float distance)
         {
-            if (mimetic == null) { return 0; }
+            if (!HasMimetic()) return 0;
 
             int hexesMoved = (int)Math.Ceiling(distance / 30f);
-            //            Mod.Log.Debug?.Write($"  hexesMoved: {hexesMoved} = distanceMoved: {distance} / 30");
-
-            int pips = mimetic.AttackMod;
             int numDecays = (int)Math.Floor(hexesMoved / (float)mimetic.HexesUntilDecay);
             Mod.Log.Trace?.Write($"  -- decays = {numDecays} from currentSteps: {hexesMoved} / decayPerStep: {mimetic.HexesUntilDecay}");
-            int currentMod = Math.Max(mimetic.AttackMod - numDecays, 0);
-            Mod.Log.Trace?.Write($"  -- current: {currentMod} = initial: {mimetic.AttackMod} - decays: {numDecays}");
+            int chargesRemaining = Math.Max(mimetic.MaxCharges - numDecays, 0);
+            Mod.Log.Trace?.Write($"  -- current: {chargesRemaining} = initial: {mimetic.AttackMod} - decays: {numDecays}");
 
-            return currentMod;
+            return chargesRemaining;
         }
         public Mimetic GetRawMimetic() { return mimetic; }
 
@@ -693,7 +700,7 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
             sb.Append($"  ecmShieldMod: {shieldedByECMMod}  ecmJammedMod: {jammedByECMMod}");
             sb.Append($"  advSensors: {advSensorsCarrierMod}  probeCarrier: {probeCarrierMod}");
             sb.Append($"  stealth (detailsMod: {stealth?.DetailsMod} sigMulti: {stealth?.SignatureMulti} attack: {stealth?.MediumRangeAttackMod} / {stealth?.LongRangeAttackMod} / {stealth?.ExtremeRangeAttackMod})");
-            sb.Append($"  mimetic: (visibilityMulti: {mimetic?.VisibilityMulti}  attackMod: {mimetic?.AttackMod} hexesToDecay: {mimetic?.HexesUntilDecay})");
+            sb.Append($"  mimetic: (visibilityMulti: {mimetic?.VisibilityMod}  attackMod: {mimetic?.AttackMod} hexesToDecay: {mimetic?.HexesUntilDecay})");
             sb.Append($"  zoomVision: (attackMod: {zoomVision?.AttackMod} hexesToDecay: {zoomVision?.HexesUntilDecay} attackCap: {zoomVision?.AttackCap})");
             sb.Append($"  heatVision: (attackMod: {heatVision?.AttackMod} heatDivisor: {heatVision?.HeatDivisor})");
             sb.Append($"  nightVision: {nightVision}  sharesVision: {sharesVision}");

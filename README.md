@@ -473,33 +473,29 @@ Stealth closely approximates the sensor and signature spectrum HBS already has i
 
 ## Mimetic Armor
 
-Mimetic armor makes the target difficult to visually or impossible to identify, and approximates the chameleonic armor of many sci-fi settings. Mechanically it provides a modification to the unit's visibilty as well as an attack modifier based upon how far the unit has moved. Units protected by an active mimetic effect will be surrounded by a shimmer effect when they are visible.
+Mimetic armor makes the target difficult to visually or impossible to identify, and approximates the chameleonic armor of many sci-fi settings. Mechanically it provides a modification to the unit's visibility as well as an attack modifier based upon how far the unit has moved. Units protected by an active mimetic effect will be surrounded by a shimmer effect when they are visible.
 
-Mimetic armor is defined through a single string that is a compound value:`<initialVisibility>_<initialModifier>_<stepsUntilDecay>`
+Mimetic armor is defined through a single statistic of type string that is a compound value:`<maxCharges>_<visibilityModPerCharge>_<attackModPerCharge>_<hexesUntilDecay>`
 
-* `<initialVisibility>` defines the visibility modifier used when the unit has not moved
-* `<initialModifier>` defines the attack penalty applied when the unit has not moved
-* `<stepsUntilDecay>` defines the number of hexes the unit can move before the visibility and attack modifiers are reduced.
+* `<maxCharges>` [int] defines the number of mimetic charges (aka pips) the unit starts the turn with. 
+* `<visibilityModPerCharge>` [float] for each charge, the current visibility multiplier of the unit will be reduced by this value. A value of 0.05 with 3 charges would result in the unit's visibility reducing to 0.85 (0.05 x 3 = 0.15). 
+* `<attackModPerCharge>` [float] for each charge, attacking units will suffer a penalty equal to this value, rounded up. 
+* `<stepsUntilDecay>` [int] defines the number of hexes the unit can move before the visibility and attack modifiers are reduced.
 
-Mimetic effects decay as the unit moves. For each full increment of `<stepsUntilDecay>`, the initial visibility and attack modifiers are reduced by 0.05 and -1 respectively. In game this is represented by a white eye icon over the in-game mech representation. Each time the eye icon decreases by one, the visibility and attack modifiers have been reduced.
+Mimetic effects decay as the unit moves. For each full increment of `<hexesUntilDecay>`, the charges are reduced by 1. In game this is represented by a white eye icon over the in-game representation. Each time the eye icon decreases by one, the visibility and attack modifiers have been reduced.
 
-### Mimetic Example One - Classic Mimetism
+### Mimetic Example
 
-A mimetic effect with values **0.15_3_3** would have:
+A mimetic effect with values **4_0.1_1.5_3** reduces their visibility by 0.1 for each point of charge they have remaining. An attack against them suffer a +1 penalty for each point of charge they have remaining. Charges decay by one for every 3 hexes (90m) the target unit moves.
 
- * It's visibility *reduced* by -0.15, making it harder to detect
- * Apply a +3 penalty to an attacker
-
-These benefits would apply until the unit moved 3 hexes, after which it would only apply a -0.10 visibility and -2 attack penalty. After 6 hexes, it would apply a -0.05 visibility and -1 attack penalty. After 9 hexes there is no longer any modifiers from the effect. 
-
-### Mimetic Example Two - Flamboyant Display
-
-A mimetic effect with values **-0.15_-4_3** would have:
-
- * It's visibility *increased* by 0.15, making it easier to detect
- * Apply a -3 bonus to an attacker
-
-These penalties would apply until the unit moved 3 hexes, after which it would only apply a +0.10 visibility and -2 attack bonus. After 6 hexes, it would apply a 0.05 visibility and -1 attack penalty. After 9 hexes there is no longer any modifiers from the effect. 
+| Hexes Moved | Charges | Visibility Multiplier Mod | Attack Mod |
+| -- | -- | -- | -- |
+| 0-2 hexes | 4 | 0.60 => 1.0 - (0.1 x 4) | +6 => (4 x 1.5) |
+| 3-5 hexes | 3 | 0.70 => 1.0 - (0.1 x 3) | +5 => (3 x 1.5) |
+| 6-8 hexes | 2 | 0.80 => 1.0 - (0.1 x 2) | +3 => (2 x 1.5) |
+| 9-11 hexes | 1 | 0.90 => 1.0 - (0.1 x 1) | +1 => (1 x 1.5) |
+| 11+ hexes | 0 | 1.0 | +0 |
+ 
 
 ### Mimetic Armor Components
 
@@ -533,7 +529,7 @@ To create a Mimetic component, define the following effects on a componentDef. Y
             {
                 "statName" : "LV_MIMETIC",
                 "operation" : "Set",
-                "modValue": "0.15_3_3",
+                "modValue": "4_0.1_1_3",
                 "modType": "System.String"
             },
             "nature" : "Buff"

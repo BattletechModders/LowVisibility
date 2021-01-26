@@ -40,6 +40,7 @@ namespace LowVisibilityTests
             VisibilityConstantsDef visibilityDef = constants.Visibility;
             visibilityDef.UseAsymmetricalSensors = true;
             visibilityDef.ShutDownSignatureModifier = 0.5f;
+            visibilityDef.ShutDownVisibilityModifier = 0.5f;
 
             Traverse visibilityT = Traverse.Create(constants).Property("Visibility");
             visibilityT.SetValue(visibilityDef);

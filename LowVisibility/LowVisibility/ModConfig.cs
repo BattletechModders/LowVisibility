@@ -76,6 +76,7 @@ namespace LowVisibility {
             public int ScanRangeHexes = 7;
 
             public float MinimumVisionRange() { return this.MinimumRangeHexes * 30.0f; }
+
         }
         public VisionRangeOpts Vision = new VisionRangeOpts();
 
