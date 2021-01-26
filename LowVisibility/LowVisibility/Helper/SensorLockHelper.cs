@@ -235,6 +235,8 @@ namespace LowVisibility.Helper {
         private static SensorScanType CalculateSensorInfoLevel(AbstractActor source, ICombatant target) {
             Mod.Log.Trace?.Write($"Calculating SensorInfo from source: ({CombatantUtils.Label(source)}) to target: ({CombatantUtils.Label(target)})");
 
+            if (source.StatCollection.ContainsStatistic(ModStats.DisableSensors)) return SensorScanType.NoInfo;
+
             // Determine modified check against target
             EWState sourceState = source.GetEWState();
 
