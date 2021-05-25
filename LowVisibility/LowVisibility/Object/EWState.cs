@@ -588,35 +588,38 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
         public ZoomVision GetRawZoomVision() { return zoomVision; }
 
         // HeatVision - Attacker
-        public int GetHeatVisionAttackMod(AbstractActor target, float magnitude, Weapon weapon)
+        public int GetHeatVisionAttackMod(AbstractActor target, float distance, Weapon weapon)
         {
-            if (heatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return 0; }
-
-            // Check range 
-            if (magnitude > heatVision.MaximumRange) { return 0; }
-
-            int currentMod = 0;
-            if (target is Mech targetMech)
-            {
-                if (targetMech.CurrentHeat == 0) { return 0; }
-
-                double targetHeat = targetMech != null ? (double)targetMech.CurrentHeat : 0.0;
-                int numSteps = (int)Math.Floor(targetHeat / heatVision.HeatDivisor);
-                //Mod.Log.Debug?.Write($"  numDecays: {numSteps} = targetHeat: {targetHeat} / divisor: {heatVision.HeatDivisor}");
-
-                // remember: Negative is better
-                currentMod = Math.Max(heatVision.AttackMod - numSteps, 0);
-                //Mod.Log.Debug?.Write($"  -- current: {currentMod} = initial: {heatVision.AttackMod} - decays: {numSteps}");
-            }
-
-            return currentMod;
+            if (this.heatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet)
+	        {
+		        return 0;
+	        }
+	    
+            int result = 0;
+	        Mech mech = target as Mech;
+	        if (mech != null)
+	        {
+		        if (mech.CurrentHeat == 0)
+		        {
+			        return 0;
+		        }
+		
+                int num = (int)Math.Floor(((mech != null) ? ((double)mech.CurrentHeat) : 0.0) / (double)this.heatVision.HeatDivisor); // target heat divided by the mod heat treshold
+		        int num2 = (int)Math.Floor(((mech != null) ? ((double)distance) : 0.0) / (double)((float)this.heatVision.MaximumRange)); // target distance divided by the mod range bracket
+		        result = Math.Min(Math.Max(this.heatVision.AttackMod * num, -5) + num2, 0); // heat vision bonus - range decay
+                }
+                return result;
         }
 
         public bool HasHeatVisionToTarget(Weapon weapon, float distance)
         {
-            if (heatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return false; }
-            return distance < heatVision.MaximumRange;
+            if (heatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) 
+            { 
+                return false; 
+            }
+            return true;
         }
+        
         public HeatVision GetRawHeatVision() { return heatVision; }
 
         // NARC effects
