@@ -487,8 +487,8 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
                 strength = Math.Max(0, strength);
             }
 
-            // Positive strength is a negative attack modifier, so invert
-            return strength * -1;
+            // Positive value is a negative to attacker, so leave as straight value
+            return strength;
         }
         public bool HasStealth() { return stealth != null; }
         public Stealth GetRawStealth() { return stealth; }
@@ -701,8 +701,8 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
             sb.Append($"  advSensors: {advSensorsCarrierMod}  probeCarrier: {probeCarrierMod}");
             sb.Append($"  stealth (detailsMod: {stealth?.DetailsMod} sigMulti: {stealth?.SignatureMulti} attack: {stealth?.MediumRangeAttackMod} / {stealth?.LongRangeAttackMod} / {stealth?.ExtremeRangeAttackMod})");
             sb.Append($"  mimetic: (visibilityMulti: {mimetic?.VisibilityMod}  attackMod: {mimetic?.AttackMod} hexesToDecay: {mimetic?.HexesUntilDecay})");
-            sb.Append($"  zoomVision: (attackMod: {zoomVision?.AttackMod} hexesToDecay: {zoomVision?.HexesUntilDecay} attackCap: {zoomVision?.AttackCap})");
-            sb.Append($"  heatVision: (attackMod: {heatVision?.AttackMod} heatDivisor: {heatVision?.HeatDivisor})");
+            sb.Append($"  zoomVision: (attackMod: {zoomVision?.AttackMod} hexesToDecay: {zoomVision?.HexesUntilDecay} attackCap: {zoomVision?.AttackCap} maxRange: {zoomVision?.MaximumRange})");
+            sb.Append($"  heatVision: (attackMod: {heatVision?.AttackMod} heatDivisor: {heatVision?.HeatDivisor}  maxRange: {heatVision?.MaximumRange})");
             sb.Append($"  nightVision: {nightVision}  sharesVision: {sharesVision}");
             sb.Append($"  pingedByProbe: {pingedByProbeMod}");
             sb.Append($"  narcEffect: (detailsMod: {narcEffect?.DetailsMod} sigMod: {narcEffect?.SignatureMod} attackMod: {narcEffect?.AttackMod})");

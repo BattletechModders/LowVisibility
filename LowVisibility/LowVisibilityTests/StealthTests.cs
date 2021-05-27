@@ -26,12 +26,12 @@ namespace LowVisibilityTests
 
             Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 30)); 
             Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 60));
-            Assert.AreEqual(-1, targetState.StealthAttackMod(attackerState, weapon, 90));
-            Assert.AreEqual(-1, targetState.StealthAttackMod(attackerState, weapon, 120));
-            Assert.AreEqual(-2, targetState.StealthAttackMod(attackerState, weapon, 200));
-            Assert.AreEqual(-2, targetState.StealthAttackMod(attackerState, weapon, 240));
-            Assert.AreEqual(-3, targetState.StealthAttackMod(attackerState, weapon, 400));
-            Assert.AreEqual(-3, targetState.StealthAttackMod(attackerState, weapon, 480));
+            Assert.AreEqual(1, targetState.StealthAttackMod(attackerState, weapon, 90));
+            Assert.AreEqual(1, targetState.StealthAttackMod(attackerState, weapon, 120));
+            Assert.AreEqual(2, targetState.StealthAttackMod(attackerState, weapon, 200));
+            Assert.AreEqual(2, targetState.StealthAttackMod(attackerState, weapon, 240));
+            Assert.AreEqual(3, targetState.StealthAttackMod(attackerState, weapon, 400));
+            Assert.AreEqual(3, targetState.StealthAttackMod(attackerState, weapon, 480));
         }
 
         [TestMethod]
@@ -55,10 +55,10 @@ namespace LowVisibilityTests
             Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 60));
             Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 90));
             Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 120));
-            Assert.AreEqual(-1, targetState.StealthAttackMod(attackerState, weapon, 200));
-            Assert.AreEqual(-1, targetState.StealthAttackMod(attackerState, weapon, 240));
-            Assert.AreEqual(-2, targetState.StealthAttackMod(attackerState, weapon, 400));
-            Assert.AreEqual(-2, targetState.StealthAttackMod(attackerState, weapon, 480));
+            Assert.AreEqual(1, targetState.StealthAttackMod(attackerState, weapon, 200));
+            Assert.AreEqual(1, targetState.StealthAttackMod(attackerState, weapon, 240));
+            Assert.AreEqual(2, targetState.StealthAttackMod(attackerState, weapon, 400));
+            Assert.AreEqual(2, targetState.StealthAttackMod(attackerState, weapon, 480));
         }
 
         [TestMethod]
@@ -84,8 +84,8 @@ namespace LowVisibilityTests
             Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 120));
             Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 200));
             Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 240));
-            Assert.AreEqual(-1, targetState.StealthAttackMod(attackerState, weapon, 400));
-            Assert.AreEqual(-1, targetState.StealthAttackMod(attackerState, weapon, 480));
+            Assert.AreEqual(1, targetState.StealthAttackMod(attackerState, weapon, 400));
+            Assert.AreEqual(1, targetState.StealthAttackMod(attackerState, weapon, 480));
         }
 
         [TestMethod]
@@ -134,12 +134,12 @@ namespace LowVisibilityTests
 
             Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 30));
             Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 60));
-            Assert.AreEqual(1, targetState.StealthAttackMod(attackerState, weapon, 90));
-            Assert.AreEqual(1, targetState.StealthAttackMod(attackerState, weapon, 120));
-            Assert.AreEqual(2, targetState.StealthAttackMod(attackerState, weapon, 200));
-            Assert.AreEqual(2, targetState.StealthAttackMod(attackerState, weapon, 240));
-            Assert.AreEqual(3, targetState.StealthAttackMod(attackerState, weapon, 400));
-            Assert.AreEqual(3, targetState.StealthAttackMod(attackerState, weapon, 480));
+            Assert.AreEqual(-1, targetState.StealthAttackMod(attackerState, weapon, 90));
+            Assert.AreEqual(-1, targetState.StealthAttackMod(attackerState, weapon, 120));
+            Assert.AreEqual(-2, targetState.StealthAttackMod(attackerState, weapon, 200));
+            Assert.AreEqual(-2, targetState.StealthAttackMod(attackerState, weapon, 240));
+            Assert.AreEqual(-3, targetState.StealthAttackMod(attackerState, weapon, 400));
+            Assert.AreEqual(-3, targetState.StealthAttackMod(attackerState, weapon, 480));
         }
 
         [TestMethod]
