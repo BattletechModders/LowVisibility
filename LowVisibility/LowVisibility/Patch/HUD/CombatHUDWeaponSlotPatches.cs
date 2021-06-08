@@ -142,8 +142,11 @@ namespace LowVisibility.Patch.HUD {
 
                     if (attackerState.HasHeatVisionToTarget(__instance.DisplayedWeapon, magnitude)) {
                         int heatAttackMod = attackerState.GetHeatVisionAttackMod(targetActor, magnitude, __instance.DisplayedWeapon);
-                        string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_HEAT_VISION]).ToString();
-                        AddToolTipDetailMethod.GetValue(new object[] { localText, heatAttackMod });
+                        if (heatAttackMod != 0)
+                        {
+                            string localText = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_HEAT_VISION]).ToString();
+                            AddToolTipDetailMethod.GetValue(new object[] { localText, heatAttackMod });
+                        }
                     }
 
                     if (!hasSensorAttack) {

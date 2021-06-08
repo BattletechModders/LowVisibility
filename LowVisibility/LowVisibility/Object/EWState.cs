@@ -604,11 +604,11 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
 			        return 0;
 		        }
 		
-                	int num = (int)Math.Floor(((mech != null) ? ((double)mech.CurrentHeat) : 0.0) / (double)this.heatVision.HeatDivisor); // target heat divided by the mod heat treshold
-			int num2 = (int)Math.Floor(((mech != null) ? ((double)distance) : 0.0) / (double)((float)this.heatVision.MaximumRange)); // target distance divided by the mod range bracket
-		        result = Math.Min(Math.Max(this.heatVision.AttackMod * num, -5) + num2, 0); // Total bonus (capped between -5 and 0) = heat vision bonus - range decay
-                }
-                return result;
+                int targetHeatMulti = (int)Math.Floor(((mech != null) ? ((double)mech.CurrentHeat) : 0.0) / (double)this.heatVision.HeatDivisor); // target heat divided by the mod heat treshold
+			    int distanceDecayMulti = (int)Math.Floor(((mech != null) ? ((double)distance) : 0.0) / (double)((float)this.heatVision.MaximumRange)); // target distance divided by the mod range bracket
+		        result = Math.Min(Math.Max(this.heatVision.AttackMod * targetHeatMulti, -5) + distanceDecayMulti, 0); // Total bonus (capped between -5 and 0) = heat vision bonus - range decay
+            }
+            return result;
         }
 
         public bool HasHeatVisionToTarget(Weapon weapon, float distance)
