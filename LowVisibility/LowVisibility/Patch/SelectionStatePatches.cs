@@ -26,10 +26,12 @@ namespace LowVisibility.Patch {
                 EWState targetState = new EWState(targetActor);
                 EWState attackerState = new EWState(__instance.SelectedActor);
 
-                if (__instance.SelectionType == SelectionType.FireMorale) {
+                if (__instance.SelectionType == SelectionType.FireMorale)
+                {
                     // Prevents blips from being the targets of called shots
                     VisibilityLevel targetVisibility = __instance.SelectedActor.VisibilityToTargetUnit(targetActor);
-                    if (targetVisibility < VisibilityLevel.LOSFull) {
+                    if (targetVisibility < VisibilityLevel.LOSFull)
+                    {
                         Mod.Log.Info?.Write($"Target {CombatantUtils.Label(combatant)} is a blip, cannot be targeted by called shot");
                         __result = false;
                         return false;
@@ -38,17 +40,25 @@ namespace LowVisibility.Patch {
                     float distance = Vector3.Distance(__instance.SelectedActor.CurrentPosition, targetActor.CurrentPosition);
                     bool hasVisualScan = VisualLockHelper.GetVisualScanRange(__instance.SelectedActor) >= distance;
                     SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(targetActor, __instance.SelectedActor);
-                    if (sensorScan < SensorScanType.ArmorAndWeaponType && !hasVisualScan) {
+                    if (sensorScan < SensorScanType.ArmorAndWeaponType && !hasVisualScan)
+                    {
                         Mod.Log.Info?.Write($"Target {CombatantUtils.Label(targetActor)} sensor info {sensorScan} is less than SurfaceScan and range:{distance} outside visualScan range, cannot be targeted by called shot");
                         __result = false;
                         return false;
                     }
-                } else if (__instance.SelectionType == SelectionType.FireMulti) {
-                    if (targetState.HasStealth() || targetState.HasMimetic()) {
+                }
+                else if (__instance.SelectionType == SelectionType.FireMulti)
+                {
+                    if (targetState.HasStealth() || targetState.HasMimetic())
+                    {
                         Mod.Log.Info?.Write($"Target {CombatantUtils.Label(targetActor)} has stealth, cannot be multi-targeted!");
                         __result = false;
                         return false;
                     }
+                }
+                else
+                {
+                    Mod.Log.Info?.Write($"Disabling selection against target {CombatantUtils.Label(targetActor)} due to selectionType: {__instance.SelectionType}");
                 }
             }
 
