@@ -63,6 +63,7 @@ namespace LowVisibility.Patch {
 
     [HarmonyPatch(typeof(PilotableActorRepresentation), "updateBlips")]
     public static class PilotableActorRepresentation_updateBlips {
+        //public static Vector3 getNewBlipPosition()
         public static void Prefix(PilotableActorRepresentation __instance, ref Vector3 ___blipPendingPosition) {
             //Mod.Log.Debug?.Write($" UPDATE BLIPS INVOKED");
             if (__instance.BlipObjectUnknown.activeSelf && __instance.VisibleObject.activeSelf

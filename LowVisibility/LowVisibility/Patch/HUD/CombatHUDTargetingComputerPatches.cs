@@ -108,11 +108,14 @@ namespace LowVisibility.Patch {
     public static class CombatHUDTargetingComputer_RefreshActorInfo {
 
         private static void SetArmorDisplayActive(CombatHUDTargetingComputer __instance, bool active) {
-
-            if (__instance.ActivelyShownCombatant is Mech mech) __instance.MechArmorDisplay.gameObject.SetActive(active);
-            else if (__instance.ActivelyShownCombatant is Vehicle vehicle) { __instance.VehicleArmorDisplay.gameObject.SetActive(active); }
-            else if (__instance.ActivelyShownCombatant is Turret turret) { __instance.TurretArmorDisplay.gameObject.SetActive(active); }
-            else if (__instance.ActivelyShownCombatant is BattleTech.Building building) { __instance.BuildingArmorDisplay.gameObject.SetActive(active); }        
+            if (Mod.CustomUnitsAPIDetected) { 
+              Mod.CU_SetArmorDisplayActive(__instance, active);
+            } else {
+              if (__instance.ActivelyShownCombatant is Mech mech) __instance.MechArmorDisplay.gameObject.SetActive(active);
+              else if (__instance.ActivelyShownCombatant is Vehicle vehicle) { __instance.VehicleArmorDisplay.gameObject.SetActive(active); }
+              else if (__instance.ActivelyShownCombatant is Turret turret) { __instance.TurretArmorDisplay.gameObject.SetActive(active); }
+              else if (__instance.ActivelyShownCombatant is BattleTech.Building building) { __instance.BuildingArmorDisplay.gameObject.SetActive(active); }
+            }
         }
 
         private static void BuildCACDialogForTarget(AbstractActor source, ICombatant target, float range, bool hasVisualScan, SensorScanType scanType)

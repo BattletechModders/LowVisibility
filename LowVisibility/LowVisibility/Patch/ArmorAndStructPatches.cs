@@ -98,7 +98,6 @@ namespace LowVisibility.Patches {
                 }
             }
         }
-
     }
 
     // --- TURRETS ---

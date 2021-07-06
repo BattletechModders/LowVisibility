@@ -48,9 +48,9 @@ namespace LowVisibility.Patch.HUD {
         }
     }
 
-    [HarmonyPatch(typeof(CombatHUDWeaponSlot), "SetHitChance")]
-    [HarmonyPatch(new Type[] {  typeof(ICombatant) })]
-    [HarmonyBefore("us.frostraptor.CBTBehaviorsEnhanced", "dZ.Zappo.Pilot_Quirks")]
+    //[HarmonyPatch(typeof(CombatHUDWeaponSlot), "SetHitChance")]
+    //[HarmonyPatch(new Type[] {  typeof(ICombatant) })]
+    //[HarmonyBefore("us.frostraptor.CBTBehaviorsEnhanced", "dZ.Zappo.Pilot_Quirks")]
     public static class CombatHUDWeaponSlot_SetHitChance {
 
 
