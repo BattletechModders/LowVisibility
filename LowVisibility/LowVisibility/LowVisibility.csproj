@@ -103,8 +103,9 @@
     <Compile Include="Helper\VfxHelper.cs" />
     <Compile Include="Helper\VisualLockHelper.cs" />
     <Compile Include="Helper\WeaponHelper.cs" />
-    <Compile Include="Integration\CustomAmmoCategoriesHooks.cs" />
-    <Compile Include="Integration\CustomUnitsHooks.cs" />
+    <Compile Include="Integration\CACSidePanelHooks.cs" />
+    <Compile Include="Integration\CACToHitHooks.cs" />
+    <Compile Include="Integration\CUHooks.cs" />
     <Compile Include="ModText.cs" />
     <Compile Include="ModConsts.cs" />
     <Compile Include="Object\EWState.cs" />

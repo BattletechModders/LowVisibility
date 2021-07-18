@@ -10,9 +10,8 @@ using UnityEngine;
 
 namespace LowVisibility.Integration
 {
-    public class CACHooks
+    public class CACToHitHooks
     {
-
         public const string CAC_MOD_NAME = "LOWVIS";
 
         public enum LowVisModifierType
@@ -31,11 +30,11 @@ namespace LowVisibility.Integration
         public static void RegisterToHitModifiers()
         {
             // Node will create the state before displaying any modifier
-            CustAmmoCategories.ToHitModifiersHelper.registerNode(CAC_MOD_NAME, CACHooks.Prepare);
+            CustAmmoCategories.ToHitModifiersHelper.registerNode(CAC_MOD_NAME, CACToHitHooks.Prepare);
 
             string firingBlindLabel = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_FIRING_BLIND]).ToString();
             CustAmmoCategories.ToHitModifiersHelper.registerNodeModifier(CAC_MOD_NAME, ModText.LT_ATTACK_FIRING_BLIND, firingBlindLabel, true, false, get_FiringBlindMod, null);
-            
+
             // Visual modifiers
             string noVisualsLabel = new Localize.Text(Mod.LocalizedText.AttackModifiers[ModText.LT_ATTACK_NO_VISUALS]).ToString();
             CustAmmoCategories.ToHitModifiersHelper.registerNodeModifier(CAC_MOD_NAME, ModText.LT_ATTACK_NO_VISUALS, noVisualsLabel, true, false, get_NoVisualsMod, null);
@@ -250,4 +249,5 @@ namespace LowVisibility.Integration
             return ((LowVisToHitState)state).get(LowVisModifierType.stealthAttack);
         }
     }
+
 }

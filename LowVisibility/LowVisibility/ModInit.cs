@@ -78,7 +78,7 @@ namespace LowVisibility
         public static void FinishedLoading(List<string> loadOrder)
         {
             // Hook all toHit modifiers
-            CACHooks.RegisterToHitModifiers();
+            CACToHitHooks.RegisterToHitModifiers();
         }
 
     }
