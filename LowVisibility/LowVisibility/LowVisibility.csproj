@@ -46,11 +46,16 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\BattleTech_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
-    <Reference Include="CustomActivatableEquipment">
-      <HintPath>..\..\..\Mods\ActivatableEquipment\CustomActivatableEquipment.dll</HintPath>
+    <Reference Include="CustomActivatableEquipment, Version=0.0.0.87, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\steam\SteamApps\common\BATTLETECH\Mods\ActivatableEquipment\CustomActivatableEquipment.dll</HintPath>
     </Reference>
-    <Reference Include="CustomAmmoCategories">
-      <HintPath>..\..\..\Mods\CustomAmmoCategories\CustomAmmoCategories.dll</HintPath>
+    <Reference Include="CustomAmmoCategories, Version=0.0.1.162, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\steam\SteamApps\common\BATTLETECH\Mods\CustomAmmoCategories\CustomAmmoCategories.dll</HintPath>
+    </Reference>
+    <Reference Include="CustomUnits">
+      <HintPath>E:\steam\SteamApps\common\BATTLETECH\Mods\CustomUnits\CustomUnits.dll</HintPath>
     </Reference>
     <Reference Include="IRBTModUtils, Version=1.6.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -98,6 +103,8 @@
     <Compile Include="Helper\VfxHelper.cs" />
     <Compile Include="Helper\VisualLockHelper.cs" />
     <Compile Include="Helper\WeaponHelper.cs" />
+    <Compile Include="Integration\CustomAmmoCategoriesHooks.cs" />
+    <Compile Include="Integration\CustomUnitsHooks.cs" />
     <Compile Include="ModText.cs" />
     <Compile Include="ModConsts.cs" />
     <Compile Include="Object\EWState.cs" />
@@ -124,6 +131,7 @@
     <Compile Include="Patch\MechComponentPatches.cs" />
     <Compile Include="Patch\AI\AttackEvaluatorPatches.cs" />
     <Compile Include="Patch\AI\MultiAttackPatches.cs" />
+    <Compile Include="Patch\MechPatches.cs" />
     <Compile Include="Patch\NightVisionPatches.cs" />
     <Compile Include="Patch\PilotableActorRepresentationPatches.cs" />
     <Compile Include="Patch\SelectionStatePatches.cs" />
@@ -133,6 +141,7 @@
     <Compile Include="Patch\TurnDirectorPatches.cs" />
     <Compile Include="Patch\HUD\CombatHUDStatusPanelPatches.cs" />
     <Compile Include="Patch\UI\VisRangeIndicatorPatches.cs" />
+    <Compile Include="Patch\VehiclePatches.cs" />
     <Compile Include="Patch\VisibilityCachePatches.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ModState.cs" />
@@ -140,8 +149,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist "$(SolutionDir)\..\..\Mods\LowVisibility" (
-   xcopy "$(TargetDir)$(TargetFileName)" "$(SolutionDir)\..\..\Mods\LowVisibility" /y
-)</PostBuildEvent>
+    <PostBuildEvent>
+      if exist "$(BattleTechGame)\Mods\LowVisibility" (
+      xcopy "$(TargetDir)$(TargetFileName)" "$(BattleTechGame)\Mods\LowVisibility" /y
+      )</PostBuildEvent>
   </PropertyGroup>
 </Project>
