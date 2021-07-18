@@ -37,24 +37,24 @@ namespace LowVisibility.Patch {
                     VfxHelper.DisableMimeticEffect(parentActor);
                 }
 
-                __instance.BlipObjectUnknown.SetActive(false);
-                __instance.BlipObjectUnknown.SetActive(false);
+                if(__instance.BlipObjectUnknown != null) __instance.BlipObjectUnknown.SetActive(false);
+                if(__instance.BlipObjectUnknown != null) __instance.BlipObjectUnknown.SetActive(false);
             } else if (newLevel >= VisibilityLevel.Blip0Minimum) {
                 Mod.Log.Debug?.Write($"Actor: {CombatantUtils.Label(parentActor)} has changed player visibility to: {newLevel}");
 
                 if (parentActor.team.IsFriendly(parentActor.Combat.LocalPlayerTeam)) {
                     Mod.Log.Debug?.Write($" Target actor is friendly, forcing blip off");
-                    __instance.BlipObjectUnknown.SetActive(false);
+                    if(__instance.BlipObjectUnknown != null) __instance.BlipObjectUnknown.SetActive(false);
                 } else {
                     // Because Blip1 corresponds to ArmorAndWeapon, go ahead and show the model as the chassis is 'known'
                     if (newLevel >= VisibilityLevel.Blip1Type)
                     {
                         Mod.Log.Debug?.Write($" Actor is a foe,  disabling the identified blip and showing the object");
                         __instance.VisibleObject.SetActive(true);
-                        __instance.BlipObjectIdentified.SetActive(false);
+                        if(__instance.BlipObjectIdentified != null) __instance.BlipObjectIdentified.SetActive(false);
 
-                        __instance.BlipObjectUnknown.transform.localScale = new Vector3(1f, 0.8f, 1f);
-                        __instance.BlipObjectUnknown.SetActive(true);
+                        if(__instance.BlipObjectUnknown != null) __instance.BlipObjectUnknown.transform.localScale = new Vector3(1f, 0.8f, 1f);
+                        if(__instance.BlipObjectUnknown != null) __instance.BlipObjectUnknown.SetActive(true);
                     }
                 }
             }
@@ -63,6 +63,7 @@ namespace LowVisibility.Patch {
 
     [HarmonyPatch(typeof(PilotableActorRepresentation), "updateBlips")]
     public static class PilotableActorRepresentation_updateBlips {
+        //public static Vector3 getNewBlipPosition()
         public static void Prefix(PilotableActorRepresentation __instance, ref Vector3 ___blipPendingPosition) {
             //Mod.Log.Debug?.Write($" UPDATE BLIPS INVOKED");
             if (__instance.BlipObjectUnknown.activeSelf && __instance.VisibleObject.activeSelf
