@@ -23,7 +23,7 @@ namespace LowVisibility.Object
         public override string ToString()
         {
             return $"SignatureMulti:{SignatureMulti} details:{DetailsMod} " +
-$"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackMod}";
+            $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackMod}";
         }
     }
 
@@ -363,7 +363,7 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
 
             if (shieldedByECMMod <= 0) { return 0f; }
 
-            int strength = shieldedByECMMod - attackerState.ProbeCarrierMod();
+            int strength = shieldedByECMMod;
             if (this.PingedByProbeMod() > 0) { strength -= this.PingedByProbeMod(); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
 
@@ -373,7 +373,7 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
             float sigMod = strength * 0.1f;
             if (sigMod != 0) { Mod.Log.Trace?.Write($"Target:({CombatantUtils.Label(actor)}) has ECMSignatureMod:{sigMod}"); }
 
-            return sigMod;
+            return -1f * sigMod;
         }
         public int ECMDetailsMod(EWState attackerState)
         {
