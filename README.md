@@ -279,10 +279,9 @@ To create an Active Probe effect that results from a ping, apply the following s
 
 ## ECM
 
-ECM components generate an bubble of interference around the carrier unit. The carrier has an **ECM Carrier** effect, while friendly units within the bubble receives an **ECM Shield** effect. Enemy units within the bubble receive an **ECM Jamming** effect.
+ECM components generate an bubble of interference around the carrier unit. Friendly units within the bubble receives an **ECM Shield** effect. Enemy units within the bubble receive an **ECM Jamming** effect.
 
-* For each point of **ECM Carrier**, attackers gain a +1 attack penalty and -1 sensors identification check. The emitter gains a 0.05 *increase* to their signature, making it easier for them to be located. 
-* For each point of **ECM Shield**, attackers gain a +1 attack penalty and -1 sensors identification check. The target gains a 0.05 *decrease* to their signature, making it harder for them to be located.
+* For each point of **ECM Shield**, attackers gain a +1 attack penalty and -1 sensors identification check. The target gains a 0.1 *decrease* to their signature, making it harder for them to be located.
 * For each point of **ECM Jamming** on a target, the target suffers a -1 penalty to any sensors identification check they make.
 
 Both **ECM Jamming** and **ECM Shield** modifiers apply when a jammed source attempts to locate a shielded target. If there are multiple ECM sources the strongest modifier is used, +1 for each additional source. You can change the modifier for multiplier emitters can be modified by changing `MultipleJammerPenalty`.
@@ -318,38 +317,6 @@ To create an ECM  component, define the following effects on a componentDef. You
             "statisticData" : 
             {
 				"statName" : "LV_ECM_SHIELD",
-				"operation": "Int_Add",
-				"modValue": "4",
-				"modType": "System.Int32"
-            },
-            "nature" : "Buff"
-        },
-        {
-            "durationData" : {
-                "duration": -1,
-                "stackLimit": 1
-            },
-            "targetingData" : {
-                "effectTriggerType" : "Passive",
-                "specialRules" : "NotSet",
-                "effectTargetType" : "Creator",
-                "range" : 0.0,
-                "forcePathRebuild" : false,
-                "forceVisRebuild" : true,
-                "showInTargetPreview" : true,
-                "showInStatusPanel" : true
-            },
-            "effectType" : "StatisticEffect",
-            "Description" :
-            {
-                "Id" : "LV_ECM_CARRIER_L4",
-                "Name" : "ECM CARRIER",
-                "Details" : "Provides an ECM bubble that grants +4 penalty to attackers.",
-                "Icon" : "uixSvgIcon_status_ECM-ghost"
-            },
-            "statisticData" : 
-            {
-				"statName" : "LV_ECM_CARRIER",
 				"operation": "Int_Add",
 				"modValue": "4",
 				"modType": "System.Int32"
@@ -595,7 +562,7 @@ TAG effects are defined through a single string that is a compound value:`<signa
 - `<detailsMod>` defines the detailed information modifier applied to the target
 - `<attackMod>` defines the attack modifier applied to the target
 
-TAG effects are **not** reduced by ECM protection. 
+TAG effects are **not** reduced by ECM protection. They are reduced by Mimetic stealth.
 
 ### TAG Effect
 
@@ -603,6 +570,7 @@ To create a status effect that applies the _LowVisiblity_ TAG logic, use the fol
 
 ```json
         {
+
 
             "effectType" : "StatisticEffect",
             "Description" :

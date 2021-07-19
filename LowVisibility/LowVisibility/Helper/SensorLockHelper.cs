@@ -97,7 +97,7 @@ namespace LowVisibility.Helper {
             float shutdownMod = (!target.IsShutDown) ? 1f : target.Combat.Constants.Visibility.ShutDownSignatureModifier;
             
             float chassisSignature = target.StatCollection.GetValue<float>(ModStats.HBS_SensorSignatureModifier);
-            if (chassisSignature == 0f) chassisSignature = 1.0f; // Fix until redbat fixes this
+            if (chassisSignature == 0f) chassisSignature = 1.0f; // Normalize 0 (vanilla state) for BEX; RT has updated their chassisDefs
 
             EWState ewState = target.GetEWState();
             float ecmShieldMod = ewState.ECMSignatureMod(sourceState);

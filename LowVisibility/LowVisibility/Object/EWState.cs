@@ -389,7 +389,7 @@ namespace LowVisibility.Object
             return strength;
         }
 
-        // Shield modifier
+        // Shield modifier adjusted for active probe carrier & probe pinged
         public int ECMAttackMod(EWState attackerState)
         {
 
@@ -627,15 +627,18 @@ namespace LowVisibility.Object
         {
             return narcEffect != null;
         }
+
         public int NarcAttackMod(EWState attackerState)
         {
             int val = 0;
             if (narcEffect != null)
             {
+                // Narc is countered by ECM. Reduce the narc effect by the ECM value
                 val = Math.Max(0, narcEffect.AttackMod - ECMAttackMod(attackerState));
             }
             return val * -1;
         }
+
         public int NarcDetailsMod(EWState attackerState)
         {
             int val = 0;
@@ -645,15 +648,17 @@ namespace LowVisibility.Object
             }
             return val;
         }
+
         public float NarcSignatureMod(EWState attackerState)
         {
             float val = 0;
             if (narcEffect != null)
             {
-                val = (float)Math.Max(0.0f, narcEffect.SignatureMod - ECMDetailsMod(attackerState) * 0.1f);
+                val = (float)Math.Max(0.0f, narcEffect.SignatureMod + ECMSignatureMod(attackerState));
             }
             return val;
         }
+
         public NarcEffect GetRawNarcEffect() { return narcEffect; }
 
         // TAG effects
@@ -684,7 +689,8 @@ namespace LowVisibility.Object
             float val = 0;
             if (tagEffect != null)
             {
-                val = (float)Math.Max(0.0f, tagEffect.SignatureMod - MimeticVisibilityMod(attackerState));
+                float mimeticMod = (1.0f - MimeticVisibilityMod(attackerState));
+                val = tagEffect.SignatureMod - mimeticMod;
             }
             return val;
         }
