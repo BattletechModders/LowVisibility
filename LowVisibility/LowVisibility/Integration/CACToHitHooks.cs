@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using IRBTModUtils.Extension;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
@@ -16,14 +17,25 @@ namespace LowVisibility.Integration
 
         public enum LowVisModifierType
         {
-            FiringBlind, NoVisuals, zoomVisionMod, mimeticMod, heatAttackMod, NoSensors, ecmJammed, ecmShield, narcAttack, tagAttack, stealthAttack
+            FiringBlind, NoVisuals, zoomVisionMod, mimeticMod, heatAttackMod, NoSensors, ecmJammed, ecmShield, 
+            narcAttack, tagAttack, stealthAttack
         }
 
         public class LowVisToHitState
         {
             public Dictionary<LowVisModifierType, int> modifiers = new Dictionary<LowVisModifierType, int>();
-            public float get(LowVisModifierType type) { if (modifiers.TryGetValue(type, out int result)) { return result; }; return 0f; }
-            public void AddModifiers(LowVisModifierType type, int value) { if (modifiers.ContainsKey(type)) { modifiers[type] = value; } else { modifiers.Add(type, value); }; }
+
+            public float get(LowVisModifierType type) 
+            { 
+                if (modifiers.TryGetValue(type, out int result)) { return result; }; 
+                return 0f; 
+            }
+
+            public void AddModifiers(LowVisModifierType type, int value) 
+            { 
+                if (modifiers.ContainsKey(type)) { modifiers[type] = value; } 
+                else { modifiers.Add(type, value); }; 
+            }
         }
 
         // CAC ToHit modifier methods below
@@ -77,6 +89,7 @@ namespace LowVisibility.Integration
                 float magnitude = (attacker.CurrentPosition - target.CurrentPosition).magnitude;
                 EWState attackerState = new EWState(attacker);
                 EWState targetState = new EWState(targetActor);
+                Mod.Log.Debug?.Write($"Preparing toHit from: {attacker.DistinctId()} to: {target.DistinctId()} with range: {magnitude}");
 
                 // If we can't see the target, apply the No Visuals penalty
                 bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
