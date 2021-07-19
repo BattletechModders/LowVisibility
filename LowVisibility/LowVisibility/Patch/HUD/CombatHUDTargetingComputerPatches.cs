@@ -126,12 +126,6 @@ namespace LowVisibility.Patch
     [HarmonyPatch(typeof(CombatHUDTargetingComputer), "RefreshActorInfo")]
     public static class CombatHUDTargetingComputer_RefreshActorInfo
     {
-
-        private static void SetArmorDisplayActive(CombatHUDTargetingComputer __instance, bool active)
-        {
-            CUHooks.ToggleTargetingComputerArmorDisplay(__instance, active);
-        }
-
         public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames)
         {
 
@@ -148,7 +142,8 @@ namespace LowVisibility.Patch
                 Mod.Log.Error?.Write("Attempting to refresh ActorInfo, but LastPlayerActorActivated is null. This should never happen!");
             }
 
-            if (__instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID))
+            if (__instance.ActivelyShownCombatant.team.IsLocalPlayer ||
+                __instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID))
             {
                 Mod.Log.Debug?.Write($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
                 __instance.WeaponList.SetActive(true);
@@ -175,11 +170,11 @@ namespace LowVisibility.Patch
                     if (scanType >= SensorScanType.StructAndWeaponID)
                     {
                         __instance.WeaponList.SetActive(true);
-                        SetArmorDisplayActive(__instance, true);
+                        CUHooks.ToggleTargetingComputerArmorDisplay(__instance, true);
                     }
                     else if (scanType >= SensorScanType.ArmorAndWeaponType || hasVisualScan)
                     {
-                        SetArmorDisplayActive(__instance, true);
+                        CUHooks.ToggleTargetingComputerArmorDisplay(__instance, true);
                         ObfuscateWeaponLabels(___weaponNames, target);
 
                         // Update the summary display
@@ -191,7 +186,7 @@ namespace LowVisibility.Patch
                     }
                     else
                     {
-                        SetArmorDisplayActive(__instance, false);
+                        CUHooks.ToggleTargetingComputerArmorDisplay(__instance, false);
 
                         __instance.WeaponList.SetActive(false);
                         Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
@@ -203,7 +198,7 @@ namespace LowVisibility.Patch
                 {
                     Mod.Log.Debug?.Write($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy building");
 
-                    SetArmorDisplayActive(__instance, true);
+                    CUHooks.ToggleTargetingComputerArmorDisplay(__instance, true);
 
                     __instance.WeaponList.SetActive(false);
                     Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
