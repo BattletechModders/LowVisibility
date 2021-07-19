@@ -1,4 +1,6 @@
 ﻿using BattleTech;
+using CleverGirlAIDamagePrediction;
+using CustAmmoCategories;
 using IRBTModUtils;
 using IRBTModUtils.Extension;
 using System;
@@ -327,6 +329,7 @@ namespace LowVisibility.Object
             nightVision = actor.StatCollection.GetValue<bool>(ModStats.NightVision);
         }
 
+        // Statics to track state
         public static Dictionary<AbstractActor, EWState> EWStateCache = new Dictionary<AbstractActor, EWState>();
 
         public static bool InBatchProcess { get; set; }
@@ -573,13 +576,13 @@ namespace LowVisibility.Object
             // If we're firing indirectly, zoom doesn't count
             if (weapon.IndirectFireCapable && lofLevel < LineOfFireLevel.LOFObstructed)
             {
-                Mod.Log.Debug?.Write("Line of fire is indirect - cannot use zoom!");
+                Mod.Log.Debug?.Write($"Line of fire is indirect - {weapon.UIName} cannot use zoom!");
                 return false;
             }
 
             if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet)
             {
-                Mod.Log.Debug?.Write("Zoom vision is null, weaponType is melee or unset - cannot use zoom!");
+                Mod.Log.Trace?.Write("Zoom vision is null, weaponType is melee or unset - cannot use zoom!");
                 return false;
             }
 
