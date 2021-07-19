@@ -65,7 +65,7 @@
             {
                 "statName" : "LV_MIMETIC",
                 "operation" : "Set",
-                "modValue": "0.15_3_3",
+                "modValue": "6_0.15_1_2",
                 "modType": "System.String"
             },
             "nature" : "Buff"
