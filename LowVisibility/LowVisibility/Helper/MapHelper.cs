@@ -4,43 +4,47 @@ using System;
 using us.frostraptor.modUtils.math;
 
 namespace LowVisibility.Helper {
-    public static class MapHelper {
 
-        public class MapConfig {
+    public class MapConfig
+    {
+        public float spotterRange = 0.0f;
+        public float visualIDRange = 0.0f;
+        public float nightVisionSpotterRange = 0.0f;
+        public float nightVisionVisualIDRange = 0.0f;
 
-            public float spotterRange = 0.0f;
-            public float visualIDRange = 0.0f;
-            public float nightVisionSpotterRange = 0.0f;
-            public float nightVisionVisualIDRange = 0.0f;
+        public float visionMulti = 1.0f;
 
-            public bool isDay;
-            public bool isDim;
-            public bool isDark;
+        public bool isDay;
+        public bool isDim;
+        public bool isDark;
 
-            public bool hasLightFog;
-            public bool hasHeavyFog;
-            public bool hasSnow;
-            public bool hasRain;
+        public bool hasLightFog;
+        public bool hasHeavyFog;
+        public bool hasSnow;
+        public bool hasRain;
 
-            public string UILabel() {
-                // Parse light
-                string lightLabel;
-                if (isDay) { lightLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_LIGHT_BRIGHT]; }
-                else if (isDim) { lightLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_LIGHT_DIM]; }
-                else { lightLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_LIGHT_DARK]; }
-                lightLabel = new Localize.Text(lightLabel).ToString();
+        public string UILabel()
+        {
+            // Parse light
+            string lightLabel;
+            if (isDay) { lightLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_LIGHT_BRIGHT]; }
+            else if (isDim) { lightLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_LIGHT_DIM]; }
+            else { lightLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_LIGHT_DARK]; }
+            lightLabel = new Localize.Text(lightLabel).ToString();
 
-                // Parse weather
-                string weatherLabel = null;
-                if (hasHeavyFog) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_FOG_HEAVY]; }
-                else if (hasLightFog) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_FOG_LIGHT]; }
-                else if (hasSnow) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_SNOW]; }
-                else if (hasRain) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_RAIN]; }
-                if (weatherLabel != null) { weatherLabel = new Localize.Text(weatherLabel).ToString(); }
+            // Parse weather
+            string weatherLabel = null;
+            if (hasHeavyFog) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_FOG_HEAVY]; }
+            else if (hasLightFog) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_FOG_LIGHT]; }
+            else if (hasSnow) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_SNOW]; }
+            else if (hasRain) { weatherLabel = Mod.LocalizedText.MapEffects[ModText.LT_MAP_RAIN]; }
+            if (weatherLabel != null) { weatherLabel = new Localize.Text(weatherLabel).ToString(); }
 
-                return weatherLabel == null ? lightLabel : lightLabel + ", " + weatherLabel;
-            }
+            return weatherLabel == null ? lightLabel : lightLabel + ", " + weatherLabel;
         }
+    }
+
+    public static class MapHelper {
 
         public static MapConfig ParseCurrentMap() {
             Mod.Log.Info?.Write("MH:PCM Parsing current map.");
@@ -63,7 +67,7 @@ namespace LowVisibility.Helper {
             Mod.Log.Debug?.Write($"  - All mood tags are: {allTags}");
 
             float baseVision = Mod.Config.Vision.BaseRangeBright;
-            float visionMulti = 1.0f;
+
             foreach (string tag in moodTags) {
                 switch (tag) {
                     case "mood_timeMorning":
@@ -97,29 +101,29 @@ namespace LowVisibility.Helper {
                         break;
                     case "mood_weatherRain":
                         Mod.Log.Debug?.Write($"  - {tag}");
-                        if (visionMulti > Mod.Config.Vision.RangeMultiRainSnow) {
-                            visionMulti = Mod.Config.Vision.RangeMultiRainSnow;
+                        if (mapConfig.visionMulti > Mod.Config.Vision.RangeMultiRainSnow) {
+                            mapConfig.visionMulti = Mod.Config.Vision.RangeMultiRainSnow;
                             mapConfig.hasRain = true;
                         }
                         break;
                     case "mood_weatherSnow":
                         Mod.Log.Debug?.Write($"  - {tag}");
-                        if (visionMulti > Mod.Config.Vision.RangeMultiRainSnow) {
-                            visionMulti = Mod.Config.Vision.RangeMultiRainSnow;
+                        if (mapConfig.visionMulti > Mod.Config.Vision.RangeMultiRainSnow) {
+                            mapConfig.visionMulti = Mod.Config.Vision.RangeMultiRainSnow;
                             mapConfig.hasSnow = true;
                         }
                         break;
                     case "mood_fogLight":
                         Mod.Log.Debug?.Write($"  - {tag}");
-                        if (visionMulti > Mod.Config.Vision.RangeMultiLightFog) {
-                            visionMulti = Mod.Config.Vision.RangeMultiLightFog;
+                        if (mapConfig.visionMulti > Mod.Config.Vision.RangeMultiLightFog) {
+                            mapConfig.visionMulti = Mod.Config.Vision.RangeMultiLightFog;
                             mapConfig.hasLightFog = true;
                         }
                         break;
                     case "mood_fogHeavy":
                         Mod.Log.Debug?.Write($"  - {tag}");
-                        if (visionMulti > Mod.Config.Vision.RangeMultiHeavyFog) {
-                            visionMulti = Mod.Config.Vision.RangeMultiHeavyFog;
+                        if (mapConfig.visionMulti > Mod.Config.Vision.RangeMultiHeavyFog) {
+                            mapConfig.visionMulti = Mod.Config.Vision.RangeMultiHeavyFog;
                             mapConfig.hasHeavyFog = true;
                         }
                         break;
@@ -129,8 +133,8 @@ namespace LowVisibility.Helper {
             }            
 
             // Calculate normal vision range
-            float visRange = (float)Math.Ceiling(baseVision * 30f * visionMulti);
-            Mod.Log.Info?.Write($"  Calculating vision range as Math.Ceil(baseVision:{baseVision} * 30.0 * visionMulti:{visionMulti}) = visRange:{visRange}.");
+            float visRange = (float)Math.Ceiling(baseVision * 30f * mapConfig.visionMulti);
+            Mod.Log.Info?.Write($"  Calculating vision range as Math.Ceil(baseVision:{baseVision} * 30.0 * visionMulti:{mapConfig.visionMulti}) = visRange:{visRange}.");
             if (visRange < Mod.Config.Vision.MinimumVisionRange()) {
                 visRange = Mod.Config.Vision.MinimumVisionRange();
             }
@@ -144,7 +148,7 @@ namespace LowVisibility.Helper {
 
             // Calculate night vision range
             if (mapConfig.isDark) {
-                float nightVisRange = (float)Math.Ceiling(Mod.Config.Vision.BaseRangeBright * 30f * visionMulti);
+                float nightVisRange = (float)Math.Ceiling(Mod.Config.Vision.BaseRangeBright * 30f * mapConfig.visionMulti);
                 if (nightVisRange < Mod.Config.Vision.MinimumVisionRange()) {
                     nightVisRange = Mod.Config.Vision.MinimumVisionRange();
                 }

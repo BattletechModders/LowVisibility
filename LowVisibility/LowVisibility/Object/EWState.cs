@@ -3,6 +3,7 @@ using CleverGirlAIDamagePrediction;
 using CustAmmoCategories;
 using IRBTModUtils;
 using IRBTModUtils.Extension;
+using LowVisibility.Helper;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -586,7 +587,16 @@ namespace LowVisibility.Object
                 return false;
             }
 
-            return distance < zoomVision.MaximumRange;
+            // Correct for current vision range
+            float adjustedRange = zoomVision.MaximumRange;
+            MapConfig mapConfig = ModState.GetMapConfig();
+            if (mapConfig.visionMulti != 1f)
+            {
+                adjustedRange = (float)Math.Floor(zoomVision.MaximumRange * mapConfig.visionMulti);
+                Mod.Log.Trace?.Write($"Zoom vision adjusted from: {zoomVision.MaximumRange} x{mapConfig.visionMulti} => {adjustedRange} "); 
+            }
+
+            return distance < adjustedRange;
         }
         public ZoomVision GetRawZoomVision() { return zoomVision; }
 
