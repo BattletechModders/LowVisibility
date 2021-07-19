@@ -1,5 +1,7 @@
 ﻿using BattleTech;
+using BattleTech.UI;
 using Harmony;
+using IRBTModUtils;
 using IRBTModUtils.Extension;
 using LowVisibility.Object;
 using System.Collections.Generic;
@@ -25,6 +27,23 @@ namespace LowVisibility.Patch
             if (actorState.HasMimetic())
             {
                 Mod.Log.Info?.Write($"  Mimetic pips updated to: {actorState.CurrentMimeticPips()}");
+            }
+
+            // If the player, update some UI elements
+            if (__instance.team.IsLocalPlayer)
+            {
+
+                // Refresh the floating icons after the player is done moving
+                foreach (ICombatant combatant in SharedState.Combat.AllActors)
+                {
+                    if (__instance.VisibilityToTargetUnit(combatant) > VisibilityLevel.None)
+                    {
+                        CombatHUDNumFlagHex combatHUDNumFlagHex = SharedState.CombatHUD?.InWorldMgr?.GetNumFlagForCombatant(combatant);
+                        CombatHUDMarkDisplay combatHUDMarkDisplay = combatHUDNumFlagHex != null ? combatHUDNumFlagHex?.ActorInfo?.MarkDisplay : null;
+                        if (combatHUDMarkDisplay != null) combatHUDMarkDisplay.RefreshInfo();
+                    }
+                }
+                
             }
         }
     }

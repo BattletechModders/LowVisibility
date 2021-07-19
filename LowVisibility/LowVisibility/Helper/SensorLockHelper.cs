@@ -120,7 +120,13 @@ namespace LowVisibility.Helper {
         }
 
         // Iterates over all player-allied units, checks for highest lock level to determine unit 
-        public static SensorScanType CalculateSharedLock(ICombatant target, AbstractActor source) {
+        public static SensorScanType CalculateSharedLock(ICombatant target, AbstractActor source)
+        {
+            return CalculateSharedLock(target, source, Vector3.zero);
+        }
+
+        public static SensorScanType CalculateSharedLock(ICombatant target, AbstractActor source, Vector3 previewPos) {
+            
             SensorScanType scanType = SensorScanType.NoInfo;
 
             List<AbstractActor> sensorSources = new List<AbstractActor>();
@@ -138,12 +144,23 @@ namespace LowVisibility.Helper {
             foreach (AbstractActor actor in sensorSources) {
                 SensorScanType actorScanType = CalculateSensorInfoLevel(actor, target);
                 if (actorScanType > scanType) {
-                    Mod.Log.Trace?.Write($"Increasing scanType to: ({actorScanType}) from source:({CombatantUtils.Label(actor)}) ");
+                    Mod.Log.Trace?.Write($"Increasing scanType to: ({actorScanType}) from actor:({CombatantUtils.Label(actor)}) ");
                     scanType = actorScanType;
                 }
             }
 
-            Mod.Log.Trace?.Write($"Shared lock to target:({CombatantUtils.Label(target)}) is type: ({scanType})");
+            // If we have a preview pos, the regular VisibilityCache hooks won't fire. Calculate the current actor's moves directly
+            if (previewPos != Vector3.zero)
+            {
+                SensorScanType sourceType = CalculateSensorLock(source, previewPos, target, target.CurrentPosition);
+                if (sourceType > scanType)
+                {
+                    Mod.Log.Trace?.Write($"Increasing scanType to: ({sourceType}) from source:({CombatantUtils.Label(source)}) ");
+                    scanType = sourceType;
+                }
+            }
+
+            Mod.Log.Debug?.Write($"Shared lock to target:({CombatantUtils.Label(target)}) is type: ({scanType})");
             return scanType;
         }
 

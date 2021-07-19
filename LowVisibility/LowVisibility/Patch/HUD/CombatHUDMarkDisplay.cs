@@ -36,18 +36,27 @@ namespace LowVisibility.Patch.HUD
     }
 
     [HarmonyPatch(typeof(CombatHUDMarkDisplay), "RefreshInfo")]
-    static class CombatHUDMarkDisplay_RefreshInfo
+    public static class CombatHUDMarkDisplay_RefreshInfo
     {
         static void Prefix(CombatHUDMarkDisplay __instance)
         {
-            Mod.Log.Trace?.Write("CHUDMD:RI - entered.");
-            Mod.Log.Debug?.Write($"  instance is null: {__instance == null}  displayedActor: {CombatantUtils.Label(__instance?.DisplayedActor)}  " +
-                $"lastPlayerActivated: {CombatantUtils.Label(ModState.LastPlayerActorActivated)}.");
-
             if (__instance != null && __instance.DisplayedActor != null && ModState.LastPlayerActorActivated != null)
             {
-                // Cache these
-                AbstractActor target = __instance.DisplayedActor;
+                RefreshMarkDisplay(__instance, __instance.DisplayedActor.CurrentPosition);
+            }
+        }
+
+        // This is public to allow update from MoveStatusPreviewPatches.cs
+        public static void RefreshMarkDisplay(CombatHUDMarkDisplay instance, Vector3 attackerPos)
+        {
+            Mod.Log.Trace?.Write("CHUDMD:RI - entered.");
+            Mod.Log.Debug?.Write($"  instance is null: {instance == null}  displayedActor: {CombatantUtils.Label(instance?.DisplayedActor)}  " +
+                $"lastPlayerActivated: {CombatantUtils.Label(ModState.LastPlayerActorActivated)}.");
+
+            if (instance != null && instance.DisplayedActor != null && ModState.LastPlayerActorActivated != null)
+            {
+                // TODO: Cache these
+                AbstractActor target = instance.DisplayedActor;
                 EWState targetState = new EWState(target);
                 bool isPlayer = target != null && target.team != null && target.team.IsLocalPlayer;
 
@@ -55,20 +64,20 @@ namespace LowVisibility.Patch.HUD
                 EWState attackerState = new EWState(attacker);
 
                 // Sensor lock should only be enabled when the target is marked
-                if (target.IsMarked) { __instance.gameObject.SetActive(true); }
-                else { __instance.gameObject.SetActive(false); }
+                if (target.IsMarked) { instance.gameObject.SetActive(true); }
+                else { instance.gameObject.SetActive(false); }
 
                 // Make sure to set the layout group to handle the new icons
-                VerticalLayoutGroup vlg = __instance.gameObject.transform.parent.gameObject.GetComponent<VerticalLayoutGroup>();
+                VerticalLayoutGroup vlg = instance.gameObject.transform.parent.gameObject.GetComponent<VerticalLayoutGroup>();
                 vlg.spacing = 6f;
 
                 // Initialize or fetch all the gameObjects we create
                 MarkGOContainer container;
-                if (!ModState.MarkContainerRefs.ContainsKey(__instance)) container = InitializeContainer(__instance);
-                else container = ModState.MarkContainerRefs[__instance];
+                if (!ModState.MarkContainerRefs.ContainsKey(instance)) container = InitializeContainer(instance);
+                else container = ModState.MarkContainerRefs[instance];
 
-                Mod.Log.Debug?.Write($"UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(__instance.DisplayedActor)}");
-                UpdateSensorAndVisualsIcons(container, __instance.DisplayedActor, ModState.LastPlayerActorActivated, isPlayer);
+                Mod.Log.Debug?.Write($"UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(instance.DisplayedActor)}");
+                UpdateSensorAndVisualsIcons(container, instance.DisplayedActor, ModState.LastPlayerActorActivated, attackerPos, isPlayer);
 
                 // Tagged State
                 if (targetState.IsTagged(attackerState)) UpdateIcon(container.TaggedMark, true, isPlayer);
@@ -94,7 +103,7 @@ namespace LowVisibility.Patch.HUD
                 // ECMShielded State
                 if (targetState.GetRawECMShield() != 0) UpdateIcon(container.ECMShieldedMark, true, !isPlayer);
                 else UpdateIcon(container.ECMShieldedMark, false, !isPlayer);
-                Mod.Log.Debug?.Write($"  -- DONE UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(__instance.DisplayedActor)}");
+                Mod.Log.Debug?.Write($"  -- DONE UPDATING COMBATHUDMARKDISPLAY FOR ACTOR: {CombatantUtils.Label(instance.DisplayedActor)}");
 
                 // DEBUG MODE
                 //UpdateIcon(container.TaggedMark, true, isPlayer);
@@ -117,13 +126,14 @@ namespace LowVisibility.Patch.HUD
             icon.SetActive(enable);
         }
 
-        static void UpdateSensorAndVisualsIcons(MarkGOContainer container, AbstractActor displayedActor, AbstractActor lastActivated, bool isPlayer)
+        static void UpdateSensorAndVisualsIcons(MarkGOContainer container, AbstractActor displayedActor, 
+            AbstractActor lastActivated, Vector3 attackerPos, bool isPlayer)
         {
             // Sensors and Visuals are only shown for non-local players            
             if (!isPlayer)
             {
                 // Check sensors
-                bool hasSensorLock = SensorLockHelper.CalculateSharedLock(displayedActor, lastActivated) > SensorScanType.NoInfo;
+                bool hasSensorLock = SensorLockHelper.CalculateSharedLock(displayedActor, lastActivated, attackerPos) > SensorScanType.NoInfo;
                 container.SensorsMark.SetActive(true);
                 SVGImage sensorsImage = container.SensorsMark.GetComponent<SVGImage>();
                 if (hasSensorLock)
@@ -137,7 +147,7 @@ namespace LowVisibility.Patch.HUD
                     sensorsImage.color = Color.red;
                 }
 
-                bool canSpotTarget = VisualLockHelper.CanSpotTarget(lastActivated, lastActivated.CurrentPosition, 
+                bool canSpotTarget = VisualLockHelper.CanSpotTarget(lastActivated, attackerPos, 
                     displayedActor, displayedActor.CurrentPosition, displayedActor.CurrentRotation, ModState.Combat.LOS);
                 SVGImage visualsImage = container.VisualsMark.GetComponent<SVGImage>();
                 container.VisualsMark.SetActive(true);
