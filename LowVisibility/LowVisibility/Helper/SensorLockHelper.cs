@@ -13,7 +13,7 @@ namespace LowVisibility.Helper {
             if (source.StatCollection.ContainsStatistic(ModStats.DisableSensors))
             {
                 Mod.Log.Debug?.Write($"Returning minimum sensors range for {CombatantUtils.Label(source)} due to disabled sensors.");
-                return Mod.Config.Sensors.MinimumSensorRange();
+                return Mod.Config.Sensors.MinimumRange;
             }
 
             // Add multipliers and absolute bonuses
@@ -32,7 +32,7 @@ namespace LowVisibility.Helper {
             float sensorsRange = ewState.GetSensorsBaseRange() * rangeMulti + rangeMod;
             Mod.Log.Trace?.Write($"    sensorsRange: { sensorsRange} = baseRange: {ewState.GetSensorsBaseRange()} * rangeMult: {rangeMulti} + rangeMod: {rangeMod}");
 
-            if (sensorsRange < Mod.Config.Sensors.MinimumSensorRange()) sensorsRange = Mod.Config.Sensors.MinimumSensorRange();
+            if (sensorsRange < Mod.Config.Sensors.MinimumRange) sensorsRange = Mod.Config.Sensors.MinimumRange;
 
             return sensorsRange;
         }

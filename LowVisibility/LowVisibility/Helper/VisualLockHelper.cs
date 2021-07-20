@@ -42,15 +42,12 @@ namespace LowVisibility.Helper {
                 //    $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
             }
 
-            if (visualRange < Mod.Config.Vision.MinimumVisionRange()) {
-                visualRange = Mod.Config.Vision.MinimumVisionRange();
+            if (visualRange < Mod.Config.Vision.MinimumRange) {
+                visualRange = Mod.Config.Vision.MinimumRange;
             }
-
-            // Round up to the nearest full hex
-            float normalizedRange = HexUtils.CountHexes(visualRange, false) * 30f;
             
             //LowVisibility.Logger.Trace($" -- source:{CombatantUtils.Label(source)} visual range is:{normalizedRange}m normalized from:{visualRange}m");
-            return normalizedRange;
+            return visualRange;
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
@@ -66,15 +63,12 @@ namespace LowVisibility.Helper {
             float spotterRange = VisualLockHelper.GetSpotterRange(source);
 
             float modifiedRange = spotterRange * targetVisibility;
-            if (modifiedRange < Mod.Config.Vision.MinimumVisionRange()) {
-                modifiedRange = Mod.Config.Vision.MinimumVisionRange();
+            if (modifiedRange < Mod.Config.Vision.MinimumRange) {
+                modifiedRange = Mod.Config.Vision.MinimumRange;
             }
 
-            // Round up to the nearest full hex
-            float normalizedRange = HexUtils.CountHexes(modifiedRange, true) * 30f;
-
-            Mod.Log.Trace?.Write($" -- source:{CombatantUtils.Label(source)} adjusted spotterRange:{normalizedRange}m normalized from:{modifiedRange}m");
-            return normalizedRange;
+            Mod.Log.Trace?.Write($" -- source:{CombatantUtils.Label(source)} adjusted spotterRange: {modifiedRange}m");
+            return modifiedRange;
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS

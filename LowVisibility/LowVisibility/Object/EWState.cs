@@ -419,22 +419,24 @@ namespace LowVisibility.Object
         public float GetSensorsRangeMulti() { return ewCheck / 20.0f + tacticsMod / 10.0f; }
         public float GetSensorsBaseRange()
         {
-            if (actor.GetType() == typeof(Mech))
+
+            if (actor is Mech)
             {
-                return Mod.Config.Sensors.MechTypeRange * 30.0f;
+                if (actor.TrooperSquad())
+                    return Mod.Config.Sensors.TrooperRange;
+                else if (actor.NavalUnit())
+                    return Mod.Config.Sensors.VehicleRange;
+                else if (actor.FakeVehicle())
+                    return Mod.Config.Sensors.VehicleRange;
+                else
+                    return Mod.Config.Sensors.MechRange;
             }
-            else if (actor.GetType() == typeof(Vehicle))
-            {
-                return Mod.Config.Sensors.VehicleTypeRange * 30.0f;
-            }
-            else if (actor.GetType() == typeof(Turret))
-            {
-                return Mod.Config.Sensors.TurretTypeRange * 30.0f;
-            }
+            else if (actor is Vehicle)
+                return Mod.Config.Sensors.VehicleRange;
+            else if (actor is Turret)
+                return Mod.Config.Sensors.TurretRange;
             else
-            {
-                return Mod.Config.Sensors.UnknownTypeRange * 30.0f;
-            }
+                return Mod.Config.Sensors.UnknownRange;
         }
 
         // Probes

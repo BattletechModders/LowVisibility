@@ -3,6 +3,7 @@ using BattleTech.Assetbundles;
 using BattleTech.Rendering;
 using BattleTech.Rendering.Mood;
 using BattleTech.UI;
+using CustAmmoCategories;
 using FogOfWar;
 using Harmony;
 using HBS;
@@ -66,16 +67,27 @@ namespace LowVisibility.Helper {
                     if (child.gameObject.name == "sphere") {
                         Mod.Log.Debug?.Write($"  - Configuring sphere");
 
-                        if (actor.UnitType == UnitType.Mech) {
-                            // problate ellipsoid
-                            child.gameObject.transform.localScale = new Vector3(0.13f, 0.13f, 0.13f);
-                        } else if (actor.UnitType == UnitType.Vehicle) {
+                        if (actor is Mech)
+                        {
+                            if (actor.TrooperSquad())
+                                // problate ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.13f, 0.13f, 0.13f);
+                            else if (actor.NavalUnit())
+                                // oblong ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.26f, 0.13f, 0.26f);
+                            else if (actor.FakeVehicle())
+                                // oblong ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.26f, 0.13f, 0.26f);
+                            else
+                                // problate ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.13f, 0.13f, 0.13f);
+                        }
+                        else if (actor is Vehicle)
                             // oblong ellipsoid
                             child.gameObject.transform.localScale = new Vector3(0.26f, 0.13f, 0.26f);
-                        } else {
+                        else
                             // Turrets and unknown get sphere
                             child.gameObject.transform.localScale = new Vector3(0.13f, 0.13f, 0.13f);
-                        }
 
                         // Center the sphere
                         if (actor.GameRep is MechRepresentation mr) {
@@ -138,16 +150,28 @@ namespace LowVisibility.Helper {
                     if (child.gameObject.name == "sphere rumble") {
                         Mod.Log.Trace?.Write($"  - Configuring sphere rumble");
 
-                        if (actor.UnitType == UnitType.Mech) {
-                            // problate ellipsoid
-                            child.gameObject.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
-                        } else if (actor.UnitType == UnitType.Vehicle) {
+
+                        if (actor is Mech)
+                        {
+                            if (actor.TrooperSquad())
+                                // problate ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
+                            else if (actor.NavalUnit())
+                                // oblong ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.24f, 0.12f, 0.24f);
+                            else if (actor.FakeVehicle())
+                                // oblong ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.24f, 0.12f, 0.24f);
+                            else
+                                // problate ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
+                        }
+                        else if (actor is Vehicle)
                             // oblong ellipsoid
                             child.gameObject.transform.localScale = new Vector3(0.24f, 0.12f, 0.24f);
-                        } else {
+                        else
                             // Turrets and unknown get sphere
                             child.gameObject.transform.localScale = new Vector3(0.24f, 0.24f, 0.24f);
-                        }
 
                         // Try to manipulate the animation speed
                         ParticleSystem[] childPS = child.gameObject.GetComponentsInChildren<ParticleSystem>();

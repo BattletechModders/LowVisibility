@@ -39,23 +39,24 @@
 			"MimeticUsesGhost": true
 		},
 		"Sensors": {
-			"MechTypeRange": 12,
-			"VehicleTypeRange": 9,
-			"TurretTypeRange": 15,
-			"UnknownTypeRange": 6,
-			"MinimumRangeHexes": 8,
+			"MechRange": 360.0,
+			"TrooperRange" : 180.0,
+			"VehicleRange": 270.0,
+			"TurretRange": 450.0,
+			"UnknownRange": 180.0,
+			"MinimumRange": 180.0,
 			"SensorsOfflineAtSpawn": true,
 			"MaxECMDetailsPenalty": -11
 		},
 		"Vision": {
-			"BaseRangeBright": 15,
-			"BaseRangeDim": 11,
-			"BaseRangeDark": 7,
+			"RangeBright": 450.0,
+			"RangeDim": 330.0,
+			"RangeDark": 210.0,
 			"RangeMultiRainSnow": 0.8,
 			"RangeMultiLightFog": 0.6,
 			"RangeMultiHeavyFog": 0.4,
-			"MinimumRangeHexes": 3,
-			"ScanRangeHexes": 7
+			"MinimumRange": 90.0,
+			"ScanRange": 210.0
 		},
 		"FogOfWar": {
 			"RedrawFogOfWarOnActivation": false,
