@@ -62,6 +62,10 @@
 			"RedrawFogOfWarOnActivation": false,
 			"ShowTerrainThroughFogOfWar": true
 		},
+		"Weather" : {
+			"LightFogDensity" : 3000.0,
+            "HeavyFogDensity" : 10000.0
+		},
 		"Probability": {
 			"Sigma": 3,
 			"Mu": -1
