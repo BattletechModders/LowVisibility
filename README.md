@@ -25,6 +25,66 @@ This mod is comprehensive, but a short summary of changes in the mod include:
 * Stealth can hide enemy mechs (and your own!) allowing you to close range safely.
 * Memetic armor reduces your ability to be targeted, but decreases if you move
 
+## Configuration Reference
+
+Configuration values in `mod.json` will be updated in the table below. If a section disagrees with this table, assume the table is correct
+
+| Property | Description | Default |
+| -- | -- | -- |
+| Icon.ElectronicWarfare | The status bar icon used for the general EW information tooltip | `lv_eye-shield` |
+| Icon.SensorsDisabled | The status bar icon used for the sensors disabled status | `lv_sight-disabled` |
+| Icon.VisionAndSensors | The status bar icon used for the vision and sensors information tooltip | `lv_cyber-eye` |
+
+| Icon.TargetSensorsMark | The unit icon used to indicate the player has sensor lock | `lv_radar-sweep` |
+| Icon.TargetVisualsMark | The unit icon used to indicate the player has vision lock | `lv_brass-eye` |
+| Icon.TargetTaggedMark | The unit icon used to indicate the unit is Tagged | `lv_target-laser` |
+| Icon.TargetNarcedMark | The unit icon used to indicate the unit is Narced | `lv_radio-tower` |
+| Icon.TargetStealthMark | The unit icon used to indicate the unit has Sensors Stealth| `lv_robber-mask` |
+| Icon.TargetMimeticMark | The unit icon used to indicate the unit has Mimetic Stealth | `lv_static` |
+| Icon.TargetECMShieldedMark | The unit icon used to indicate the unit has ECM Shielding | `lv_eye-shield` |
+| Icon.TargetActiveProbePingedMark | The unit icon used to indicate the unit is pinged by an active probe | `lv_eye-target` |
+
+| Icon.MarkColorPlayerPositive | The color used to indicate a unit icon is negative to the player | `[ 1.0, 0.0, 0.062, 1.0 ]` |
+| Icon.MarkColorPlayerNegative | The color used to indicate a unit icon is negative to the player | `[ 0.0, 0.901, 0.098, 1.0 ]` |
+
+| Toggles.LogEffectsOnMove | If true, effects on actors will be logged during position updates. | false |
+| Toggles.ShowNightVision | If true, night-vision effects will be enabled during play. | true |
+| Toggles.MimeticUsesGhost | If true, mimetic effects will use the GhostWeak VFX on the actor. | true |
+
+| Sensors.MechRange | The default sensors range for a BattleMech | 360.0 |
+| Sensors.TrooperRange | The default sensors range for a battle armor | 180.0 |
+| Sensors.VehicleRange | The default sensors range for a vehicles | 270.0 |
+| Sensors.TurretRange | The default sensors range for a turrets | 450.0 |
+| Sensors.UnknownRange | The default sensors range when the unit type cannot be determined | 180.0 |
+| Sensors.MinimumRange | The minimum range below which sensors cannot go. No roll or effect will reduce sensors below this limit. | 180.0 |
+| Sensors.SensorsOfflineAtSpawn | If true, a unit's sensors will be reduced to `Sensors.MininumRange` for the turn it spawns | true |
+| Sensors.MaxECMDetailsPenalty | The maximum penalty to sensor details that should be applied from jamming, shield, etc. | -9 |
+| Sensors.MinSignature | The minimum signature a unit can have. Effects that reduce a unit's signature below this value will have no effect. | 0.05 |
+
+| Vision.RangeBright | The default vision range for a unit when the map has the Bright mood. | 450.0 | 
+| Vision.RangeDim | The default vision range for a unit when the map has the Dimmood. | 330.0 | 
+| Vision.RangeDark | The default vision range for a unit when the map has the Dark mood. | 210.0 | 
+| Vision.RangeMultiRainSnow | The multiplier to a unit's vision for the Ran or Snow weather condition. | 0.8 | 
+| Vision.RangeMultiLightFog | The multiplier to a unit's vision for the Light Fog weather condition. | 0.66 | 
+| Vision.RangeMultiHeavyFog | The multiplier to a unit's vision for the Heavy Fog weather condition. | 0.33 | 
+| Vision.MinimumRange | The minimum range for vision that a unit can have. No weather or status effects can reduce a unit's vision below this level. | 90.0 | 
+| Vision.ScanRange | The range at which a unit will achieve VisualID (i.e. visual scanning) on a target. This allows it to see armor and weapon types, but not details. | 210.0 | 
+
+| FogOfWar.RedrawFogOfWarOnActivation | If true, the Fog Of War will be completely redrawn on each unit's activation. This will hide previously seen areas of the map, and only reveal the section of the map the current unit can observe. | false |
+| FogOfWar.ShowTerrainThroughFogOfWar | If true, terrain in areas of the map that are still covered in the Fog of War will be hidden by a black mask. | true |
+
+| Weather.LightFogDensity | The density of the fog effect for the Light Fog weather. | 3000 | 
+| Weather.HeavyFogDensity | The density of the fog effect for the Heavy Fog weather. | 10000 |
+
+| Attack.NoVisualPenalty | | 5 |
+| Attack.NoSensorsPenalty | | 5 |
+| Attack.FiringBlindPenalty | | 13 |
+| Attack.ShieldedMulti | | 1.0 |
+| Attack.JammedMulti | | 1.0 |
+
+| Probability.Sigma | | 4 |
+| Probability.Mu | | -1 |
+
 ## Target States
 
 Every model in the game is in one of the three states. A target is either:
@@ -351,6 +411,7 @@ To create an ECM  component, define the following effects on a componentDef. You
             {
 				"statName" : "LV_ECM_JAMMED",
 				"operation": "Int_Add",
+
 				"modValue": "3",
 				"modType": "System.Int32"
             },
