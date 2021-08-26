@@ -3,6 +3,7 @@ using BattleTech.Assetbundles;
 using BattleTech.Rendering;
 using BattleTech.Rendering.Mood;
 using BattleTech.UI;
+using CustAmmoCategories;
 using FogOfWar;
 using Harmony;
 using HBS;
@@ -52,62 +53,6 @@ namespace LowVisibility.Helper {
             // vfxMatPrtl_ECMdistortionWeak or vfxMatPrtl_ECMdistortionStrong
         }
 
-        //public static void EnableECMCarrierVfx(AbstractActor actor, float carrierRange) {
-
-        //    if (!ModState.TurnDirectorStarted || actor == null || actor.GameRep == null) { return; }
-
-        //    if (!actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
-        //        Mod.Log.Debug?.Write($" ENABLING ECM LOOP ON ACTOR: {CombatantUtils.Label(actor)}");
-                
-        //        // Calculate the range factor
-        //        float vfxScaleFactor = carrierRange / 100f;
-        //        Mod.Log.Debug?.Write($" VFX scaling factor {vfxScaleFactor}");
-
-        //       // Bubble
-        //       ParticleSystem psECMLoop = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
-        //           Vector3.zero, ECMBubbleBaseVFX, "LV_ECM_CARRIER_VFX", true, Vector3.zero, false, -1f);
-        //        psECMLoop.Stop(true);
-        //        ParticleSystem.MainModule main = psECMLoop.main;
-
-        //        foreach (Transform child in psECMLoop.transform) {
-        //            if (child.gameObject.name.StartsWith("sphere")) {
-        //                child.gameObject.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
-        //            } else {
-        //                child.gameObject.SetActive(false);
-        //            }
-        //        }
-        //        psECMLoop.Play(true);
-
-        //        // AoE loop
-        //        ParticleSystem psECMCarrier = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform,
-        //            Vector3.zero, ECMCarrierBaseVFX, "LV_ECM_LOOP_VFX", true, Vector3.zero, false, -1f);
-
-        //        psECMCarrier.transform.localScale = new Vector3(vfxScaleFactor, vfxScaleFactor, vfxScaleFactor);
-
-        //        actor.StatCollection.AddStatistic(ModStats.ECMVFXEnabled, true);
-
-        //        Mod.Log.Debug?.Write(" DONE ENABLING ECM LOOP");
-        //    } else {
-        //        Mod.Log.Debug?.Write(" ECM LOOP ALREADY ENABLED, SKIPPING");
-        //    }
-        //}
-
-        //public static void DisableECMCarrierVfx(AbstractActor actor) {
-
-        //    if (!ModState.TurnDirectorStarted) { return; }
-
-        //    if (actor.GameRep != null && actor.StatCollection.ContainsStatistic(ModStats.ECMVFXEnabled)) {
-        //        Mod.Log.Debug?.Write("DISABLING ECM CARRIER EFFECT");
-
-        //        actor.GameRep.PlayVFXAt(actor.GameRep.thisTransform, Vector3.zero, ECMBubbleRemovedBaseBFX, true, Vector3.zero, true, -1f);
-        //        actor.GameRep.StopManualPersistentVFX(ECMBubbleBaseVFX);
-        //        actor.GameRep.StopManualPersistentVFX(ECMBubbleOpforBaseVFX);
-        //        actor.GameRep.StopManualPersistentVFX(ECMCarrierBaseVFX);
-
-        //        actor.StatCollection.RemoveStatistic(ModStats.ECMVFXEnabled);
-        //    }
-        //}
-
         public static void EnableStealthVfx(AbstractActor actor) {
 
             if (!ModState.TurnDirectorStarted) { return; }
@@ -122,16 +67,27 @@ namespace LowVisibility.Helper {
                     if (child.gameObject.name == "sphere") {
                         Mod.Log.Debug?.Write($"  - Configuring sphere");
 
-                        if (actor.UnitType == UnitType.Mech) {
-                            // problate ellipsoid
-                            child.gameObject.transform.localScale = new Vector3(0.13f, 0.13f, 0.13f);
-                        } else if (actor.UnitType == UnitType.Vehicle) {
+                        if (actor is Mech)
+                        {
+                            if (actor.TrooperSquad())
+                                // problate ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.13f, 0.13f, 0.13f);
+                            else if (actor.NavalUnit())
+                                // oblong ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.26f, 0.13f, 0.26f);
+                            else if (actor.FakeVehicle())
+                                // oblong ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.26f, 0.13f, 0.26f);
+                            else
+                                // problate ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.13f, 0.13f, 0.13f);
+                        }
+                        else if (actor is Vehicle)
                             // oblong ellipsoid
                             child.gameObject.transform.localScale = new Vector3(0.26f, 0.13f, 0.26f);
-                        } else {
+                        else
                             // Turrets and unknown get sphere
                             child.gameObject.transform.localScale = new Vector3(0.13f, 0.13f, 0.13f);
-                        }
 
                         // Center the sphere
                         if (actor.GameRep is MechRepresentation mr) {
@@ -194,16 +150,28 @@ namespace LowVisibility.Helper {
                     if (child.gameObject.name == "sphere rumble") {
                         Mod.Log.Trace?.Write($"  - Configuring sphere rumble");
 
-                        if (actor.UnitType == UnitType.Mech) {
-                            // problate ellipsoid
-                            child.gameObject.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
-                        } else if (actor.UnitType == UnitType.Vehicle) {
+
+                        if (actor is Mech)
+                        {
+                            if (actor.TrooperSquad())
+                                // problate ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
+                            else if (actor.NavalUnit())
+                                // oblong ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.24f, 0.12f, 0.24f);
+                            else if (actor.FakeVehicle())
+                                // oblong ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.24f, 0.12f, 0.24f);
+                            else
+                                // problate ellipsoid
+                                child.gameObject.transform.localScale = new Vector3(0.12f, 0.12f, 0.12f);
+                        }
+                        else if (actor is Vehicle)
                             // oblong ellipsoid
                             child.gameObject.transform.localScale = new Vector3(0.24f, 0.12f, 0.24f);
-                        } else {
+                        else
                             // Turrets and unknown get sphere
                             child.gameObject.transform.localScale = new Vector3(0.24f, 0.24f, 0.24f);
-                        }
 
                         // Try to manipulate the animation speed
                         ParticleSystem[] childPS = child.gameObject.GetComponentsInChildren<ParticleSystem>();

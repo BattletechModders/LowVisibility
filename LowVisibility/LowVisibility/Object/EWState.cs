@@ -1,6 +1,9 @@
 ﻿using BattleTech;
+using CleverGirlAIDamagePrediction;
+using CustAmmoCategories;
 using IRBTModUtils;
 using IRBTModUtils.Extension;
+using LowVisibility.Helper;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -23,7 +26,7 @@ namespace LowVisibility.Object
         public override string ToString()
         {
             return $"SignatureMulti:{SignatureMulti} details:{DetailsMod} " +
-$"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackMod}";
+            $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackMod}";
         }
     }
 
@@ -327,6 +330,7 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
             nightVision = actor.StatCollection.GetValue<bool>(ModStats.NightVision);
         }
 
+        // Statics to track state
         public static Dictionary<AbstractActor, EWState> EWStateCache = new Dictionary<AbstractActor, EWState>();
 
         public static bool InBatchProcess { get; set; }
@@ -363,7 +367,7 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
 
             if (shieldedByECMMod <= 0) { return 0f; }
 
-            int strength = shieldedByECMMod - attackerState.ProbeCarrierMod();
+            int strength = shieldedByECMMod;
             if (this.PingedByProbeMod() > 0) { strength -= this.PingedByProbeMod(); }
             if (attackerState.ProbeCarrierMod() > 0) { strength -= attackerState.ProbeCarrierMod(); }
 
@@ -373,7 +377,7 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
             float sigMod = strength * 0.1f;
             if (sigMod != 0) { Mod.Log.Trace?.Write($"Target:({CombatantUtils.Label(actor)}) has ECMSignatureMod:{sigMod}"); }
 
-            return sigMod;
+            return -1f * sigMod;
         }
         public int ECMDetailsMod(EWState attackerState)
         {
@@ -389,7 +393,7 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
             return strength;
         }
 
-        // Shield modifier
+        // Shield modifier adjusted for active probe carrier & probe pinged
         public int ECMAttackMod(EWState attackerState)
         {
 
@@ -415,22 +419,24 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
         public float GetSensorsRangeMulti() { return ewCheck / 20.0f + tacticsMod / 10.0f; }
         public float GetSensorsBaseRange()
         {
-            if (actor.GetType() == typeof(Mech))
+
+            if (actor is Mech)
             {
-                return Mod.Config.Sensors.MechTypeRange * 30.0f;
+                if (actor.TrooperSquad())
+                    return Mod.Config.Sensors.TrooperRange;
+                else if (actor.NavalUnit())
+                    return Mod.Config.Sensors.VehicleRange;
+                else if (actor.FakeVehicle())
+                    return Mod.Config.Sensors.VehicleRange;
+                else
+                    return Mod.Config.Sensors.MechRange;
             }
-            else if (actor.GetType() == typeof(Vehicle))
-            {
-                return Mod.Config.Sensors.VehicleTypeRange * 30.0f;
-            }
-            else if (actor.GetType() == typeof(Turret))
-            {
-                return Mod.Config.Sensors.TurretTypeRange * 30.0f;
-            }
+            else if (actor is Vehicle)
+                return Mod.Config.Sensors.VehicleRange;
+            else if (actor is Turret)
+                return Mod.Config.Sensors.TurretRange;
             else
-            {
-                return Mod.Config.Sensors.UnknownTypeRange * 30.0f;
-            }
+                return Mod.Config.Sensors.UnknownRange;
         }
 
         // Probes
@@ -573,17 +579,26 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
             // If we're firing indirectly, zoom doesn't count
             if (weapon.IndirectFireCapable && lofLevel < LineOfFireLevel.LOFObstructed)
             {
-                Mod.Log.Debug?.Write("Line of fire is indirect - cannot use zoom!");
+                Mod.Log.Debug?.Write($"Line of fire is indirect - {weapon.UIName} cannot use zoom!");
                 return false;
             }
 
             if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet)
             {
-                Mod.Log.Debug?.Write("Zoom vision is null, weaponType is melee or unset - cannot use zoom!");
+                Mod.Log.Trace?.Write("Zoom vision is null, weaponType is melee or unset - cannot use zoom!");
                 return false;
             }
 
-            return distance < zoomVision.MaximumRange;
+            // Correct for current vision range
+            float adjustedRange = zoomVision.MaximumRange;
+            MapConfig mapConfig = ModState.GetMapConfig();
+            if (mapConfig.visionMulti != 1f)
+            {
+                adjustedRange = (float)Math.Floor(zoomVision.MaximumRange * mapConfig.visionMulti);
+                Mod.Log.Trace?.Write($"Zoom vision adjusted from: {zoomVision.MaximumRange} x{mapConfig.visionMulti} => {adjustedRange} "); 
+            }
+
+            return distance < adjustedRange;
         }
         public ZoomVision GetRawZoomVision() { return zoomVision; }
 
@@ -627,15 +642,18 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
         {
             return narcEffect != null;
         }
+
         public int NarcAttackMod(EWState attackerState)
         {
             int val = 0;
             if (narcEffect != null)
             {
+                // Narc is countered by ECM. Reduce the narc effect by the ECM value
                 val = Math.Max(0, narcEffect.AttackMod - ECMAttackMod(attackerState));
             }
             return val * -1;
         }
+
         public int NarcDetailsMod(EWState attackerState)
         {
             int val = 0;
@@ -645,15 +663,17 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
             }
             return val;
         }
+
         public float NarcSignatureMod(EWState attackerState)
         {
             float val = 0;
             if (narcEffect != null)
             {
-                val = (float)Math.Max(0.0f, narcEffect.SignatureMod - ECMDetailsMod(attackerState) * 0.1f);
+                val = (float)Math.Max(0.0f, narcEffect.SignatureMod + ECMSignatureMod(attackerState));
             }
             return val;
         }
+
         public NarcEffect GetRawNarcEffect() { return narcEffect; }
 
         // TAG effects
@@ -684,7 +704,8 @@ $"rangeMods:{MediumRangeAttackMod} / {LongRangeAttackMod} / {ExtremeRangeAttackM
             float val = 0;
             if (tagEffect != null)
             {
-                val = (float)Math.Max(0.0f, tagEffect.SignatureMod - MimeticVisibilityMod(attackerState));
+                float mimeticMod = (1.0f - MimeticVisibilityMod(attackerState));
+                val = tagEffect.SignatureMod - mimeticMod;
             }
             return val;
         }

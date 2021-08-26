@@ -3,6 +3,7 @@ using BattleTech.UI;
 using Harmony;
 using Localize;
 using LowVisibility.Helper;
+using LowVisibility.Integration;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
@@ -13,27 +14,34 @@ using TMPro;
 using UnityEngine;
 using us.frostraptor.modUtils;
 
-namespace LowVisibility.Patch {
+namespace LowVisibility.Patch
+{
     // Allow the CombatHUDTargeting computer to be displayed for blips
     [HarmonyPatch()]
-    public static class CombatHUDTargetingComputer_OnActorHovered {
+    public static class CombatHUDTargetingComputer_OnActorHovered
+    {
 
         // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod() {
+        public static MethodInfo TargetMethod()
+        {
             return AccessTools.Method(typeof(CombatHUDTargetingComputer), "OnActorHovered", new Type[] { typeof(MessageCenterMessage) });
         }
 
-        public static void Postfix(CombatHUDTargetingComputer __instance, MessageCenterMessage message, CombatHUD ___HUD) {
+        public static void Postfix(CombatHUDTargetingComputer __instance, MessageCenterMessage message, CombatHUD ___HUD)
+        {
             // LowVisibility.Logger.Debug("CombatHUDTargetingComputer:OnActorHovered:post - entered.");
 
-            if (__instance != null) {
+            if (__instance != null)
+            {
 
                 EncounterObjectMessage encounterObjectMessage = message as EncounterObjectMessage;
                 ICombatant combatant = ___HUD.Combat.FindCombatantByGUID(encounterObjectMessage.affectedObjectGuid);
-                if (combatant != null) {
+                if (combatant != null)
+                {
                     AbstractActor abstractActor = combatant as AbstractActor;
                     if (combatant.team != ___HUD.Combat.LocalPlayerTeam && (abstractActor == null ||
-                        ___HUD.Combat.LocalPlayerTeam.VisibilityToTarget(abstractActor) >= VisibilityLevel.Blip0Minimum)) {
+                        ___HUD.Combat.LocalPlayerTeam.VisibilityToTarget(abstractActor) >= VisibilityLevel.Blip0Minimum))
+                    {
                         Traverse.Create(__instance).Property("HoveredCombatant").SetValue(combatant);
                     }
                 }
@@ -44,17 +52,20 @@ namespace LowVisibility.Patch {
 
     // Patch to allow the targeting comp to be shown for a blip
     [HarmonyPatch(typeof(CombatHUDTargetingComputer), "Update")]
-    public static class CombatHUDTargetingComputer_Update {
+    public static class CombatHUDTargetingComputer_Update
+    {
 
         private static Action<CombatHUDTargetingComputer> UIModule_Update;
 
-        public static bool Prepare() {
+        public static bool Prepare()
+        {
             BuildCHTCOnComplete();
             return true;
         }
 
         // Shamelessly stolen from https://github.com/janxious/BT-WeaponRealizer/blob/7422573fa69893ae7c16a9d192d85d2152f90fa2/NumberOfShotsEnabler.cs#L32
-        private static void BuildCHTCOnComplete() {
+        private static void BuildCHTCOnComplete()
+        {
             // build a call to WeaponEffect.OnComplete() so it can be called
             // a la base.OnComplete() from the context of a BallisticEffect
             // https://blogs.msdn.microsoft.com/rmbyers/2008/08/16/invoking-a-virtual-method-non-virtually/
@@ -71,13 +82,15 @@ namespace LowVisibility.Patch {
         }
 
         // TODO: Dangerous PREFIX false here!
-        public static bool Prefix(CombatHUDTargetingComputer __instance, CombatHUD ___HUD) {
+        public static bool Prefix(CombatHUDTargetingComputer __instance, CombatHUD ___HUD)
+        {
             //Mod.Log.Trace?.Write("CHUDTC:U:pre - entered.");
 
             CombatGameState Combat = ___HUD?.Combat;
 
             UIModule_Update(__instance);
-            if (__instance.ActorInfo != null) {
+            if (__instance.ActorInfo != null)
+            {
                 __instance.ActorInfo.DisplayedCombatant = __instance.ActivelyShownCombatant;
             }
 
@@ -85,15 +98,21 @@ namespace LowVisibility.Patch {
                 (__instance.ActivelyShownCombatant.team != Combat.LocalPlayerTeam
                     && !Combat.HostilityMatrix.IsFriendly(__instance.ActivelyShownCombatant.team.GUID, Combat.LocalPlayerTeamGuid)
                     && Combat.LocalPlayerTeam.VisibilityToTarget(__instance.ActivelyShownCombatant) < VisibilityLevel.Blip0Minimum)
-                    ) {
-                if (__instance.Visible) {
+                    )
+            {
+                if (__instance.Visible)
+                {
                     __instance.Visible = false;
                 }
-            } else {
-                if (!__instance.Visible) {
+            }
+            else
+            {
+                if (!__instance.Visible)
+                {
                     __instance.Visible = true;
                 }
-                if (__instance.ActivelyShownCombatant != null) {
+                if (__instance.ActivelyShownCombatant != null)
+                {
                     Traverse method = Traverse.Create(__instance).Method("UpdateStructureAndArmor", new Type[] { });
                     method.GetValue();
                 }
@@ -105,116 +124,14 @@ namespace LowVisibility.Patch {
 
     // Patch the weapons visibility
     [HarmonyPatch(typeof(CombatHUDTargetingComputer), "RefreshActorInfo")]
-    public static class CombatHUDTargetingComputer_RefreshActorInfo {
-
-        private static void SetArmorDisplayActive(CombatHUDTargetingComputer __instance, bool active) {
-            if (Mod.CustomUnitsAPIDetected) { 
-              Mod.CU_SetArmorDisplayActive(__instance, active);
-            } else {
-              if (__instance.ActivelyShownCombatant is Mech mech) __instance.MechArmorDisplay.gameObject.SetActive(active);
-              else if (__instance.ActivelyShownCombatant is Vehicle vehicle) { __instance.VehicleArmorDisplay.gameObject.SetActive(active); }
-              else if (__instance.ActivelyShownCombatant is Turret turret) { __instance.TurretArmorDisplay.gameObject.SetActive(active); }
-              else if (__instance.ActivelyShownCombatant is BattleTech.Building building) { __instance.BuildingArmorDisplay.gameObject.SetActive(active); }
-            }
-        }
-
-        private static void BuildCACDialogForTarget(AbstractActor source, ICombatant target, float range, bool hasVisualScan, SensorScanType scanType)
+    public static class CombatHUDTargetingComputer_RefreshActorInfo
+    {
+        public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames)
         {
-            StringBuilder sb = new StringBuilder();
 
-            VisibilityLevel visLevel = source.VisibilityToTargetUnit(target);
-            if (target is Mech mech)
-            {
-                string fullName = mech.Description.UIName;
-                string chassisName = mech.UnitName;
-                string partialName = mech.Nickname;
-                string localName = CombatNameHelper.GetEnemyMechDetectionLabel(visLevel, scanType, fullName, partialName, chassisName).ToString();
-
-                string tonnage = "?";
-                if (scanType > SensorScanType.LocationAndType)
-                {
-                    tonnage = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_WEIGHT], new object[] { (int)Math.Floor(mech.tonnage) }).ToString();
-                }
-
-                string titleText = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_TITLE],
-                    new object[] { localName, tonnage }).ToString();
-                sb.Append(titleText);
-
-                if (scanType > SensorScanType.StructAndWeaponID)
-                {
-                    // Movement
-                    sb.Append(new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_MOVE_MECH],
-                        new object[] { mech.WalkSpeed, mech.RunSpeed, mech.JumpDistance })
-                        .ToString()
-                        );
-
-                    // Heat
-                    sb.Append(new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_HEAT],
-                        new object[] { mech.CurrentHeat, mech.MaxHeat })
-                        .ToString()
-                        );
-
-                    // Stability
-                    sb.Append(new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_STAB],
-                        new object[] { mech.CurrentStability, mech.MaxStability })
-                        .ToString()
-                        );
-
-                }
-
-            }
-            else if (target is Turret turret)
-            {
-                string chassisName = turret.UnitName;
-                string fullName = turret.Nickname;
-                string localName = CombatNameHelper.GetTurretOrVehicleDetectionLabel(visLevel, scanType, fullName, chassisName, false).ToString();
-
-                string titleText = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_TITLE],
-                    new object[] { localName, "" }).ToString();
-                sb.Append(titleText);
-            }
-            else if (target is Vehicle vehicle)
-            {
-                string chassisName = vehicle.UnitName;
-                string fullName = vehicle.Nickname;
-                string localName = CombatNameHelper.GetTurretOrVehicleDetectionLabel(visLevel, scanType, fullName, chassisName, true).ToString();
-
-                string tonnage = "?";
-                if (scanType > SensorScanType.LocationAndType)
-                {
-                    tonnage = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_WEIGHT], new object[] { (int)Math.Floor(vehicle.tonnage) }).ToString();
-                }
-
-                string titleText = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_TITLE],
-                    new object[] { localName, tonnage }).ToString();
-                sb.Append(titleText);
-
-                if (scanType > SensorScanType.StructAndWeaponID)
-                {
-                    // Movement
-                    sb.Append(new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_MOVE_VEHICLE],
-                        new object[] { vehicle.CruiseSpeed, vehicle.FlankSpeed })
-                        .ToString()
-                        );
-                }
-
-            }
-
-
-            string distance = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_DIST], 
-                new object[] { (int)Math.Ceiling(range) }).ToString();
-            sb.Append(distance);
-
-            Text panelText = new Text(sb.ToString(), new object[] { });
-
-            CustAmmoCategories.CombatHUDInfoSidePanelHelper.SetTargetInfo(source, target, panelText);
-        }
-        
-        public static void Postfix(CombatHUDTargetingComputer __instance, List<TextMeshProUGUI> ___weaponNames) {
-
-            if (__instance == null || __instance.ActivelyShownCombatant == null || 
+            if (__instance == null || __instance.ActivelyShownCombatant == null ||
                 __instance.ActivelyShownCombatant.Combat == null || __instance.ActivelyShownCombatant.Combat.HostilityMatrix == null ||
-                __instance.WeaponList == null) 
+                __instance.WeaponList == null)
             {
                 Mod.Log.Debug?.Write($"CHTC:RAI ~~~ TC, target, or WeaponList is null, skipping.");
                 return;
@@ -225,12 +142,13 @@ namespace LowVisibility.Patch {
                 Mod.Log.Error?.Write("Attempting to refresh ActorInfo, but LastPlayerActorActivated is null. This should never happen!");
             }
 
-            if (__instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID)) 
+            if (__instance.ActivelyShownCombatant.team.IsLocalPlayer ||
+                __instance.ActivelyShownCombatant.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.ActivelyShownCombatant.team.GUID))
             {
                 Mod.Log.Debug?.Write($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} friendly, resetting.");
                 __instance.WeaponList.SetActive(true);
                 return;
-            } 
+            }
 
             // Only enemies or neutrals below this point
             Mod.Log.Debug?.Write($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy");
@@ -240,31 +158,23 @@ namespace LowVisibility.Patch {
                 if (__instance.ActivelyShownCombatant is AbstractActor target)
                 {
                     float range = Vector3.Distance(ModState.LastPlayerActorActivated.CurrentPosition, target.CurrentPosition);
-                    bool hasVisualScan = VisualLockHelper.CanSpotTarget(ModState.LastPlayerActorActivated, ModState.LastPlayerActorActivated.CurrentPosition, 
+                    bool hasVisualScan = VisualLockHelper.CanSpotTarget(ModState.LastPlayerActorActivated, ModState.LastPlayerActorActivated.CurrentPosition,
                         target, target.CurrentPosition, target.CurrentRotation, target.Combat.LOS);
                     SensorScanType scanType = SensorLockHelper.CalculateSharedLock(target, ModState.LastPlayerActorActivated);
                     Mod.Log.Debug?.Write($"CHTC:RAI ~~~ LastActivated:{CombatantUtils.Label(ModState.LastPlayerActorActivated)} vs. enemy:{CombatantUtils.Label(target)} " +
                         $"at range: {range} has scanType:{scanType} visualScan:{hasVisualScan}");
 
                     // Build the CAC side-panel
-                    try
-                    {
-                        BuildCACDialogForTarget(ModState.LastPlayerActorActivated, __instance.ActivelyShownCombatant, range, hasVisualScan, scanType);
-                    }
-                    catch (Exception e)
-                    {
-                        Mod.Log.Error?.Write(e, $"Failed to initialize CAC SidePanel for source: {CombatantUtils.Label(ModState.LastPlayerActorActivated)} and " +
-                            $"target: {CombatantUtils.Label(__instance.ActivelyShownCombatant)}!");
-                    }
+                    CACSidePanelHooks.SetCHUDInfoSidePanelInfo(ModState.LastPlayerActorActivated, __instance.ActivelyShownCombatant, range, hasVisualScan, scanType);
 
                     if (scanType >= SensorScanType.StructAndWeaponID)
                     {
                         __instance.WeaponList.SetActive(true);
-                        SetArmorDisplayActive(__instance, true);
+                        CUHooks.ToggleTargetingComputerArmorDisplay(__instance, true);
                     }
                     else if (scanType >= SensorScanType.ArmorAndWeaponType || hasVisualScan)
                     {
-                        SetArmorDisplayActive(__instance, true);
+                        CUHooks.ToggleTargetingComputerArmorDisplay(__instance, true);
                         ObfuscateWeaponLabels(___weaponNames, target);
 
                         // Update the summary display
@@ -276,7 +186,7 @@ namespace LowVisibility.Patch {
                     }
                     else
                     {
-                        SetArmorDisplayActive(__instance, false);
+                        CUHooks.ToggleTargetingComputerArmorDisplay(__instance, false);
 
                         __instance.WeaponList.SetActive(false);
                         Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
@@ -288,7 +198,7 @@ namespace LowVisibility.Patch {
                 {
                     Mod.Log.Debug?.Write($"CHTC:RAI ~~~ target:{CombatantUtils.Label(__instance.ActivelyShownCombatant)} is enemy building");
 
-                    SetArmorDisplayActive(__instance, true);
+                    CUHooks.ToggleTargetingComputerArmorDisplay(__instance, true);
 
                     __instance.WeaponList.SetActive(false);
                     Transform weaponListT = __instance.WeaponList?.transform?.parent?.Find("tgtWeaponsLabel");
@@ -299,7 +209,7 @@ namespace LowVisibility.Patch {
                 {
                     // WTF
                 }
-            } 
+            }
             catch (Exception e)
             {
                 Mod.Log.Error?.Write(e, "Failed to RefreshActorInfo!");

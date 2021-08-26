@@ -35,15 +35,15 @@ namespace LowVisibility {
         }
         public ToggleOpts Toggles = new ToggleOpts();
 
-        // The base range (in hexes) for a unit's sensors
         public class SensorRangeOpts {
-            public int MechTypeRange = 12;
-            public int VehicleTypeRange = 9;
-            public int TurretTypeRange = 15;
-            public int UnknownTypeRange = 6;
+            public float MechRange = 360f;
+            public float TrooperRange = 180f;
+            public float VehicleRange = 270f;
+            public float TurretRange = 450f;
+            public float UnknownRange = 180f;
 
             // The minimum range for sensors, no matter the circumstances
-            public int MinimumRangeHexes = 8;
+            public float MinimumRange = 180f;
 
             // If true, sensor checks always fail on the first turn of the game
             public bool SensorsOfflineAtSpawn = true;
@@ -54,15 +54,14 @@ namespace LowVisibility {
             // The minimum signature that we'll allow after all modifiers are applied
             public float MinSignature = 0.05f;
 
-            public float MinimumSensorRange() { return this.MinimumRangeHexes * 30.0f; }
         }
         public SensorRangeOpts Sensors = new SensorRangeOpts();
 
-        // The base range (in hexes) for a unit's vision
         public class VisionRangeOpts {
-            public int BaseRangeBright = 15;
-            public int BaseRangeDim = 11;
-            public int BaseRangeDark = 7;
+
+            public float RangeBright = 450f;
+            public float RangeDim = 330f;
+            public float RangeDark = 210f;
 
             // The multiplier used for weather effects
             public float RangeMultiRainSnow = 0.8f;
@@ -70,12 +69,10 @@ namespace LowVisibility {
             public float RangeMultiHeavyFog = 0.33f;
 
             // The minium range for vision, no matter the circumstances
-            public int MinimumRangeHexes = 3;
+            public float MinimumRange = 90f;
 
-            // The range (in hexes) from which you can identify some elements of a unit
-            public int ScanRangeHexes = 7;
-
-            public float MinimumVisionRange() { return this.MinimumRangeHexes * 30.0f; }
+            // The range from which you can identify some elements of a unit
+            public float ScanRange = 210f;
 
         }
         public VisionRangeOpts Vision = new VisionRangeOpts();
@@ -89,6 +86,13 @@ namespace LowVisibility {
             public bool ShowTerrainThroughFogOfWar = true;
         }
         public FogOfWarOpts FogOfWar = new FogOfWarOpts();
+
+        public class WeatherOpts
+        {
+            public float LightFogDensity = 3000.0f;
+            public float HeavyFogDensity = 10000.0f;
+        }
+        public WeatherOpts Weather = new WeatherOpts();
 
         public class AttackOpts {
             public int NoVisualsPenalty = 5;
@@ -116,13 +120,13 @@ namespace LowVisibility {
             Mod.Log.Info?.Write($"ProbabilitySigma:{Probability.Sigma}, ProbabilityMu:{Probability.Mu}");
             
             Mod.Log.Info?.Write($"  == Sensors ==");
-            Mod.Log.Info?.Write($"Type Ranges - Mech: {Sensors.MechTypeRange} Vehicle: {Sensors.VehicleTypeRange} Turret: {Sensors.TurretTypeRange} UnknownType: {Sensors.UnknownTypeRange}");
-            Mod.Log.Info?.Write($"MinimumRange: {Sensors.MinimumRangeHexes}  FirstTurnForceFailedChecks: {Sensors.SensorsOfflineAtSpawn}  MaxECMDetailsPenalty: {Sensors.MaxECMDetailsPenalty}");
+            Mod.Log.Info?.Write($"Type Ranges - Mech: {Sensors.MechRange} Trooper: {Sensors.TrooperRange} Vehicle: {Sensors.VehicleRange} Turret: {Sensors.TurretRange} UnknownType: {Sensors.UnknownRange}");
+            Mod.Log.Info?.Write($"MinimumRange: {Sensors.MinimumRange}  FirstTurnForceFailedChecks: {Sensors.SensorsOfflineAtSpawn}  MaxECMDetailsPenalty: {Sensors.MaxECMDetailsPenalty}");
 
             Mod.Log.Info?.Write($"  == Vision ==");
-            Mod.Log.Info?.Write($"Vision Ranges - Bright: {Vision.BaseRangeBright} Dim:{Vision.BaseRangeDim} Dark:{Vision.BaseRangeDark}");
+            Mod.Log.Info?.Write($"Vision Ranges - Bright: {Vision.RangeBright} Dim:{Vision.RangeDim} Dark:{Vision.RangeDark}");
             Mod.Log.Info?.Write($"Range Multis - Rain/Snow: x{Vision.RangeMultiRainSnow} Light Fog: x{Vision.RangeMultiLightFog} HeavyFog: x{Vision.RangeMultiHeavyFog}");
-            Mod.Log.Info?.Write($"Minimum range: {Vision.MinimumRangeHexes} ScanRange: {Vision.ScanRangeHexes}");
+            Mod.Log.Info?.Write($"Minimum range: {Vision.MinimumRange} ScanRange: {Vision.ScanRange}");
 
             Mod.Log.Info?.Write($"  == FogOfWar ==");
             Mod.Log.Info?.Write($"RedrawFogOfWarOnActivation: {FogOfWar.RedrawFogOfWarOnActivation}  ShowTerrainThroughFogOfWar: {FogOfWar.ShowTerrainThroughFogOfWar}");

@@ -1,6 +1,7 @@
 ﻿using BattleTech.UI;
 using Harmony;
 using IRBTModUtils.Logging;
+using LowVisibility.Integration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,7 @@ namespace LowVisibility
 
     public class Mod
     {
-
         public const string HarmonyPackage = "us.frostraptor.LowVisibility";
-
         public const string LogFilename = "low_visibility";
         public const string LogLabel = "LOWVIS";
 
@@ -26,41 +25,8 @@ namespace LowVisibility
         public static ModText LocalizedText;
 
         public static string CampaignSeed;
-        public static bool CustomUnitsAPIDetected { get; private set; } = false;
         public static readonly Random Random = new Random();
-        public delegate void d_SetArmorDisplayActive(CombatHUDTargetingComputer __instance, bool active);
-        private static d_SetArmorDisplayActive i_SetArmorDisplayActive = null;
-        public static void detectCU() {
-          try { 
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (Assembly assembly in assemblies) {
-              CustomUnitsAPIDetected = true;
-              if (assembly.FullName.StartsWith("CustomUnits")) {
-                {
-                  Type helperType = assembly.GetType("CustomUnits.LowVisibilityAPIHelper");
-                  MethodInfo method = helperType.GetMethod("SetArmorDisplayActive", BindingFlags.Public | BindingFlags.Static);
-                  var dm = new DynamicMethod("CU_SetArmorDisplayActive", null, new Type[] { typeof(CombatHUDTargetingComputer), typeof(bool) });
-                  var gen = dm.GetILGenerator();
-                  gen.Emit(OpCodes.Ldarg_0);
-                  gen.Emit(OpCodes.Ldarg_1);
-                  gen.Emit(OpCodes.Call, method);
-                  gen.Emit(OpCodes.Ret);
-                  i_SetArmorDisplayActive = (d_SetArmorDisplayActive)dm.CreateDelegate(typeof(d_SetArmorDisplayActive));
-                }
-              }
-            }
-          } catch (Exception e) {
-            CustomUnitsAPIDetected = false;
-            Log.Error?.Write(e.ToString());
-          }
-        }
-        public static void CU_SetArmorDisplayActive(CombatHUDTargetingComputer __instance, bool active) {
-           i_SetArmorDisplayActive?.Invoke(__instance, active);
-        }
-        public static void FinishedLoading(List<string> loadOrder) {
-          detectCU();
-          LowVisibility.Patch.ToHit_GetAllModifiers.registerCACToHitModifiers();
-        }
+
         public static void Init(string modDirectory, string settingsJSON)
         {
             ModDir = modDirectory;
@@ -107,6 +73,12 @@ namespace LowVisibility
 
             var harmony = HarmonyInstance.Create(HarmonyPackage);
             harmony.PatchAll(Assembly.GetExecutingAssembly());
+        }
+
+        public static void FinishedLoading(List<string> loadOrder)
+        {
+            // Hook all toHit modifiers
+            CACToHitHooks.RegisterToHitModifiers();
         }
 
     }

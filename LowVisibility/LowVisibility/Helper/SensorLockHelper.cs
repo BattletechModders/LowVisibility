@@ -13,7 +13,7 @@ namespace LowVisibility.Helper {
             if (source.StatCollection.ContainsStatistic(ModStats.DisableSensors))
             {
                 Mod.Log.Debug?.Write($"Returning minimum sensors range for {CombatantUtils.Label(source)} due to disabled sensors.");
-                return Mod.Config.Sensors.MinimumSensorRange();
+                return Mod.Config.Sensors.MinimumRange;
             }
 
             // Add multipliers and absolute bonuses
@@ -32,7 +32,7 @@ namespace LowVisibility.Helper {
             float sensorsRange = ewState.GetSensorsBaseRange() * rangeMulti + rangeMod;
             Mod.Log.Trace?.Write($"    sensorsRange: { sensorsRange} = baseRange: {ewState.GetSensorsBaseRange()} * rangeMult: {rangeMulti} + rangeMod: {rangeMod}");
 
-            if (sensorsRange < Mod.Config.Sensors.MinimumSensorRange()) sensorsRange = Mod.Config.Sensors.MinimumSensorRange();
+            if (sensorsRange < Mod.Config.Sensors.MinimumRange) sensorsRange = Mod.Config.Sensors.MinimumRange;
 
             return sensorsRange;
         }
@@ -97,7 +97,7 @@ namespace LowVisibility.Helper {
             float shutdownMod = (!target.IsShutDown) ? 1f : target.Combat.Constants.Visibility.ShutDownSignatureModifier;
             
             float chassisSignature = target.StatCollection.GetValue<float>(ModStats.HBS_SensorSignatureModifier);
-            if (chassisSignature == 0f) chassisSignature = 1.0f; // Fix until redbat fixes this
+            if (chassisSignature == 0f) chassisSignature = 1.0f; // Normalize 0 (vanilla state) for BEX; RT has updated their chassisDefs
 
             EWState ewState = target.GetEWState();
             float ecmShieldMod = ewState.ECMSignatureMod(sourceState);
@@ -120,7 +120,13 @@ namespace LowVisibility.Helper {
         }
 
         // Iterates over all player-allied units, checks for highest lock level to determine unit 
-        public static SensorScanType CalculateSharedLock(ICombatant target, AbstractActor source) {
+        public static SensorScanType CalculateSharedLock(ICombatant target, AbstractActor source)
+        {
+            return CalculateSharedLock(target, source, Vector3.zero);
+        }
+
+        public static SensorScanType CalculateSharedLock(ICombatant target, AbstractActor source, Vector3 previewPos) {
+            
             SensorScanType scanType = SensorScanType.NoInfo;
 
             List<AbstractActor> sensorSources = new List<AbstractActor>();
@@ -138,12 +144,23 @@ namespace LowVisibility.Helper {
             foreach (AbstractActor actor in sensorSources) {
                 SensorScanType actorScanType = CalculateSensorInfoLevel(actor, target);
                 if (actorScanType > scanType) {
-                    Mod.Log.Trace?.Write($"Increasing scanType to: ({actorScanType}) from source:({CombatantUtils.Label(actor)}) ");
+                    Mod.Log.Trace?.Write($"Increasing scanType to: ({actorScanType}) from actor:({CombatantUtils.Label(actor)}) ");
                     scanType = actorScanType;
                 }
             }
 
-            Mod.Log.Trace?.Write($"Shared lock to target:({CombatantUtils.Label(target)}) is type: ({scanType})");
+            // If we have a preview pos, the regular VisibilityCache hooks won't fire. Calculate the current actor's moves directly
+            if (previewPos != Vector3.zero)
+            {
+                SensorScanType sourceType = CalculateSensorLock(source, previewPos, target, target.CurrentPosition);
+                if (sourceType > scanType)
+                {
+                    Mod.Log.Trace?.Write($"Increasing scanType to: ({sourceType}) from source:({CombatantUtils.Label(source)}) ");
+                    scanType = sourceType;
+                }
+            }
+
+            Mod.Log.Debug?.Write($"Shared lock to target:({CombatantUtils.Label(target)}) is type: ({scanType})");
             return scanType;
         }
 

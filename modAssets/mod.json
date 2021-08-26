@@ -1,0 +1,81 @@
+{
+	"Name": "LowVisibility",
+	"Enabled": true,
+	"Hidden": true,
+	"Version": "1.1.0",
+	"Description": "Implements double-blind semantics and more complex electronic warfare",
+	"Author": "IceRaptor",
+	"Website": "https://github.com/IceRaptor/LowVisibility",
+	"Contact": "",
+	"DLL": "LowVisibility.dll",
+	"DLLEntryPoint": "LowVisibility.Mod.Init",
+	"DependsOn": ["IRBTModUtils", "Custom Ammo Categories", "CustomActivatableEquipment", "CustomUnits"],
+	"CustomResourceTypes": ["CustomSVGIcon"],
+	"Manifest": [{
+		"Type": "SVGAsset",
+		"Path": "icons/"
+	}],
+	"Settings": {
+		"Debug": false,
+		"Trace": false,
+		"Icons": {
+			"ElectronicWarfare": "ECMGear",
+			"SensorsDisabled": "lv_sight-disabled",
+			"VisionAndSensors": "lv_cyber-eye",
+			"TargetSensorsMark": "lv_radar-sweep",
+			"TargetVisualsMark": "lv_brass-eye",
+			"TargetTaggedMark": "lv_target-laser",
+			"TargetNarcedMark": "lv_radio-tower",
+			"TargetStealthMark": "lv_robber-mask",
+			"TargetMimeticMark": "lv_static",
+			"TargetECMShieldedMark": "lv_eye-shield",
+			"TargetActiveProbePingedMark": "lv_eye-target",
+			"MarkColorPlayerPositive": [1.0, 0.0, 0.062, 1.0],
+			"MarkColorPlayerNegative": [0.0, 0.901, 0.098, 1.0]
+		},
+		"Toggles": {
+			"LogEffectsOnMove": false,
+			"ShowNightVision": true,
+			"MimeticUsesGhost": true
+		},
+		"Sensors": {
+			"MechRange": 360.0,
+			"TrooperRange" : 180.0,
+			"VehicleRange": 270.0,
+			"TurretRange": 450.0,
+			"UnknownRange": 180.0,
+			"MinimumRange": 180.0,
+			"SensorsOfflineAtSpawn": true,
+			"MaxECMDetailsPenalty": -11
+		},
+		"Vision": {
+			"RangeBright": 450.0,
+			"RangeDim": 330.0,
+			"RangeDark": 210.0,
+			"RangeMultiRainSnow": 0.8,
+			"RangeMultiLightFog": 0.6,
+			"RangeMultiHeavyFog": 0.4,
+			"MinimumRange": 90.0,
+			"ScanRange": 210.0
+		},
+		"FogOfWar": {
+			"RedrawFogOfWarOnActivation": false,
+			"ShowTerrainThroughFogOfWar": true
+		},
+		"Weather" : {
+			"LightFogDensity" : 3000.0,
+            "HeavyFogDensity" : 10000.0
+		},
+		"Probability": {
+			"Sigma": 3,
+			"Mu": -1
+		},
+		"Attack": {
+			"NoSensorsPenalty": 7,
+			"NoVisualsPenalty": 5,
+			"FiringBlindPenalty": 13,
+			"ShieldedMulti": 1.0,
+			"JammedMulti": 1.0
+		}
+	}
+}
