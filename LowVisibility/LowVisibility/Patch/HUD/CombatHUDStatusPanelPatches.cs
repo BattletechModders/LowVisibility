@@ -3,6 +3,7 @@ using BattleTech.Data;
 using BattleTech.UI;
 using Harmony;
 using HBS;
+using IRBTModUtils.Extension;
 using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Object;
@@ -20,7 +21,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDStatusPanel_RefreshDisplayedCombatant {
 
         public static void Postfix(CombatHUDStatusPanel __instance, List<CombatHUDStatusIndicator> ___Buffs, List<CombatHUDStatusIndicator> ___Debuffs) {
-            Mod.Log.Trace?.Write("CHUDSP:RDC - entered.");
+            Mod.UILog.Trace?.Write("CHUDSP:RDC - entered.");
             if (__instance != null && __instance.DisplayedCombatant != null) {
                 AbstractActor target = __instance.DisplayedCombatant as AbstractActor;
                 // We can receive a building here, so 
@@ -55,7 +56,7 @@ namespace LowVisibility.Patch {
     {
         static bool Prefix(CombatHUDStatusPanel __instance, AbstractActor actor, AbilityDef.SpecialRules specialRulesFilter, Vector3 worldPos, Dictionary<string, CombatHUDStatusIndicator> ___effectDict)
         {
-            Mod.Log.Debug?.Write($"Updating StatusEffect Panel for actor: {CombatantUtils.Label(actor)}");
+            Mod.UILog.Debug?.Write($"Updating StatusEffect Panel for actor: {CombatantUtils.Label(actor)}");
 
             try
             {
@@ -66,7 +67,7 @@ namespace LowVisibility.Patch {
 
                     if (effect == null || effect.EffectData == null) 
                     {
-                        Mod.Log.Warn?.Write($"Effect with id: {effect?.id} has no effectData! Effect is from creatorGUID: {effect?.creatorGUID} creatorID: {effect?.creatorID} " +
+                        Mod.UILog.Warn?.Write($"Effect with id: {effect?.id} has no effectData! Effect is from creatorGUID: {effect?.creatorGUID} creatorID: {effect?.creatorID} " +
                             $"with targetId: {effect?.targetID}");
                         continue;
                     }
@@ -75,7 +76,7 @@ namespace LowVisibility.Patch {
                         (effect.EffectData.targetingData.effectTriggerType != EffectTriggerType.OnDamaged || effect.triggerCount != 0)
                         )
                     {
-                        Mod.Log.Debug?.Write($"Adding effectId: {effect?.EffectData?.Description?.Id} with name: {effect?.EffectData?.Description?.Name}");
+                        Mod.UILog.Debug?.Write($"Adding effectId: {effect?.EffectData?.Description?.Id} with name: {effect?.EffectData?.Description?.Name}");
                         effectsOnActor.Add(effect.EffectData);
                     }
                 }
@@ -84,7 +85,7 @@ namespace LowVisibility.Patch {
                 {
                     if (actor.AuraCache == null)
                     {
-                        Mod.Log.Warn?.Write($"Actor: {CombatantUtils.Label(actor)} has a null aura cache.  This should not happen!");
+                        Mod.UILog.Warn?.Write($"Actor: {CombatantUtils.Label(actor)} has a null aura cache.  This should not happen!");
                     }
                     else
                     {
@@ -92,7 +93,7 @@ namespace LowVisibility.Patch {
                         foreach (string key in dictionary.Keys)
                         {
                             List<EffectData> collection = dictionary[key];
-                            Mod.Log.Debug?.Write("Adding collection from aura.");
+                            Mod.UILog.Debug?.Write("Adding collection from aura.");
                             effectsOnActor.AddRange(collection);
                         }
                     }
@@ -104,7 +105,7 @@ namespace LowVisibility.Patch {
                 Traverse showBuffT = Traverse.Create(__instance).Method("ShowDebuff", new Type[] { typeof(string), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) });
                 if (shouldShowEffectT == null || showDebuffT == null || showBuffT == null)
                 {
-                    Mod.Log.Error?.Write("Failed to traverse necessary methods! Notify FrostRaptor - this should not happen!");
+                    Mod.UILog.Error?.Write("Failed to traverse necessary methods! Notify FrostRaptor - this should not happen!");
                     return false;
                 }
 
@@ -116,7 +117,7 @@ namespace LowVisibility.Patch {
                     if (effectData == null || effectData.Description == null || 
                         effectData.Description.Id == null || effectData.Description.Name == null)
                     {
-                        Mod.Log.Error?.Write($"EffectData {effectData?.Description?.Name} has no description, id, or name! Cannot process, skipping!");
+                        Mod.UILog.Error?.Write($"EffectData {effectData?.Description?.Name} has no description, id, or name! Cannot process, skipping!");
                         continue;
                     }
 
@@ -124,12 +125,12 @@ namespace LowVisibility.Patch {
 
                     bool shouldShowEffect = shouldShowEffectT.GetValue<bool>(new object[] { effectData, specialRulesFilter });
                     bool alreadyShown = ___effectDict.ContainsKey(effectData.Description.Id);
-                    Mod.Log.Debug?.Write($" -- Effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} has shouldShowEffect: {shouldShowEffect} and alreadyShown: {alreadyShown}");
+                    Mod.UILog.Debug?.Write($" -- Effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} has shouldShowEffect: {shouldShowEffect} and alreadyShown: {alreadyShown}");
 
                     string effectId = effectData.Description.Id;
                     if (shouldShowEffect && !alreadyShown)
                     {
-                        Mod.Log.Debug?.Write($" -- Adding effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} to buff list.");
+                        Mod.UILog.Debug?.Write($" -- Adding effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} to buff list.");
                         int num = effectsOnActor.FindAll((EffectData x) => x.Description.Id == effectId).Count;
                         if (effectData.statisticData != null && 
                             effectData.statisticData.targetCollection == StatisticEffectData.TargetCollection.Weapon && 
@@ -163,7 +164,7 @@ namespace LowVisibility.Patch {
             }
             catch (Exception e)
             {
-                Mod.Log.Error?.Write(e, $"Failed to log status effects for actor: {CombatantUtils.Label(actor)} at position: {worldPos}");
+                Mod.UILog.Error?.Write(e, $"Failed to log status effects for actor: {CombatantUtils.Label(actor)} at position: {worldPos}");
             }
 
             return false;
@@ -175,7 +176,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDStatusPanel_ShowStealthIndicators_Vector3 {
         public static void Postfix(CombatHUDStatusPanel __instance, AbstractActor target, Vector3 previewPos, CombatHUDStealthBarPips ___stealthDisplay) {
             if (___stealthDisplay == null) { return; }
-            Mod.Log.Trace?.Write("CHUDSP:SSI:Vector3 - entered.");
+            Mod.UILog.Trace?.Write("CHUDSP:SSI:Vector3 - entered.");
 
             VfxHelper.CalculateMimeticPips(___stealthDisplay, target, previewPos);
         }
@@ -186,7 +187,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDStatusPanel_ShowStealthIndicators_float {
         public static void Postfix(CombatHUDStatusPanel __instance, AbstractActor target, float previewStealth, CombatHUDStealthBarPips ___stealthDisplay) {
             if (___stealthDisplay == null) { return; }
-            Mod.Log.Trace?.Write("CHUDSP:SSI:float - entered.");
+            Mod.UILog.Trace?.Write("CHUDSP:SSI:float - entered.");
 
             VfxHelper.CalculateMimeticPips(___stealthDisplay, target);
         }
@@ -196,7 +197,7 @@ namespace LowVisibility.Patch {
     public static class CombatHUDStatusPanel_ShowActorStatuses {
 
         public static void Postfix(CombatHUDStatusPanel __instance) {
-            Mod.Log.Trace?.Write("CHUDSP:SAS - entered.");
+            Mod.UILog.Trace?.Write("CHUDSP:SAS - entered.");
 
             if (__instance.DisplayedCombatant != null) {
                 Type[] iconMethodParams = new Type[] { typeof(SVGAsset), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) };
@@ -208,12 +209,16 @@ namespace LowVisibility.Patch {
 
                 DataManager dm = __instance.DisplayedCombatant.Combat.DataManager;
 
+                Mod.UILog.Info?.Write($"Updating icon tooltips for actor: {actor.DistinctId()}");
                 bool isPlayer = actor.team == actor.Combat.LocalPlayerTeam;
+                Mod.UILog.Info?.Write($"  -- actor isPlayer: {isPlayer}");
                 if (isPlayer) {
 
                     SVGAsset icon = dm.GetObjectOfType<SVGAsset>(Mod.Config.Icons.VisionAndSensors, BattleTechResourceType.SVGAsset);
                     Text title = new Text(Mod.LocalizedText.Tooltips[ModText.LT_TT_TITLE_VISION_AND_SENSORS]);
-                    showBuffIconMethod.GetValue(new object[] { icon, title, new Text(BuildToolTip(actor)), __instance.effectIconScale, false });
+                    string tooltipText = BuildToolTip(actor);
+                    Mod.UILog.Info?.Write($"  -- visionAndSensors tooltip text is: {tooltipText}");
+                    showBuffIconMethod.GetValue(new object[] { icon, title, new Text(tooltipText), __instance.effectIconScale, false });
 
                     // Disable the sensors
                     if (actor.Combat.TurnDirector.CurrentRound == 1) {
@@ -305,6 +310,7 @@ namespace LowVisibility.Patch {
 
                     SVGAsset icon = dm.GetObjectOfType<SVGAsset>(Mod.Config.Icons.ElectronicWarfare, BattleTechResourceType.SVGAsset);
                     Text title = new Text(Mod.LocalizedText.Tooltips[ModText.LT_TT_TITLE_EW]);
+                    Mod.Log.Info?.Write($"  -- effects tooltip text is: {sb}");
                     showBuffIconMethod.GetValue(new object[] { icon, title, new Text(sb.ToString()), __instance.effectIconScale, false });
                 }
 

@@ -98,6 +98,7 @@
   <ItemGroup>
     <Compile Include="Helper\ActorHelper.cs" />
     <Compile Include="Helper\CombatHUDHelper.cs" />
+    <Compile Include="Helper\MoodHelper.cs" />
     <Compile Include="Helper\SelectedActorHelper.cs" />
     <Compile Include="Helper\SensorLockHelper.cs" />
     <Compile Include="Helper\VfxHelper.cs" />
@@ -140,7 +141,6 @@
     <Compile Include="Patch\SelectionStatePatches.cs" />
     <Compile Include="Patch\SerializationPatches.cs" />
     <Compile Include="Patch\TeamPatch.cs" />
-    <Compile Include="Patch\ToHitPatches.cs" />
     <Compile Include="Patch\TurnDirectorPatches.cs" />
     <Compile Include="Patch\HUD\CombatHUDStatusPanelPatches.cs" />
     <Compile Include="Patch\UI\VisRangeIndicatorPatches.cs" />

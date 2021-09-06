@@ -1,7 +1,9 @@
-﻿using BattleTech.Rendering;
+﻿using BattleTech;
+using BattleTech.Rendering;
 using BattleTech.Rendering.Mood;
 using Harmony;
 using HBS.Collections;
+using LowVisibility.Helper;
 using System;
 
 namespace LowVisibility.Patch
@@ -14,23 +16,13 @@ namespace LowVisibility.Patch
 			if (__instance == null || ___mainFogScattering == null) return;
 
 			MoodSettings moodSettings = __instance?.CurrentMood;
-			TagSet moodTags = moodSettings?.moodTags;
-			bool isLightFog = false;
-			bool isHeavyFog = false;
-			foreach (string tag in moodTags)
-			{
-				if (tag.Equals("mood_fogLight", StringComparison.InvariantCultureIgnoreCase))
-					isLightFog = true;
-				if (tag.Equals("mood_fogHeavy", StringComparison.InvariantCultureIgnoreCase))
-					isHeavyFog = true;
-			}
-
-			if (isLightFog || isHeavyFog)
+			if (MoodHelper.IsFoggy(__instance))
             {
-				Mod.Log.Info?.Write($"Fog isLight: {isLightFog} isHeavy: {isHeavyFog}");
+				bool isHeavyFog = MoodHelper.IsHeavyFog(__instance);
+				Mod.Log.Info?.Write($"Fog detected => isHeavy: {isHeavyFog}");
 
 				___mainFogScattering.fogSettings = __instance.currentMood.fogSettings;
-				Mod.Log.Info?.Write($"Fog settings are: " +
+				Mod.Log.Info?.Write($"Mood settings for fog are: " +
 					$" fogG: {___mainFogScattering.fogSettings.fogG}" +
 					$" fogMieMultiplier: {___mainFogScattering.fogSettings.fogMieMultiplier}" +
 					$" fogRayleighMultiplier: {___mainFogScattering.fogSettings.fogRayleighMultiplier}" +
@@ -45,10 +37,23 @@ namespace LowVisibility.Patch
 					$" surveyedMieMultiplier: {___mainFogScattering.fogSettings.surveyedMieMultiplier}"
 					);
 
-				___mainFogScattering.fogSettings.heightFogDensity = isLightFog ? 
-					Mod.Config.Weather.LightFogDensity : Mod.Config.Weather.HeavyFogDensity;
+				if ()
+				___mainFogScattering.fogSettings.heightFogDensity = isHeavyFog ? 
+					Mod.Config.Weather.HeavyFogDensity : Mod.Config.Weather.LightFogDensity;
+				Mod.Log.Info?.Write($"Updated heightFogDensity to: {___mainFogScattering.fogSettings.heightFogDensity}");
 			}
 		}
     }
+
+	[HarmonyPatch(typeof(LanceSpawnerGameLogic), "SpawnUnits")]
+	[HarmonyPatch(new Type[] { typeof(bool) })]
+	public static class LanceSpawnerGameLogic_SpawnUnits
+	{
+
+		public static void Postfix()
+		{
+			
+		}
+	}
 
 }
