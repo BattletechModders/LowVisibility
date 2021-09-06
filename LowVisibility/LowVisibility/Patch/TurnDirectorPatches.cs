@@ -74,11 +74,11 @@ namespace LowVisibility.Patch {
 
         public static void Prefix(TurnDirector __instance, int round) {
             Mod.Log.Trace?.Write($"TD:BNR entered");
-            Mod.Log.Info?.Write($"=== Turn Director is beginning round: {round}");
+            Mod.ActorStateLog.Info?.Write($"=== Turn Director is beginning round: {round}");
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
-                Mod.Log.Info?.Write($" -- Updating actor: {actor.DistinctId()}");
+                Mod.ActorStateLog.Info?.Write($" -- Updating actor: {actor.DistinctId()}");
 
                 // If our sensors are offline, re-enable them
                 if (actor.StatCollection.ContainsStatistic(ModStats.DisableSensors))
@@ -86,12 +86,12 @@ namespace LowVisibility.Patch {
 
                     if (round >= actor.StatCollection.GetValue<int>(ModStats.DisableSensors))
                     {
-                        Mod.Log.Info?.Write($"Re-enabling sensors for {CombatantUtils.Label(actor)}");
+                        Mod.ActorStateLog.Info?.Write($"Re-enabling sensors for {CombatantUtils.Label(actor)}");
                         actor.StatCollection.RemoveStatistic(ModStats.DisableSensors);
                     }
                     else
                     {
-                        Mod.Log.Info?.Write($"Actor: {CombatantUtils.Label(actor)} sensors are offline until: {actor.StatCollection.GetValue<int>(ModStats.DisableSensors)}");
+                        Mod.ActorStateLog.Info?.Write($"Actor: {CombatantUtils.Label(actor)} sensors are offline until: {actor.StatCollection.GetValue<int>(ModStats.DisableSensors)}");
                     }
                 }
                     
@@ -100,7 +100,7 @@ namespace LowVisibility.Patch {
 
                 // Print the current state of the actor
                 EWState actorState = new EWState(actor);
-                Mod.Log.Info?.Write(actorState.ToString());
+                Mod.ActorStateLog.Info?.Write(actorState.ToString());
                 
             }
 
