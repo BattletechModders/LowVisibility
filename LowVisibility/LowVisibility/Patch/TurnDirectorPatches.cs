@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using CustomUnits;
 using Harmony;
 using IRBTModUtils.Extension;
 using LowVisibility.Helper;
@@ -75,6 +76,18 @@ namespace LowVisibility.Patch {
         public static void Prefix(TurnDirector __instance, int round) {
             Mod.Log.Trace?.Write($"TD:BNR entered");
             Mod.ActorStateLog.Info?.Write($"=== Turn Director is beginning round: {round}");
+
+            // Check fog state
+            if (LanceSpawnerGameLogic_OnEnterActive.isObjectivesReady(ModState.Combat.ActiveContract))
+            {
+                if (ModState.GetMoodController() == null)
+                    Mod.Log.Error?.Write("Mood controller was null when attempting to update after manual deploy!");
+
+                Mod.Log.Info?.Write("Applying MoodController logic now that manual deploy is done.");
+                Traverse applyMoodSettingsT = Traverse.Create(ModState.GetMoodController())
+                    .Method("ApplyMoodSettings", new object[] { true, false });
+                applyMoodSettingsT.GetValue();
+            }
 
             // Update the current vision for all allied and friendly units
             foreach (AbstractActor actor in __instance.Combat.AllActors) {
