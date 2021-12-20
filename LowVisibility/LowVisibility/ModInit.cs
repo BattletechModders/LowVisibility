@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Reflection.Emit;
 
 namespace LowVisibility
 {
@@ -20,6 +19,12 @@ namespace LowVisibility
         public const string LogLabel = "LOWVIS";
 
         public static DeferringLogger Log;
+        public static DeferringLogger ActorStateLog;
+        public static DeferringLogger EffectsLog;
+        public static DeferringLogger ToHitLog;
+        public static DeferringLogger UILog;
+
+
         public static string ModDir;
         public static ModConfig Config;
         public static ModText LocalizedText;
@@ -48,6 +53,11 @@ namespace LowVisibility
                 Log.Info?.Write($"ERROR reading settings file! Error was: {settingsE}");
             else
                 Log.Info?.Write($"INFO: No errors reading settings file.");
+            ActorStateLog = new DeferringLogger(modDirectory, $"{LogFilename}.actorstate", LogLabel, Config.Debug, Config.Trace);
+            EffectsLog = new DeferringLogger(modDirectory, $"{LogFilename}.effects", LogLabel, Config.Debug, Config.Trace);
+            ToHitLog = new DeferringLogger(modDirectory, $"{LogFilename}.tohit", LogLabel, Config.Debug, Config.Trace);
+            UILog = new DeferringLogger(modDirectory, $"{LogFilename}.ui", LogLabel, Config.Debug, Config.Trace);
+
 
             Assembly asm = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(asm.Location);

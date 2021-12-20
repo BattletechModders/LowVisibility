@@ -46,14 +46,14 @@ namespace LowVisibility.Patch
                 // Refresh the floating icons after the player is done moving
                 foreach (ICombatant combatant in SharedState.Combat.AllActors)
                 {
-                    Mod.Log.Info?.Write($"Updating numFlagHex for actor: {combatant.DistinctId()}");
+                    Mod.UILog.Debug?.Write($"Updating numFlagHex for actor: {combatant.DistinctId()}");
                     if (actor.VisibilityToTargetUnit(combatant) > VisibilityLevel.None)
                     {
                         CombatHUDNumFlagHex combatHUDNumFlagHex = SharedState.CombatHUD?.InWorldMgr?.GetNumFlagForCombatant(combatant);
                         CombatHUDMarkDisplay combatHUDMarkDisplay = combatHUDNumFlagHex != null ? combatHUDNumFlagHex?.ActorInfo?.MarkDisplay : null;
                         if (combatHUDMarkDisplay != null)
                         {
-                            Mod.Log.Info?.Write($"  Refreshing numFlagHex");
+                            Mod.UILog.Debug?.Write($"  Refreshing numFlagHex");
                             CombatHUDMarkDisplay_RefreshInfo.RefreshMarkDisplay(combatHUDMarkDisplay, worldPos);
                         }
                     }

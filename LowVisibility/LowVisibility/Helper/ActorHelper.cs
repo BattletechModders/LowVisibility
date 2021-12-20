@@ -22,7 +22,7 @@ namespace LowVisibility.Helper {
 
             int checkResult = ModState.GetCheckResult();
             actor.StatCollection.Set<int>(ModStats.CurrentRoundEWCheck, checkResult);
-            Mod.Log.Info?.Write($"Actor:{CombatantUtils.Label(actor)} has raw EW Check: {checkResult}");
+            Mod.ActorStateLog.Info?.Write($"Actor:{CombatantUtils.Label(actor)} has raw EW Check: {checkResult}");
 
             if (updateAuras && actor.StatCollection.ContainsStatistic(ModStats.CAESensorsRange)) {
                 float sensorsRange = SensorLockHelper.GetSensorsRange(actor);

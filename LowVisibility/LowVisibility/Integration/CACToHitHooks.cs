@@ -2,11 +2,7 @@
 using IRBTModUtils.Extension;
 using LowVisibility.Helper;
 using LowVisibility.Object;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace LowVisibility.Integration
@@ -89,7 +85,7 @@ namespace LowVisibility.Integration
                 float magnitude = (attacker.CurrentPosition - target.CurrentPosition).magnitude;
                 EWState attackerState = new EWState(attacker);
                 EWState targetState = new EWState(targetActor);
-                Mod.Log.Debug?.Write($"Preparing toHit from: {attacker.DistinctId()} to: {target.DistinctId()} with range: {magnitude}");
+                Mod.ToHitLog.Debug?.Write($"Preparing toHit from: {attacker.DistinctId()} to: {target.DistinctId()} with range: {magnitude} for weapon: {weapon?.UIName}");
 
                 // If we can't see the target, apply the No Visuals penalty
                 bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
@@ -108,7 +104,7 @@ namespace LowVisibility.Integration
 
                 int zoomVisionMod = attackerState.GetZoomVisionAttackMod(weapon, magnitude);
                 int zoomAttackMod = attackerState.HasZoomVisionToTarget(weapon, magnitude, lofLevel) ? zoomVisionMod - mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
-                Mod.Log.Debug?.Write($"  Visual attack == eyeball: {eyeballAttackMod} mimetic: {mimeticMod} zoomAtack: {zoomAttackMod}");
+                Mod.ToHitLog.Debug?.Write($"  Visual attack == eyeball: {eyeballAttackMod} mimetic: {mimeticMod} zoomAtack: {zoomAttackMod}");
 
                 bool hasVisualAttack = (eyeballAttackMod < Mod.Config.Attack.NoVisualsPenalty || zoomAttackMod < Mod.Config.Attack.NoVisualsPenalty);
 
@@ -119,7 +115,7 @@ namespace LowVisibility.Integration
                 int ecmJammedAttackMod = attackerState.ECMJammedAttackMod();
                 int ecmShieldAttackMod = targetState.ECMAttackMod(attackerState);
                 int stealthAttackMod = targetState.StealthAttackMod(attackerState, weapon, magnitude);
-                Mod.Log.Debug?.Write($"  Sensor attack penalties == narc: {narcAttackMod}  tag: {tagAttackMod}  ecmShield: {ecmShieldAttackMod}  stealth: {stealthAttackMod}");
+                Mod.ToHitLog.Debug?.Write($"  Sensor attack penalties == narc: {narcAttackMod}  tag: {tagAttackMod}  ecmShield: {ecmShieldAttackMod}  stealth: {stealthAttackMod}");
 
                 bool hasSensorAttack = SensorLockHelper.CalculateSharedLock(targetActor, attacker) > SensorScanType.NoInfo;
                 int sensorsAttackMod = Mod.Config.Attack.NoSensorsPenalty;
@@ -135,13 +131,14 @@ namespace LowVisibility.Integration
                 }
                 if (sensorsAttackMod > Mod.Config.Attack.NoSensorsPenalty)
                 {
-                    Mod.Log.Debug?.Write($"  Rollup of penalties {sensorsAttackMod} is > than NoSensors, defaulting to {Mod.Config.Attack.NoSensorsPenalty} ");
+                    Mod.ToHitLog.Debug?.Write($"  Rollup of penalties {sensorsAttackMod} is > than NoSensors, defaulting to {Mod.Config.Attack.NoSensorsPenalty} ");
                     hasSensorAttack = false;
                 }
 
                 // Check firing blind
                 if (!hasVisualAttack && !hasSensorAttack)
                 {
+                    Mod.ToHitLog.Debug?.Write("  Has neither visual or sensor attack, applying firing blind penalty");
                     state.AddModifiers(LowVisModifierType.FiringBlind, Mod.Config.Attack.FiringBlindPenalty);
                 }
                 else
@@ -149,6 +146,7 @@ namespace LowVisibility.Integration
                     // Visual attacks
                     if (!hasVisualAttack)
                     {
+                        Mod.ToHitLog.Debug?.Write("  Applying noVisuals penalty");
                         state.AddModifiers(LowVisModifierType.NoVisuals, Mod.Config.Attack.NoVisualsPenalty);
                     }
                     else
@@ -176,6 +174,7 @@ namespace LowVisibility.Integration
 
                     if (!hasSensorAttack)
                     {
+                        Mod.ToHitLog.Debug?.Write("  Applying noSensors penalty");
                         state.AddModifiers(LowVisModifierType.NoSensors, Mod.Config.Attack.NoSensorsPenalty);
                     }
                     else
