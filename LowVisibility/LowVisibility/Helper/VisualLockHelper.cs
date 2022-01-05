@@ -156,7 +156,8 @@ namespace LowVisibility.Helper {
             // I think this is what prevents you from seeing things from behind you - the rotation is set to 0?
             Vector3 forward = targetPos - sourcePos;
             forward.y = 0f;
-            Quaternion rotation = Quaternion.LookRotation(forward);
+            //Quaternion rotation = Quaternion.LookRotation(forward);
+            Quaternion rotation = (forward != Vector3.zero) ? Quaternion.LookRotation(forward) : source.CurrentRotation;
 
             if (distance <= spottingRangeVsTarget) {
                 Vector3[] lossourcePositions = source.GetLOSSourcePositions(sourcePos, rotation);
