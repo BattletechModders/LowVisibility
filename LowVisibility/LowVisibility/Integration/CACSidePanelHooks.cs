@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using IRBTModUtils;
 using Localize;
 using LowVisibility.Object;
 using LowVisibility.Patch;
@@ -22,7 +23,8 @@ namespace LowVisibility.Integration
                     string fullName = mech.Description.UIName;
                     string chassisName = mech.UnitName;
                     string partialName = mech.Nickname;
-                    string localName = CombatNameHelper.GetEnemyMechDetectionLabel(visLevel, scanType, fullName, partialName, chassisName).ToString();
+                    string typeName = (target is ICustomMech custMech) ? custMech.UnitTypeName : string.Empty;
+                    string localName = CombatNameHelper.GetEnemyMechDetectionLabel(visLevel, scanType, typeName, fullName, partialName, chassisName).ToString();
 
                     string tonnage = "?";
                     if (scanType > SensorScanType.LocationAndType)

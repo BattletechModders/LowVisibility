@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using BattleTech.UI;
 using Harmony;
+using IRBTModUtils;
 using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Object;
@@ -51,14 +52,14 @@ namespace LowVisibility.Patch {
                     (Full name, will almost always display the full actual name, and if a hero/elite mech the chassis name is replaced by its custom name. ONly exception is LA's hidden nasty surprises, such as Nuke mechs)
         */
         public static Text GetEnemyMechDetectionLabel(VisibilityLevel visLevel, SensorScanType sensorScanType,
-            string fullName, string partialName, string chassisName)
+            string typeName,string fullName, string partialName, string chassisName)
         {
 
             Text label = new Text("?");
 
             if (visLevel >= VisibilityLevel.Blip0Minimum)
             {
-                string typeS = new Text(Mod.LocalizedText.StatusPanel[ModText.LT_UNIT_TYPE_MECH]).ToString();
+                string typeS = new Text(string.IsNullOrEmpty(typeName)?Mod.LocalizedText.StatusPanel[ModText.LT_UNIT_TYPE_MECH]:typeName).ToString();
 
                 if (sensorScanType == SensorScanType.NoInfo) label = new Text("?");
                 else if (sensorScanType == SensorScanType.LocationAndType) label = new Text(typeS);
@@ -121,6 +122,7 @@ namespace LowVisibility.Patch {
             {
                 string chassisName = __instance.UnitName;
                 string partialName = __instance.Nickname;
+                string typeName = (__instance is ICustomMech custMech) ? custMech.UnitTypeName : string.Empty;
 
                 SensorScanType scanType = SensorLockHelper.CalculateSharedLock(__instance, null);
                 if (scanType < SensorScanType.ArmorAndWeaponType)
@@ -129,7 +131,7 @@ namespace LowVisibility.Patch {
                     if (hasVisualScan) scanType = SensorScanType.ArmorAndWeaponType;
                 }
 
-                __result = CombatNameHelper.GetEnemyMechDetectionLabel(visLevel, scanType, fullName, partialName, chassisName);
+                __result = CombatNameHelper.GetEnemyMechDetectionLabel(visLevel, scanType, typeName, fullName, partialName, chassisName);
             }
             else
             {
