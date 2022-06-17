@@ -248,7 +248,7 @@ namespace LowVisibility.Helper {
             
             ModState.IsNightVisionMode = true;
 
-            MoodController mc = ModState.GetMoodController();
+            MoodController mc = MoodController.Instance;
 
             Traverse uppT = Traverse.Create(mc).Field("unityPostProcess");
             PostProcessingBehaviour ppb = uppT.GetValue<PostProcessingBehaviour>();
@@ -290,7 +290,7 @@ namespace LowVisibility.Helper {
 
             ModState.IsNightVisionMode = false;
 
-            MoodController mc = ModState.GetMoodController();
+            MoodController mc = BattleTech.Rendering.Mood.MoodController.Instance;
 
             // Grain will disable automatically
 

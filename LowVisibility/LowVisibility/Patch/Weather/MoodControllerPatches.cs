@@ -14,6 +14,8 @@ namespace LowVisibility.Patch
 	[HarmonyPatch(typeof(MoodController), "ApplyMoodSettings")]
 	static class MoodController_ApplyMoodSettings
 	{
+		static bool Prepare() => Mod.Config.Weather.ModifyFog;
+
 		static void Postfix(MoodController __instance, FogScattering ___mainFogScattering)
 		{
 			if (__instance == null || ___mainFogScattering == null) return;
@@ -21,13 +23,17 @@ namespace LowVisibility.Patch
 			// Check for CU manual deploy
 			if (ModState.Combat == null || ModState.Combat.ActiveContract == null) return;
 
+			Mod.Log.Info?.Write($" -- CHECKING MOOD SETTINGS");
+			Mod.Log.Info?.Write($"   currentMood: {__instance.CurrentMood?.GetFriendlyName()}");
+			Mod.Log.Info?.Write($"   moodTags: {(String.Join(",", __instance.CurrentMood?.moodTags))}");
+
 			// If we're past here, safe to set
 			if (MoodHelper.IsFoggy(__instance))
 			{
 				bool isHeavyFog = MoodHelper.IsHeavyFog(__instance);
 				Mod.Log.Info?.Write($"Fog detected => isHeavy: {isHeavyFog}");
 
-				___mainFogScattering.fogSettings = __instance.currentMood.fogSettings;
+				___mainFogScattering.fogSettings = __instance.CurrentMood.fogSettings;
 				Mod.Log.Info?.Write($"Mood settings for fog are: " +
 					$" fogG: {___mainFogScattering.fogSettings.fogG}" +
 					$" fogMieMultiplier: {___mainFogScattering.fogSettings.fogMieMultiplier}" +
@@ -58,55 +64,5 @@ namespace LowVisibility.Patch
 			}
 		}
 	}
-
-	//[HarmonyPatch(typeof(AbstractActor), "DespawnActor")]
-	//[HarmonyPatch(new Type[] { typeof(MessageCenterMessage) })]
-	//[HarmonyAfter(new string[]{ "CustomUnits" })]
-	//public static class AbstractActor_DespawnActor
-	//{
-	//	public static void Prefix(AbstractActor __instance, MessageCenterMessage message, ref bool __state)
-	//	{
-	//		try
-	//		{
-	//			__state = false;
-
-	//			DespawnActorMessage despawnActorMessage = message as DespawnActorMessage;
-	//			if (despawnActorMessage == null)
-	//				return;
-
-	//			if (!(despawnActorMessage.affectedObjectGuid == __instance.GUID))
-	//				return;
-
-	//			if (__instance.TeamId != __instance.Combat.LocalPlayerTeamGuid)
-	//				return;
-
-	//			if (__instance.IsDeployDirector())
-	//			{
-	//				Mod.Log.Info?.Write($"Detected DeployDirector: {__instance.DistinctId()}, need to apply mood.");
-	//				__state = true;
-	//			}
-	//		}
-	//		catch (Exception e)
- //           {
-	//			Mod.Log.Warn?.Write(e, $"Failed during despawn check for actor: {__instance.DistinctId()}");
- //           }
-				
-	//	}
-
-	//	public static void Postfix(AbstractActor __instance, bool __state)
-	//	{
-	//		if (__state == true)
- //           {
-	//			if (ModState.GetMoodController() == null)
-	//				Mod.Log.Error?.Write("Mood controller was null when attempting to update after manual deploy!");
-
-	//			Mod.Log.Info?.Write("Applying MoodController logic now that manual deploy is done.");
-	//			Traverse applyMoodSettingsT = Traverse.Create(ModState.GetMoodController())
-	//				.Method("ApplyMoodSettings", new object[] { true, false });
-	//			applyMoodSettingsT.GetValue();
- //           }
-
- //       }
-	//}
 
 }

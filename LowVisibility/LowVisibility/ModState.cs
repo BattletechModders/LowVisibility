@@ -13,7 +13,6 @@ namespace LowVisibility {
     static class ModState {
 
         private static MapConfig MapConfig;
-        private static MoodController MoodController;
         public static AbstractActor LastPlayerActorActivated;
         public static bool TurnDirectorStarted = false;
         public static bool IsNightVisionMode = false;
@@ -38,15 +37,6 @@ namespace LowVisibility {
         public static void InitMapConfig() {
             MapConfig = MapHelper.ParseCurrentMap();
         }
-
-        public static MoodController GetMoodController() {
-            if (MoodController == null) {
-                // This is a VERY slow call, that can add 30-40ms just to execute. Cache it!
-                ModState.MoodController = UnityEngine.Object.FindObjectOfType<MoodController>();
-            }
-            return ModState.MoodController;
-        }
-
 
         // --- Methods manipulating CheckResults
         public static void InitializeCheckResults() {
@@ -81,7 +71,6 @@ namespace LowVisibility {
             Mod.Log.Info?.Write($"RESETTING STATE!");
             // Reinitialize state
             MapConfig = null;
-            MoodController = null;
             LastPlayerActorActivated = null;
             TurnDirectorStarted = false;
             IsNightVisionMode = false;

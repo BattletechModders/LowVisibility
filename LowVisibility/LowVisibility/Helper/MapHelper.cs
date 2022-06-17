@@ -47,11 +47,12 @@ namespace LowVisibility.Helper {
     public static class MapHelper {
 
         public static MapConfig ParseCurrentMap() {
-            Mod.Log.Info?.Write("MH:PCM Parsing current map.");
+            Mod.Log.Info?.Write(" -- PARSING CURRENT MAP");
 
-            MoodController moodController = ModState.GetMoodController();
-
+            MoodController moodController = MoodController.Instance;
             MoodSettings moodSettings = moodController?.CurrentMood;
+            Mod.Log.Info?.Write($"   currentMood: {moodSettings.GetFriendlyName()}");
+
             TagSet moodTags = moodSettings?.moodTags;
             if (moodTags == null || moodTags.IsEmpty) {
                 return new MapConfig {

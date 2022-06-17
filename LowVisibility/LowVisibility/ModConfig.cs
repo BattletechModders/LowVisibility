@@ -89,6 +89,7 @@ namespace LowVisibility {
 
         public class WeatherOpts
         {
+            public bool ModifyFog = true;
             public float LightFogDensity = 3000.0f;
             public float HeavyFogDensity = 10000.0f;
         }

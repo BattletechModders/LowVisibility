@@ -1,4 +1,5 @@
 ﻿using BattleTech;
+using BattleTech.Rendering.Mood;
 using CustomUnits;
 using Harmony;
 using IRBTModUtils.Extension;
@@ -84,15 +85,15 @@ namespace LowVisibility.Patch
     {
         static void Prefix()
         {
-            Mod.Log.Info?.Write($"=== TurnDirectory is starting first round!");
+            Mod.Log.Info?.Write($"=== Turn Director is starting first round!");
             // Check fog state
             if (LanceSpawnerGameLogic_OnEnterActive.isObjectivesReady(ModState.Combat.ActiveContract))
             {
-                if (ModState.GetMoodController() == null)
+                if (BattleTech.Rendering.Mood.MoodController.Instance == null)
                     Mod.Log.Error?.Write("Mood controller was null when attempting to update after manual deploy!");
 
                 Mod.Log.Info?.Write("Applying MoodController logic now that manual deploy is done.");
-                Traverse applyMoodSettingsT = Traverse.Create(ModState.GetMoodController())
+                Traverse applyMoodSettingsT = Traverse.Create(BattleTech.Rendering.Mood.MoodController.Instance)
                     .Method("ApplyMoodSettings", new object[] { true, false });
                 applyMoodSettingsT.GetValue();
             }
@@ -148,6 +149,9 @@ namespace LowVisibility.Patch
                 }
             }
 
+            Mod.Log.Info?.Write($" -- CHECKING MOOD SETTINGS");
+            Mod.Log.Info?.Write($"   currentMood: {MoodController.Instance.CurrentMood?.GetFriendlyName()}");
+            Mod.Log.Info?.Write($"   moodTags: {(String.Join(",", MoodController.Instance.CurrentMood?.moodTags))}");
         }
     }
 

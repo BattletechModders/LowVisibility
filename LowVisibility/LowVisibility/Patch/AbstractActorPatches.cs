@@ -235,7 +235,7 @@ namespace LowVisibility.Patch
             //Mod.Log.Debug?.Write("AA:OAA entered");
 
             AuraAddedMessage auraAddedMessage = message as AuraAddedMessage;
-            Mod.Log.Debug?.Write($" Adding aura: {auraAddedMessage.effectData.Description.Id} to target: {auraAddedMessage.targetID} from creator: {auraAddedMessage.creatorID}");
+            Mod.Log.Trace?.Write($" Adding aura: {auraAddedMessage.effectData.Description.Id} to target: {auraAddedMessage.targetID} from creator: {auraAddedMessage.creatorID}");
             if (auraAddedMessage.targetID == __instance.GUID && __instance.Combat.TurnDirector.IsInterleaved)
             {
 
