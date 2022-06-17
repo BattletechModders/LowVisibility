@@ -134,7 +134,6 @@
     <Compile Include="Patch\AI\AttackEvaluatorPatches.cs" />
     <Compile Include="Patch\AI\MultiAttackPatches.cs" />
     <Compile Include="Patch\MechPatches.cs" />
-    <Compile Include="Patch\Weather\MoodControllerPatches.cs" />
     <Compile Include="Patch\MoveStatusPreviewPatches.cs" />
     <Compile Include="Patch\NightVisionPatches.cs" />
     <Compile Include="Patch\PilotableActorRepresentationPatches.cs" />
@@ -149,7 +148,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ModState.cs" />
     <Compile Include="ModConfig.cs" />
-    <Compile Include="Patch\Weather\WeatherControllerPatches.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

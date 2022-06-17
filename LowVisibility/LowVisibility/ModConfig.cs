@@ -87,14 +87,6 @@ namespace LowVisibility {
         }
         public FogOfWarOpts FogOfWar = new FogOfWarOpts();
 
-        public class WeatherOpts
-        {
-            public bool ModifyFog = true;
-            public float LightFogDensity = 3000.0f;
-            public float HeavyFogDensity = 10000.0f;
-        }
-        public WeatherOpts Weather = new WeatherOpts();
-
         public class AttackOpts {
             public int NoVisualsPenalty = 5;
             public int NoSensorsPenalty = 5;
