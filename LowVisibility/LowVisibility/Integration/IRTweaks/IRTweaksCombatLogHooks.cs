@@ -29,9 +29,9 @@ namespace LowVisibility.Integration
                 VisibilityLevel visLevel = abstractActor.Combat.LocalPlayerTeam.VisibilityToTarget(abstractActor);
                 SensorScanType scanType = GetSensorScanType(abstractActor);
 
-                if (Mod.Config.Integrations.IRTweaks.CombatLogNames == CombatLogIntegration.REMEMBER && CombatLogNameCache.ContainsEqualOrBetterName(abstractActor.GUID, visLevel, scanType))
+                if (Mod.Config.Integrations.IRTweaks.CombatLogNames == CombatLogIntegration.REMEMBER && CombatLogNameCacheHelper.ContainsEqualOrBetterName(abstractActor.GUID, visLevel, scanType))
                 {
-                    string cachedName = CombatLogNameCache.Get(abstractActor.GUID);
+                    string cachedName = CombatLogNameCacheHelper.Get(abstractActor.GUID);
                     IRTweaksHelper.LogIfEnabled($"Unit GUID {abstractActor.GUID}: returning cached name {cachedName}");
                     return cachedName;
                 }
@@ -43,7 +43,7 @@ namespace LowVisibility.Integration
 
                 if (Mod.Config.Integrations.IRTweaks.CombatLogNames == CombatLogIntegration.REMEMBER)
                 {
-                    CombatLogNameCache.Add(abstractActor.GUID, visLevel, scanType, name);
+                    CombatLogNameCacheHelper.Add(abstractActor.GUID, visLevel, scanType, name);
                 }
             }
             else if (abstractActor is Mech mech)
@@ -111,9 +111,9 @@ namespace LowVisibility.Integration
 
                 SensorScanType scanType = GetSensorScanType(abstractActor);
 
-                if (Mod.Config.Integrations.IRTweaks.CombatLogNames == CombatLogIntegration.REMEMBER && CombatLogNameCache.ContainsEqualOrBetterName(basePilotName, visLevel, scanType))
+                if (Mod.Config.Integrations.IRTweaks.CombatLogNames == CombatLogIntegration.REMEMBER && CombatLogNameCacheHelper.ContainsEqualOrBetterName(basePilotName, visLevel, scanType))
                 {
-                    string cachedName = CombatLogNameCache.Get(basePilotName);
+                    string cachedName = CombatLogNameCacheHelper.Get(basePilotName);
                     IRTweaksHelper.LogIfEnabled($"Pilot {basePilotName}: returning cached name {cachedName}");
                     return cachedName;
                 }
@@ -124,7 +124,7 @@ namespace LowVisibility.Integration
 
                 if (Mod.Config.Integrations.IRTweaks.CombatLogNames == CombatLogIntegration.REMEMBER)
                 {
-                    CombatLogNameCache.Add(name, visLevel, scanType, name);
+                    CombatLogNameCacheHelper.Add(name, visLevel, scanType, name);
                 }
             }
             IRTweaksHelper.LogIfEnabled($"Pilot {basePilotName}: returning name {name}");

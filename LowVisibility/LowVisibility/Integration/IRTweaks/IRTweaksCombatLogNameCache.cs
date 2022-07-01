@@ -8,27 +8,25 @@ namespace LowVisibility.Integration
 {
 
 
-    public static class CombatLogNameCache
+    public static class CombatLogNameCacheHelper
     {
-
-        private static readonly Dictionary<string, CombatLogNameCacheEntry> nameCache = new Dictionary<string, CombatLogNameCacheEntry>();
 
         public static void Add(string key, VisibilityLevel visibilityLevel, SensorScanType sensorScanType, string name)
         {
             IRTweaksHelper.LogIfEnabled($"Adding new entry for key: {key} with VisLevel: {visibilityLevel}, Sensors: {sensorScanType}, Name: {name}");
-            nameCache[key] = new CombatLogNameCacheEntry(visibilityLevel, sensorScanType, name);
+            ModState.CombatLogIntegrationNameCache[key] = new CombatLogNameCacheEntry(visibilityLevel, sensorScanType, name);
         }
 
         public static string Get(string GUID)
         {
-            nameCache.TryGetValue(GUID, out CombatLogNameCacheEntry entry);
+            ModState.CombatLogIntegrationNameCache.TryGetValue(GUID, out CombatLogNameCacheEntry entry);
             return entry?.name ?? string.Empty;
         }
 
         public static bool ContainsEqualOrBetterName(string key, VisibilityLevel visibilityLevel, SensorScanType sensorScanType)
         {
             IRTweaksHelper.LogIfEnabled($"Contains check for key: {key}, VisLevel: {visibilityLevel}, Sensors: {sensorScanType}");
-            nameCache.TryGetValue(key, out CombatLogNameCacheEntry cacheEntry);
+            ModState.CombatLogIntegrationNameCache.TryGetValue(key, out CombatLogNameCacheEntry cacheEntry);
             if (cacheEntry == null)
             {
                 Mod.Log.Trace?.Write($"No cache entry for key: {key}");
@@ -46,7 +44,7 @@ namespace LowVisibility.Integration
 
         public static void Clear()
         {
-            nameCache.Clear();
+            ModState.CombatLogIntegrationNameCache.Clear();
         }
 
     }
@@ -73,7 +71,7 @@ namespace LowVisibility.Integration
             {
 
                 IRTweaksHelper.LogIfEnabled("Destroying CombatLogNameCache.");
-                CombatLogNameCache.Clear();
+                CombatLogNameCacheHelper.Clear();
             }
         }
     }
