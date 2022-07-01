@@ -104,6 +104,18 @@ namespace LowVisibility {
             public int Mu = -1;
         }
         public ProbabilityOpts Probability = new ProbabilityOpts();
+        public class IntegrationOpts
+        {
+            public class IRTweaksOpts
+            {
+                // 0 = off, 1 = Each Lookup Individual, 2 = Remember Highest Known
+                public int CombatLogNames = 0;
+                // Force individual logging behaviour
+                public bool EnableLogging = false;
+            }
+            public IRTweaksOpts IRTweaks = new IRTweaksOpts();
+        }
+        public IntegrationOpts Integrations = new IntegrationOpts();
 
         public void LogConfig() {
             Mod.Log.Info?.Write("=== MOD CONFIG BEGIN ===");
@@ -128,6 +140,11 @@ namespace LowVisibility {
             //Mod.Log.Info?.Write($"Penalties - NoSensors:{Attack.NoSensorInfoPenalty} NoVisuals:{Attack.NoVisualsPenalty} BlindFire:{Attack.BlindFirePenalty}");
             //Mod.Log.Info?.Write($"Criticals Penalty - NoSensors:{Attack.NoSensorsCriticalPenalty} NoVisuals:{Attack.NoVisualsCriticalPenalty}");
             //Mod.Log.Info?.Write($"HeatVisionMaxBonus: {Attack.MaxHeatVisionBonus}");
+
+            Mod.Log.Info?.Write($"  == Integrations ==");
+            Mod.Log.Info?.Write($"  -- IRTweaks --");
+            Mod.Log.Info?.Write($"CombatLogNames: {Integrations.IRTweaks.CombatLogNames} ");
+            Mod.Log.Info?.Write($"EnableLogging: {Integrations.IRTweaks.EnableLogging} ");
 
             Mod.Log.Info?.Write("=== MOD CONFIG END ===");
         }

@@ -76,6 +76,12 @@
 			"FiringBlindPenalty": 13,
 			"ShieldedMulti": 1.0,
 			"JammedMulti": 1.0
+		},
+		"Integrations" : {
+			"IRTweaks" : {
+				"CombatLogNames" : 0,
+				"EnableLogging" : false
+			}
 		}
 	}
 }
