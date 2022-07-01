@@ -1,6 +1,7 @@
 ﻿using BattleTech.UI;
 using Harmony;
 using IRBTModUtils.Logging;
+using IRTweaks.Modules.UI;
 using LowVisibility.Integration;
 using Newtonsoft.Json;
 using System;
@@ -83,6 +84,12 @@ namespace LowVisibility
 
             var harmony = HarmonyInstance.Create(HarmonyPackage);
             harmony.PatchAll(Assembly.GetExecutingAssembly());
+
+            if (Mod.Config.Integrations.IRTweaks.CombatLogNames != CombatLogIntegration.NONE)
+            {
+                CombatLog.RegisterUnitNameModifier(CombatLogIntegration.LowVisibilityCombatLogUnitNameModifier);
+                CombatLog.RegisterPilotNameModifier(CombatLogIntegration.LowVisibilityCombatLogPilotNameModifier);
+            }
         }
 
         public static void FinishedLoading(List<string> loadOrder)

@@ -1,6 +1,7 @@
 ﻿using BattleTech;
 using IRBTModUtils;
 using Localize;
+using LowVisibility.Helper;
 using LowVisibility.Object;
 using LowVisibility.Patch;
 using System;
@@ -24,7 +25,7 @@ namespace LowVisibility.Integration
                     string chassisName = mech.UnitName;
                     string partialName = mech.Nickname;
                     string typeName = (target is ICustomMech custMech) ? custMech.UnitTypeName : string.Empty;
-                    string localName = CombatNameHelper.GetEnemyMechDetectionLabel(visLevel, scanType, typeName, fullName, partialName, chassisName).ToString();
+                    string localName = UnitDetectionNameHelper.GetEnemyMechName(visLevel, scanType, typeName, fullName, partialName, chassisName);
 
                     string tonnage = "?";
                     if (scanType > SensorScanType.LocationAndType)
@@ -63,7 +64,7 @@ namespace LowVisibility.Integration
                 {
                     string chassisName = turret.UnitName;
                     string fullName = turret.Nickname;
-                    string localName = CombatNameHelper.GetTurretOrVehicleDetectionLabel(visLevel, scanType, fullName, chassisName, false).ToString();
+                    string localName = UnitDetectionNameHelper.GetTurretName(visLevel, scanType, fullName, chassisName);
 
                     string titleText = new Text(Mod.LocalizedText.CACSidePanel[ModText.LT_CAC_SIDEPANEL_TITLE],
                         new object[] { localName, "" }).ToString();
@@ -73,7 +74,7 @@ namespace LowVisibility.Integration
                 {
                     string chassisName = vehicle.UnitName;
                     string fullName = vehicle.Nickname;
-                    string localName = CombatNameHelper.GetTurretOrVehicleDetectionLabel(visLevel, scanType, fullName, chassisName, true).ToString();
+                    string localName = UnitDetectionNameHelper.GetVehicleName(visLevel, scanType, fullName, chassisName);
 
                     string tonnage = "?";
                     if (scanType > SensorScanType.LocationAndType)

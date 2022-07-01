@@ -61,6 +61,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BattleTechGameDir)\Mods\IRBTModUtils\IRBTModUtils.dll</HintPath>
     </Reference>
+    <Reference Include="IRTweaks, Version=0.9.6.6, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(BattleTechGameDir)\Mods\Core\IRTweaks\IRTweaks.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(BattleTechGameDir)\BattleTech_Data\Managed\Newtonsoft.Json.dll</HintPath>
@@ -101,12 +105,16 @@
     <Compile Include="Helper\MoodHelper.cs" />
     <Compile Include="Helper\SelectedActorHelper.cs" />
     <Compile Include="Helper\SensorLockHelper.cs" />
+    <Compile Include="Helper\UnitDetectionNameHelper.cs" />
     <Compile Include="Helper\VfxHelper.cs" />
     <Compile Include="Helper\VisualLockHelper.cs" />
     <Compile Include="Helper\WeaponHelper.cs" />
     <Compile Include="Integration\CACSidePanelHooks.cs" />
     <Compile Include="Integration\CACToHitHooks.cs" />
+    <Compile Include="Integration\IRTweaks\IRTweaksCombatLogNameCache.cs" />
     <Compile Include="Integration\CUHooks.cs" />
+    <Compile Include="Integration\IRTweaks\IRTweaksCombatLogHooks.cs" />
+    <Compile Include="Integration\IRTweaks\IRTweaksHelper.cs" />
     <Compile Include="ModText.cs" />
     <Compile Include="ModConsts.cs" />
     <Compile Include="Object\EWState.cs" />
