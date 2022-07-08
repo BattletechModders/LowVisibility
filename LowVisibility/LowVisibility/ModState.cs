@@ -3,6 +3,7 @@ using BattleTech;
 using BattleTech.Rendering.Mood;
 using BattleTech.UI;
 using LowVisibility.Helper;
+using LowVisibility.Integration;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,7 @@ namespace LowVisibility {
         // Combat specific status
         public static CombatGameState Combat = null;
         public static Dictionary<CombatHUDMarkDisplay, MarkGOContainer> MarkContainerRefs = new Dictionary<CombatHUDMarkDisplay, MarkGOContainer>();
+        public static Dictionary<string, CombatLogNameCacheEntry> CombatLogIntegrationNameCache = new Dictionary<string, CombatLogNameCacheEntry>();
 
         // --- Methods Below ---
         public static MapConfig GetMapConfig() {
