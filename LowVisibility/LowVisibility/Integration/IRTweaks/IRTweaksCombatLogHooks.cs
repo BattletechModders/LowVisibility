@@ -1,6 +1,5 @@
 ﻿using BattleTech;
 using IRBTModUtils;
-using IRBTModUtils.Logging;
 using LowVisibility.Helper;
 using LowVisibility.Integration.IRTweaks;
 using LowVisibility.Object;
@@ -14,6 +13,8 @@ namespace LowVisibility.Integration
         public static int NONE = 0;
         public static int SIMPLE = 1;
         public static int REMEMBER = 2;
+
+        private static readonly string PILOT_KEY_SUFFIX = "_pilot";
 
         public static string LowVisibilityCombatLogUnitNameModifier(string name, AbstractActor abstractActor)
         {
@@ -100,34 +101,35 @@ namespace LowVisibility.Integration
         {
             if (abstractActor == null) { return name; }
 
-            string basePilotName = abstractActor.GetPilot().Name;
+            IGuid pilot = abstractActor.GetPilot();
+            string pilotGUID = pilot.GUID ?? "<Unknown>";
 
-            IRTweaksHelper.LogIfEnabled($"Pilot {basePilotName}: Starting name check");
+            IRTweaksHelper.LogIfEnabled($"Pilot {pilotGUID}: Starting name check");
 
             if (abstractActor.Combat.HostilityMatrix.IsLocalPlayerEnemy(abstractActor.team.GUID))
             {
-                IRTweaksHelper.LogIfEnabled($"Pilot {basePilotName}: is hostile");
+                IRTweaksHelper.LogIfEnabled($"Pilot {pilotGUID}: is hostile");
                 VisibilityLevel visLevel = abstractActor.Combat.LocalPlayerTeam.VisibilityToTarget(abstractActor);
 
                 SensorScanType scanType = GetSensorScanType(abstractActor);
 
-                if (Mod.Config.Integrations.IRTweaks.CombatLogNames == CombatLogIntegration.REMEMBER && CombatLogNameCacheHelper.ContainsEqualOrBetterName(basePilotName, visLevel, scanType))
+                if (Mod.Config.Integrations.IRTweaks.CombatLogNames == CombatLogIntegration.REMEMBER && CombatLogNameCacheHelper.ContainsEqualOrBetterName(abstractActor.GUID + PILOT_KEY_SUFFIX, visLevel, scanType))
                 {
-                    string cachedName = CombatLogNameCacheHelper.Get(basePilotName);
-                    IRTweaksHelper.LogIfEnabled($"Pilot {basePilotName}: returning cached name {cachedName}");
+                    string cachedName = CombatLogNameCacheHelper.Get(abstractActor.GUID + PILOT_KEY_SUFFIX);
+                    IRTweaksHelper.LogIfEnabled($"Pilot {pilotGUID}: returning cached name {cachedName}");
                     return cachedName;
                 }
 
-                IRTweaksHelper.LogIfEnabled($"Pilot {basePilotName}: calculating name with Visibility: {visLevel} and Sensors: {scanType}");
+                IRTweaksHelper.LogIfEnabled($"Pilot {pilotGUID}: calculating name with Visibility: {visLevel} and Sensors: {scanType}");
                 name = PilotNameHelper.GetEnemyPilotName(visLevel, scanType, abstractActor);
                 
 
                 if (Mod.Config.Integrations.IRTweaks.CombatLogNames == CombatLogIntegration.REMEMBER)
                 {
-                    CombatLogNameCacheHelper.Add(name, visLevel, scanType, name);
+                    CombatLogNameCacheHelper.Add(abstractActor.GUID + PILOT_KEY_SUFFIX, visLevel, scanType, name);
                 }
             }
-            IRTweaksHelper.LogIfEnabled($"Pilot {basePilotName}: returning name {name}");
+            IRTweaksHelper.LogIfEnabled($"Pilot {pilotGUID}: returning name {name}");
             return name;
         }
 
