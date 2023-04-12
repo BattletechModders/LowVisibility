@@ -1,18 +1,20 @@
-﻿using BattleTech;
-using BattleTech.UI;
-using Harmony;
+﻿using BattleTech.UI;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using us.frostraptor.modUtils;
 
-namespace LowVisibility.Patch {
-    class CombatHUDStealthBarPipsPatches {
+namespace LowVisibility.Patch
+{
+    class CombatHUDStealthBarPipsPatches
+    {
 
         [HarmonyPatch(typeof(CombatHUDStealthBarPips), "ShowValue")]
-        public static class CombatHUDStealthBarPips_ShowValue {
-            public static void Postfix(CombatHUDStealthBarPips __instance, float current, float projected) {
+        public static class CombatHUDStealthBarPips_ShowValue
+        {
+            public static void Postfix(CombatHUDStealthBarPips __instance, float current, float projected)
+            {
                 Mod.Log.Trace?.Write("CHUDSBP:SV entered");
 
                 Mod.Log.Trace?.Write($"StealthBarPips incoming count is: {current} with projected: {projected}");
@@ -40,19 +42,23 @@ namespace LowVisibility.Patch {
                 Traverse pipsT = Traverse.Create(__instance).Property("Pips");
                 List<Graphic> pips = pipsT.GetValue<List<Graphic>>();
 
-                for (int i = 0; i < pips.Count; i++) {
+                for (int i = 0; i < pips.Count; i++)
+                {
                     Mod.Log.Trace?.Write($"    -- pips graphic: {i} isEnabled: {pips[i].IsActive()}");
                 }
             }
         }
 
         [HarmonyPatch(typeof(MoveStatusPreview), "DisplayPreviewStatus")]
-        public static class MoveStatusPreview_DisplayPreviewStatus {
+        public static class MoveStatusPreview_DisplayPreviewStatus
+        {
 
-            public static void Prefix(MoveStatusPreview __instance, AbstractActor actor, Vector3 worldPos, MoveType moveType) {
+            public static void Prefix(MoveStatusPreview __instance, AbstractActor actor, Vector3 worldPos, MoveType moveType)
+            {
                 Mod.Log.Trace?.Write("MSP:DPS entered.");
 
-                if (actor.CurrentPosition != worldPos) {
+                if (actor.CurrentPosition != worldPos)
+                {
                     float distance = Vector3.Distance(actor.CurrentPosition, worldPos);
                     int steps = (int)Math.Ceiling(distance / 30f);
                     Mod.Log.Trace?.Write($" position change for: ({CombatantUtils.Label(actor)}), moved {distance}m = {steps} steps");

@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
 
-namespace LowVisibility {
+namespace LowVisibility
+{
 
-    public class ModConfig {
+    public class ModConfig
+    {
         // If true, extra logging will be used
         public bool Debug = false;
         public bool Trace = false;
 
-        public class IconOpts {
+        public class IconOpts
+        {
             public string ElectronicWarfare = "lv_eye-shield"; // 00aad4ff
             public string SensorsDisabled = "lv_sight-disabled"; // ff0000ff
             public string VisionAndSensors = "lv_cyber-eye";
@@ -28,14 +31,16 @@ namespace LowVisibility {
         }
         public IconOpts Icons = new IconOpts();
 
-        public class ToggleOpts {
+        public class ToggleOpts
+        {
             public bool LogEffectsOnMove = false;
             public bool ShowNightVision = true;
             public bool MimeticUsesGhost = true;
         }
         public ToggleOpts Toggles = new ToggleOpts();
 
-        public class SensorRangeOpts {
+        public class SensorRangeOpts
+        {
             public float MechRange = 360f;
             public float TrooperRange = 180f;
             public float VehicleRange = 270f;
@@ -57,7 +62,8 @@ namespace LowVisibility {
         }
         public SensorRangeOpts Sensors = new SensorRangeOpts();
 
-        public class VisionRangeOpts {
+        public class VisionRangeOpts
+        {
 
             public float RangeBright = 450f;
             public float RangeDim = 330f;
@@ -87,7 +93,8 @@ namespace LowVisibility {
         }
         public FogOfWarOpts FogOfWar = new FogOfWarOpts();
 
-        public class AttackOpts {
+        public class AttackOpts
+        {
             public int NoVisualsPenalty = 5;
             public int NoSensorsPenalty = 5;
             public int FiringBlindPenalty = 13;
@@ -97,7 +104,8 @@ namespace LowVisibility {
         }
         public AttackOpts Attack = new AttackOpts();
 
-        public class ProbabilityOpts {
+        public class ProbabilityOpts
+        {
             // The inflection point of the probability distribution function.
             public int Sigma = 4;
             // The inflection point of the probability distribution function.
@@ -117,13 +125,14 @@ namespace LowVisibility {
         }
         public IntegrationOpts Integrations = new IntegrationOpts();
 
-        public void LogConfig() {
+        public void LogConfig()
+        {
             Mod.Log.Info?.Write("=== MOD CONFIG BEGIN ===");
             Mod.Log.Info?.Write($"  DEBUG:{this.Debug} Trace:{this.Trace}");
 
             Mod.Log.Info?.Write($"  == Probability ==");
             Mod.Log.Info?.Write($"ProbabilitySigma:{Probability.Sigma}, ProbabilityMu:{Probability.Mu}");
-            
+
             Mod.Log.Info?.Write($"  == Sensors ==");
             Mod.Log.Info?.Write($"Type Ranges - Mech: {Sensors.MechRange} Trooper: {Sensors.TrooperRange} Vehicle: {Sensors.VehicleRange} Turret: {Sensors.TurretRange} UnknownType: {Sensors.UnknownRange}");
             Mod.Log.Info?.Write($"MinimumRange: {Sensors.MinimumRange}  FirstTurnForceFailedChecks: {Sensors.SensorsOfflineAtSpawn}  MaxECMDetailsPenalty: {Sensors.MaxECMDetailsPenalty}");

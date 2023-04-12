@@ -1,17 +1,16 @@
-﻿using BattleTech;
-using BattleTech.UI;
-using Harmony;
+﻿using BattleTech.UI;
 using LowVisibility.Helper;
 using LowVisibility.Object;
-using System;
-using UnityEngine;
 using us.frostraptor.modUtils;
 
-namespace LowVisibility.Patch.HUD {
+namespace LowVisibility.Patch.HUD
+{
 
     [HarmonyPatch(typeof(CombatHUDWeaponPanel), "RefreshDisplayedWeapons")]
-    public static class CombatHUDWeaponPanel_RefreshDisplayedWeapons {
-        public static void Prefix(CombatHUDWeaponPanel __instance, AbstractActor ___displayedActor) {
+    public static class CombatHUDWeaponPanel_RefreshDisplayedWeapons
+    {
+        public static void Prefix(CombatHUDWeaponPanel __instance, AbstractActor ___displayedActor)
+        {
 
             if (__instance == null || ___displayedActor == null) { return; }
             Mod.Log.Trace?.Write("CHUDWP:RDW - entered.");
@@ -23,10 +22,13 @@ namespace LowVisibility.Patch.HUD {
             CombatHUD HUD = HUDT.GetValue<CombatHUD>();
             SelectionState activeState = HUD.SelectionHandler.ActiveState;
             ICombatant target;
-            if (activeState != null && activeState is SelectionStateMove) {
+            if (activeState != null && activeState is SelectionStateMove)
+            {
                 target = hoveredTargetT.GetValue<ICombatant>();
                 if (target == null) { target = targetT.GetValue<ICombatant>(); }
-            } else {
+            }
+            else
+            {
                 target = targetT.GetValue<ICombatant>();
                 if (target == null) { target = hoveredTargetT.GetValue<ICombatant>(); }
             }
@@ -40,7 +42,8 @@ namespace LowVisibility.Patch.HUD {
             SensorScanType sensorScan = SensorLockHelper.CalculateSharedLock(target, ___displayedActor);
             Mod.Log.Debug?.Write($"  canSpotTarget: {canSpotTarget}  sensorScan: {sensorScan}");
 
-            if (target is AbstractActor targetActor) {
+            if (target is AbstractActor targetActor)
+            {
                 EWState targetState = new EWState(targetActor);
                 Mod.Log.Debug?.Write($"Target ({CombatantUtils.Label(targetActor)} => EWState: {targetState}");
             }

@@ -1,15 +1,16 @@
-﻿using BattleTech;
-using BattleTech.Data;
-using Harmony;
+﻿using BattleTech.Data;
 using LowVisibility.Object;
 using SVGImporter;
 
-namespace LowVisibility.Patch {
+namespace LowVisibility.Patch
+{
 
     // Pre-load our required icons, otherwise DM will unload them as they aren't necessary
     [HarmonyPatch(typeof(CombatGameState), "_Init")]
-    public static class CombatGameState__Init {
-        public static void Postfix(CombatGameState __instance) {
+    public static class CombatGameState__Init
+    {
+        public static void Postfix(CombatGameState __instance)
+        {
             Mod.Log.Trace?.Write("CGS:_I entered.");
             DataManager dm = UnityGameInstance.BattleTechGame.DataManager;
             LoadRequest loadRequest = dm.CreateLoadRequest();
@@ -53,7 +54,8 @@ namespace LowVisibility.Patch {
     {
         public static void Postfix()
         {
-            if (EWState.InBatchProcess) {
+            if (EWState.InBatchProcess)
+            {
                 Mod.Log.Error?.Write($"Something has gone wrong in refreshing visibility cache, resetting.");
                 EWState.ResetCache();
             }

@@ -1,6 +1,4 @@
-﻿using BattleTech;
-using BattleTech.UI;
-using Harmony;
+﻿using BattleTech.UI;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System.Collections.Generic;
@@ -89,12 +87,12 @@ namespace LowVisibility.Patch
 
                 }
             }
-            
+
             __result.Clear();
             __result.AddRange(filteredList);
         }
 
-     
+
     }
 
 }

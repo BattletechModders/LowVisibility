@@ -1,6 +1,4 @@
-﻿using BattleTech.UI;
-using Harmony;
-using IRBTModUtils.Logging;
+﻿using IRBTModUtils.Logging;
 using IRTweaks.Modules.UI;
 using LowVisibility.Integration;
 using Newtonsoft.Json;

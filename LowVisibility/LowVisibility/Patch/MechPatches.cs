@@ -1,6 +1,4 @@
-﻿using BattleTech;
-using BattleTech.UI;
-using Harmony;
+﻿using BattleTech.UI;
 using IRBTModUtils;
 using IRBTModUtils.Extension;
 using LowVisibility.Object;
@@ -43,7 +41,7 @@ namespace LowVisibility.Patch
                         if (combatHUDMarkDisplay != null) combatHUDMarkDisplay.RefreshInfo();
                     }
                 }
-                
+
             }
         }
     }

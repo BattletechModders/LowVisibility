@@ -1,20 +1,21 @@
-﻿using BattleTech;
-using BattleTech.UI;
-using Harmony;
+﻿using BattleTech.UI;
 using IRBTModUtils;
 using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
 
-namespace LowVisibility.Patch {
+namespace LowVisibility.Patch
+{
 
     // --- HIDE UNIT NAME PATCHES ---
     [HarmonyPatch(typeof(Mech), "GetActorInfoFromVisLevel")]
     [HarmonyPatch(new Type[] { typeof(VisibilityLevel) })]
-    public static class Mech_GetActorInfoFromVisLevel {
+    public static class Mech_GetActorInfoFromVisLevel
+    {
 
-        public static void Postfix(Mech __instance, ref Text __result, VisibilityLevel visLevel) {
+        public static void Postfix(Mech __instance, ref Text __result, VisibilityLevel visLevel)
+        {
             if (__instance == null) { return; }
 
             /*
@@ -51,15 +52,18 @@ namespace LowVisibility.Patch {
 
     [HarmonyPatch(typeof(Turret), "GetActorInfoFromVisLevel")]
     [HarmonyPatch(new Type[] { typeof(VisibilityLevel) })]
-    public static class Turret_GetActorInfoFromVisLevel {
-        public static void Postfix(Turret __instance, ref Text __result, VisibilityLevel visLevel) {
+    public static class Turret_GetActorInfoFromVisLevel
+    {
+        public static void Postfix(Turret __instance, ref Text __result, VisibilityLevel visLevel)
+        {
             if (__instance == null) { return; }
 
             /*
                 Turret.UnitName = return (this.TurretDef == null) ? "UNDEFINED" : this.TurretDef.Chassis.Description.Name ->
                 Turret.NickName = (this.TurretDef == null) ? "UNDEFINED" : this.TurretDef.Description.Name ->
             */
-            if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
+            if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID))
+            {
                 string chassisName = __instance.UnitName;
                 string fullName = __instance.Nickname;
 
@@ -78,8 +82,10 @@ namespace LowVisibility.Patch {
 
     [HarmonyPatch(typeof(Vehicle), "GetActorInfoFromVisLevel")]
     [HarmonyPatch(new Type[] { typeof(VisibilityLevel) })]
-    public static class Vehicle_GetActorInfoFromVisLevel {
-        public static void Postfix(Vehicle __instance, ref Text __result, VisibilityLevel visLevel) {
+    public static class Vehicle_GetActorInfoFromVisLevel
+    {
+        public static void Postfix(Vehicle __instance, ref Text __result, VisibilityLevel visLevel)
+        {
             if (__instance == null) { return; };
 
             /*
@@ -90,7 +96,8 @@ namespace LowVisibility.Patch {
                     VehicleDef.Description.Id ->
                         / / vehicledef_DEMOLISHER-II / vehicledef_GALLEON_GAL102
             */
-            if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID)) {
+            if (__instance.Combat.HostilityMatrix.IsLocalPlayerEnemy(__instance.team.GUID))
+            {
                 string chassisName = __instance.UnitName;
                 string fullName = __instance.Nickname;
 

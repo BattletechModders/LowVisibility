@@ -1,6 +1,4 @@
-﻿using BattleTech;
-using Localize;
-using LowVisibility.Object;
+﻿using LowVisibility.Object;
 
 namespace LowVisibility.Helper
 {

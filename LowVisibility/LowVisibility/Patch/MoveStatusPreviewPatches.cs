@@ -1,17 +1,10 @@
-﻿using BattleTech;
-using BattleTech.UI;
-using Harmony;
+﻿using BattleTech.UI;
 using IRBTModUtils;
 using IRBTModUtils.Extension;
 using LowVisibility.Helper;
 using LowVisibility.Integration;
 using LowVisibility.Object;
 using LowVisibility.Patch.HUD;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using us.frostraptor.modUtils;
 
@@ -23,7 +16,7 @@ namespace LowVisibility.Patch
         static void Postfix(MoveStatusPreview __instance, AbstractActor actor, Vector3 worldPos, MoveType moveType)
         {
             if (__instance == null || actor == null) return;
-            
+
             // If the player, update some UI elements
             if (actor.team.IsLocalPlayer)
             {

@@ -1,9 +1,7 @@
-﻿using BattleTech;
-using IRBTModUtils;
+﻿using IRBTModUtils;
 using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Object;
-using LowVisibility.Patch;
 using System;
 using System.Text;
 using us.frostraptor.modUtils;
@@ -111,7 +109,7 @@ namespace LowVisibility.Integration
                 Mod.Log.Error?.Write(e, $"Failed to initialize CAC SidePanel for source: {CombatantUtils.Label(source)} and " +
                     $"target: {CombatantUtils.Label(target)}!");
             }
-            
+
         }
     }
 }

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BattleTech;
-using Harmony;
-using LowVisibility.Object;
+﻿using LowVisibility.Object;
 
 namespace LowVisibility.Patch
 {

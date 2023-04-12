@@ -1,10 +1,8 @@
-﻿
-using System.Collections.Generic;
-using UnityEngine;
+﻿namespace LowVisibility
+{
 
-namespace LowVisibility {
-
-    public class ModStats {
+    public class ModStats
+    {
         // WARNING: HBS Code upper-cases all stat names; if you try to comparison match in a case-sensitive fashion
         //  it will fail. Better to uppercase everthing.
 
@@ -51,7 +49,8 @@ namespace LowVisibility {
         // CAE Stats - write carefully!
         public const string CAESensorsRange = "CAE_SENSORS_RANGE";
 
-        public static bool IsStealthStat(string statName) {
+        public static bool IsStealthStat(string statName)
+        {
             return statName != null && statName != "" &&
                 (statName.Equals(ModStats.StealthEffect) || statName.Equals(ModStats.MimeticEffect));
         }

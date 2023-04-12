@@ -1,12 +1,13 @@
-﻿using BattleTech;
-
-namespace LowVisibility.Helper {
-    public class WeaponHelper {
+﻿namespace LowVisibility.Helper
+{
+    public class WeaponHelper
+    {
 
         // We assume range-based effects are encoded as a float[] with 5 spaces;
         //  < minimum range, < short range, < medium range, < long range, < maxRange
         // return of -1 is an error
-        public static int GetRangeIndex(Weapon weapon, float distance) {
+        public static int GetRangeIndex(Weapon weapon, float distance)
+        {
             int rangeIdx = -1;
 
             if (distance < weapon.MinRange) { rangeIdx = 0; }

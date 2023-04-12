@@ -1,5 +1,4 @@
-﻿using SVGImporter;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace LowVisibility.Object
 {

@@ -1,6 +1,4 @@
-﻿using BattleTech;
-using BattleTech.UI;
-using Harmony;
+﻿using BattleTech.UI;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using SVGImporter;
@@ -126,7 +124,7 @@ namespace LowVisibility.Patch.HUD
             icon.SetActive(enable);
         }
 
-        static void UpdateSensorAndVisualsIcons(MarkGOContainer container, AbstractActor displayedActor, 
+        static void UpdateSensorAndVisualsIcons(MarkGOContainer container, AbstractActor displayedActor,
             AbstractActor lastActivated, Vector3 attackerPos, bool isPlayer)
         {
             // Sensors and Visuals are only shown for non-local players            
@@ -147,7 +145,7 @@ namespace LowVisibility.Patch.HUD
                     sensorsImage.color = Color.red;
                 }
 
-                bool canSpotTarget = VisualLockHelper.CanSpotTarget(lastActivated, attackerPos, 
+                bool canSpotTarget = VisualLockHelper.CanSpotTarget(lastActivated, attackerPos,
                     displayedActor, displayedActor.CurrentPosition, displayedActor.CurrentRotation, ModState.Combat.LOS);
                 SVGImage visualsImage = container.VisualsMark.GetComponent<SVGImage>();
                 container.VisualsMark.SetActive(true);
@@ -184,7 +182,7 @@ namespace LowVisibility.Patch.HUD
             GameObject stealthMark = CreateMark(markDisplay.transform.parent.gameObject, Mod.Config.Icons.TargetStealthMark, CombatHUDMarkDisplayConsts.StealthMarkGOId);
             GameObject mimeticMark = CreateMark(markDisplay.transform.parent.gameObject, Mod.Config.Icons.TargetMimeticMark, CombatHUDMarkDisplayConsts.MimeticMarkGOId);
             GameObject ecmShieldedMark = CreateMark(markDisplay.transform.parent.gameObject, Mod.Config.Icons.TargetECMShieldedMark, CombatHUDMarkDisplayConsts.ECMShieldedMarkGOId);
-            
+
             MarkGOContainer container = new MarkGOContainer
             {
                 SensorsMark = sensorsMark,

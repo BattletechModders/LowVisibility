@@ -1,6 +1,4 @@
-﻿using BattleTech;
-using BattleTech.UI;
-using Harmony;
+﻿using BattleTech.UI;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System;
@@ -8,11 +6,14 @@ using System.Reflection;
 using TMPro;
 using us.frostraptor.modUtils;
 
-namespace LowVisibility.Patches {
+namespace LowVisibility.Patches
+{
 
-    public static class ArmorAndStructHelper {
-        public static void ObfuscateArmorAndStructText(AbstractActor target, TextMeshProUGUI armorHover, TextMeshProUGUI structHover) {
-            if (target == null) { Mod.Log.Warn?.Write("Helper::HideArmorAndStructure - target is null!");  }
+    public static class ArmorAndStructHelper
+    {
+        public static void ObfuscateArmorAndStructText(AbstractActor target, TextMeshProUGUI armorHover, TextMeshProUGUI structHover)
+        {
+            if (target == null) { Mod.Log.Warn?.Write("Helper::HideArmorAndStructure - target is null!"); }
             if (armorHover == null) { Mod.Log.Warn?.Write("Helper::HideArmorAndStructure - armorHover is null!"); }
             if (structHover == null) { Mod.Log.Warn?.Write("Helper::HideArmorAndStructure - structHover is null!"); }
 
@@ -65,17 +66,21 @@ namespace LowVisibility.Patches {
     }
 
     [HarmonyPatch(typeof(HUDMechArmorReadout), "RefreshHoverInfo")]
-    public static class HUDMechArmorReadout_RefreshHoverInfo {
+    public static class HUDMechArmorReadout_RefreshHoverInfo
+    {
 
         // Private method can't be patched by annotations, so use MethodInfo
         //public static MethodInfo TargetMethod() {
         //    return AccessTools.Method(typeof(HUDMechArmorReadout), "RefreshHoverInfo", new Type[] { });
         //}
 
-        public static void Postfix(HUDMechArmorReadout __instance) {
+        public static void Postfix(HUDMechArmorReadout __instance)
+        {
 
-            if (__instance != null && __instance.DisplayedMech != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null) {
-                if (!__instance.DisplayedMech.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedMech.TeamId)) {
+            if (__instance != null && __instance.DisplayedMech != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null)
+            {
+                if (!__instance.DisplayedMech.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedMech.TeamId))
+                {
                     Mod.Log.Trace?.Write($"Hiding armor and structure on target: {CombatantUtils.Label(__instance.DisplayedMech)}");
                     ArmorAndStructHelper.ObfuscateArmorAndStructText(__instance.DisplayedMech, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
                 }
@@ -84,16 +89,21 @@ namespace LowVisibility.Patches {
     }
 
     [HarmonyPatch()]
-    public static class HUDVehicleArmorReadout_RefreshHoverInfo {
+    public static class HUDVehicleArmorReadout_RefreshHoverInfo
+    {
         // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod() {
+        public static MethodInfo TargetMethod()
+        {
             return AccessTools.Method(typeof(HUDVehicleArmorReadout), "RefreshHoverInfo", new Type[] { });
         }
 
-        public static void Postfix(HUDVehicleArmorReadout __instance) {
+        public static void Postfix(HUDVehicleArmorReadout __instance)
+        {
 
-            if (__instance != null && __instance.DisplayedVehicle != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null) {
-                if (!__instance.DisplayedVehicle.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedVehicle.TeamId)) {
+            if (__instance != null && __instance.DisplayedVehicle != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null)
+            {
+                if (!__instance.DisplayedVehicle.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedVehicle.TeamId))
+                {
                     ArmorAndStructHelper.ObfuscateArmorAndStructText(__instance.DisplayedVehicle, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
                 }
             }
@@ -102,29 +112,38 @@ namespace LowVisibility.Patches {
 
     // --- TURRETS ---
     [HarmonyPatch()]
-    public static class HUDTurretArmorReadout_ResetArmorStructureBars {
+    public static class HUDTurretArmorReadout_ResetArmorStructureBars
+    {
         // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod() {
+        public static MethodInfo TargetMethod()
+        {
             return AccessTools.Method(typeof(HUDTurretArmorReadout), "ResetArmorStructureBars", new Type[] { });
         }
 
-        public static void Postfix(HUDTurretArmorReadout __instance) {
-            if (__instance.DisplayedTurret != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null) {
-                if (!__instance.DisplayedTurret.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedTurret.TeamId)) {
+        public static void Postfix(HUDTurretArmorReadout __instance)
+        {
+            if (__instance.DisplayedTurret != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null)
+            {
+                if (!__instance.DisplayedTurret.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedTurret.TeamId))
+                {
                     ArmorAndStructHelper.ObfuscateArmorAndStructText(__instance.DisplayedTurret, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
                 }
             }
         }
     }
 
-    public static class HUDTurretArmorReadout_UpdateArmorStructureBars {
+    public static class HUDTurretArmorReadout_UpdateArmorStructureBars
+    {
         // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod() {
+        public static MethodInfo TargetMethod()
+        {
             return AccessTools.Method(typeof(HUDTurretArmorReadout), "UpdateArmorStructureBars", new Type[] { });
         }
 
-        public static void Postfix(HUDTurretArmorReadout __instance) {
-            if (!__instance.DisplayedTurret.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedTurret.TeamId)) {
+        public static void Postfix(HUDTurretArmorReadout __instance)
+        {
+            if (!__instance.DisplayedTurret.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.DisplayedTurret.TeamId))
+            {
                 ArmorAndStructHelper.ObfuscateArmorAndStructText(__instance.DisplayedTurret, __instance.HoverInfoTextArmor, __instance.HoverInfoTextStructure);
             }
         }

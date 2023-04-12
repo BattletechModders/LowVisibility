@@ -1,8 +1,5 @@
-﻿using BattleTech;
-using CleverGirlAIDamagePrediction;
-using CustAmmoCategories;
+﻿using CustAmmoCategories;
 using IRBTModUtils;
-using IRBTModUtils.Extension;
 using LowVisibility.Helper;
 using System;
 using System.Collections.Generic;
@@ -357,9 +354,9 @@ namespace LowVisibility.Object
 
             return strength;
         }
-        public int GetRawECMJammed() 
-        { 
-            return jammedByECMMod >= 0 ? jammedByECMMod : 0; 
+        public int GetRawECMJammed()
+        {
+            return jammedByECMMod >= 0 ? jammedByECMMod : 0;
         }
 
         public float ECMSignatureMod(EWState attackerState)
@@ -408,9 +405,9 @@ namespace LowVisibility.Object
 
             return strength;
         }
-        public int GetRawECMShield() 
-        { 
-            return shieldedByECMMod >= 0 ? shieldedByECMMod : 0; 
+        public int GetRawECMShield()
+        {
+            return shieldedByECMMod >= 0 ? shieldedByECMMod : 0;
         }
 
 
@@ -453,7 +450,7 @@ namespace LowVisibility.Object
                 // Probe only applies if stealth sig starts out positive
                 if (this.PingedByProbeMod() > 0) { strength -= (this.PingedByProbeMod() * 0.05f); }
                 if (attackerState.ProbeCarrierMod() > 0) { strength -= (attackerState.ProbeCarrierMod() * 0.05f); }
-             
+
                 strength = Math.Max(0, strength);
             }
 
@@ -595,7 +592,7 @@ namespace LowVisibility.Object
             if (mapConfig.visionMulti != 1f)
             {
                 adjustedRange = (float)Math.Floor(zoomVision.MaximumRange * mapConfig.visionMulti);
-                Mod.Log.Trace?.Write($"Zoom vision adjusted from: {zoomVision.MaximumRange} x{mapConfig.visionMulti} => {adjustedRange} "); 
+                Mod.Log.Trace?.Write($"Zoom vision adjusted from: {zoomVision.MaximumRange} x{mapConfig.visionMulti} => {adjustedRange} ");
             }
 
             return distance < adjustedRange;
@@ -606,35 +603,35 @@ namespace LowVisibility.Object
         public int GetHeatVisionAttackMod(AbstractActor target, float distance, Weapon weapon)
         {
             if (this.heatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet)
-	        {
-		        return 0;
-	        }
-	    
+            {
+                return 0;
+            }
+
             int result = 0;
-	        Mech mech = target as Mech;
-	        if (mech != null)
-	        {
-		        if (mech.CurrentHeat == 0)
-		        {
-			        return 0;
-		        }
-		
+            Mech mech = target as Mech;
+            if (mech != null)
+            {
+                if (mech.CurrentHeat == 0)
+                {
+                    return 0;
+                }
+
                 int targetHeatMulti = (int)Math.Floor(((mech != null) ? ((double)mech.CurrentHeat) : 0.0) / (double)this.heatVision.HeatDivisor); // target heat divided by the mod heat treshold
-			    int distanceDecayMulti = (int)Math.Floor(((mech != null) ? ((double)distance) : 0.0) / (double)((float)this.heatVision.MaximumRange)); // target distance divided by the mod range bracket
-		        result = Math.Min(Math.Max(this.heatVision.AttackMod * targetHeatMulti, -5) + distanceDecayMulti, 0); // Total bonus (capped between -5 and 0) = heat vision bonus - range decay
+                int distanceDecayMulti = (int)Math.Floor(((mech != null) ? ((double)distance) : 0.0) / (double)((float)this.heatVision.MaximumRange)); // target distance divided by the mod range bracket
+                result = Math.Min(Math.Max(this.heatVision.AttackMod * targetHeatMulti, -5) + distanceDecayMulti, 0); // Total bonus (capped between -5 and 0) = heat vision bonus - range decay
             }
             return result;
         }
 
         public bool HasHeatVisionToTarget(Weapon weapon, float distance)
         {
-            if (heatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) 
-            { 
-                return false; 
+            if (heatVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet)
+            {
+                return false;
             }
             return true;
         }
-        
+
         public HeatVision GetRawHeatVision() { return heatVision; }
 
         // NARC effects

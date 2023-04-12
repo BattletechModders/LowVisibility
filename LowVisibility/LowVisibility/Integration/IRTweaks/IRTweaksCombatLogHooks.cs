@@ -1,5 +1,4 @@
-﻿using BattleTech;
-using IRBTModUtils;
+﻿using IRBTModUtils;
 using LowVisibility.Helper;
 using LowVisibility.Integration.IRTweaks;
 using LowVisibility.Object;
@@ -122,7 +121,7 @@ namespace LowVisibility.Integration
 
                 IRTweaksHelper.LogIfEnabled($"Pilot {pilotGUID}: calculating name with Visibility: {visLevel} and Sensors: {scanType}");
                 name = PilotNameHelper.GetEnemyPilotName(visLevel, scanType, abstractActor);
-                
+
 
                 if (Mod.Config.Integrations.IRTweaks.CombatLogNames == CombatLogIntegration.REMEMBER)
                 {

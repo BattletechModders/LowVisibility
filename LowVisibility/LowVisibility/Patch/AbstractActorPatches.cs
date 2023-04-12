@@ -1,6 +1,4 @@
-﻿using BattleTech;
-using BattleTech.UI;
-using Harmony;
+﻿using BattleTech.UI;
 using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Object;

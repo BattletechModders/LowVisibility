@@ -1,9 +1,11 @@
 ﻿
 using System.Collections.Generic;
 
-namespace LowVisibility {
-   
-    public class ModText {
+namespace LowVisibility
+{
+
+    public class ModText
+    {
 
         // Map effect keys
         public const string LT_MAP_LIGHT_BRIGHT = "MAP_LIGHT_BRIGHT";

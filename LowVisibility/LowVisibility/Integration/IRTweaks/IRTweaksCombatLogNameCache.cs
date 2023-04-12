@@ -1,8 +1,5 @@
-﻿using BattleTech;
-using Harmony;
-using LowVisibility.Integration.IRTweaks;
+﻿using LowVisibility.Integration.IRTweaks;
 using LowVisibility.Object;
-using System.Collections.Generic;
 
 namespace LowVisibility.Integration
 {

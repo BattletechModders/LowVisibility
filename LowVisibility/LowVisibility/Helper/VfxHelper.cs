@@ -1,24 +1,23 @@
-﻿using BattleTech;
-using BattleTech.Assetbundles;
+﻿using BattleTech.Assetbundles;
 using BattleTech.Rendering;
 using BattleTech.Rendering.Mood;
 using BattleTech.UI;
 using CustAmmoCategories;
 using FogOfWar;
-using Harmony;
 using HBS;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.PostProcessing;
 using UnityEngine.UI;
 using us.frostraptor.modUtils;
 
-namespace LowVisibility.Helper {
-    public static class VfxHelper {
+namespace LowVisibility.Helper
+{
+    public static class VfxHelper
+    {
 
         public const string ECMBubbleBaseVFX = "vfxPrfPrtl_ECM_loop";
         public const string ECMBubbleOpforBaseVFX = "vfxPrfPrtl_ECM_opponent_loop";
@@ -32,13 +31,14 @@ namespace LowVisibility.Helper {
 
         public static Material StealthBubbleMaterial;
         public static Material DistortionMaterial;
-        
-        public static void Initialize(CombatGameState cgs) {
+
+        public static void Initialize(CombatGameState cgs)
+        {
             Mod.Log.Debug?.Write("== INITIALIZING MATERIALS ==");
 
             Traverse abmT = Traverse.Create(cgs.DataManager).Property("AssetBundleManager");
             AssetBundleManager abm = abmT.GetValue<AssetBundleManager>();
-            
+
             GameObject ppcImpactGO = abm.GetAssetFromBundle<GameObject>("vfxPrfPrtl_weaponPPCImpact_crit", "vfx");
 
             StealthBubbleMaterial = Resources.FindObjectsOfTypeAll<Material>()
@@ -53,18 +53,22 @@ namespace LowVisibility.Helper {
             // vfxMatPrtl_ECMdistortionWeak or vfxMatPrtl_ECMdistortionStrong
         }
 
-        public static void EnableStealthVfx(AbstractActor actor) {
+        public static void EnableStealthVfx(AbstractActor actor)
+        {
 
             if (!ModState.TurnDirectorStarted) { return; }
 
-            if (!actor.StatCollection.ContainsStatistic(ModStats.StealthVFXEnabled)) {
+            if (!actor.StatCollection.ContainsStatistic(ModStats.StealthVFXEnabled))
+            {
                 Mod.Log.Debug?.Write("ENABLING SENSOR STEALTH EFFECT");
 
                 ParticleSystem ps = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform, Vector3.zero, ECMBubbleBaseVFX, StealthEffectVfxId, true, Vector3.zero, false, -1f); ;
                 ps.Stop(true);
 
-                foreach (Transform child in ps.transform) {
-                    if (child.gameObject.name == "sphere") {
+                foreach (Transform child in ps.transform)
+                {
+                    if (child.gameObject.name == "sphere")
+                    {
                         Mod.Log.Debug?.Write($"  - Configuring sphere");
 
                         if (actor is Mech)
@@ -90,7 +94,8 @@ namespace LowVisibility.Helper {
                             child.gameObject.transform.localScale = new Vector3(0.13f, 0.13f, 0.13f);
 
                         // Center the sphere
-                        if (actor.GameRep is MechRepresentation mr) {
+                        if (actor.GameRep is MechRepresentation mr)
+                        {
                             Mod.Log.Debug?.Write($"Parent mech y positions: head: {mr.vfxHeadTransform.position.y} / " +
                                 $"torso: {mr.vfxCenterTorsoTransform.position.y} / " +
                                 $"leg: {mr.vfxLeftLegTransform.position.y}");
@@ -101,11 +106,15 @@ namespace LowVisibility.Helper {
                             child.gameObject.transform.position = mr.vfxCenterTorsoTransform.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, headToTorso * 2, 2f);
                             Mod.Log.Debug?.Write($"Centering sphere on mech torso at position: {mr.TorsoAttach.position}");
-                        } else if (actor.GameRep is VehicleRepresentation vr) {
+                        }
+                        else if (actor.GameRep is VehicleRepresentation vr)
+                        {
                             child.gameObject.transform.position = vr.BodyAttach.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
                             Mod.Log.Debug?.Write($"Centering sphere on vehicle body at position: {vr.BodyAttach.position}");
-                        } else if (actor.GameRep is TurretRepresentation tr) {
+                        }
+                        else if (actor.GameRep is TurretRepresentation tr)
+                        {
                             child.gameObject.transform.position = tr.BodyAttach.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
                             Mod.Log.Debug?.Write($"Centering sphere on turret body at position: {tr.BodyAttach.position}");
@@ -113,7 +122,9 @@ namespace LowVisibility.Helper {
 
                         ParticleSystemRenderer spherePSR = child.gameObject.transform.GetComponent<ParticleSystemRenderer>();
                         spherePSR.material = VfxHelper.StealthBubbleMaterial;
-                    } else {
+                    }
+                    else
+                    {
                         child.gameObject.SetActive(false);
                     }
                 }
@@ -123,11 +134,13 @@ namespace LowVisibility.Helper {
             }
         }
 
-        public static void DisableSensorStealthEffect(AbstractActor actor) {
+        public static void DisableSensorStealthEffect(AbstractActor actor)
+        {
 
             if (!ModState.TurnDirectorStarted) { return; }
 
-            if (actor.StatCollection.ContainsStatistic(ModStats.StealthVFXEnabled)) {
+            if (actor.StatCollection.ContainsStatistic(ModStats.StealthVFXEnabled))
+            {
                 Mod.Log.Debug?.Write("DISABLING SENSOR STEALTH EFFECT");
 
                 actor.GameRep.StopManualPersistentVFX(StealthEffectVfxId);
@@ -136,18 +149,22 @@ namespace LowVisibility.Helper {
             }
         }
 
-        public static void EnableMimeticEffect(AbstractActor actor) {
+        public static void EnableMimeticEffect(AbstractActor actor)
+        {
 
             if (!ModState.TurnDirectorStarted) { return; }
 
-            if (!actor.StatCollection.ContainsStatistic(ModStats.MimeticVFXEnabled)) {
+            if (!actor.StatCollection.ContainsStatistic(ModStats.MimeticVFXEnabled))
+            {
                 Mod.Log.Debug?.Write("ENABLING MIMETIC EFFECT");
 
                 ParticleSystem ps = PlayVFXAt(actor.GameRep, actor.GameRep.thisTransform, Vector3.zero, ECMBubbleBaseVFX, MimeticEffectVfxId, true, Vector3.zero, false, -1f); ;
                 ps.Stop(true);
 
-                foreach (Transform child in ps.transform) {
-                    if (child.gameObject.name == "sphere rumble") {
+                foreach (Transform child in ps.transform)
+                {
+                    if (child.gameObject.name == "sphere rumble")
+                    {
                         Mod.Log.Trace?.Write($"  - Configuring sphere rumble");
 
 
@@ -175,15 +192,18 @@ namespace LowVisibility.Helper {
 
                         // Try to manipulate the animation speed
                         ParticleSystem[] childPS = child.gameObject.GetComponentsInChildren<ParticleSystem>();
-                        if (childPS != null && childPS.Length != 0) {
-                            foreach (ParticleSystem cPS in childPS) {
+                        if (childPS != null && childPS.Length != 0)
+                        {
+                            foreach (ParticleSystem cPS in childPS)
+                            {
                                 var main = cPS.main;
                                 main.duration = 4f;
                             }
                         }
 
                         // Center the sphere
-                        if (actor.GameRep is MechRepresentation mr) {
+                        if (actor.GameRep is MechRepresentation mr)
+                        {
                             float headToTorso = mr.vfxHeadTransform.position.y - mr.vfxCenterTorsoTransform.position.y;
                             float torsoToLeg = mr.vfxCenterTorsoTransform.position.y - mr.vfxLeftLegTransform.position.y;
                             Mod.Log.Trace?.Write($"Parent mech headToTorso:{headToTorso} / torsoToLeg:{torsoToLeg}");
@@ -191,11 +211,15 @@ namespace LowVisibility.Helper {
                             child.gameObject.transform.position = mr.vfxCenterTorsoTransform.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, headToTorso * 2, 2f);
                             Mod.Log.Debug?.Write($"Centering sphere on mech torso at position: {mr.TorsoAttach.position}");
-                        } else if (actor.GameRep is VehicleRepresentation vr) {
+                        }
+                        else if (actor.GameRep is VehicleRepresentation vr)
+                        {
                             child.gameObject.transform.position = vr.BodyAttach.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
                             Mod.Log.Debug?.Write($"Centering sphere on vehicle body at position: {vr.BodyAttach.position}");
-                        } else if (actor.GameRep is TurretRepresentation tr) {
+                        }
+                        else if (actor.GameRep is TurretRepresentation tr)
+                        {
                             child.gameObject.transform.position = tr.BodyAttach.position;
                             child.gameObject.transform.localPosition = new Vector3(0f, 0f, 2f);
                             Mod.Log.Debug?.Write($"Centering sphere on turret body at position: {tr.BodyAttach.position}");
@@ -204,13 +228,16 @@ namespace LowVisibility.Helper {
 
                         ParticleSystemRenderer spherePSR = child.gameObject.transform.GetComponent<ParticleSystemRenderer>();
                         spherePSR.material = VfxHelper.DistortionMaterial;
-                    } else {
+                    }
+                    else
+                    {
                         child.gameObject.SetActive(false);
                     }
                 }
                 ps.Play(true);
 
-                if (Mod.Config.Toggles.MimeticUsesGhost) {
+                if (Mod.Config.Toggles.MimeticUsesGhost)
+                {
                     Mod.Log.Debug?.Write($"Enabling GhostWeak VFX on actor: {CombatantUtils.Label(actor)}");
                     PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
                     par.BlipObjectGhostStrong.SetActive(false);
@@ -221,17 +248,20 @@ namespace LowVisibility.Helper {
             }
         }
 
-        public static void DisableMimeticEffect(AbstractActor actor) {
+        public static void DisableMimeticEffect(AbstractActor actor)
+        {
 
             if (!ModState.TurnDirectorStarted) { return; }
 
-            if (actor.StatCollection.ContainsStatistic(ModStats.MimeticVFXEnabled)) {
+            if (actor.StatCollection.ContainsStatistic(ModStats.MimeticVFXEnabled))
+            {
 
                 Mod.Log.Debug?.Write("DISABLING MIMETIC EFFECT");
 
                 actor.GameRep.StopManualPersistentVFX(MimeticEffectVfxId);
 
-                if (Mod.Config.Toggles.MimeticUsesGhost) {
+                if (Mod.Config.Toggles.MimeticUsesGhost)
+                {
                     Mod.Log.Debug?.Write($"Disabling GhostWeak VFX on actor: {CombatantUtils.Label(actor)}");
                     PilotableActorRepresentation par = actor.GameRep as PilotableActorRepresentation;
                     par.BlipObjectGhostStrong.SetActive(false);
@@ -242,10 +272,11 @@ namespace LowVisibility.Helper {
             }
         }
 
-        public static void EnableNightVisionEffect(AbstractActor source) {
+        public static void EnableNightVisionEffect(AbstractActor source)
+        {
             // Skip if the green effect is disabled
-            if (!Mod.Config.Toggles.ShowNightVision) { return;  }
-            
+            if (!Mod.Config.Toggles.ShowNightVision) { return; }
+
             ModState.IsNightVisionMode = true;
 
             MoodController mc = MoodController.Instance;
@@ -284,7 +315,8 @@ namespace LowVisibility.Helper {
             Shader.SetGlobalVector(Shader.PropertyToID("_BT_SunlightDirection"), sunlightBT.transform.up);
         }
 
-        public static void DisableNightVisionEffect() {
+        public static void DisableNightVisionEffect()
+        {
             // Skip if the green effect is disabled
             if (!Mod.Config.Toggles.ShowNightVision) { return; }
 
@@ -316,7 +348,8 @@ namespace LowVisibility.Helper {
             Shader.SetGlobalVector(Shader.PropertyToID("_BT_SunlightDirection"), sunlightBT.transform.forward);
         }
 
-        public static void RedrawFogOfWar(AbstractActor activeActor) {
+        public static void RedrawFogOfWar(AbstractActor activeActor)
+        {
 
             if (!Mod.Config.FogOfWar.RedrawFogOfWarOnActivation) return;
 
@@ -334,19 +367,23 @@ namespace LowVisibility.Helper {
             viewers.Clear();
 
             // Reset FoW to being unseen
-            fowSystem.WipeToValue(Mod.Config.FogOfWar.ShowTerrainThroughFogOfWar ? 
+            fowSystem.WipeToValue(Mod.Config.FogOfWar.ShowTerrainThroughFogOfWar ?
                 FogOfWarState.Surveyed : FogOfWarState.Unknown);
 
             // Add the actor as a viewer
             fowSystem.AddViewer(activeActor);
 
             // Check lancemates; if they have vision sharing add them as well
-            foreach (string lanceGuid in activeActor?.lance?.unitGuids) {
-                if (!lanceGuid.Equals(activeActor.GUID)) {
+            foreach (string lanceGuid in activeActor?.lance?.unitGuids)
+            {
+                if (!lanceGuid.Equals(activeActor.GUID))
+                {
                     ICombatant lanceMateC = activeActor.Combat.FindCombatantByGUID(lanceGuid);
-                    if (lanceMateC is AbstractActor lanceActor) {
+                    if (lanceMateC is AbstractActor lanceActor)
+                    {
                         EWState lanceState = new EWState(lanceActor);
-                        if (lanceState.SharesVision()) {
+                        if (lanceState.SharesVision())
+                        {
                             fowSystem.AddViewer(lanceActor);
                         }
                     }
@@ -355,18 +392,21 @@ namespace LowVisibility.Helper {
 
         }
 
-        public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, Vector3 previewPos) {
+        public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, Vector3 previewPos)
+        {
             float distanceMoved = Vector3.Distance(previewPos, actor.CurrentPosition);
             CalculateMimeticPips(stealthDisplay, actor, distanceMoved);
         }
 
-        public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor) {
+        public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor)
+        {
             float distanceMoved = Vector3.Distance(actor.PreviousPosition, actor.CurrentPosition);
             CalculateMimeticPips(stealthDisplay, actor, distanceMoved);
 
         }
 
-        public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, float distanceMoved) {
+        public static void CalculateMimeticPips(CombatHUDStealthBarPips stealthDisplay, AbstractActor actor, float distanceMoved)
+        {
             EWState actorState = new EWState(actor);
             Mod.Log.Trace?.Write($"Calculating mimeticPips for Actor: {CombatantUtils.Label(actor)}");
 
@@ -381,9 +421,11 @@ namespace LowVisibility.Helper {
             // Change colors to reflect maxmimums
             Traverse pipsT = Traverse.Create(stealthDisplay).Property("Pips");
             List<Graphic> pips = pipsT.GetValue<List<Graphic>>();
-            for (int i = 0; i < pips.Count; i++) {
+            for (int i = 0; i < pips.Count; i++)
+            {
                 Graphic g = pips[i];
-                if (g.isActiveAndEnabled) {
+                if (g.isActiveAndEnabled)
+                {
                     //Color pipColor = Color.white;
                     Color pipColor = new Color(50f, 206f, 230f);
                     UIHelpers.SetImageColor(g, pipColor);
@@ -391,15 +433,18 @@ namespace LowVisibility.Helper {
             }
         }
 
-        public static ParticleSystem PlayVFXAt(GameRepresentation gameRep, Transform parentTransform, Vector3 offset, string vfxName, string effectName, 
-            bool attached, Vector3 lookAtPos, bool oneShot, float duration) {
+        public static ParticleSystem PlayVFXAt(GameRepresentation gameRep, Transform parentTransform, Vector3 offset, string vfxName, string effectName,
+            bool attached, Vector3 lookAtPos, bool oneShot, float duration)
+        {
 
-            if (string.IsNullOrEmpty(vfxName)) {
+            if (string.IsNullOrEmpty(vfxName))
+            {
                 return null;
             }
 
             GameObject gameObject = gameRep.parentCombatant.Combat.DataManager.PooledInstantiate(vfxName, BattleTechResourceType.Prefab, null, null, null);
-            if (gameObject == null) {
+            if (gameObject == null)
+            {
                 GameRepresentation.initLogger.LogError("Error instantiating VFX " + vfxName, gameRep);
                 return null;
             }
@@ -410,45 +455,63 @@ namespace LowVisibility.Helper {
             transform.SetParent(null);
 
             BTWindZone componentInChildren = gameObject.GetComponentInChildren<BTWindZone>(true);
-            if (componentInChildren != null && componentInChildren.enabled) {
+            if (componentInChildren != null && componentInChildren.enabled)
+            {
                 componentInChildren.ResetZero();
             }
 
             BTLightAnimator componentInChildren2 = gameObject.GetComponentInChildren<BTLightAnimator>(true);
-            if (attached) {
+            if (attached)
+            {
                 transform.SetParent(parentTransform, false);
                 transform.localPosition = offset;
-            } else {
+            }
+            else
+            {
                 transform.localPosition = Vector3.zero;
-                if (parentTransform != null) {
+                if (parentTransform != null)
+                {
                     transform.position = parentTransform.position;
                 }
                 transform.position += offset;
             }
 
-            if (lookAtPos != Vector3.zero) {
+            if (lookAtPos != Vector3.zero)
+            {
                 transform.LookAt(lookAtPos);
-            } else {
+            }
+            else
+            {
                 transform.localRotation = Quaternion.identity;
             }
             transform.localScale = Vector3.one;
 
-            if (oneShot) {
+            if (oneShot)
+            {
                 AutoPoolObject autoPoolObject = gameObject.GetComponent<AutoPoolObject>();
-                if (autoPoolObject == null) {
+                if (autoPoolObject == null)
+                {
                     autoPoolObject = gameObject.AddComponent<AutoPoolObject>();
                 }
-                if (duration > 0f) {
+                if (duration > 0f)
+                {
                     autoPoolObject.Init(gameRep.parentCombatant.Combat.DataManager, vfxName, duration);
-                } else {
+                }
+                else
+                {
                     autoPoolObject.Init(gameRep.parentCombatant.Combat.DataManager, vfxName, component);
                 }
-            } else {
+            }
+            else
+            {
                 List<ParticleSystem> list = null;
-                if (gameRep.persistentVFXParticles.TryGetValue(effectName, out list)) {
+                if (gameRep.persistentVFXParticles.TryGetValue(effectName, out list))
+                {
                     list.Add(component);
                     gameRep.persistentVFXParticles[effectName] = list;
-                } else {
+                }
+                else
+                {
                     list = new List<ParticleSystem>();
                     list.Add(component);
                     gameRep.persistentVFXParticles[effectName] = list;
@@ -457,10 +520,12 @@ namespace LowVisibility.Helper {
 
             BTCustomRenderer.SetVFXMultiplier(component);
             component.Play(true);
-            if (componentInChildren != null) {
+            if (componentInChildren != null)
+            {
                 componentInChildren.PlayAnimCurve();
             }
-            if (componentInChildren2 != null) {
+            if (componentInChildren2 != null)
+            {
                 componentInChildren2.PlayAnimation();
             }
 

@@ -1,11 +1,5 @@
-﻿using BattleTech;
-using BattleTech.Save;
-using BattleTech.Save.SaveGameStructure.Messages;
-using Harmony;
-using System;
-using System.Reflection;
-
-namespace LowVisibility.Patch {
+﻿namespace LowVisibility.Patch
+{
 
     //[HarmonyPatch(typeof(GameInstance), "Load")]
     //[HarmonyPatch(new Type[] { typeof(GameInstanceSave) })]

@@ -1,6 +1,4 @@
-﻿using BattleTech;
-using Harmony;
-using IRBTModUtils.Extension;
+﻿using IRBTModUtils.Extension;
 using LowVisibility.Object;
 using UnityEngine;
 
@@ -25,7 +23,7 @@ namespace LowVisibility.Patch
             {
                 Mod.Log.Info?.Write($"  Mimetic pips updated to: {actorState.CurrentMimeticPips()}");
             }
-            
+
         }
     }
 

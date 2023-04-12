@@ -1,5 +1,4 @@
-﻿using BattleTech;
-using IRBTModUtils.Extension;
+﻿using IRBTModUtils.Extension;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using System.Collections.Generic;
@@ -13,7 +12,7 @@ namespace LowVisibility.Integration
 
         public enum LowVisModifierType
         {
-            FiringBlind, NoVisuals, zoomVisionMod, mimeticMod, heatAttackMod, NoSensors, ecmJammed, ecmShield, 
+            FiringBlind, NoVisuals, zoomVisionMod, mimeticMod, heatAttackMod, NoSensors, ecmJammed, ecmShield,
             narcAttack, tagAttack, stealthAttack
         }
 
@@ -21,16 +20,16 @@ namespace LowVisibility.Integration
         {
             public Dictionary<LowVisModifierType, int> modifiers = new Dictionary<LowVisModifierType, int>();
 
-            public float get(LowVisModifierType type) 
-            { 
-                if (modifiers.TryGetValue(type, out int result)) { return result; }; 
-                return 0f; 
+            public float get(LowVisModifierType type)
+            {
+                if (modifiers.TryGetValue(type, out int result)) { return result; };
+                return 0f;
             }
 
-            public void AddModifiers(LowVisModifierType type, int value) 
-            { 
-                if (modifiers.ContainsKey(type)) { modifiers[type] = value; } 
-                else { modifiers.Add(type, value); }; 
+            public void AddModifiers(LowVisModifierType type, int value)
+            {
+                if (modifiers.ContainsKey(type)) { modifiers[type] = value; }
+                else { modifiers.Add(type, value); };
             }
         }
 

@@ -1,5 +1,4 @@
-﻿using BattleTech;
-using BattleTech.UI;
+﻿using BattleTech.UI;
 
 namespace LowVisibility.Helper
 {
@@ -26,7 +25,7 @@ namespace LowVisibility.Helper
                 {
                     flagHex.ActorInfo.NameDisplay.RefreshInfo();
                 }
-                
+
             }
         }
     }

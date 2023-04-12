@@ -1,6 +1,4 @@
-﻿using BattleTech;
-using BattleTech.UI;
-using Harmony;
+﻿using BattleTech.UI;
 using Localize;
 using LowVisibility.Helper;
 using LowVisibility.Integration;
@@ -9,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
 using TMPro;
 using UnityEngine;
 using us.frostraptor.modUtils;

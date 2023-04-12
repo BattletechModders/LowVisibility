@@ -1,61 +1,73 @@
-﻿using BattleTech;
-using LowVisibility.Object;
+﻿using LowVisibility.Object;
 using UnityEngine;
 using us.frostraptor.modUtils;
-using us.frostraptor.modUtils.math;
 
-namespace LowVisibility.Helper {
-    public static class VisualLockHelper {
+namespace LowVisibility.Helper
+{
+    public static class VisualLockHelper
+    {
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        public static float GetSpotterRange(AbstractActor source) {
+        public static float GetSpotterRange(AbstractActor source)
+        {
             // FIXME: Dirty hack here. Assuming that night vision mode only comes on during a unit's turn / selection, then goes away
-            float visRange = ModState.IsNightVisionMode ? 
+            float visRange = ModState.IsNightVisionMode ?
                 ModState.GetMapConfig().nightVisionSpotterRange : ModState.GetMapConfig().spotterRange;
             return GetVisualRange(visRange, source);
         }
 
-        public static float GetVisualLockRange(AbstractActor source) {
+        public static float GetVisualLockRange(AbstractActor source)
+        {
             // FIXME: Dirty hack here. Assuming that night vision mode only comes on during a unit's turn / selection, then goes away
             float visRange = ModState.IsNightVisionMode ? ModState.GetMapConfig().nightVisionSpotterRange : ModState.GetMapConfig().spotterRange;
             return GetVisualRange(visRange, source);
         }
 
-        public static float GetVisualScanRange(AbstractActor source) {
+        public static float GetVisualScanRange(AbstractActor source)
+        {
             // FIXME: Dirty hack here. Assuming that night vision mode only comes on during a unit's turn / selection, then goes away
             float visRange = ModState.IsNightVisionMode ? ModState.GetMapConfig().nightVisionVisualIDRange : ModState.GetMapConfig().visualIDRange;
             return GetVisualRange(visRange, source);
         }
 
-        private static float GetVisualRange(float visionRange, AbstractActor source) {
+        private static float GetVisualRange(float visionRange, AbstractActor source)
+        {
             float visualRange;
-            if (source.IsShutDown) {
+            if (source.IsShutDown)
+            {
                 visualRange = visionRange * source.Combat.Constants.Visibility.ShutdownSpottingDistanceMultiplier;
-            } else if (source.IsProne) {
+            }
+            else if (source.IsProne)
+            {
                 visualRange = visionRange * source.Combat.Constants.Visibility.ProneSpottingDistanceMultiplier;
-            } else {
+            }
+            else
+            {
                 float multipliers = VisualLockHelper.GetAllSpotterMultipliers(source);
                 float absolutes = VisualLockHelper.GetAllSpotterAbsolutes(source);
-                
+
                 visualRange = visionRange * multipliers + absolutes;
                 //Mod.Log.Trace?.Write($" -- source:{CombatantUtils.Label(source)} has spotting " +
                 //    $"multi:x{multipliers} absolutes:{absolutes} visionRange:{visionRange}");
             }
 
-            if (visualRange < Mod.Config.Vision.MinimumRange) {
+            if (visualRange < Mod.Config.Vision.MinimumRange)
+            {
                 visualRange = Mod.Config.Vision.MinimumRange;
             }
-            
+
             //LowVisibility.Logger.Trace($" -- source:{CombatantUtils.Label(source)} visual range is:{normalizedRange}m normalized from:{visualRange}m");
             return visualRange;
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        public static float GetAdjustedSpotterRange(AbstractActor source, ICombatant target) {
+        public static float GetAdjustedSpotterRange(AbstractActor source, ICombatant target)
+        {
 
             float targetVisibility = 1f;
             AbstractActor targetActor = target as AbstractActor;
-            if (targetActor != null) {
+            if (targetActor != null)
+            {
                 EWState sourceState = source.GetEWState();
                 targetVisibility = VisualLockHelper.GetTargetVisibility(targetActor, sourceState);
             }
@@ -63,7 +75,8 @@ namespace LowVisibility.Helper {
             float spotterRange = VisualLockHelper.GetSpotterRange(source);
 
             float modifiedRange = spotterRange * targetVisibility;
-            if (modifiedRange < Mod.Config.Vision.MinimumRange) {
+            if (modifiedRange < Mod.Config.Vision.MinimumRange)
+            {
                 modifiedRange = Mod.Config.Vision.MinimumRange;
             }
 
@@ -72,12 +85,14 @@ namespace LowVisibility.Helper {
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        public static float GetAllSpotterMultipliers(AbstractActor source) {
+        public static float GetAllSpotterMultipliers(AbstractActor source)
+        {
             return source == null ? 1f : source.SpotterDistanceMultiplier;
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        public static float GetAllSpotterAbsolutes(AbstractActor source) {
+        public static float GetAllSpotterAbsolutes(AbstractActor source)
+        {
 
             // Intentionally don't allow tactics to influence spotting range. Tactics gives enough other
             //   benefits, no need to add it here.
@@ -100,7 +115,8 @@ namespace LowVisibility.Helper {
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        public static float GetTargetVisibility(AbstractActor target, EWState sourceState) {
+        public static float GetTargetVisibility(AbstractActor target, EWState sourceState)
+        {
             if (target == null) { return 1f; }
 
             float allTargetVisibilityMultipliers = GetAllTargetVisibilityMultipliers(target, sourceState);
@@ -110,11 +126,12 @@ namespace LowVisibility.Helper {
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        private static float GetAllTargetVisibilityMultipliers(AbstractActor target, EWState sourceState) {
+        private static float GetAllTargetVisibilityMultipliers(AbstractActor target, EWState sourceState)
+        {
             if (target == null) { return 1f; }
 
             float baseVisMulti = 1f;
-            float shutdownVisMulti = (!target.IsShutDown) ? 1f : target.Combat.Constants.Visibility.ShutDownVisibilityModifier;        
+            float shutdownVisMulti = (!target.IsShutDown) ? 1f : target.Combat.Constants.Visibility.ShutDownVisibilityModifier;
             float spottingVisibilityMultiplier = target.SpottingVisibilityMultiplier;
 
             EWState ewState = target.GetEWState();
@@ -129,7 +146,8 @@ namespace LowVisibility.Helper {
         }
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
-        private static float GetAllTargetVisibilityAbsolutes(AbstractActor target) {
+        private static float GetAllTargetVisibilityAbsolutes(AbstractActor target)
+        {
             if (target == null) { return 0f; }
 
             float baseVisMod = 0f;
@@ -142,14 +160,16 @@ namespace LowVisibility.Helper {
         // Determines if a source has visual lock to a target from a given position. Because units have differnet positions, check all of them.
         //  Typically from head-to-head for mechs, but buildings have multiple positions.
         public static bool CanSpotTarget(AbstractActor source, Vector3 sourcePos,
-                ICombatant target, Vector3 targetPos, Quaternion targetRot, LineOfSight los) {
+                ICombatant target, Vector3 targetPos, Quaternion targetRot, LineOfSight los)
+        {
 
             float spottingRangeVsTarget = VisualLockHelper.GetAdjustedSpotterRange(source, target);
             float distance = Vector3.Distance(sourcePos, targetPos);
             //Mod.Log.Info?.Write($" COMPARING SPOTTING_RANGE: {spottingRangeVsTarget} VS DISTANCE: {distance}");
 
             // Check range first
-            if (distance > spottingRangeVsTarget) {
+            if (distance > spottingRangeVsTarget)
+            {
                 return false;
             }
 
@@ -159,12 +179,16 @@ namespace LowVisibility.Helper {
             //Quaternion rotation = Quaternion.LookRotation(forward);
             Quaternion rotation = (forward != Vector3.zero) ? Quaternion.LookRotation(forward) : source.CurrentRotation;
 
-            if (distance <= spottingRangeVsTarget) {
+            if (distance <= spottingRangeVsTarget)
+            {
                 Vector3[] lossourcePositions = source.GetLOSSourcePositions(sourcePos, rotation);
                 Vector3[] lostargetPositions = target.GetLOSTargetPositions(targetPos, targetRot);
-                for (int i = 0; i < lossourcePositions.Length; i++) {
-                    for (int j = 0; j < lostargetPositions.Length; j++) {                        
-                        if (los.HasLineOfSight(lossourcePositions[i], lostargetPositions[j], spottingRangeVsTarget, target.GUID)) {
+                for (int i = 0; i < lossourcePositions.Length; i++)
+                {
+                    for (int j = 0; j < lostargetPositions.Length; j++)
+                    {
+                        if (los.HasLineOfSight(lossourcePositions[i], lostargetPositions[j], spottingRangeVsTarget, target.GUID))
+                        {
                             return true;
                         }
                     }

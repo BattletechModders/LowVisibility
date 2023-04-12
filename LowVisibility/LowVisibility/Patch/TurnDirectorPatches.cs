@@ -1,7 +1,5 @@
-﻿using BattleTech;
-using BattleTech.Rendering.Mood;
+﻿using BattleTech.Rendering.Mood;
 using CustomUnits;
-using Harmony;
 using IRBTModUtils.Extension;
 using LowVisibility.Helper;
 using LowVisibility.Object;
