@@ -3,9 +3,4 @@
     <PropertyGroup>
         <BattleTechGameDir>CHANGEME_TO_FULL_PATH_TO_BTG_DIR</BattleTechGameDir>
     </PropertyGroup>
-
-    <PropertyGroup>
-        <ReferencePath>$(BattleTechGameDir)\BattleTech_Data\Managed\;$(ReferencePath)</ReferencePath>
-    </PropertyGroup>
-
 </Project>
