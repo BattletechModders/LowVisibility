@@ -5,7 +5,6 @@ using LowVisibility.Integration;
 using LowVisibility.Object;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Reflection.Emit;
 using TMPro;
 using UnityEngine;
@@ -14,15 +13,9 @@ using us.frostraptor.modUtils;
 namespace LowVisibility.Patch
 {
     // Allow the CombatHUDTargeting computer to be displayed for blips
-    [HarmonyPatch()]
+    [HarmonyPatch(typeof(CombatHUDTargetingComputer), "OnActorHovered", new Type[] { typeof(MessageCenterMessage) })]
     public static class CombatHUDTargetingComputer_OnActorHovered
     {
-
-        // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod()
-        {
-            return AccessTools.Method(typeof(CombatHUDTargetingComputer), "OnActorHovered", new Type[] { typeof(MessageCenterMessage) });
-        }
 
         public static void Postfix(CombatHUDTargetingComputer __instance, MessageCenterMessage message, CombatHUD ___HUD)
         {

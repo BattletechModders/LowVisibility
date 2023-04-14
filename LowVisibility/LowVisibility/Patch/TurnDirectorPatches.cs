@@ -183,20 +183,12 @@ namespace LowVisibility.Patch
         }
     }
 
-    [HarmonyPatch()]
+    [HarmonyPatch(typeof(EncounterLayerParent), "InitFromSavePassTwo", new Type[] { typeof(CombatGameState) })]
     public static class EncounterLayerParent_InitFromSavePassTwo
     {
-
-        // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod()
-        {
-            return AccessTools.Method(typeof(EncounterLayerParent), "InitFromSavePassTwo", new Type[] { typeof(CombatGameState) });
-        }
-
         public static void Postfix(EncounterLayerParent __instance, CombatGameState combat)
         {
             Mod.Log.Trace?.Write($"TD:IFSPT entered");
-
             TurnDirector_OnEncounterBegin.IsFromSave = true;
         }
     }

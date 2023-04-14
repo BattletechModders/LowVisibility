@@ -69,11 +69,6 @@ namespace LowVisibility.Patches
     public static class HUDMechArmorReadout_RefreshHoverInfo
     {
 
-        // Private method can't be patched by annotations, so use MethodInfo
-        //public static MethodInfo TargetMethod() {
-        //    return AccessTools.Method(typeof(HUDMechArmorReadout), "RefreshHoverInfo", new Type[] { });
-        //}
-
         public static void Postfix(HUDMechArmorReadout __instance)
         {
 
@@ -88,15 +83,9 @@ namespace LowVisibility.Patches
         }
     }
 
-    [HarmonyPatch()]
+    [HarmonyPatch(typeof(HUDVehicleArmorReadout), "RefreshHoverInfo", new Type[] { })]
     public static class HUDVehicleArmorReadout_RefreshHoverInfo
     {
-        // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod()
-        {
-            return AccessTools.Method(typeof(HUDVehicleArmorReadout), "RefreshHoverInfo", new Type[] { });
-        }
-
         public static void Postfix(HUDVehicleArmorReadout __instance)
         {
 
@@ -111,15 +100,9 @@ namespace LowVisibility.Patches
     }
 
     // --- TURRETS ---
-    [HarmonyPatch()]
+    [HarmonyPatch(typeof(HUDTurretArmorReadout), "ResetArmorStructureBars", new Type[] { })]
     public static class HUDTurretArmorReadout_ResetArmorStructureBars
     {
-        // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod()
-        {
-            return AccessTools.Method(typeof(HUDTurretArmorReadout), "ResetArmorStructureBars", new Type[] { });
-        }
-
         public static void Postfix(HUDTurretArmorReadout __instance)
         {
             if (__instance.DisplayedTurret != null && __instance.HoverInfoTextArmor != null && __instance.HoverInfoTextStructure != null)
@@ -132,13 +115,9 @@ namespace LowVisibility.Patches
         }
     }
 
+    [HarmonyPatch(typeof(HUDTurretArmorReadout), "UpdateArmorStructureBars", new Type[] { })]
     public static class HUDTurretArmorReadout_UpdateArmorStructureBars
     {
-        // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod()
-        {
-            return AccessTools.Method(typeof(HUDTurretArmorReadout), "UpdateArmorStructureBars", new Type[] { });
-        }
 
         public static void Postfix(HUDTurretArmorReadout __instance)
         {
@@ -148,39 +127,5 @@ namespace LowVisibility.Patches
             }
         }
     }
-
-
-    // --- BUILDINGS ---
-    //[HarmonyPatch()]
-    //public static class HUDBuildingStructureReadout_ResetArmorStructureBars {
-    //    // Private method can't be patched by annotations, so use MethodInfo
-    //    public static MethodInfo TargetMethod() {
-    //        return AccessTools.Method(typeof(HUDBuildingStructureReadout), "ResetArmorStructureBars", new Type[] { });
-    //    }
-
-    //    public static void Postfix(HUDBuildingStructureReadout __instance) {
-    //        if (__instance.DisplayedBuilding != null && __instance.HoverInfoTextStructure != null) {
-    //            // TODO: Handle sensor lock
-    //            int maxStructure = HUDMechArmorReadout.FormatForSummary(__instance.DisplayedBuilding.SummaryStructureMax);
-    //            __instance.HoverInfoTextStructure.SetText($"? / {maxStructure}");
-    //        }
-    //    }
-    //}
-
-    //[HarmonyPatch()]
-    //public static class HUDBuildingStructureReadout_UpdateArmorStructureBars {
-    //    // Private method can't be patched by annotations, so use MethodInfo
-    //    public static MethodInfo TargetMethod() {
-    //        return AccessTools.Method(typeof(HUDBuildingStructureReadout), "UpdateArmorStructureBars", new Type[] { });
-    //    }
-
-    //    public static void Postfix(HUDBuildingStructureReadout __instance) {
-    //        if (__instance.DisplayedBuilding != null && __instance.HoverInfoTextStructure != null) {
-    //            // TODO: Handle sensor lock
-    //            int maxStructure = HUDMechArmorReadout.FormatForSummary(__instance.DisplayedBuilding.SummaryStructureMax);
-    //            __instance.HoverInfoTextStructure.SetText($"? / {maxStructure}");
-    //        }
-    //    }
-    //}
 
 }

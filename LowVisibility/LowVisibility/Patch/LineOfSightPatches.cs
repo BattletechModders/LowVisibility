@@ -282,17 +282,9 @@ namespace LowVisibility.Patch
 
 
     // TODO: Duplicate work - make prefix if necessary?
-    [HarmonyPatch()]
+    [HarmonyPatch(typeof(FiringPreviewManager), "HasLOS", new Type[] { typeof(AbstractActor), typeof(ICombatant), typeof(Vector3), typeof(List<AbstractActor>) })]
     public static class FiringPreviewManager_HasLOS
     {
-
-        // Private method can't be patched by annotations, so use MethodInfo
-        public static MethodInfo TargetMethod()
-        {
-            return AccessTools.Method(typeof(FiringPreviewManager), "HasLOS",
-                new Type[] { typeof(AbstractActor), typeof(ICombatant), typeof(Vector3), typeof(List<AbstractActor>) });
-        }
-
         public static void Postfix(FiringPreviewManager __instance, ref bool __result, CombatGameState ___combat,
             AbstractActor attacker, ICombatant target, Vector3 position, List<AbstractActor> allies)
         {
