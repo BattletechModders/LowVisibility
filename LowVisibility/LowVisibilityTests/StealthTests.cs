@@ -1,9 +1,6 @@
-﻿using BattleTech;
-using LowVisibility;
-using LowVisibility.Helper;
+﻿using LowVisibility;
 using LowVisibility.Object;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace LowVisibilityTests
 {
@@ -24,7 +21,7 @@ namespace LowVisibilityTests
 
             Weapon weapon = TestHelper.BuildTestWeapon(0, 60, 120, 240, 480);
 
-            Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 30)); 
+            Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 30));
             Assert.AreEqual(0, targetState.StealthAttackMod(attackerState, weapon, 60));
             Assert.AreEqual(1, targetState.StealthAttackMod(attackerState, weapon, 90));
             Assert.AreEqual(1, targetState.StealthAttackMod(attackerState, weapon, 120));

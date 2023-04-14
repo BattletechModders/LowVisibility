@@ -1,10 +1,7 @@
-﻿using BattleTech;
-using Harmony;
-using LowVisibility;
+﻿using LowVisibility;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using UnityEngine;
 
 namespace LowVisibilityTests
@@ -51,7 +48,7 @@ namespace LowVisibilityTests
 
             EWState attackerState = new EWState(attacker);
             EWState targetState = new EWState(target);
-            
+
             Assert.AreEqual(0.90f, SensorLockHelper.GetTargetSignature(target, attackerState));
         }
 
@@ -153,7 +150,7 @@ namespace LowVisibilityTests
             // ECM shield = 3 * .1 => 0.3
             // Narc mod = 0.5 - ECMShield (0.3) => 0.2 
             // Sigs are multiplicative, so: (1.0 - 0.3) * (1.0 + 0.2) = 0.84
-            Assert.AreEqual(0.84f, SensorLockHelper.GetTargetSignature(target, attackerState));
+            Assert.AreEqual(0.84f, SensorLockHelper.GetTargetSignature(target, attackerState), 0.001);
         }
 
         [TestMethod]
@@ -184,7 +181,7 @@ namespace LowVisibilityTests
 
             // <maxCharges>_<visibilityModPerCharge>_<attackModPerCharge>_<hexesUntilDecay>
             target.StatCollection.Set(ModStats.MimeticEffect, "3_0.2_1_2");
-            
+
             target.CurrentPosition = new Vector3(0f, 0, 0);
             Traverse previousPositionT = Traverse.Create(target).Field("previousPosition");
             previousPositionT.SetValue(new Vector3(0f, 0f, 0f));
@@ -206,7 +203,7 @@ namespace LowVisibilityTests
 
             // <signatureMod>_<detailsMod>_<attackMod>
             target.StatCollection.Set(ModStats.TagEffect, "0.8_2_2");
-            
+
             // <maxCharges>_<visibilityModPerCharge>_<attackModPerCharge>_<hexesUntilDecay>
             target.StatCollection.Set(ModStats.MimeticEffect, "3_0.2_1_2");
 

@@ -1,10 +1,7 @@
-﻿using BattleTech;
-using Harmony;
-using LowVisibility;
+﻿using LowVisibility;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using UnityEngine;
 
 namespace LowVisibilityTests
@@ -18,7 +15,7 @@ namespace LowVisibilityTests
         {
             Mech attacker = TestHelper.BuildTestMech();
             Mech target = TestHelper.BuildTestMech();
-            
+
             target.CurrentPosition = new Vector3(0f, 0, 0);
             Traverse previousPositionT = Traverse.Create(target).Field("previousPosition");
             previousPositionT.SetValue(new Vector3(0f, 0f, 0f));

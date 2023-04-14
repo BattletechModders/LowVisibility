@@ -1,12 +1,6 @@
-﻿using BattleTech;
-using Harmony;
-using LowVisibility;
+﻿using LowVisibility;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LowVisibilityTests
 {
@@ -36,7 +30,7 @@ namespace LowVisibilityTests
 
             ConstructorInfo constantsCI = AccessTools.Constructor(typeof(CombatGameConstants), new Type[] { });
             CombatGameConstants constants = (CombatGameConstants)constantsCI.Invoke(new object[] { });
-            
+
             VisibilityConstantsDef visibilityDef = constants.Visibility;
             visibilityDef.UseAsymmetricalSensors = true;
             visibilityDef.ShutDownSignatureModifier = 0.5f;
@@ -54,7 +48,7 @@ namespace LowVisibilityTests
 
             // Init any required stats
             actor.StatCollection = new StatCollection();
-            
+
             // ModStats
             actor.StatCollection.AddStatistic<int>(ModStats.TacticsMod, 0);
             actor.StatCollection.AddStatistic<int>(ModStats.CurrentRoundEWCheck, 0);
@@ -73,7 +67,7 @@ namespace LowVisibilityTests
             actor.StatCollection.AddStatistic<bool>(ModStats.SharesVision, false);
             actor.StatCollection.AddStatistic<bool>(ModStats.NightVision, false);
             actor.StatCollection.AddStatistic<int>(ModStats.DisableSensors, 2);
-            
+
             // Vanilla
             actor.StatCollection.AddStatistic<float>("SensorSignatureModifier", 1.0f);
 
@@ -92,8 +86,8 @@ namespace LowVisibilityTests
             return pilot;
         }
 
-        public static Weapon BuildTestWeapon(float minRange = 0f, float shortRange = 0f, 
-            float mediumRange = 0f, float longRange = 0f, float maxRange = 0f )
+        public static Weapon BuildTestWeapon(float minRange = 0f, float shortRange = 0f,
+            float mediumRange = 0f, float longRange = 0f, float maxRange = 0f)
         {
             Weapon weapon = new Weapon();
 

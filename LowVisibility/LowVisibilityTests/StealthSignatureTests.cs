@@ -1,9 +1,7 @@
-﻿using BattleTech;
-using LowVisibility;
+﻿using LowVisibility;
 using LowVisibility.Helper;
 using LowVisibility.Object;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 
 namespace LowVisibilityTests
 {
