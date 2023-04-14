@@ -10,16 +10,14 @@ namespace LowVisibility.Patch
     [HarmonyPatch(new Type[] { typeof(bool) })]
     public static class CombatHUD_SubscribeToMessages
     {
-
-        private static CombatGameState Combat = null;
-        private static Traverse ShowTargetMethod = null;
+        private static CombatHUD CombatHUD = null;
+        //private static Traverse ShowTargetMethod = null;
 
         public static void Postfix(CombatHUD __instance, bool shouldAdd)
         {
             if (shouldAdd)
             {
-                Combat = __instance.Combat;
-                ShowTargetMethod = Traverse.Create(__instance).Method("ShowTarget", new Type[] { typeof(ICombatant) });
+                CombatHUD = __instance;
 
                 __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
                     new ReceiveMessageCenterMessage(OnActorTargeted), shouldAdd);
@@ -29,11 +27,10 @@ namespace LowVisibility.Patch
             }
             else
             {
-                Combat = null;
-                ShowTargetMethod = null;
-
                 __instance.Combat.MessageCenter.Subscribe(MessageCenterMessageType.ActorTargetedMessage,
                     new ReceiveMessageCenterMessage(OnActorTargeted), shouldAdd);
+
+                CombatHUD = null;
             }
 
         }
@@ -55,22 +52,15 @@ namespace LowVisibility.Patch
             ActorTargetedMessage actorTargetedMessage = message as ActorTargetedMessage;
             if (message == null || actorTargetedMessage == null || actorTargetedMessage.affectedObjectGuid == null) return; // Nothing to do, bail
 
-            ICombatant combatant = Combat.FindActorByGUID(actorTargetedMessage.affectedObjectGuid);
-            if (combatant == null) { combatant = Combat.FindCombatantByGUID(actorTargetedMessage.affectedObjectGuid); }
+            ICombatant combatant = CombatHUD.Combat.FindActorByGUID(actorTargetedMessage.affectedObjectGuid);
+            if (combatant == null) { combatant = CombatHUD.Combat.FindCombatantByGUID(actorTargetedMessage.affectedObjectGuid); }
 
             try
             {
-                if (Combat.LocalPlayerTeam.VisibilityToTarget(combatant) >= VisibilityLevel.Blip0Minimum)
+                if (CombatHUD.Combat.LocalPlayerTeam.VisibilityToTarget(combatant) >= VisibilityLevel.Blip0Minimum)
                 {
                     Mod.Log.Trace?.Write("CombatHUD:SubscribeToMessages:OnActorTargeted - Visibility >= Blip0, showing target.");
-                    if (ShowTargetMethod != null)
-                    {
-                        ShowTargetMethod.GetValue(combatant);
-                    }
-                    else
-                    {
-                        Mod.Log.Info?.Write("WARNING: CHUD:STM caled with a null traverse!");
-                    }
+                    CombatHUD.ShowTarget(combatant);
                 }
                 else
                 {
@@ -82,12 +72,6 @@ namespace LowVisibility.Patch
                 Mod.Log.Error?.Write($"Failed to display HUD target: {CombatantUtils.Label(combatant)}!");
                 Mod.Log.Error?.Write(e);
             }
-
-
-
-
         }
     }
-
-
 }

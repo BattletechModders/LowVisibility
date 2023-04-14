@@ -36,9 +36,7 @@ namespace LowVisibility.Helper
         {
             Mod.Log.Debug?.Write("== INITIALIZING MATERIALS ==");
 
-            Traverse abmT = Traverse.Create(cgs.DataManager).Property("AssetBundleManager");
-            AssetBundleManager abm = abmT.GetValue<AssetBundleManager>();
-
+            AssetBundleManager abm = cgs.DataManager.AssetBundleManager;
             GameObject ppcImpactGO = abm.GetAssetFromBundle<GameObject>("vfxPrfPrtl_weaponPPCImpact_crit", "vfx");
 
             StealthBubbleMaterial = Resources.FindObjectsOfTypeAll<Material>()
@@ -281,26 +279,22 @@ namespace LowVisibility.Helper
 
             MoodController mc = MoodController.Instance;
 
-            Traverse uppT = Traverse.Create(mc).Field("unityPostProcess");
-            PostProcessingBehaviour ppb = uppT.GetValue<PostProcessingBehaviour>();
+            PostProcessingBehaviour ppb = mc.unityPostProcess;
 
             // Enable grain and set the intensity
-            Traverse grainT = Traverse.Create(ppb).Field("m_Grain");
-            GrainComponent gc = grainT.GetValue<GrainComponent>();
+            GrainComponent gc = ppb.m_Grain;
             GrainModel.Settings gms = gc.model.settings;
             gms.intensity = 0.8f;
             gms.size = 1.0f;
             gc.model.settings = gms;
 
-            Traverse sunlightBTT = Traverse.Create(mc).Field("sunlightBT");
-            BTSunlight sunlightBT = sunlightBTT.GetValue<BTSunlight>();
+            BTSunlight sunlightBT = mc.sunlightBT;
 
             // Disable shadows from sunlight
             //BTSunlight.SunlightSettings sunlightS = sunlightBT.sunSettings;
             //sunlightS.castShadows = false;
             //sunlightBT.sunSettings = sunlightS;
-            Traverse sunlightT = Traverse.Create(sunlightBT).Field("sunLight");
-            Light sunlight = sunlightT.GetValue<Light>();
+            Light sunlight = sunlightBT.sunLight;
             sunlight.shadows = LightShadows.None;
 
             // Set the sunlight color
@@ -327,15 +321,13 @@ namespace LowVisibility.Helper
             // Grain will disable automatically
 
             // Re-enable shadows
-            Traverse sunlightBTT = Traverse.Create(mc).Field("sunlightBT");
-            BTSunlight sunlightBT = sunlightBTT.GetValue<BTSunlight>();
+            BTSunlight sunlightBT = mc.sunlightBT;
 
             // Re-enable shadows from sunlight
             BTSunlight.SunlightSettings sunlightS = sunlightBT.sunSettings;
             //sunlightS.castShadows = false;
             //sunlightBT.sunSettings = sunlightS;
-            Traverse sunlightT = Traverse.Create(sunlightBT).Field("sunLight");
-            Light sunlight = sunlightT.GetValue<Light>();
+            Light sunlight = sunlightBT.sunLight;
             sunlight.shadows = (sunlightS.castShadows) ? LightShadows.None : LightShadows.Soft;
 
             // Reset the sunlight color
@@ -362,8 +354,7 @@ namespace LowVisibility.Helper
 
             Mod.Log.Debug?.Write($"Redrawing FOW for actor: {CombatantUtils.Label(activeActor)}");
 
-            Traverse viewersT = Traverse.Create(fowSystem).Field("viewers");
-            List<AbstractActor> viewers = viewersT.GetValue<List<AbstractActor>>();
+            List<AbstractActor> viewers = fowSystem.viewers;
             viewers.Clear();
 
             // Reset FoW to being unseen
@@ -419,8 +410,7 @@ namespace LowVisibility.Helper
             stealthDisplay.ShowNewActorStealth(currentPips, maxPips);
 
             // Change colors to reflect maxmimums
-            Traverse pipsT = Traverse.Create(stealthDisplay).Property("Pips");
-            List<Graphic> pips = pipsT.GetValue<List<Graphic>>();
+            List<Graphic> pips = stealthDisplay.Pips;
             for (int i = 0; i < pips.Count; i++)
             {
                 Graphic g = pips[i];

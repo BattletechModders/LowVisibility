@@ -95,9 +95,7 @@ namespace LowVisibility.Patch
                     Mod.Log.Error?.Write("Mood controller was null when attempting to update after manual deploy!");
 
                 Mod.Log.Info?.Write("Applying MoodController logic now that manual deploy is done.");
-                Traverse applyMoodSettingsT = Traverse.Create(BattleTech.Rendering.Mood.MoodController.Instance)
-                    .Method("ApplyMoodSettings", new object[] { true, false });
-                applyMoodSettingsT.GetValue();
+                MoodController.Instance.ApplyMoodSettings(true, false);
             }
         }
     }

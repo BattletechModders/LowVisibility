@@ -39,7 +39,7 @@ namespace LowVisibility.Patch
                     if (combatant.team != ___HUD.Combat.LocalPlayerTeam && (abstractActor == null ||
                         ___HUD.Combat.LocalPlayerTeam.VisibilityToTarget(abstractActor) >= VisibilityLevel.Blip0Minimum))
                     {
-                        Traverse.Create(__instance).Property("HoveredCombatant").SetValue(combatant);
+                        __instance.HoveredCombatant = combatant;
                     }
                 }
             }
@@ -112,8 +112,7 @@ namespace LowVisibility.Patch
                 }
                 if (__instance.ActivelyShownCombatant != null)
                 {
-                    Traverse method = Traverse.Create(__instance).Method("UpdateStructureAndArmor", new Type[] { });
-                    method.GetValue();
+                    __instance.UpdateStructureAndArmor();
                 }
             }
 

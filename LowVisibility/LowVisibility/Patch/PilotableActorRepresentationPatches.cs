@@ -15,8 +15,7 @@ namespace LowVisibility.Patch
         {
             Mod.Log.Trace?.Write("PAR:OPVC entered.");
 
-            Traverse parentT = Traverse.Create(__instance).Property("parentActor");
-            AbstractActor parentActor = parentT.GetValue<AbstractActor>();
+            AbstractActor parentActor = __instance.parentActor;
 
             if (parentActor == null)
             {

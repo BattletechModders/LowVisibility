@@ -17,22 +17,19 @@ namespace LowVisibility.Patch.HUD
             if (__instance == null || ___displayedActor == null) { return; }
             Mod.Log.Trace?.Write("CHUDWP:RDW - entered.");
 
-            Traverse targetT = Traverse.Create(__instance).Property("target");
-            Traverse hoveredTargetT = Traverse.Create(__instance).Property("hoveredTarget");
 
-            Traverse HUDT = Traverse.Create(__instance).Property("HUD");
-            CombatHUD HUD = HUDT.GetValue<CombatHUD>();
+            CombatHUD HUD = __instance.HUD;
             SelectionState activeState = HUD.SelectionHandler.ActiveState;
             ICombatant target;
             if (activeState != null && activeState is SelectionStateMove)
             {
-                target = hoveredTargetT.GetValue<ICombatant>();
-                if (target == null) { target = targetT.GetValue<ICombatant>(); }
+                target = __instance.hoveredTarget;
+                if (target == null) { target = __instance.target; }
             }
             else
             {
-                target = targetT.GetValue<ICombatant>();
-                if (target == null) { target = hoveredTargetT.GetValue<ICombatant>(); }
+                target = __instance.target;
+                if (target == null) { target = __instance.hoveredTarget; }
             }
 
             if (target == null) { return; }

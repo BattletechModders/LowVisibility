@@ -42,8 +42,7 @@ namespace LowVisibility.Patch
                     }
 
                     // Calculate stealth pips
-                    Traverse stealthDisplayT = Traverse.Create(__instance).Field("stealthDisplay");
-                    CombatHUDStealthBarPips stealthDisplay = stealthDisplayT.GetValue<CombatHUDStealthBarPips>();
+                    CombatHUDStealthBarPips stealthDisplay = __instance.stealthDisplay;
                     VfxHelper.CalculateMimeticPips(stealthDisplay, target);
                 }
             }
@@ -104,17 +103,6 @@ namespace LowVisibility.Patch
                     }
                 }
 
-
-                Traverse shouldShowEffectT = Traverse.Create(__instance).Method("ShouldShowEffect", new Type[] { typeof(EffectData), typeof(AbilityDef.SpecialRules) });
-                Traverse showDebuffT = Traverse.Create(__instance).Method("ShowBuff", new Type[] { typeof(string), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) });
-                Traverse showBuffT = Traverse.Create(__instance).Method("ShowDebuff", new Type[] { typeof(string), typeof(Text), typeof(Text), typeof(Vector3), typeof(bool) });
-                if (shouldShowEffectT == null || showDebuffT == null || showBuffT == null)
-                {
-                    Mod.UILog.Error?.Write("Failed to traverse necessary methods! Notify FrostRaptor - this should not happen!");
-                    __runOriginal = false;
-                    return;
-                }
-
                 ___effectDict.Clear();
                 for (int i = 0; i < effectsOnActor.Count; i++)
                 {
@@ -129,7 +117,7 @@ namespace LowVisibility.Patch
 
                     if (string.IsNullOrEmpty(effectData?.Description?.Icon)) continue; // No icon to display, skip.
 
-                    bool shouldShowEffect = shouldShowEffectT.GetValue<bool>(new object[] { effectData, specialRulesFilter });
+                    bool shouldShowEffect = __instance.ShouldShowEffect(effectData, specialRulesFilter);
                     bool alreadyShown = ___effectDict.ContainsKey(effectData.Description.Id);
                     Mod.UILog.Debug?.Write($" -- Effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} has shouldShowEffect: {shouldShowEffect} and alreadyShown: {alreadyShown}");
 
@@ -149,15 +137,11 @@ namespace LowVisibility.Patch
                         CombatHUDStatusIndicator combatHUDStatusIndicator;
                         if (effectsOnActor[i].nature == EffectNature.Debuff)
                         {
-                            combatHUDStatusIndicator = showDebuffT.GetValue<CombatHUDStatusIndicator>(new object[] {
-                                effectData.Description.Icon, new Text(effectData.Description.Name, Array.Empty<object>()), text, __instance.effectIconScale, false
-                            });
+                            combatHUDStatusIndicator = __instance.ShowDebuff(effectData.Description.Icon, new Text(effectData.Description.Name, Array.Empty<object>()), text, __instance.effectIconScale, false);
                         }
                         else
                         {
-                            combatHUDStatusIndicator = showBuffT.GetValue<CombatHUDStatusIndicator>(new object[] {
-                                effectData.Description.Icon, new Text(effectData.Description.Name, Array.Empty<object>()), text, __instance.effectIconScale, false
-                            });
+                            combatHUDStatusIndicator = __instance.ShowBuff(effectData.Description.Icon, new Text(effectData.Description.Name, Array.Empty<object>()), text, __instance.effectIconScale, false);
                         }
 
                         if (combatHUDStatusIndicator != null)

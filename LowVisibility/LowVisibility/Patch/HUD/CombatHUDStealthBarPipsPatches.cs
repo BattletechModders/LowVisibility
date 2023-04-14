@@ -19,29 +19,18 @@ namespace LowVisibility.Patch
 
                 Mod.Log.Trace?.Write($"StealthBarPips incoming count is: {current} with projected: {projected}");
 
-                Traverse HUDT = Traverse.Create(__instance).Property("HUD");
-                CombatHUD HUD = HUDT.GetValue<CombatHUD>();
+                CombatHUD HUD = __instance.HUD;
 
-                Traverse actorT = Traverse.Create(HUD).Field("selectedUnit");
-                AbstractActor selectedActor = actorT.GetValue<AbstractActor>();
+                AbstractActor selectedActor = HUD.selectedUnit;
                 Mod.Log.Trace?.Write($"  selectedActor: ({CombatantUtils.Label(selectedActor)})");
 
-                Traverse floorCurrentT = Traverse.Create(__instance).Field("floorCurrent");
-                int floorCurrent = floorCurrentT.GetValue<int>();
-
-                Traverse floorLockedT = Traverse.Create(__instance).Field("floorLocked");
-                int floorLocked = floorLockedT.GetValue<int>();
-
-                Traverse floorProjectedT = Traverse.Create(__instance).Field("floorProjected");
-                int floorProjected = floorProjectedT.GetValue<int>();
-
-                Traverse remainderT = Traverse.Create(__instance).Field("remainder");
-                float remainder = remainderT.GetValue<float>();
+                int floorCurrent = __instance.floorCurrent;
+                int floorLocked = __instance.floorLocked;
+                int floorProjected = __instance.floorProjected;
+                float remainder = __instance.remainder;
                 Mod.Log.Trace?.Write($"  floorCurrent: {floorCurrent} floorLocked: {floorLocked} floorProjected: {floorProjected} remainder: {remainder}");
 
-                Traverse pipsT = Traverse.Create(__instance).Property("Pips");
-                List<Graphic> pips = pipsT.GetValue<List<Graphic>>();
-
+                List<Graphic> pips = __instance.Pips;
                 for (int i = 0; i < pips.Count; i++)
                 {
                     Mod.Log.Trace?.Write($"    -- pips graphic: {i} isEnabled: {pips[i].IsActive()}");

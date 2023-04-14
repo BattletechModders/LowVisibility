@@ -11,8 +11,8 @@ namespace LowVisibility.Patch
     {
         public static void Postfix(CombatHUDMechTrayArmorHover __instance)
         {
-            HUDMechArmorReadout ___Readout = (HUDMechArmorReadout)Traverse.Create(__instance).Property("Readout").GetValue();
-            CombatHUDTooltipHoverElement ___ToolTip = (CombatHUDTooltipHoverElement)Traverse.Create(__instance).Property("ToolTip").GetValue();
+            HUDMechArmorReadout ___Readout = __instance.Readout;
+            CombatHUDTooltipHoverElement ___ToolTip = __instance.ToolTip;
 
             if (___Readout != null && ___Readout.DisplayedMech != null && ___Readout.DisplayedMech.Combat != null && ___ToolTip != null)
             {
@@ -37,8 +37,8 @@ namespace LowVisibility.Patch
     {
         public static void Postfix(CombatHUDVehicleArmorHover __instance)
         {
-            HUDVehicleArmorReadout ___Readout = (HUDVehicleArmorReadout)Traverse.Create(__instance).Property("Readout").GetValue();
-            CombatHUDTooltipHoverElement ___ToolTip = (CombatHUDTooltipHoverElement)Traverse.Create(__instance).Property("ToolTip").GetValue();
+            HUDVehicleArmorReadout ___Readout = __instance.Readout;
+            CombatHUDTooltipHoverElement ___ToolTip = __instance.ToolTip;
 
             if (___Readout != null && ___Readout.DisplayedVehicle != null && ___Readout.DisplayedVehicle.Combat != null && ___ToolTip != null)
             {

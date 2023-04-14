@@ -80,7 +80,6 @@ namespace LowVisibility.Patch
                         }
                     }
 
-                    Traverse setGOActiveMethod = Traverse.Create(__instance).Method("SetGOActive", new Type[] { typeof(MonoBehaviour), typeof(bool) });
                     // The actual method should handle allied and friendly units fine, so we can just change it for enemies
                     if (isEnemyOrNeutral && visibilityLevel >= VisibilityLevel.Blip0Minimum && ___displayedActor != null)
                     {
@@ -93,72 +92,78 @@ namespace LowVisibility.Patch
                             $"hasVisualScan: {hasVisualScan} from lastActivated: {CombatantUtils.Label(ModState.LastPlayerActorActivated)}");
 
                         // Values that are always displayed
-                        setGOActiveMethod.GetValue(__instance.NameDisplay, true);
-                        setGOActiveMethod.GetValue(__instance.PhaseDisplay, true);
+                        __instance.SetGOActive(__instance.NameDisplay, true);
+                        __instance.SetGOActive(__instance.PhaseDisplay, true);
 
                         if (scanType >= SensorScanType.StructAndWeaponID)
                         {
                             // Show unit summary
-                            setGOActiveMethod.GetValue(__instance.DetailsDisplay, true);
+                            __instance.SetGOActive(__instance.DetailsDisplay, true);
 
                             // Show active state
-                            setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
+                            __instance.SetGOActive(__instance.InspiredDisplay, false);
 
                             // Show armor and struct
-                            setGOActiveMethod.GetValue(__instance.ArmorBar, true);
-                            setGOActiveMethod.GetValue(__instance.StructureBar, true);
+                            __instance.SetGOActive(__instance.ArmorBar, true);
+                            __instance.SetGOActive(__instance.StructureBar, true);
 
                             if (___displayedActor as Mech != null)
                             {
-                                setGOActiveMethod.GetValue(__instance.StabilityDisplay, true);
-                                setGOActiveMethod.GetValue(__instance.HeatDisplay, true);
+                                __instance.SetGOActive(__instance.StabilityDisplay, true);
+                                __instance.SetGOActive(__instance.HeatDisplay, true);
                             }
                             else
                             {
-                                setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
-                                setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
+                                __instance.SetGOActive(__instance.StabilityDisplay, false);
+                                __instance.SetGOActive(__instance.HeatDisplay, false);
                             }
                         }
                         else if (scanType >= SensorScanType.ArmorAndWeaponType || hasVisualScan)
                         {
                             // Show unit summary
-                            setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
+                            __instance.SetGOActive(__instance.DetailsDisplay, false);
 
                             // Show active state
-                            setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
+                            __instance.SetGOActive(__instance.InspiredDisplay, false);
 
                             // Show armor and struct
-                            setGOActiveMethod.GetValue(__instance.ArmorBar, true);
-                            setGOActiveMethod.GetValue(__instance.StructureBar, true);
+                            __instance.SetGOActive(__instance.ArmorBar, true);
+                            __instance.SetGOActive(__instance.StructureBar, true);
 
-                            setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
-                            setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
+                            __instance.SetGOActive(__instance.StabilityDisplay, false);
+                            __instance.SetGOActive(__instance.HeatDisplay, false);
                         }
                         else
                         {
                             // Hide unit summary
-                            setGOActiveMethod.GetValue(__instance.DetailsDisplay, false);
+                            __instance.SetGOActive(__instance.DetailsDisplay, false);
 
                             // Hide active state
-                            setGOActiveMethod.GetValue(__instance.InspiredDisplay, false);
+                            __instance.SetGOActive(__instance.InspiredDisplay, false);
 
                             // Hide armor and struct
-                            setGOActiveMethod.GetValue(__instance.ArmorBar, false);
-                            setGOActiveMethod.GetValue(__instance.StructureBar, false);
+                            __instance.SetGOActive(__instance.ArmorBar, false);
+                            __instance.SetGOActive(__instance.StructureBar, false);
 
-                            setGOActiveMethod.GetValue(__instance.StabilityDisplay, false);
-                            setGOActiveMethod.GetValue(__instance.HeatDisplay, false);
+                            __instance.SetGOActive(__instance.StabilityDisplay, false);
+                            __instance.SetGOActive(__instance.HeatDisplay, false);
                         }
 
                         // TODO: DEBUG TESTING 
-                        if (__instance.MarkDisplay != null) setGOActiveMethod.GetValue(__instance.MarkDisplay, true);
+                        if (__instance.MarkDisplay != null)
+                        {
+                            __instance.SetGOActive(__instance.MarkDisplay, true);
+                        }
 
-                        CombatHUDStateStack stateStack = (CombatHUDStateStack)Traverse.Create(__instance).Property("StateStack").GetValue();
-                        setGOActiveMethod.GetValue(stateStack, false);
+                        __instance.SetGOActive(__instance.StateStack, false);
                     }
                     else
                     {
-                        if (__instance.MarkDisplay != null && ___displayedActor != null) setGOActiveMethod.GetValue(__instance.MarkDisplay, ___displayedActor.IsMarked);
+                        if (__instance.MarkDisplay != null && ___displayedActor != null)
+                        {
+                            __instance.SetGOActive(__instance.MarkDisplay, ___displayedActor.IsMarked);
+                        }
+
                     }
                 }
                 catch (Exception e)
