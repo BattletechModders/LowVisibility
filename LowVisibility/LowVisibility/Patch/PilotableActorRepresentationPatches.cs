@@ -79,8 +79,10 @@ namespace LowVisibility.Patch
     public static class PilotableActorRepresentation_updateBlips
     {
         //public static Vector3 getNewBlipPosition()
-        public static void Prefix(PilotableActorRepresentation __instance, ref Vector3 ___blipPendingPosition)
+        public static void Prefix(ref bool __runOriginal, PilotableActorRepresentation __instance, ref Vector3 ___blipPendingPosition)
         {
+            if (!__runOriginal) return;
+
             //Mod.Log.Debug?.Write($" UPDATE BLIPS INVOKED");
             if (__instance.BlipObjectUnknown.activeSelf && __instance.VisibleObject.activeSelf
                 && !__instance.BlipObjectIdentified.activeSelf)

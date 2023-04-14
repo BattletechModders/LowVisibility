@@ -2,7 +2,7 @@
 	"Name": "LowVisibility",
 	"Enabled": true,
 	"Hidden": true,
-	"Version": "1.2.0",
+	"Version": "2.0.0",
 	"Description": "Implements double-blind semantics and more complex electronic warfare",
 	"Author": "IceRaptor",
 	"Website": "https://github.com/IceRaptor/LowVisibility",

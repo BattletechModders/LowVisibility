@@ -70,11 +70,13 @@ namespace LowVisibility.Patch
     }
 
     [HarmonyPatch(typeof(AbstractActor), "OnActivationBegin")]
-    public static class AbstractActor_OnActivationBegin
+    static class AbstractActor_OnActivationBegin
     {
 
-        public static void Prefix(AbstractActor __instance, int stackItemID)
+        static void Prefix(ref bool __runOriginal, AbstractActor __instance, int stackItemID)
         {
+            if (!__runOriginal) return;
+
             if (stackItemID == -1 || __instance == null || __instance.HasBegunActivation)
             {
                 // For some bloody reason DoneWithActor() invokes OnActivationBegin, EVEN THOUGH IT DOES NOTHING. GAH!
@@ -120,8 +122,10 @@ namespace LowVisibility.Patch
     public static class AbstractActor_OnActivationEnd
     {
 
-        public static void Prefix(AbstractActor __instance)
+        public static void Prefix(ref bool __runOriginal, AbstractActor __instance)
         {
+            if (!__runOriginal) return;
+
             Mod.Log.Trace?.Write("AA:OnAEnd - entered.");
 
             if (__instance != null)
@@ -259,8 +263,10 @@ namespace LowVisibility.Patch
     public static class AbstractActor_OnMoveComplete
     {
 
-        public static void Prefix(AbstractActor __instance)
+        static void Prefix(ref bool __runOriginal, AbstractActor __instance)
         {
+
+            if (!__runOriginal) return;
 
             if (__instance.TeamId == __instance.Combat.LocalPlayerTeamGuid)
             {

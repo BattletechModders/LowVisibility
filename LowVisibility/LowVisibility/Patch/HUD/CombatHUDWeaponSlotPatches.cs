@@ -9,8 +9,10 @@ namespace LowVisibility.Patch.HUD
     [HarmonyPatch(typeof(CombatHUDWeaponPanel), "RefreshDisplayedWeapons")]
     public static class CombatHUDWeaponPanel_RefreshDisplayedWeapons
     {
-        public static void Prefix(CombatHUDWeaponPanel __instance, AbstractActor ___displayedActor)
+        public static void Prefix(ref bool __runOriginal, CombatHUDWeaponPanel __instance, AbstractActor ___displayedActor)
         {
+
+            if (!__runOriginal) return;
 
             if (__instance == null || ___displayedActor == null) { return; }
             Mod.Log.Trace?.Write("CHUDWP:RDW - entered.");

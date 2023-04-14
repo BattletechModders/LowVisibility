@@ -17,8 +17,10 @@ namespace LowVisibility.Patch
 
         public static bool IsFromSave = false;
 
-        public static void Prefix(TurnDirector __instance)
+        public static void Prefix(ref bool __runOriginal, TurnDirector __instance)
         {
+            if (!__runOriginal) return;
+
             Mod.Log.Trace?.Write("TD:OEB:pre entered.");
 
             // Initialize the probabilities
@@ -81,8 +83,10 @@ namespace LowVisibility.Patch
     [HarmonyPatch(typeof(TurnDirector), "StartFirstRound")]
     static class TurnDirector_StartFirstRound
     {
-        static void Prefix()
+        static void Prefix(ref bool __runOriginal)
         {
+            if (!__runOriginal) return;
+
             Mod.Log.Info?.Write($"=== Turn Director is starting first round!");
             // Check fog state
             if (LanceSpawnerGameLogic_OnEnterActive.isObjectivesReady(ModState.Combat.ActiveContract))
@@ -102,8 +106,10 @@ namespace LowVisibility.Patch
     public static class TurnDirector_BeginNewRound
     {
 
-        public static void Prefix(TurnDirector __instance, int round)
+        public static void Prefix(ref bool __runOriginal, TurnDirector __instance, int round)
         {
+            if (!__runOriginal) return;
+
             Mod.Log.Trace?.Write($"TD:BNR entered");
             Mod.ActorStateLog.Info?.Write($"=== Turn Director is beginning round: {round}");
 
@@ -157,8 +163,10 @@ namespace LowVisibility.Patch
     [HarmonyPatch(typeof(TurnDirector), "OnCombatGameDestroyed")]
     public static class TurnDirector_OnCombatGameDestroyed
     {
-        public static void Prefix(TurnDirector __instance)
+        public static void Prefix(ref bool __runOriginal, TurnDirector __instance)
         {
+            if (!__runOriginal) return;
+
             Mod.Log.Debug?.Write($"TD:OCGD entered");
             // Remove all combat state
             CombatHUD_SubscribeToMessages.OnCombatGameDestroyed(__instance.Combat);

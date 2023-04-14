@@ -7,14 +7,15 @@ namespace LowVisibility.Patch
     [HarmonyBefore(new string[] { "ca.gnivler.CrystalClear" })]
     public static class PatchGrainComp
     {
-        public static bool Prefix(ref bool __result)
+        public static void Prefix(ref bool __runOriginal, ref bool __result)
         {
+            if (!__runOriginal) return;
+
             if (ModState.IsNightVisionMode)
             {
                 __result = true;
-                return false;
+                __runOriginal = false;
             }
-            return true;
         }
     }
 
@@ -22,14 +23,15 @@ namespace LowVisibility.Patch
     [HarmonyBefore(new string[] { "ca.gnivler.CrystalClear" })]
     public static class PatchBloom
     {
-        public static bool Prefix(ref bool __result)
+        public static void Prefix(ref bool __runOriginal, ref bool __result)
         {
+            if (!__runOriginal) return;
+
             if (ModState.IsNightVisionMode)
             {
                 __result = true;
-                return false;
-            }
-            return true;
+                __runOriginal = false;
+            }            
         }
     }
 
@@ -37,14 +39,15 @@ namespace LowVisibility.Patch
     [HarmonyBefore(new string[] { "ca.gnivler.CrystalClear" })]
     public static class PatchVignette
     {
-        public static bool Prefix(ref bool __result)
+        public static void Prefix(ref bool __runOriginal, ref bool __result)
         {
+            if (!__runOriginal) return;
+
             if (ModState.IsNightVisionMode)
             {
                 __result = true;
-                return false;
-            }
-            return true;
+                __runOriginal = false;
+            }            
         }
     }
 
@@ -52,14 +55,15 @@ namespace LowVisibility.Patch
     [HarmonyBefore(new string[] { "ca.gnivler.CrystalClear" })]
     public static class ChromaticAberration
     {
-        public static bool Prefix(ref bool __result)
+        public static void Prefix(ref bool __runOriginal, ref bool __result)
         {
+            if (!__runOriginal) return;
+
             if (ModState.IsNightVisionMode)
             {
                 __result = true;
-                return false;
+                __runOriginal = false;
             }
-            return true;
         }
     }
 }

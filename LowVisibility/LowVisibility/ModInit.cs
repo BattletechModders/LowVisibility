@@ -60,7 +60,7 @@ namespace LowVisibility
 
             Assembly asm = Assembly.GetExecutingAssembly();
             FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(asm.Location);
-            Log.Info?.Write($"Assembly version: {fvi.ProductVersion}");
+            Log.Info?.Write($"Assembly version: {fvi.FileVersion}");
 
             // Read config
             Log.Debug?.Write($"ModDir is:{modDirectory}");
@@ -80,8 +80,7 @@ namespace LowVisibility
                 Log.Error?.Write(e, $"Failed to read localizations from: {localizationPath} due to error!");
             }
 
-            var harmony = HarmonyInstance.Create(HarmonyPackage);
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
+            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), HarmonyPackage);
 
             if (Mod.Config.Integrations.IRTweaks.CombatLogNames != CombatLogIntegration.NONE)
             {

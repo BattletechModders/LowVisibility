@@ -7,8 +7,10 @@ namespace LowVisibility.Patch
     {
         // Lowest priority
         [HarmonyPriority(0)]
-        public static void Prefix()
+        public static void Prefix(ref bool __runOriginal)
         {
+            if (!__runOriginal) return;
+
             EWState.InBatchProcess = true;
             EWState.EWStateCache.Clear();
         }
@@ -26,8 +28,10 @@ namespace LowVisibility.Patch
     {
         // Lowest priority
         [HarmonyPriority(0)]
-        public static void Prefix()
+        public static void Prefix(ref bool __runOriginal)
         {
+            if (!__runOriginal) return;
+
             EWState.InBatchProcess = true;
             EWState.EWStateCache.Clear();
         }

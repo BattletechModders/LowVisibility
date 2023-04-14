@@ -53,8 +53,10 @@ namespace LowVisibility.Patch
         public static class MoveStatusPreview_DisplayPreviewStatus
         {
 
-            public static void Prefix(MoveStatusPreview __instance, AbstractActor actor, Vector3 worldPos, MoveType moveType)
+            public static void Prefix(ref bool __runOriginal, MoveStatusPreview __instance, AbstractActor actor, Vector3 worldPos, MoveType moveType)
             {
+                if (!__runOriginal) return;
+
                 Mod.Log.Trace?.Write("MSP:DPS entered.");
 
                 if (actor.CurrentPosition != worldPos)

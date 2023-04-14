@@ -79,8 +79,10 @@ namespace LowVisibility.Patch
         }
 
         // TODO: Dangerous PREFIX false here!
-        public static bool Prefix(CombatHUDTargetingComputer __instance, CombatHUD ___HUD)
+        public static void Prefix(ref bool __runOriginal, CombatHUDTargetingComputer __instance, CombatHUD ___HUD)
         {
+            if (!__runOriginal) return;
+
             //Mod.Log.Trace?.Write("CHUDTC:U:pre - entered.");
 
             CombatGameState Combat = ___HUD?.Combat;
@@ -115,7 +117,7 @@ namespace LowVisibility.Patch
                 }
             }
 
-            return false;
+            __runOriginal = false;
         }
     }
 

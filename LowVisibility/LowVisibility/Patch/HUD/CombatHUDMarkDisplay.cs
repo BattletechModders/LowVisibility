@@ -36,8 +36,10 @@ namespace LowVisibility.Patch.HUD
     [HarmonyPatch(typeof(CombatHUDMarkDisplay), "RefreshInfo")]
     public static class CombatHUDMarkDisplay_RefreshInfo
     {
-        static void Prefix(CombatHUDMarkDisplay __instance)
+        static void Prefix(ref bool __runOriginal, CombatHUDMarkDisplay __instance)
         {
+            if (!__runOriginal) return;
+
             if (__instance != null && __instance.DisplayedActor != null && ModState.LastPlayerActorActivated != null)
             {
                 RefreshMarkDisplay(__instance, __instance.DisplayedActor.CurrentPosition);

@@ -12,8 +12,10 @@ namespace LowVisibility.Patch
     static class SelectionStateFire_ProcessClickedCombatant
     {
 
-        static bool Prefix(SelectionStateFire __instance, ref bool __result, ICombatant combatant)
+        static void Prefix(ref bool __runOriginal, SelectionStateFire __instance, ref bool __result, ICombatant combatant)
         {
+            if (!__runOriginal) return;
+
             Mod.Log.Trace?.Write("SSF:PCC:PRE entered");
 
             if (__instance != null && combatant != null && combatant is AbstractActor targetActor && __instance.SelectedActor != null)
@@ -24,11 +26,9 @@ namespace LowVisibility.Patch
                 if (targetIsFriendly)
                 {
                     Mod.Log.Trace?.Write("Friendly target, skipping check");
-                    return true;
+                    return;
                 }
             }
-
-            return true;
         }
     }
 

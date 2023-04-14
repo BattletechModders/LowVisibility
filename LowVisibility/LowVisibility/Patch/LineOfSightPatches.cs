@@ -70,9 +70,10 @@ namespace LowVisibility.Patch
     [HarmonyPatch(new Type[] { typeof(AbstractActor), typeof(Vector3), typeof(ICombatant), typeof(Vector3), typeof(Quaternion) })]
     public static class LineOfSight_GetVisibilityToTargetWithPositionsAndRotations
     {
-        public static bool Prefix(LineOfSight __instance, ref VisibilityLevel __result,
+        public static void Prefix(ref bool __runOriginal, LineOfSight __instance, ref VisibilityLevel __result,
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation)
         {
+            if (!__runOriginal) return;
 
             Mod.Log.Trace?.Write($"LOS:GVTTWPAR: source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
 
@@ -100,16 +101,22 @@ namespace LowVisibility.Patch
             }
 
             //Mod.Log.Trace?.Write($"LOS:GVTTWPAR - [{__result}] visibility for source:{CombatantUtils.Label(source)} ==> target:{CombatantUtils.Label(target)}");
-            return false;
+            __runOriginal = false;
         }
     }
 
     [HarmonyPatch(typeof(LineOfSight), "GetLineOfFireUncached")]
     public static class LineOfSight_GetLineOfFireUncached
     {
-        public static bool Prefix(LineOfSight __instance, ref LineOfFireLevel __result, CombatGameState ___Combat,
+        public static void Prefix(ref bool __runOriginal, LineOfSight __instance, ref LineOfFireLevel __result, CombatGameState ___Combat,
             AbstractActor source, Vector3 sourcePosition, ICombatant target, Vector3 targetPosition, Quaternion targetRotation, out Vector3 collisionWorldPos)
         {
+            if (!__runOriginal)
+            {
+                collisionWorldPos = Vector3.zero;
+                return;
+            }
+
             Mod.Log.Trace?.Write($"LOS:GLOFU entered. ");
 
             Vector3 forward = targetPosition - sourcePosition;
@@ -269,7 +276,7 @@ namespace LowVisibility.Patch
 
             Mod.Log.Trace?.Write($"LOS:GLOFU LOS result is:{__result}");
 
-            return false;
+            __runOriginal = false;
         }
     }
 

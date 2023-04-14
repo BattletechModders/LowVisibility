@@ -10,8 +10,10 @@ namespace LowVisibility.Patch
     public static class MechComponent_CancelCreatedEffects
     {
 
-        public static void Prefix(MechComponent __instance, ref bool __state)
+        public static void Prefix(ref bool __runOriginal, MechComponent __instance, ref bool __state)
         {
+            if (!__runOriginal) return;
+
             Mod.Log.Trace?.Write("MC:CCE:pre entered.");
 
             // State indicates whether a stealth effect was found

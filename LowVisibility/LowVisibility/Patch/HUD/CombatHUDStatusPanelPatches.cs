@@ -57,8 +57,10 @@ namespace LowVisibility.Patch
     [HarmonyPatch(typeof(CombatHUDStatusPanel), "ShowEffectStatuses")]
     static class CombatHUDStatusPanel_ShowEffectStatuses
     {
-        static bool Prefix(CombatHUDStatusPanel __instance, AbstractActor actor, AbilityDef.SpecialRules specialRulesFilter, Vector3 worldPos, Dictionary<string, CombatHUDStatusIndicator> ___effectDict)
+        static void Prefix(ref bool __runOriginal, CombatHUDStatusPanel __instance, AbstractActor actor, AbilityDef.SpecialRules specialRulesFilter, Vector3 worldPos, Dictionary<string, CombatHUDStatusIndicator> ___effectDict)
         {
+            if (!__runOriginal) return;
+
             Mod.UILog.Debug?.Write($"Updating StatusEffect Panel for actor: {CombatantUtils.Label(actor)}");
 
             try
@@ -109,7 +111,8 @@ namespace LowVisibility.Patch
                 if (shouldShowEffectT == null || showDebuffT == null || showBuffT == null)
                 {
                     Mod.UILog.Error?.Write("Failed to traverse necessary methods! Notify FrostRaptor - this should not happen!");
-                    return false;
+                    __runOriginal = false;
+                    return;
                 }
 
                 ___effectDict.Clear();
@@ -170,7 +173,8 @@ namespace LowVisibility.Patch
                 Mod.UILog.Error?.Write(e, $"Failed to log status effects for actor: {CombatantUtils.Label(actor)} at position: {worldPos}");
             }
 
-            return false;
+            __runOriginal = false;
+            return;
         }
     }
 

@@ -5,8 +5,9 @@ namespace LowVisibility.Patch
     [HarmonyPatch(typeof(Team), "AddUnit")]
     public static class Team_AddUnit
     {
-        public static void Prefix(Team __instance, AbstractActor unit)
+        public static void Prefix(ref bool __runOriginal, Team __instance, AbstractActor unit)
         {
+            if (!__runOriginal) return;
 
             if (__instance.Combat.TurnDirector.CurrentRound > 1)
             {
