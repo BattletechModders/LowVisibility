@@ -384,10 +384,10 @@ namespace LowVisibility.Patch
             }
 
             //  Zoom Vision
-            if (ewState.GetRawZoomVision() != null)
+            if (ewState.GetRawZoomAttack() != null)
             {
                 // { LT_PANEL_ZOOM, "<b>Zoom</b><size=90%> Mod:<color=#{0}>{1:+0;-#}</color? Cap:<color=#{2}>{3:+0;-#}</color> Range:{4}m\n" },
-                ZoomVision zoomVis = ewState.GetRawZoomVision();
+                ZoomAttack zoomVis = ewState.GetRawZoomAttack();
                 // Positive is bad, negative is good
                 string modColor = zoomVis.AttackMod >= 0 ? "FF0000" : "00FF00";
                 string capColor = zoomVis.AttackCap >= 0 ? "FF0000" : "00FF00";

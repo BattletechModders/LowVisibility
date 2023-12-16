@@ -31,8 +31,9 @@
         public const string MimeticCurrentSteps = "LV_MIMETIC_CURRENT_STEPS"; // Int_32
 
         // Vision modes
-        public const string HeatVision = "LV_HEAT_VISION"; // String
-        public const string ZoomVision = "LV_ZOOM_VISION"; // String
+        public const string HeatVision = "LV_HEAT_VISION"; // string
+        public const string ZoomAttack = "LV_ZOOM_ATTACK"; // string
+        public const string ZoomVision = "LV_ZOOM_VISION"; // string
 
         // Narc
         public const string NarcEffect = "LV_NARC"; // String

@@ -42,14 +42,14 @@ namespace LowVisibility.Object
     }
 
     // <initialAttackModifier>_<attackModifierCap>_<hexesUntilDecay>
-    public class ZoomVision
+    public class ZoomAttack
     {
         public int AttackMod = 0;
         public int AttackCap = 0;
         public int HexesUntilDecay = 0;
         public readonly int MaximumRange = 0;
 
-        public ZoomVision(int mod, int cap, int decay)
+        public ZoomAttack(int mod, int cap, int decay)
         {
             this.AttackMod = mod;
             this.AttackCap = cap;
@@ -110,7 +110,8 @@ namespace LowVisibility.Object
         private Stealth stealth = null;
         private Mimetic mimetic = null;
 
-        private ZoomVision zoomVision = null;
+        private ZoomAttack zoomAttack = null;
+        private int zoomVisionRange = 0;
         private HeatVision heatVision = null;
 
         private NarcEffect narcEffect = null;
@@ -211,8 +212,8 @@ namespace LowVisibility.Object
                 }
             }
 
-            // ZoomVision - <initialAttackModifier>_<attackModifierCap>_<hexesUntilDecay>
-            rawValue = actor.StatCollection.GetValue<string>(ModStats.ZoomVision);
+            // ZoomAttack - <initialAttackModifier>_<attackModifierCap>_<hexesUntilDecay>
+            rawValue = actor.StatCollection.GetValue<string>(ModStats.ZoomAttack);
             if (!string.IsNullOrEmpty(rawValue))
             {
                 string[] tokens = rawValue.Split('_');
@@ -220,19 +221,22 @@ namespace LowVisibility.Object
                 {
                     try
                     {
-                        zoomVision = new ZoomVision(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2]));
+                        zoomAttack = new ZoomAttack(Int32.Parse(tokens[0]), Int32.Parse(tokens[1]), Int32.Parse(tokens[2]));
                     }
                     catch (Exception)
                     {
-                        Mod.Log.Info?.Write($"Failed to tokenize ZoomVision value: ({rawValue}). Discarding!");
-                        zoomVision = null;
+                        Mod.Log.Info?.Write($"Failed to tokenize ZoomAttack value: ({rawValue}). Discarding!");
+                        zoomAttack = null;
                     }
                 }
                 else
                 {
-                    Mod.Log.Info?.Write($"WARNING: Invalid ZoomVision value: ({rawValue}) found. Discarding!");
+                    Mod.Log.Info?.Write($"WARNING: Invalid ZoomAttack value: ({rawValue}) found. Discarding!");
                 }
             }
+
+            // ZoomVision - range only
+            zoomVisionRange = actor.StatCollection.GetValue<int>(ModStats.ZoomVision);
 
             // HeatVision - <initialAttackModifier>_<heatDivisorForStep>__<maximumRange>
             rawValue = actor.StatCollection.GetValue<string>(ModStats.HeatVision);
@@ -556,17 +560,17 @@ namespace LowVisibility.Object
         public Mimetic GetRawMimetic() { return mimetic; }
 
         // ZoomVision - Attacker
-        public int GetZoomVisionAttackMod(Weapon weapon, float distance)
+        public int GetZoomAttackMod(Weapon weapon, float distance)
         {
-            if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return 0; }
+            if (zoomAttack == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet) { return 0; }
 
             int hexesBetween = (int)Math.Ceiling(distance / 30f);
             Mod.Log.Trace?.Write($"  hexesBetween: {hexesBetween} = distance: {distance} / 30");
 
-            int numDecays = (int)Math.Floor(hexesBetween / (float)zoomVision.HexesUntilDecay);
-            Mod.Log.Trace?.Write($"  -- decays = {numDecays} from currentSteps: {hexesBetween} / decayPerStep: {zoomVision.HexesUntilDecay}");
-            int currentMod = HexUtils.DecayingModifier(zoomVision.AttackMod, zoomVision.AttackCap, zoomVision.HexesUntilDecay, distance);
-            Mod.Log.Trace?.Write($"  -- current: {currentMod} = initial: {zoomVision.AttackMod} - decays: {numDecays}");
+            int numDecays = (int)Math.Floor(hexesBetween / (float)zoomAttack.HexesUntilDecay);
+            Mod.Log.Trace?.Write($"  -- decays = {numDecays} from currentSteps: {hexesBetween} / decayPerStep: {zoomAttack.HexesUntilDecay}");
+            int currentMod = HexUtils.DecayingModifier(zoomAttack.AttackMod, zoomAttack.AttackCap, zoomAttack.HexesUntilDecay, distance);
+            Mod.Log.Trace?.Write($"  -- current: {currentMod} = initial: {zoomAttack.AttackMod} - decays: {numDecays}");
 
             return currentMod;
         }
@@ -580,24 +584,16 @@ namespace LowVisibility.Object
                 return false;
             }
 
-            if (zoomVision == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet)
+            if (zoomAttack == null || weapon.Type == WeaponType.Melee || weapon.Type == WeaponType.NotSet)
             {
                 Mod.Log.Trace?.Write("Zoom vision is null, weaponType is melee or unset - cannot use zoom!");
                 return false;
             }
 
-            // Correct for current vision range
-            float adjustedRange = zoomVision.MaximumRange;
-            MapConfig mapConfig = ModState.GetMapConfig();
-            if (mapConfig.visionMulti != 1f)
-            {
-                adjustedRange = (float)Math.Floor(zoomVision.MaximumRange * mapConfig.visionMulti);
-                Mod.Log.Trace?.Write($"Zoom vision adjusted from: {zoomVision.MaximumRange} x{mapConfig.visionMulti} => {adjustedRange} ");
-            }
-
-            return distance < adjustedRange;
+            // DO NOT correct for current vision range; just return raw value
+            return distance < zoomVisionRange;
         }
-        public ZoomVision GetRawZoomVision() { return zoomVision; }
+        public ZoomAttack GetRawZoomAttack() { return zoomAttack; }
 
         // HeatVision - Attacker
         public int GetHeatVisionAttackMod(AbstractActor target, float distance, Weapon weapon)
@@ -722,7 +718,7 @@ namespace LowVisibility.Object
             sb.Append($"  advSensors: {advSensorsCarrierMod}  probeCarrier: {probeCarrierMod}");
             sb.Append($"  stealth (detailsMod: {stealth?.DetailsMod} sigMulti: {stealth?.SignatureMulti} attack: {stealth?.MediumRangeAttackMod} / {stealth?.LongRangeAttackMod} / {stealth?.ExtremeRangeAttackMod})");
             sb.Append($"  mimetic: (visibilityMulti: {mimetic?.VisibilityMod}  attackMod: {mimetic?.AttackMod} hexesToDecay: {mimetic?.HexesUntilDecay})");
-            sb.Append($"  zoomVision: (attackMod: {zoomVision?.AttackMod} hexesToDecay: {zoomVision?.HexesUntilDecay} attackCap: {zoomVision?.AttackCap} maxRange: {zoomVision?.MaximumRange})");
+            sb.Append($"  zoomVision: (attackMod: {zoomAttack?.AttackMod} hexesToDecay: {zoomAttack?.HexesUntilDecay} attackCap: {zoomAttack?.AttackCap} maxRange: {zoomAttack?.MaximumRange})");
             sb.Append($"  heatVision: (attackMod: {heatVision?.AttackMod} heatDivisor: {heatVision?.HeatDivisor}  maxRange: {heatVision?.MaximumRange})");
             sb.Append($"  nightVision: {nightVision}  sharesVision: {sharesVision}");
             sb.Append($"  pingedByProbe: {pingedByProbeMod}");

@@ -81,17 +81,14 @@ namespace LowVisibility.Integration
             LowVisToHitState state = new LowVisToHitState();
             if (target is AbstractActor targetActor && weapon != null)
             {
-                float magnitude = (attacker.CurrentPosition - target.CurrentPosition).magnitude;
+                float attackMagnitude = (attacker.CurrentPosition - target.CurrentPosition).magnitude;
                 EWState attackerState = new EWState(attacker);
                 EWState targetState = new EWState(targetActor);
-                Mod.ToHitLog.Debug?.Write($"Preparing toHit from: {attacker.DistinctId()} to: {target.DistinctId()} with range: {magnitude} for weapon: {weapon?.UIName}");
+                Mod.ToHitLog.Debug?.Write($"Preparing toHit from: {attacker.DistinctId()} to: {target.DistinctId()} with range: {attackMagnitude} for weapon: {weapon?.UIName}");
 
-                // If we can't see the target, apply the No Visuals penalty
-                bool canSpotTarget = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
-                int mimeticMod = targetState.MimeticAttackMod(attackerState);
-                int eyeballAttackMod = canSpotTarget ? mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
 
-                // Zoom applies independently of visibility (request from Harkonnen)
+                // Determine if we can visually detect the target, either from the attack position or our position
+                bool hasLOFWithinVisionRange = VisualLockHelper.CanSpotTarget(attacker, attacker.CurrentPosition, target, target.CurrentPosition, target.CurrentRotation, attacker.Combat.LOS);
                 if (Vector3.Distance(attacker.CurrentPosition, attackPosition) > 0.1f)
                 {
                     lofLevel = attacker.Combat.LOS.GetLineOfFire(attacker, attackPosition, target, target.CurrentPosition, target.CurrentRotation, out Vector3 vector);
@@ -100,12 +97,13 @@ namespace LowVisibility.Integration
                 {
                     lofLevel = attacker.VisibilityCache.VisibilityToTarget(target).LineOfFireLevel;
                 }
+                bool hasZoomVision = attackerState.HasZoomVisionToTarget(weapon, attackMagnitude, lofLevel);
+                bool canAttackWithVision = hasLOFWithinVisionRange || attackerState.HasZoomVisionToTarget(weapon, attackMagnitude, lofLevel);
+                Mod.ToHitLog.Debug?.Write($"Attacker hasLOFInRange: {hasLOFWithinVisionRange} hasZoomVision: {hasZoomVision}");
 
-                int zoomVisionMod = attackerState.GetZoomVisionAttackMod(weapon, magnitude);
-                int zoomAttackMod = attackerState.HasZoomVisionToTarget(weapon, magnitude, lofLevel) ? zoomVisionMod - mimeticMod : Mod.Config.Attack.NoVisualsPenalty;
-                Mod.ToHitLog.Debug?.Write($"  Visual attack == eyeball: {eyeballAttackMod} mimetic: {mimeticMod} zoomAtack: {zoomAttackMod}");
-
-                bool hasVisualAttack = (eyeballAttackMod < Mod.Config.Attack.NoVisualsPenalty || zoomAttackMod < Mod.Config.Attack.NoVisualsPenalty);
+                // Calculate an eyeball + mimetic visual attack result
+                int mimeticMod = targetState.MimeticAttackMod(attackerState);
+                int zoomVisionMod = attackerState.GetZoomAttackMod(weapon, attackMagnitude);
 
                 // Sensor attack bucket.  Sensors always fallback, so roll everything up and cap
                 int narcAttackMod = targetState.NarcAttackMod(attackerState);
@@ -113,7 +111,7 @@ namespace LowVisibility.Integration
 
                 int ecmJammedAttackMod = attackerState.ECMJammedAttackMod();
                 int ecmShieldAttackMod = targetState.ECMAttackMod(attackerState);
-                int stealthAttackMod = targetState.StealthAttackMod(attackerState, weapon, magnitude);
+                int stealthAttackMod = targetState.StealthAttackMod(attackerState, weapon, attackMagnitude);
                 Mod.ToHitLog.Debug?.Write($"  Sensor attack penalties == narc: {narcAttackMod}  tag: {tagAttackMod}  ecmShield: {ecmShieldAttackMod}  stealth: {stealthAttackMod}");
 
                 bool hasSensorAttack = SensorLockHelper.CalculateSharedLock(targetActor, attacker) > SensorScanType.NoInfo;
@@ -135,7 +133,7 @@ namespace LowVisibility.Integration
                 }
 
                 // Check firing blind
-                if (!hasVisualAttack && !hasSensorAttack)
+                if (!canAttackWithVision && !hasSensorAttack)
                 {
                     Mod.ToHitLog.Debug?.Write("  Has neither visual or sensor attack, applying firing blind penalty");
                     state.AddModifiers(LowVisModifierType.FiringBlind, Mod.Config.Attack.FiringBlindPenalty);
@@ -143,15 +141,14 @@ namespace LowVisibility.Integration
                 else
                 {
                     // Visual attacks
-                    if (!hasVisualAttack)
+                    if (!canAttackWithVision)
                     {
-                        Mod.ToHitLog.Debug?.Write("  Applying noVisuals penalty");
+                        Mod.ToHitLog.Debug?.Write("  Neither vision or zoom has range to target, apply NoVisuals penalty");
                         state.AddModifiers(LowVisModifierType.NoVisuals, Mod.Config.Attack.NoVisualsPenalty);
                     }
                     else
                     {
-                        // If the zoom + mimetic is better than eyeball, use that. Otherwise, we're using the good ol mk.1 eyeball
-                        if (zoomAttackMod < eyeballAttackMod)
+                        if (zoomVisionMod != 0)
                         {
                             state.AddModifiers(LowVisModifierType.zoomVisionMod, zoomVisionMod);
                         }
@@ -162,9 +159,9 @@ namespace LowVisibility.Integration
                         }
                     }
 
-                    if (attackerState.HasHeatVisionToTarget(weapon, magnitude))
+                    if (attackerState.HasHeatVisionToTarget(weapon, attackMagnitude))
                     {
-                        int heatAttackMod = attackerState.GetHeatVisionAttackMod(targetActor, magnitude, weapon);
+                        int heatAttackMod = attackerState.GetHeatVisionAttackMod(targetActor, attackMagnitude, weapon);
                         if (heatAttackMod != 0)
                         {
                             state.AddModifiers(LowVisModifierType.heatAttackMod, heatAttackMod);

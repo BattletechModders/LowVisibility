@@ -61,7 +61,8 @@ namespace LowVisibilityTests
             actor.StatCollection.AddStatistic<string>(ModStats.MimeticEffect, "");
             actor.StatCollection.AddStatistic<int>(ModStats.MimeticCurrentSteps, 0);
             actor.StatCollection.AddStatistic<string>(ModStats.HeatVision, "");
-            actor.StatCollection.AddStatistic<string>(ModStats.ZoomVision, "");
+            actor.StatCollection.AddStatistic<string>(ModStats.ZoomAttack, "");
+            actor.StatCollection.AddStatistic<int>(ModStats.ZoomVision, 0);
             actor.StatCollection.AddStatistic<string>(ModStats.NarcEffect, "");
             actor.StatCollection.AddStatistic<string>(ModStats.TagEffect, "");
             actor.StatCollection.AddStatistic<bool>(ModStats.SharesVision, false);

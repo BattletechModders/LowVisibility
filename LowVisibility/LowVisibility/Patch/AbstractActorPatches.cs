@@ -41,7 +41,8 @@ namespace LowVisibility.Patch
 
             // Vision
             __instance.StatCollection.AddStatistic<string>(ModStats.HeatVision, "");
-            __instance.StatCollection.AddStatistic<string>(ModStats.ZoomVision, "");
+            __instance.StatCollection.AddStatistic<string>(ModStats.ZoomAttack, "");
+            __instance.StatCollection.AddStatistic<int>(ModStats.ZoomVision, 0);
 
             // Narc 
             __instance.StatCollection.AddStatistic<string>(ModStats.NarcEffect, "");
