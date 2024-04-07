@@ -46,7 +46,8 @@
 			"UnknownRange": 180.0,
 			"MinimumRange": 180.0,
 			"SensorsOfflineAtSpawn": true,
-			"MaxECMDetailsPenalty": -11
+			"MaxECMDetailsPenalty": -11,
+			"Hardcap" : 1500.0
 		},
 		"Vision": {
 			"RangeBright": 450.0,
@@ -56,7 +57,8 @@
 			"RangeMultiLightFog": 0.6,
 			"RangeMultiHeavyFog": 0.4,
 			"MinimumRange": 90.0,
-			"ScanRange": 210.0
+			"ScanRange": 210.0,
+			"Hardcap" : 1000.0			
 		},
 		"FogOfWar": {
 			"RedrawFogOfWarOnActivation": false,

@@ -59,6 +59,8 @@ namespace LowVisibility
             // The minimum signature that we'll allow after all modifiers are applied
             public float MinSignature = 0.05f;
 
+            public float Hardcap = 1500f;
+
         }
         public SensorRangeOpts Sensors = new SensorRangeOpts();
 
@@ -79,6 +81,8 @@ namespace LowVisibility
 
             // The range from which you can identify some elements of a unit
             public float ScanRange = 210f;
+
+            public float Hardcap = 1000f;
 
         }
         public VisionRangeOpts Vision = new VisionRangeOpts();

@@ -20,6 +20,9 @@ namespace LowVisibility.Patch
             if (__instance != null && source != null)
             {
                 __result = VisualLockHelper.GetSpotterRange(source);
+
+                if (__result > Mod.Config.Vision.Hardcap)
+                    __result = Mod.Config.Vision.Hardcap;
             }
         }
     }
@@ -34,6 +37,9 @@ namespace LowVisibility.Patch
             if (__instance != null && source != null)
             {
                 __result = VisualLockHelper.GetAdjustedSpotterRange(source, target);
+
+                if (__result > Mod.Config.Vision.Hardcap)
+                    __result = Mod.Config.Vision.Hardcap;
             }
         }
     }
@@ -48,6 +54,9 @@ namespace LowVisibility.Patch
             if (__instance != null && source != null)
             {
                 __result = SensorLockHelper.GetSensorsRange(source);
+
+                if (__result > Mod.Config.Sensors.Hardcap)
+                    __result = Mod.Config.Sensors.Hardcap;
             }
         }
     }
@@ -62,6 +71,9 @@ namespace LowVisibility.Patch
             if (__instance != null && source != null)
             {
                 __result = SensorLockHelper.GetAdjustedSensorRange(source, target);
+
+                if (__result > Mod.Config.Sensors.Hardcap)
+                    __result = Mod.Config.Sensors.Hardcap;
             }
         }
     }
