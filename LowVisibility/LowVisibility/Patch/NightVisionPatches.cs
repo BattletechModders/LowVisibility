@@ -11,7 +11,7 @@ namespace LowVisibility.Patch
         {
             if (!__runOriginal) return;
 
-            if (ModState.IsNightVisionMode)
+            if (ModState.IsNightVisionEffect)
             {
                 __result = true;
                 __runOriginal = false;
@@ -27,7 +27,7 @@ namespace LowVisibility.Patch
         {
             if (!__runOriginal) return;
 
-            if (ModState.IsNightVisionMode)
+            if (ModState.IsNightVisionEffect)
             {
                 __result = true;
                 __runOriginal = false;
@@ -43,7 +43,7 @@ namespace LowVisibility.Patch
         {
             if (!__runOriginal) return;
 
-            if (ModState.IsNightVisionMode)
+            if (ModState.IsNightVisionEffect)
             {
                 __result = true;
                 __runOriginal = false;
@@ -59,7 +59,7 @@ namespace LowVisibility.Patch
         {
             if (!__runOriginal) return;
 
-            if (ModState.IsNightVisionMode)
+            if (ModState.IsNightVisionEffect)
             {
                 __result = true;
                 __runOriginal = false;
