@@ -93,27 +93,27 @@ namespace LowVisibility.Patch
                 __instance.Combat.MessageCenter.PublishMessage(message);
             }
 
-            // If friendly, reset the map visibility 
-            if (__instance.TeamId != __instance.Combat.LocalPlayerTeamGuid &&
-                __instance.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.TeamId))
+            // If player unit, Night Vision logic is handled by SelectedActorHelper instead
+            if (__instance.TeamId != __instance.Combat.LocalPlayerTeamGuid)
             {
-                Mod.Log.Info?.Write($"{CombatantUtils.Label(__instance)} IS FRIENDLY, REBUILDING FOG OF WAR");
+                // If friendly, reset the map visibility and enable night vision mode and effects
+                if (__instance.Combat.HostilityMatrix.IsLocalPlayerFriendly(__instance.TeamId))
+                {
+                    Mod.Log.Info?.Write($"{CombatantUtils.Label(__instance)} IS FRIENDLY, REBUILDING FOG OF WAR");
 
-                if (actorState.HasNightVision() && ModState.GetMapConfig().isDark)
-                {
-                    Mod.Log.Info?.Write($"Enabling night vision mode.");
-                    VfxHelper.EnableNightVisionEffect(__instance);
-                }
-                else
-                {
-                    // TODO: This is likely never triggered due to the patch below... remove?
-                    if (ModState.IsNightVisionMode)
+                    if (actorState.HasNightVision() && ModState.GetMapConfig().isDark)
                     {
-                        VfxHelper.DisableNightVisionEffect();
+                        NightVisionHelper.EnableNightVisionMode();
+                        VfxHelper.EnableNightVisionEffect();
                     }
-                }
 
-                VfxHelper.RedrawFogOfWar(__instance);
+                    VfxHelper.RedrawFogOfWar(__instance);
+                }
+                // If not friendly, only enable the night vision mode for bonus effects
+                else if (actorState.HasNightVision() && ModState.GetMapConfig().isDark)
+                {
+                    NightVisionHelper.EnableNightVisionMode();                
+                }
             }
         }
     }
@@ -132,7 +132,14 @@ namespace LowVisibility.Patch
             if (__instance != null)
             {
                 // Disable night vision 
-                if (ModState.IsNightVisionMode) VfxHelper.DisableNightVisionEffect();
+                if (ModState.IsNightVisionMode)
+                {
+                    NightVisionHelper.DisableNightVisionMode();
+                }
+                if (ModState.IsNightVisionEffect)
+                {
+                    VfxHelper.DisableNightVisionEffect();
+                }
 
             }
         }

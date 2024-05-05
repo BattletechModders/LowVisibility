@@ -270,13 +270,15 @@ namespace LowVisibility.Helper
             }
         }
 
-        public static void EnableNightVisionEffect(AbstractActor source)
+        public static void EnableNightVisionEffect()
         {
             // Skip if the green effect is disabled
             if (!Mod.Config.Toggles.ShowNightVision) { return; }
 
-            ModState.IsNightVisionMode = true;
+            Mod.Log.Debug?.Write($"Enabling night vision effect.");
 
+            ModState.IsNightVisionEffect = true;
+            
             MoodController mc = MoodController.Instance;
 
             PostProcessingBehaviour ppb = mc.unityPostProcess;
@@ -314,8 +316,10 @@ namespace LowVisibility.Helper
             // Skip if the green effect is disabled
             if (!Mod.Config.Toggles.ShowNightVision) { return; }
 
-            ModState.IsNightVisionMode = false;
-
+            Mod.Log.Debug?.Write($"Disabling night vision effect.");
+            
+            ModState.IsNightVisionEffect = false;
+            
             MoodController mc = BattleTech.Rendering.Mood.MoodController.Instance;
 
             // Grain will disable automatically
