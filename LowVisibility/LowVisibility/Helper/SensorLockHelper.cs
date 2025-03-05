@@ -223,16 +223,16 @@ namespace LowVisibility.Helper
                 }
             }
 
-            if (Mod.Log.Debug != null)
+            if (Mod.Log.Trace != null)
             {
                 var message = new SharedLockLogData(scanType, CombatantUtils.Label(target));
-                Mod.Log.Debug?.WriteStructured(message);
+                Mod.Log.Trace?.WriteStructured(message);
                 //Mod.Log.Debug?.Write($"Shared lock to target:({CombatantUtils.Label(target)}) is type: ({scanType})");
             }
 
             return scanType;
         }
-        
+
         public class SharedLockLogData() : AsyncMessageData
         {
             public SensorScanType _scanType;
