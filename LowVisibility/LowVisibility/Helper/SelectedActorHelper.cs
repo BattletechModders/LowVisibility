@@ -24,12 +24,17 @@ namespace LowVisibility.Helper
                 EWState actorState = new EWState(actor);
                 if (actorState.HasNightVision() && ModState.GetMapConfig().isDark)
                 {
-                    Mod.Log.Info?.Write($"Enabling night vision mode.");
-                    VfxHelper.EnableNightVisionEffect(actor);
+                    NightVisionHelper.EnableNightVisionMode();
+                    VfxHelper.EnableNightVisionEffect();
                 }
                 else
                 {
                     if (ModState.IsNightVisionMode)
+                    {
+                        NightVisionHelper.DisableNightVisionMode();
+                    }
+                    // Could probably be included in above if-statement, but keeping it separate just in case
+                    if (ModState.IsNightVisionEffect)
                     {
                         VfxHelper.DisableNightVisionEffect();
                     }

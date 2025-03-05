@@ -15,6 +15,7 @@ namespace LowVisibility
         public static AbstractActor LastPlayerActorActivated;
         public static bool TurnDirectorStarted = false;
         public static bool IsNightVisionMode = false;
+        public static bool IsNightVisionEffect = false;
 
         // Gaussian probabilities
         public const int ResultsToPrecalcuate = 16384;
