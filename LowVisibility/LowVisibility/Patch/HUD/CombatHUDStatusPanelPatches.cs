@@ -80,7 +80,7 @@ namespace LowVisibility.Patch
                         (effect.EffectData.targetingData.effectTriggerType != EffectTriggerType.OnDamaged || effect.triggerCount != 0)
                         )
                     {
-                        Mod.UILog.Debug?.Write($"Adding effectId: {effect?.EffectData?.Description?.Id} with name: {effect?.EffectData?.Description?.Name}");
+                        Mod.UILog.Trace?.Write($"Adding effectId: {effect?.EffectData?.Description?.Id} with name: {effect?.EffectData?.Description?.Name}");
                         effectsOnActor.Add(effect.EffectData);
                     }
                 }
@@ -119,12 +119,12 @@ namespace LowVisibility.Patch
 
                     bool shouldShowEffect = __instance.ShouldShowEffect(effectData, specialRulesFilter);
                     bool alreadyShown = ___effectDict.ContainsKey(effectData.Description.Id);
-                    Mod.UILog.Debug?.Write($" -- Effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} has shouldShowEffect: {shouldShowEffect} and alreadyShown: {alreadyShown}");
+                    Mod.UILog.Trace?.Write($" -- Effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} has shouldShowEffect: {shouldShowEffect} and alreadyShown: {alreadyShown}");
 
                     string effectId = effectData.Description.Id;
                     if (shouldShowEffect && !alreadyShown)
                     {
-                        Mod.UILog.Debug?.Write($" -- Adding effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} to buff list.");
+                        Mod.UILog.Trace?.Write($" -- Adding effect with name: {effectData?.Description?.Name} and Id: {effectData?.Description?.Id} to buff list.");
                         int num = effectsOnActor.FindAll((EffectData x) => x.Description.Id == effectId).Count;
                         if (effectData.statisticData != null &&
                             effectData.statisticData.targetCollection == StatisticEffectData.TargetCollection.Weapon &&

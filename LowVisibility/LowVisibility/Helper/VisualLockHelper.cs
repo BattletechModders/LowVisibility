@@ -8,6 +8,8 @@ namespace LowVisibility.Helper
     {
 
         // WARNING: DUPLICATE OF HBS CODE. THIS IS LIKELY TO BREAK IF HBS CHANGES THE SOURCE FUNCTIONS
+        // PERFORMANCE: Added Mod.Log.Level != null checks for skipping formatter overhead in hot path.
+        // TODO: Dispatch structured log messages to asynchronous thread for VisualLockHelper.
         public static float GetSpotterRange(AbstractActor source)
         {
             // FIXME: Dirty hack here. Assuming that night vision mode only comes on during a unit's turn / selection, then goes away
@@ -80,7 +82,12 @@ namespace LowVisibility.Helper
                 modifiedRange = Mod.Config.Vision.MinimumRange;
             }
 
-            Mod.Log.Trace?.Write($" -- source:{CombatantUtils.Label(source)} adjusted spotterRange: {modifiedRange}m");
+            if (Mod.Log.Trace != null)
+            {
+                Mod.Log.Trace?.Write(
+                    $" -- source:{CombatantUtils.Label(source)} adjusted spotterRange: {modifiedRange}m");
+            }
+
             return modifiedRange;
         }
 
@@ -138,8 +145,11 @@ namespace LowVisibility.Helper
             float mimeticMod = ewState.MimeticVisibilityMod(sourceState);
 
             float targetVisibility = baseVisMulti * shutdownVisMulti * spottingVisibilityMultiplier * mimeticMod;
-            Mod.Log.Trace?.Write($" Actor: {CombatantUtils.Label(target)} has visibility: {targetVisibility} = " +
-                $"baseVisMulti: {baseVisMulti} * shutdownVisMulti: {shutdownVisMulti} * spottingVisibilityMultiplier: {spottingVisibilityMultiplier} * visionStealthMod: {mimeticMod}");
+            if (Mod.Log.Trace != null)
+            {
+                Mod.Log.Trace?.Write($" Actor: {CombatantUtils.Label(target)} has visibility: {targetVisibility} = " +
+                                     $"baseVisMulti: {baseVisMulti} * shutdownVisMulti: {shutdownVisMulti} * spottingVisibilityMultiplier: {spottingVisibilityMultiplier} * visionStealthMod: {mimeticMod}");
+            }
 
             return targetVisibility;
             //return baseVisMulti + shutdownVisMulti + spottingVisibilityMultiplier;
