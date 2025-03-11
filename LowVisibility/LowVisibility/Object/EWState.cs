@@ -580,7 +580,7 @@ namespace LowVisibility.Object
             // If we're firing indirectly, zoom doesn't count
             if (weapon.IndirectFireCapable && lofLevel < LineOfFireLevel.LOFObstructed)
             {
-                Mod.Log.Debug?.Write($"Line of fire is indirect - {weapon.UIName} cannot use zoom!");
+                Mod.Log.Trace?.Write($"Line of fire is indirect - {weapon.UIName} cannot use zoom!");
                 return false;
             }
 

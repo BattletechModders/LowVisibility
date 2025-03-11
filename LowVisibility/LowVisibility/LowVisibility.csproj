@@ -28,7 +28,7 @@
     <Copyright>Copyright © 2023</Copyright>
     <AssemblyVersion>2.0.2</AssemblyVersion>
     <FileVersion>2.0.2</FileVersion>
-    <LangVersion>11</LangVersion>
+    <LangVersion>13</LangVersion>
   </PropertyGroup>
 
   <Target Name="AfterBuildMigrated" AfterTargets="CopyFilesToOutputDirectory">
