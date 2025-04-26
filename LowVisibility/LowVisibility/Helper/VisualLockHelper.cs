@@ -143,12 +143,14 @@ namespace LowVisibility.Helper
 
             EWState ewState = target.GetEWState();
             float mimeticMod = ewState.MimeticVisibilityMod(sourceState);
+            float targetDesignMaskMod = target.occupiedDesignMask != null ? target.occupiedDesignMask.visibilityMultiplier : 1f;
 
-            float targetVisibility = baseVisMulti * shutdownVisMulti * spottingVisibilityMultiplier * mimeticMod;
+            float targetVisibility = baseVisMulti * shutdownVisMulti * spottingVisibilityMultiplier * mimeticMod * targetDesignMaskMod;
             if (Mod.Log.Trace != null)
             {
                 Mod.Log.Trace?.Write($" Actor: {CombatantUtils.Label(target)} has visibility: {targetVisibility} = " +
-                                     $"baseVisMulti: {baseVisMulti} * shutdownVisMulti: {shutdownVisMulti} * spottingVisibilityMultiplier: {spottingVisibilityMultiplier} * visionStealthMod: {mimeticMod}");
+                                     $"baseVisMulti: {baseVisMulti} * shutdownVisMulti: {shutdownVisMulti} * spottingVisibilityMultiplier: {spottingVisibilityMultiplier} " +
+                                     $"* visionStealthMod: {mimeticMod} * designMaskMod: {targetDesignMaskMod}");
             }
 
             return targetVisibility;
